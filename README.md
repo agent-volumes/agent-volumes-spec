@@ -13,6 +13,8 @@ An open specification for packaging, distributing, and installing components for
 
 **Agent Volumes** defines a packaging and distribution standard for the AI agent component ecosystem — analogous to npm for JavaScript, PyPI for Python, or crates.io for Rust — but specialized for **AI agent systems**.
 
+AI agent runtimes — Claude Code, Codex, Gemini CLI, and others — increasingly rely on skills, tools, hooks, and MCP servers. But the ecosystem currently lacks a standard way to package and distribute these components. Runtimes define incompatible layouts, agent components have no shared identity or versioning model, and there is no mechanism for dependency resolution or supply chain verification. Agent Volumes addresses these gaps.
+
 The distribution unit is a **volume**: a versioned package that exports one or more agent components.
 Registries that host and serve volumes are called **bibliothecas**.
 
@@ -23,6 +25,8 @@ Registries that host and serve volumes are called **bibliothecas**.
 | Package manifest | **volume.toml** | Package-level metadata, like `package.json` or `Cargo.toml`. |
 | Registry | **Bibliotheca** | Any registry that hosts and serves volumes. |
 | Identity scheme | **pkg:shelf/…** | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
+
+This specification is intended for developers building agent runtimes, registries, package managers, and related tooling. End users who consume agent components interact with the standard through client tools such as the `shelf` CLI.
 
 ## Component Types
 
@@ -36,6 +40,39 @@ Volumes export six component types:
 | **Tool** | Function-call endpoints for agent use | Agent |
 | **Hook** | Lifecycle event handlers | Runtime events |
 | **MCP Server** | Model Context Protocol service endpoints | Runtime / Agent |
+
+## Quick Example
+
+A minimal `volume.toml` declaring three components:
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant with literature analysis tools"
+license = "Apache-2.0"
+
+[publisher]
+id = "acme"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./mcp/research-server.json"
+```
+
+This volume is identified as `pkg:shelf/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:shelf/research-agent-pack@1.4.0#tool/arxiv-search`.
 
 ## Specification Contents
 
@@ -77,18 +114,24 @@ The full specification covers:
 
 ## Status
 
-| Aspect | Status |
-| ------ | ------ |
-| Specification | v0.1.0-draft.3 |
-| Maturity | Draft — seeking community feedback |
+This repository contains the **working draft** of the Agent Volumes specification. No stable version has been released yet.
+
+| Document | Version | Status |
+| -------- | ------- | ------ |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.3 | Working Draft |
+
+| Implementation | Status |
+| -------------- | ------ |
 | Reference client (`shelf` CLI) | Planned |
 | Reference registry (Alexandria) | Planned |
 
+Feedback on the draft is welcome via [GitHub Issues](https://github.com/agent-volumes/agent-volumes-spec/issues).
+
 ## Background
 
-This project evolved from [agent-toolbox](https://github.com/yunseo-kim/agent-toolbox), a cross-tool distribution system for AI agent skills targeting Claude Code, OpenCode, Gemini CLI, Cursor, and Codex. The operational experience from building agent-toolbox — including its catalog of 110+ curated skills, cross-tool adapter architecture, and security scanning pipeline — informed the design of the Agent Volumes specification.
+Agent Volumes was originally created by [Yunseo Kim](https://github.com/yunseo-kim). The project evolved from [agent-toolbox](https://github.com/yunseo-kim/agent-toolbox), a cross-tool distribution system for AI agent skills targeting Claude Code, OpenCode, Gemini CLI, Cursor, and Codex. The operational experience from building agent-toolbox — including its catalog of 110+ curated skills, cross-tool adapter architecture, and security scanning pipeline — informed the design of the Agent Volumes specification.
 
-Agent Volumes abstracts and formalizes those patterns into an open, vendor-neutral standard that any runtime, registry, or tooling provider can implement.
+The Agent Volumes Organization is an independent, vendor-neutral open standards body stewarding the Agent Volumes specification and ecosystem. Early development and infrastructure were supported by Windlass, which operates the Alexandria reference registry.
 
 ## Contributing
 
