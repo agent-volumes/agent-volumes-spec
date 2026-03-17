@@ -22,7 +22,7 @@ Organizations actively evaluating the Agent Volumes specification.
 
 ## How to Add Your Organization
 
-1. Open a pull request adding your organization to the appropriate table above
-2. Or email [adopters@agentvolumes.org](mailto:adopters@agentvolumes.org)
+- [Open a pull request](https://github.com/agent-volumes/agent-volumes-spec/pulls) adding your organization to the appropriate table above
+- Or [open an issue](https://github.com/agent-volumes/agent-volumes-spec/issues/new) and a maintainer will add it on your behalf
 
 Listing your organization here does not imply endorsement of the specification. It indicates that your organization is using or evaluating it.
