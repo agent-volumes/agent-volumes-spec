@@ -44,8 +44,13 @@ The current specification is a **Working Draft**.
 
 ### Branch Strategy
 
-- `main` — Current working draft
-- Feature branches — For substantial specification changes
+This project follows **trunk-based development**, consistent with the model used by OCI, W3C, IETF, and MCP specification projects.
+
+- `main` is the current Working Draft. All pull requests target `main`.
+- Draft milestones are marked with tags (e.g., `v0.1.0-draft.3`).
+- Stable releases are marked with tags (e.g., `v1.0.0`). Release candidates use the `v1.0.0-rc.N` format.
+- All work **must** be done on a fork. Do not create branches on the main repository.
+- Maintenance branches for prior stable releases (e.g., `v1.0-maint`) will be created only when backport patches are needed.
 
 ### Pull Request Process
 
