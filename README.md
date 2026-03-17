@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo/agent-volumes-logo-banner.svg" alt="Agent Volumes" width="600">
+<img src="logo/agent-volumes-logo-banner.svg" alt="Agent Volumes" width="100%">
 
 An open specification for packaging, distributing, and installing components for AI agent runtimes.
 
