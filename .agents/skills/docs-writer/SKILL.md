@@ -1,6 +1,21 @@
 ---
 name: docs-writer
-description: Unified documentation workflow for writing, reviewing, and updating technical docs across repositories. Use when users ask to write or edit docs, review doc quality, map code changes to doc impact, scaffold new documentation, update README/API guides, or improve docs in `/docs` and `*.md`/`*.mdx` files. Supports self-contained profile-based behavior for generic docs, Next.js docs, and Angular docs.
+description: >
+  Unified documentation workflow for writing, reviewing, and updating technical
+  docs across repositories. Use when users ask to write or edit docs, review doc
+  quality, map code changes to doc impact, scaffold new documentation, update
+  README/API guides, or improve docs in `/docs` and `*.md`/`*.mdx` files.
+  Supports self-contained profile-based behavior for generic docs, Next.js docs,
+  and Angular docs.
+license: Sustainable Use License 1.0
+
+metadata:
+  domain: documentation
+  subdomain: technical-docs
+  tags: "docs, markdown, mdx, technical-writing, documentation-workflow"
+  author: "Yunseo Kim <dev@yunseo.kim>"
+  lastUpdated: "12026-02-25"
+  provenance: synthesized
 ---
 
 # Docs Writer
