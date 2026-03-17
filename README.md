@@ -2,11 +2,11 @@
 
 <img src="logo/agent-volumes-logo-banner.svg" alt="Agent Volumes" width="100%">
 
-An open specification for packaging, distributing, and installing components for AI agent runtimes.
-
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
+
+An open specification for packaging, distributing, and installing components for AI agent runtimes.
 
 </div>
 
