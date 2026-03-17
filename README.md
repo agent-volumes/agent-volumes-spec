@@ -5,9 +5,12 @@
 An open specification for packaging, distributing, and installing components for AI agent runtimes.
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
 </div>
+
+# Agent Volumes
 
 ## Overview
 
@@ -131,7 +134,7 @@ Feedback on the draft is welcome via [GitHub Issues](https://github.com/agent-vo
 
 Agent Volumes was originally created by [Yunseo Kim](https://github.com/yunseo-kim). The project evolved from [agent-toolbox](https://github.com/yunseo-kim/agent-toolbox), a cross-tool distribution system for AI agent skills targeting Claude Code, OpenCode, Gemini CLI, Cursor, and Codex. The operational experience from building agent-toolbox — including its catalog of 110+ curated skills, cross-tool adapter architecture, and security scanning pipeline — informed the design of the Agent Volumes specification.
 
-The Agent Volumes Organization is an independent, vendor-neutral open standards body stewarding the Agent Volumes specification and ecosystem. Early development and infrastructure were supported by Windlass, which operates the Alexandria reference registry.
+The Agent Volumes Organization is an independent, vendor-neutral open standards body stewarding the Agent Volumes specification and ecosystem. Development and infrastructure are supported by Windlass, which operates the Alexandria reference registry.
 
 ## Contributing
 
