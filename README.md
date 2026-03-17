@@ -6,7 +6,7 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
-An open specification for packaging, distributing, and installing components for AI agent runtimes.
+An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
 </div>
 
@@ -30,6 +30,8 @@ Registries that host and serve volumes are called **bibliothecas**.
 | Identity scheme | **pkg:shelf/…** | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
 
 This specification is intended for developers building agent runtimes, registries, package managers, and related tooling. End users who consume agent components interact with the standard through client tools such as the `shelf` CLI.
+
+Agent Volumes is designed to be runtime-neutral, enabling interoperability across different agent systems and tooling ecosystems.
 
 ## Why Agent Volumes
 
@@ -89,6 +91,12 @@ entrypoint = "./mcp/research-server.json"
 
 This volume is identified as `pkg:shelf/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:shelf/research-agent-pack@1.4.0#tool/arxiv-search`.
 
+Install with a compatible client:
+
+```bash
+shelf add research-agent-pack
+```
+
 ## Supply Chain Security
 
 Agent Volumes treats supply chain integrity as a first-class concern. The specification defines:
@@ -114,9 +122,10 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 | Milestone | Target | Description |
 | --------- | ------ | ----------- |
 | v0.1.0 | Q2 2026 | Feature-complete draft for public review |
-| Reference client (`shelf` CLI) | Q3 2026 | CLI for publishing, installing, and verifying volumes |
-| Reference registry (Alexandria) | Q3 2026 | Conforming bibliotheca implementation |
-| v1.0.0 | Q4 2026 | Stable release after implementer feedback |
+| Experimental implementations | Q2 2026 | Reference client (`shelf`) and bibliotheca (`Alexandria`) prototypes |
+| Early adopters | Q3–Q4 2026 | Runtime and tooling integration feedback |
+| v0.x.y | Q4 2026 | Stabilization before release |
+| v1.0.0 | Q1 2027 | Stable release after ecosystem validation |
 
 Feedback is welcome via [GitHub Issues](https://github.com/agent-volumes/agent-volumes-spec/issues) and [Discussions](https://github.com/agent-volumes/agent-volumes-spec/discussions).
 
