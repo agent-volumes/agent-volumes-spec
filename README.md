@@ -3,7 +3,7 @@
 <img src="logo/agent-volumes-logo-banner.svg" alt="Agent Volumes" width="100%">
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
@@ -140,7 +140,7 @@ Specification development is guided by a Technical Steering Committee (TSC) that
 | Charter | [CHARTER.md](https://github.com/agent-volumes/.github/blob/main/CHARTER.md) |
 | Governance process | [GOVERNANCE.md](https://github.com/agent-volumes/.github/blob/main/GOVERNANCE.md) |
 | Security policy | [SECURITY.md](https://github.com/agent-volumes/.github/blob/main/SECURITY.md) |
-| Code of Conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| Code of Conduct | [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md) |
 
 Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development should open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
 
@@ -171,7 +171,7 @@ Agent Volumes is developed in the open. There are several ways to participate:
 - Join the Technical Steering Committee — see the [governance policy](https://github.com/agent-volumes/.github/blob/main/GOVERNANCE.md)
 - Provide financial support for specification development and infrastructure
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and the [Code of Conduct](CODE_OF_CONDUCT.md).
+See the organization-wide [CONTRIBUTING.md](https://github.com/agent-volumes/.github/blob/main/CONTRIBUTING.md) for contribution guidelines and the [Code of Conduct](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## Adopters
 
