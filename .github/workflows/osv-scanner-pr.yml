@@ -11,3 +11,5 @@ jobs:
       contents: read
       security-events: write
     uses: agent-volumes/.github/.github/workflows/osv-scanner-pr-reusable.yml@main
+    with:
+      upload-sarif: false
