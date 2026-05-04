@@ -10,7 +10,7 @@ Organizations using Agent Volumes in production environments.
 
 | Organization | Components Used | Since | Description |
 | ------------ | --------------- | ----- | ----------- |
-| | | | |
+|              |                 |       |             |
 
 ## Evaluating
 
@@ -18,7 +18,7 @@ Organizations actively evaluating the Agent Volumes specification.
 
 | Organization | Area of Interest | Contact |
 | ------------ | ---------------- | ------- |
-| | | |
+|              |                  |         |
 
 ## How to Add Your Organization
 

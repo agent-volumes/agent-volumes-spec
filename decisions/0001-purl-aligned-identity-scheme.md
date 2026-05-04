@@ -68,5 +68,5 @@ Validate that `pkg:shelf/` identifiers parse correctly in at least two major sup
 
 ## More Information
 
-purl specification: https://github.com/package-url/purl-spec  
-Registered types: https://github.com/package-url/purl-spec/blob/main/purl-types-index.json
+purl specification: <https://github.com/package-url/purl-spec>  
+Registered types: <https://github.com/package-url/purl-spec/blob/main/purl-types-index.json>

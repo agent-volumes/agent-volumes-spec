@@ -11,7 +11,7 @@ This file has been adapted from the original n8n `.claude/skills/create-pr/SKILL
 in the awesome-agent-toolbox catalog. Changes include:
 
 - Added catalog frontmatter metadata (domain, subdomain, tags)
-- Removed n8n-specific scopes (API, benchmark, core, editor, * Node) and replaced with
+- Removed n8n-specific scopes (API, benchmark, core, editor, \* Node) and replaced with
   generic scope guidance
 - Removed n8n-specific PR body template (Linear ticket links, n8n-docs references,
   release/backport label) and replaced with universal PR body structure
@@ -29,4 +29,4 @@ non-exclusive, royalty-free, worldwide license to use, copy, distribute, and pre
 derivative works of the software, subject to certain limitations including non-commercial
 distribution and preservation of notices.
 
-For the full upstream license text, see: https://github.com/n8n-io/n8n/blob/master/LICENSE.md
+For the full upstream license text, see: <https://github.com/n8n-io/n8n/blob/master/LICENSE.md>

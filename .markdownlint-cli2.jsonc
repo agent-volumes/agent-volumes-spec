@@ -34,5 +34,5 @@
     "MD050": false,
     "MD070": false
   },
-  "ignores": ["node_modules/**"]
+  "ignores": ["node_modules/**", ".agents/skills/**"]
 }

@@ -1,14 +1,14 @@
 ---
 name: ci-triage
-description: "Triage CI failures and PR review comments with structured methodology. Use when investigating failing CI jobs, flaky tests, or analyzing PR review feedback. Covers blocker-first prioritization, failure categorization, local reproduction discipline, and parallel log analysis."
+description: 'Triage CI failures and PR review comments with structured methodology. Use when investigating failing CI jobs, flaky tests, or analyzing PR review feedback. Covers blocker-first prioritization, failure categorization, local reproduction discipline, and parallel log analysis.'
 license: Sustainable Use License 1.0
 
 metadata:
   domain: devops
   subdomain: ci-cd
-  tags: "ci, testing, debugging, github-actions, pr-review, triage"
-  author: "Yunseo Kim <dev@yunseo.kim>"
-  lastUpdated: "12026-02-25"
+  tags: 'ci, testing, debugging, github-actions, pr-review, triage'
+  author: 'Yunseo Kim <dev@yunseo.kim>'
+  lastUpdated: '12026-02-25'
   provenance: synthesized
 ---
 
@@ -30,18 +30,18 @@ Investigate failures in this order — higher-priority categories block everythi
 
 Classify each failure to guide your response:
 
-| Category | Description | Typical Action |
-|----------|-------------|----------------|
-| **Infrastructure/Transient** | Network errors, 503s, service timeouts | Retry the job; not caused by code |
-| **Build** | Compilation errors, missing dependencies | Fix imports, dependencies, or config |
-| **Lint** | Formatting, style violations | Run formatter/linter autofix |
-| **Type Check** | Type mismatches, missing declarations | Fix types at the source |
-| **Assertion** | Wrong output, snapshot diffs, value mismatches | Debug the logic, update expectations |
-| **Timeout** | Tests hanging, deadline exceeded | Find infinite loops, missing callbacks |
-| **Port Binding** | EADDRINUSE, port conflicts | Fix test isolation, use dynamic ports |
-| **Routing/SSR** | Wrong status codes, dynamic params unresolved | Check route config and handlers |
-| **Source Maps** | Wrong file paths, incorrect line numbers | Check bundler source map settings |
-| **CLI Output** | Missing warnings, wrong log order | Check stdio handling and ordering |
+| Category                     | Description                                    | Typical Action                         |
+| ---------------------------- | ---------------------------------------------- | -------------------------------------- |
+| **Infrastructure/Transient** | Network errors, 503s, service timeouts         | Retry the job; not caused by code      |
+| **Build**                    | Compilation errors, missing dependencies       | Fix imports, dependencies, or config   |
+| **Lint**                     | Formatting, style violations                   | Run formatter/linter autofix           |
+| **Type Check**               | Type mismatches, missing declarations          | Fix types at the source                |
+| **Assertion**                | Wrong output, snapshot diffs, value mismatches | Debug the logic, update expectations   |
+| **Timeout**                  | Tests hanging, deadline exceeded               | Find infinite loops, missing callbacks |
+| **Port Binding**             | EADDRINUSE, port conflicts                     | Fix test isolation, use dynamic ports  |
+| **Routing/SSR**              | Wrong status codes, dynamic params unresolved  | Check route config and handlers        |
+| **Source Maps**              | Wrong file paths, incorrect line numbers       | Check bundler source map settings      |
+| **CLI Output**               | Missing warnings, wrong log order              | Check stdio handling and ordering      |
 
 ## Failure Handling Rules
 
@@ -156,7 +156,7 @@ For each review thread or comment, extract:
 6. **ACTION REQUIRED** — Yes/No — does this require changes?
 7. **PRIORITY** — High (changes requested, blocker), Medium (open suggestion), Low (resolved, nitpick)
 
-### Extraction template:
+### Extraction template
 
 ```
 Analyze PR review comments from these files: [review-data]
@@ -171,7 +171,7 @@ For each review thread/comment, extract:
 Return findings grouped by file path.
 ```
 
-### Prioritize review findings:
+### Prioritize review findings
 
 1. **Blockers** — Must resolve before merge
 2. **Changes Requested** — Reviewer explicitly wants changes
@@ -183,11 +183,11 @@ Return findings grouped by file path.
 After analysis, produce a summary table:
 
 ```markdown
-| # | Test / Issue | Category | Jobs Affected | Priority | Fix Recommendation |
-|---|-------------|----------|---------------|----------|--------------------|
-| 1 | path/to/test.ts - "test name" | assertion | 3/8 jobs | HIGH | Fix expected value |
-| 2 | Build step - missing dep | build | all jobs | HIGH | Add dependency |
-| 3 | path/to/flaky.ts - "timeout" | timeout | 1/8 jobs | LOW | Known flaky |
+| #   | Test / Issue                  | Category  | Jobs Affected | Priority | Fix Recommendation |
+| --- | ----------------------------- | --------- | ------------- | -------- | ------------------ |
+| 1   | path/to/test.ts - "test name" | assertion | 3/8 jobs      | HIGH     | Fix expected value |
+| 2   | Build step - missing dep      | build     | all jobs      | HIGH     | Add dependency     |
+| 3   | path/to/flaky.ts - "timeout"  | timeout   | 1/8 jobs      | LOW      | Known flaky        |
 ```
 
 Recommend fixes by priority: HIGH > MEDIUM > LOW.
