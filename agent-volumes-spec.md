@@ -107,13 +107,13 @@ All volumes and components MUST be globally identifiable. The identity scheme is
 
 **Scopeless identifier** (when the bibliotheca supports scopeless names):
 
-```
+```text
 pkg:shelf/<name>
 ```
 
 **Scoped identifier:**
 
-```
+```text
 pkg:shelf/%40<scope>/<name>
 ```
 
@@ -150,14 +150,14 @@ Versioned volumes follow [Semantic Versioning 2.0.0](https://semver.org/).
 
 **Format:**
 
-```
+```text
 pkg:shelf/<name>@<version>
 pkg:shelf/%40<scope>/<name>@<version>
 ```
 
 **Examples:**
 
-```
+```text
 pkg:shelf/github-provider@1.2.0
 pkg:shelf/%40acme/research-pack@2.0.0-beta.1
 ```
@@ -168,7 +168,7 @@ Components exported from a volume are addressable via the purl subpath field.
 
 **Format:**
 
-```
+```text
 pkg:shelf/<name>#<type>/<componentName>
 pkg:shelf/%40<scope>/<name>#<type>/<componentName>
 ```
@@ -189,7 +189,7 @@ pkg:shelf/%40<scope>/<name>#<type>/<componentName>
 
 A fully qualified reference pins both version and component.
 
-```
+```text
 pkg:shelf/github-provider@2.1.0#tool/create-issue
 pkg:shelf/%40acme/research-pack@1.4.0#skill/summarize-paper
 ```
@@ -692,7 +692,7 @@ A volume exports components by declaring them in `volume.toml` (Section 3.5) and
 
 RECOMMENDED layout:
 
-```
+```text
 volume-root/
 ├── volume.toml
 ├── README.md
@@ -806,7 +806,7 @@ Bibliothecas MUST compute and store the content hash server-side at publish time
 
 Content hashes are represented as `sha256:<hex>` strings:
 
-```
+```text
 sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
 ```
 
@@ -867,7 +867,7 @@ fixed-in = "2.1.0"
 
 A conforming bibliotheca exposes an HTTP API for volume operations. Bibliothecas MAY deliver content via CDN (for curated, immutable volumes) or via Git references (for community-hosted volumes).
 
-```
+```text
                         ┌──────────────────────────────┐
                         │  Bibliotheca (Registry)      │
                         │  metadata, search, advisories│
@@ -892,7 +892,7 @@ A conforming bibliotheca exposes an HTTP API for volume operations. Bibliothecas
 
 #### 9.2.1 Publish
 
-```
+```http
 POST /api/v1/volumes/{name}
 POST /api/v1/volumes/@{scope}/{name}
 Authorization: Bearer <token>
@@ -903,7 +903,7 @@ Content-Type: application/octet-stream
 
 #### 9.2.2 Fetch
 
-```
+```http
 GET /api/v1/volumes/{name}/{version}
 GET /api/v1/volumes/@{scope}/{name}/{version}
 ```
@@ -943,13 +943,13 @@ A bibliotheca SHOULD allow unpublishing within a grace window (RECOMMENDED: 72 h
 
 ### 9.3 Search and Discovery
 
-```
+```http
 GET /api/v1/search?q=<query>&type=<component-type>&runtime=<runtime>&provider=<provider>&domain=<domain>&keyword=<keyword>&publisher=<publisher>&limit=20&offset=0
 ```
 
 ### 9.4 Security Advisory API
 
-```
+```http
 GET /api/v1/advisories?volume={name}
 GET /api/v1/advisories/{advisory-id}
 POST /api/v1/advisories                    (admin only)
@@ -1106,4 +1106,4 @@ A conforming client SHOULD:
 
 ---
 
-_End of Agent Volumes Specification v0.1.0-draft.3_
+End of Agent Volumes Specification v0.1.0-draft.3

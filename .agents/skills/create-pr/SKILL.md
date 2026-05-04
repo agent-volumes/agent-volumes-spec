@@ -5,13 +5,12 @@ description: >
   structured PR bodies. Use when creating PRs, submitting changes for review,
   or when the user says /pr or asks to create a pull request.
 license: Sustainable Use License 1.0
-
 metadata:
   domain: devops
   subdomain: git
-  tags: "github, pull-request, conventional-commits, gh-cli"
-  author: "Yunseo Kim <dev@yunseo.kim>"
-  lastUpdated: "12026-02-26"
+  tags: 'github, pull-request, conventional-commits, gh-cli'
+  author: 'Yunseo Kim <dev@yunseo.kim>'
+  lastUpdated: '12026-02-26'
   provenance: adapted
 ---
 
@@ -28,7 +27,7 @@ Create GitHub PRs with Conventional Commits-formatted titles and structured bodi
 ### Types (required)
 
 | Type       | Description                         | Changelog |
-|------------|-------------------------------------|-----------|
+| ---------- | ----------------------------------- | --------- |
 | `feat`     | New feature                         | Yes       |
 | `fix`      | Bug fix                             | Yes       |
 | `perf`     | Performance improvement             | Yes       |
@@ -70,6 +69,7 @@ feat(api)!: Remove deprecated v1 endpoints
 ## Steps
 
 1. **Check current state**:
+
    ```bash
    git status
    git diff --stat
@@ -82,11 +82,13 @@ feat(api)!: Remove deprecated v1 endpoints
    - Summary: What does the change do?
 
 3. **Push branch if needed**:
+
    ```bash
    git push -u origin HEAD
    ```
 
 4. **Detect PR template**: Check if the project has a PR template:
+
    ```bash
    # Check common template locations
    for f in .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md docs/pull_request_template.md; do
@@ -95,6 +97,7 @@ feat(api)!: Remove deprecated v1 endpoints
    ```
 
 5. **Create PR** using gh CLI. If a PR template exists, use it. Otherwise use the default structure:
+
    ```bash
    gh pr create --draft --title "<type>(<scope>): <summary>" --body "$(cat <<'EOF'
    ## Summary
@@ -117,17 +120,21 @@ feat(api)!: Remove deprecated v1 endpoints
 ## PR Body Guidelines
 
 ### Summary Section
+
 - Describe what the PR does and why
 - Explain how to test the changes
 - Include screenshots/videos for UI changes
 
 ### Related Issues Section
+
 - Link to issue tracker tickets (GitHub Issues, Linear, Jira, etc.)
 - Use GitHub keywords to auto-close issues:
   - `closes #123` / `fixes #123` / `resolves #123`
 
 ### Checklist
+
 Adapt to your project's standards. Common items:
+
 - PR title follows conventions
 - Tests included (bugs need regression tests, features need coverage)
 - Documentation updated or follow-up ticket created
@@ -136,31 +143,37 @@ Adapt to your project's standards. Common items:
 ## Examples
 
 ### New feature with scope
+
 ```
 feat(auth): Add OAuth2 PKCE flow support
 ```
 
 ### Bug fix in a specific module
+
 ```
 fix(parser): Resolve infinite loop on malformed input
 ```
 
 ### Performance improvement
+
 ```
 perf(db): Add index for frequently queried columns
 ```
 
 ### Breaking change
+
 ```
 feat(api)!: Remove deprecated v1 endpoints
 ```
 
 ### No scope (affects multiple areas)
+
 ```
 chore: Update dependencies to latest versions
 ```
 
 ### Documentation only
+
 ```
 docs: Add migration guide for v3
 ```
@@ -168,11 +181,13 @@ docs: Add migration guide for v3
 ## Validation
 
 A well-formed Conventional Commits PR title matches this pattern:
+
 ```
 ^(feat|fix|perf|test|docs|refactor|build|ci|chore|revert)(\([a-zA-Z0-9 /-]+\))?!?: [A-Z].+[^.]$
 ```
 
 Key validation rules:
+
 - Type must be one of the allowed types
 - Scope is optional but must be in parentheses if present
 - Exclamation mark for breaking changes goes before the colon

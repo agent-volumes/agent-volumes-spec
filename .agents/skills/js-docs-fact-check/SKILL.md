@@ -5,13 +5,12 @@ description: >
   MDN/ECMAScript compliance, and common misconceptions. Use before publishing,
   after major edits, or during periodic accuracy audits.
 license: Sustainable Use License 1.0
-
 metadata:
   domain: documentation
   subdomain: technical-docs
-  tags: "fact-checking, accuracy, verification, javascript, documentation, quality"
-  author: "Yunseo Kim <dev@yunseo.kim>"
-  lastUpdated: "12026-02-25"
+  tags: 'fact-checking, accuracy, verification, javascript, documentation, quality'
+  author: 'Yunseo Kim <dev@yunseo.kim>'
+  lastUpdated: '12026-02-25'
   provenance: adapted
 ---
 
@@ -65,6 +64,7 @@ Every code example in the documentation must be verified for accuracy.
    - Confirm they follow current best practices
 
 5. **Run project tests** (if available):
+
    ```bash
    # Run all tests
    npm test
@@ -82,16 +82,16 @@ Every code example in the documentation must be verified for accuracy.
 
 #### Code Verification Checklist
 
-| Check | How to Verify |
-|-------|---------------|
-| `console.log` outputs match comments | Run code or trace mentally |
-| Variables are correctly named/used | Read through logic |
-| Functions return expected values | Trace execution |
-| Async code resolves in stated order | Understand event loop |
-| Error examples actually throw | Test in try/catch |
-| Array/object methods return correct types | Check MDN |
-| `typeof` results are accurate | Test common cases |
-| Strict mode behavior noted if relevant | Check if example depends on it |
+| Check                                     | How to Verify                  |
+| ----------------------------------------- | ------------------------------ |
+| `console.log` outputs match comments      | Run code or trace mentally     |
+| Variables are correctly named/used        | Read through logic             |
+| Functions return expected values          | Trace execution                |
+| Async code resolves in stated order       | Understand event loop          |
+| Error examples actually throw             | Test in try/catch              |
+| Array/object methods return correct types | Check MDN                      |
+| `typeof` results are accurate             | Test common cases              |
+| Strict mode behavior noted if relevant    | Check if example depends on it |
 
 #### Common Output Mistakes to Catch
 
@@ -153,24 +153,24 @@ All claims about JavaScript APIs, methods, and behavior should align with MDN do
 
 #### MDN Link Patterns
 
-| Content Type | MDN URL Pattern |
-|--------------|-----------------|
-| Web APIs | `https://developer.mozilla.org/en-US/docs/Web/API/{APIName}` |
+| Content Type   | MDN URL Pattern                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| Web APIs       | `https://developer.mozilla.org/en-US/docs/Web/API/{APIName}`                                |
 | Global Objects | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/{Object}` |
-| Statements | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/{Statement}` |
-| Operators | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/{Operator}` |
-| HTTP | `https://developer.mozilla.org/en-US/docs/Web/HTTP` |
+| Statements     | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/{Statement}`  |
+| Operators      | `https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/{Operator}`    |
+| HTTP           | `https://developer.mozilla.org/en-US/docs/Web/HTTP`                                         |
 
 #### What to Verify Against MDN
 
-| Claim Type | What to Check |
-|------------|---------------|
-| Method signature | Parameters, optional params, return type |
-| Return value | Exact type and possible values |
-| Side effects | Does it mutate? What does it affect? |
-| Exceptions | What errors can it throw? |
-| Browser support | Compatibility tables |
-| Deprecation status | Any deprecation warnings? |
+| Claim Type         | What to Check                            |
+| ------------------ | ---------------------------------------- |
+| Method signature   | Parameters, optional params, return type |
+| Return value       | Exact type and possible values           |
+| Side effects       | Does it mutate? What does it affect?     |
+| Exceptions         | What errors can it throw?                |
+| Browser support    | Compatibility tables                     |
+| Deprecation status | Any deprecation warnings?                |
 
 ---
 
@@ -189,18 +189,18 @@ For nuanced JavaScript behavior, verify against the ECMAScript specification.
 
 #### How to Navigate the Spec
 
-The ECMAScript specification is at: https://tc39.es/ecma262/
+The ECMAScript specification is at: <https://tc39.es/ecma262/>
 
-| Concept | Spec Section |
-|---------|--------------|
-| Type coercion | Abstract Operations (7.1) |
-| Equality | Abstract Equality Comparison (7.2.14), Strict Equality (7.2.15) |
-| typeof | The typeof Operator (13.5.3) |
-| Objects | Ordinary and Exotic Objects' Behaviours (10) |
-| Functions | ECMAScript Function Objects (10.2) |
-| this binding | ResolveThisBinding (9.4.4) |
-| Promises | Promise Objects (27.2) |
-| Iteration | Iteration (27.1) |
+| Concept       | Spec Section                                                    |
+| ------------- | --------------------------------------------------------------- |
+| Type coercion | Abstract Operations (7.1)                                       |
+| Equality      | Abstract Equality Comparison (7.2.14), Strict Equality (7.2.15) |
+| typeof        | The typeof Operator (13.5.3)                                    |
+| Objects       | Ordinary and Exotic Objects' Behaviours (10)                    |
+| Functions     | ECMAScript Function Objects (10.2)                              |
+| this binding  | ResolveThisBinding (9.4.4)                                      |
+| Promises      | Promise Objects (27.2)                                          |
+| Iteration     | Iteration (27.1)                                                |
 
 #### Spec Verification Examples
 
@@ -247,15 +247,15 @@ All external links (articles, videos, courses) must be verified.
 
 #### External Resource Checklist
 
-| Check | Pass Criteria |
-|-------|---------------|
-| Link works | Returns 200, content loads |
-| Not paywalled | Free to access (or clearly marked) |
-| JavaScript-focused | Not primarily about other languages |
-| Not outdated | Post-2015 for modern JS topics |
+| Check                | Pass Criteria                          |
+| -------------------- | -------------------------------------- |
+| Link works           | Returns 200, content loads             |
+| Not paywalled        | Free to access (or clearly marked)     |
+| JavaScript-focused   | Not primarily about other languages    |
+| Not outdated         | Post-2015 for modern JS topics         |
 | Accurate description | Our description matches actual content |
-| No anti-patterns | Doesn't teach bad practices |
-| Reputable source | From known/trusted creators |
+| No anti-patterns     | Doesn't teach bad practices            |
+| Reputable source     | From known/trusted creators            |
 
 #### Red Flags in External Resources
 
@@ -275,13 +275,13 @@ Review all prose claims about JavaScript behavior.
 
 #### Claims That Need Verification
 
-| Claim Type | How to Verify |
-|------------|---------------|
-| Performance claims | Need benchmarks or caveats |
-| Browser behavior | Specify which browsers, check MDN |
-| Historical claims | Verify dates/versions |
-| "Always" or "never" statements | Check for exceptions |
-| Comparisons (X vs Y) | Verify both sides accurately |
+| Claim Type                     | How to Verify                     |
+| ------------------------------ | --------------------------------- |
+| Performance claims             | Need benchmarks or caveats        |
+| Browser behavior               | Specify which browsers, check MDN |
+| Historical claims              | Verify dates/versions             |
+| "Always" or "never" statements | Check for exceptions              |
+| Comparisons (X vs Y)           | Verify both sides accurately      |
 
 #### Red Flags in Technical Claims
 
@@ -322,47 +322,47 @@ Watch for these misconceptions being stated as fact.
 
 ### Type System Misconceptions
 
-| Misconception | Reality | How to Verify |
-|---------------|---------|---------------|
+| Misconception                             | Reality                                                      | How to Verify                        |
+| ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------ |
 | `typeof null === "object"` is intentional | It's a bug from JS 1.0 that can't be fixed for compatibility | Historical context, TC39 discussions |
-| JavaScript has no types | JS is dynamically typed, not untyped | ECMAScript spec defines types |
-| `==` is always wrong | `== null` checks both null and undefined, has valid uses | Many style guides allow this pattern |
-| `NaN === NaN` is false "by mistake" | It's intentional per IEEE 754 floating point spec | IEEE 754 standard |
+| JavaScript has no types                   | JS is dynamically typed, not untyped                         | ECMAScript spec defines types        |
+| `==` is always wrong                      | `== null` checks both null and undefined, has valid uses     | Many style guides allow this pattern |
+| `NaN === NaN` is false "by mistake"       | It's intentional per IEEE 754 floating point spec            | IEEE 754 standard                    |
 
 ### Function Misconceptions
 
-| Misconception | Reality | How to Verify |
-|---------------|---------|---------------|
-| Arrow functions are just shorter syntax | They have no `this`, `arguments`, `super`, or `new.target` | MDN, ECMAScript spec |
-| `var` is hoisted to function scope with its value | Only declaration is hoisted, not initialization | Code test, MDN |
-| Closures are a special opt-in feature | All functions in JS are closures | ECMAScript spec |
-| IIFEs are obsolete | Still useful for one-time initialization | Modern codebases still use them |
+| Misconception                                     | Reality                                                    | How to Verify                   |
+| ------------------------------------------------- | ---------------------------------------------------------- | ------------------------------- |
+| Arrow functions are just shorter syntax           | They have no `this`, `arguments`, `super`, or `new.target` | MDN, ECMAScript spec            |
+| `var` is hoisted to function scope with its value | Only declaration is hoisted, not initialization            | Code test, MDN                  |
+| Closures are a special opt-in feature             | All functions in JS are closures                           | ECMAScript spec                 |
+| IIFEs are obsolete                                | Still useful for one-time initialization                   | Modern codebases still use them |
 
 ### Async Misconceptions
 
-| Misconception | Reality | How to Verify |
-|---------------|---------|---------------|
-| Promises run in parallel | JS is single-threaded; Promises are async, not parallel | Event loop explanation |
-| `async/await` is different from Promises | It's syntactic sugar over Promises | MDN, can await any thenable |
-| `setTimeout(fn, 0)` runs immediately | Runs after current execution + microtasks | Event loop, code test |
-| `await` pauses the entire program | Only pauses the async function, not the event loop | Code test |
+| Misconception                            | Reality                                                 | How to Verify               |
+| ---------------------------------------- | ------------------------------------------------------- | --------------------------- |
+| Promises run in parallel                 | JS is single-threaded; Promises are async, not parallel | Event loop explanation      |
+| `async/await` is different from Promises | It's syntactic sugar over Promises                      | MDN, can await any thenable |
+| `setTimeout(fn, 0)` runs immediately     | Runs after current execution + microtasks               | Event loop, code test       |
+| `await` pauses the entire program        | Only pauses the async function, not the event loop      | Code test                   |
 
 ### Object Misconceptions
 
-| Misconception | Reality | How to Verify |
-|---------------|---------|---------------|
-| Objects are "passed by reference" | References are passed by value ("pass by sharing") | Reassignment test |
-| `const` makes objects immutable | `const` prevents reassignment, not mutation | Code test |
-| Everything in JavaScript is an object | Primitives are not objects (though they have wrappers) | `typeof` tests, MDN |
-| `Object.freeze()` creates deep immutability | It's shallow - nested objects can still be mutated | Code test |
+| Misconception                               | Reality                                                | How to Verify       |
+| ------------------------------------------- | ------------------------------------------------------ | ------------------- |
+| Objects are "passed by reference"           | References are passed by value ("pass by sharing")     | Reassignment test   |
+| `const` makes objects immutable             | `const` prevents reassignment, not mutation            | Code test           |
+| Everything in JavaScript is an object       | Primitives are not objects (though they have wrappers) | `typeof` tests, MDN |
+| `Object.freeze()` creates deep immutability | It's shallow - nested objects can still be mutated     | Code test           |
 
 ### Performance Misconceptions
 
-| Misconception | Reality | How to Verify |
-|---------------|---------|---------------|
-| `===` is always faster than `==` | Implementation-dependent, not spec-guaranteed | Benchmarks vary |
-| `for` loops are faster than `forEach` | Modern engines optimize both; depends on use case | Benchmark |
-| Arrow functions are faster | No performance difference, just different behavior | Benchmark |
+| Misconception                              | Reality                                              | How to Verify                |
+| ------------------------------------------ | ---------------------------------------------------- | ---------------------------- |
+| `===` is always faster than `==`           | Implementation-dependent, not spec-guaranteed        | Benchmarks vary              |
+| `for` loops are faster than `forEach`      | Modern engines optimize both; depends on use case    | Benchmark                    |
+| Arrow functions are faster                 | No performance difference, just different behavior   | Benchmark                    |
 | Avoiding DOM manipulation is always faster | Sometimes batch mutations are slower than individual | Depends on browser, use case |
 
 ---
@@ -387,6 +387,7 @@ npm run test:coverage
 ### When Tests Are Missing
 
 If a documentation page doesn't have tests:
+
 1. Flag this in the report as "needs test coverage"
 2. Manually verify code examples are correct
 3. Consider adding tests as a follow-up task
@@ -397,14 +398,14 @@ If a documentation page doesn't have tests:
 
 ### Primary Sources
 
-| Resource | URL | Use For |
-|----------|-----|---------|
-| MDN Web Docs | https://developer.mozilla.org | API docs, guides, compatibility |
-| ECMAScript Spec | https://tc39.es/ecma262 | Authoritative behavior |
-| TC39 Proposals | https://github.com/tc39/proposals | New features, stages |
-| Can I Use | https://caniuse.com | Browser compatibility |
-| Node.js Docs | https://nodejs.org/docs | Node-specific APIs |
-| V8 Blog | https://v8.dev/blog | Engine internals |
+| Resource        | URL                                 | Use For                         |
+| --------------- | ----------------------------------- | ------------------------------- |
+| MDN Web Docs    | <https://developer.mozilla.org>     | API docs, guides, compatibility |
+| ECMAScript Spec | <https://tc39.es/ecma262>           | Authoritative behavior          |
+| TC39 Proposals  | <https://github.com/tc39/proposals> | New features, stages            |
+| Can I Use       | <https://caniuse.com>               | Browser compatibility           |
+| Node.js Docs    | <https://nodejs.org/docs>           | Node-specific APIs              |
+| V8 Blog         | <https://v8.dev/blog>               | Engine internals                |
 
 ---
 
@@ -435,10 +436,10 @@ and highlight any critical issues.]
 
 ## Phase 1: Code Example Verification
 
-| # | Description | Line | Status | Notes |
-|---|-------------|------|--------|-------|
-| 1 | [Brief description] | XX | OK/WARN/FAIL | [Notes] |
-| 2 | [Brief description] | XX | OK/WARN/FAIL | [Notes] |
+| #   | Description         | Line | Status       | Notes   |
+| --- | ------------------- | ---- | ------------ | ------- |
+| 1   | [Brief description] | XX   | OK/WARN/FAIL | [Notes] |
+| 2   | [Brief description] | XX   | OK/WARN/FAIL | [Notes] |
 
 ### Code Issues Found
 
@@ -460,15 +461,15 @@ and highlight any critical issues.]
 
 ## Phase 2: MDN/Specification Verification
 
-| Claim | Location | Source | Status | Notes |
-|-------|----------|--------|--------|-------|
-| [Claim] | Line XX | MDN/Spec | OK/WARN/FAIL | [Notes] |
+| Claim   | Location | Source   | Status       | Notes   |
+| ------- | -------- | -------- | ------------ | ------- |
+| [Claim] | Line XX  | MDN/Spec | OK/WARN/FAIL | [Notes] |
 
 ### MDN Link Status
 
-| Link Text | URL | Status |
-|-----------|-----|--------|
-| [Text] | [URL] | 200 / 404 / Redirect |
+| Link Text | URL   | Status               |
+| --------- | ----- | -------------------- |
+| [Text]    | [URL] | 200 / 404 / Redirect |
 
 ### Specification Discrepancies
 
@@ -478,9 +479,9 @@ and highlight any critical issues.]
 
 ## Phase 3: External Resource Verification
 
-| Resource | Type | Link | Content | Notes |
-|----------|------|------|---------|-------|
-| [Title] | Article/Video | OK/FAIL | OK/WARN/FAIL | [Notes] |
+| Resource | Type          | Link    | Content      | Notes   |
+| -------- | ------------- | ------- | ------------ | ------- |
+| [Title]  | Article/Video | OK/FAIL | OK/WARN/FAIL | [Notes] |
 
 ### Broken Links
 
@@ -494,9 +495,9 @@ and highlight any critical issues.]
 
 ## Phase 4: Technical Claims Audit
 
-| Claim | Location | Verdict | Notes |
-|-------|----------|---------|-------|
-| "[Claim]" | Line XX | OK/WARN/FAIL | [Notes] |
+| Claim     | Location | Verdict      | Notes   |
+| --------- | -------- | ------------ | ------- |
+| "[Claim]" | Line XX  | OK/WARN/FAIL | [Notes] |
 
 ### Claims Needing Revision
 

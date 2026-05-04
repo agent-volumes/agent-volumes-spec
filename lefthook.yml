@@ -1,0 +1,30 @@
+# Lefthook pre-commit configuration
+# Documentation: https://lefthook.dev/configuration/
+
+commit-msg:
+  commands:
+    dco-signoff:
+      run: |
+        if ! grep -qE "^Signed-off-by: " "{1}"; then
+          echo "❌ DCO sign-off missing"
+          echo "   Commit message must include a 'Signed-off-by:' line."
+          echo "   Use 'git commit -s' to sign off automatically."
+          echo "   See CONTRIBUTING.md § Commit Sign-Off (DCO) for details."
+          exit 1
+        fi
+      fail_text: "Missing DCO sign-off. Run 'git commit -s' to sign off."
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: Lint and format Markdown
+      glob: "*.{md,mdx}"
+      run: |
+        set -e
+        echo "🔍 Running markdownlint-cli2 --fix on staged files..."
+        bunx markdownlint-cli2 --fix {staged_files}
+        echo "✨ Running prettier --write on staged files..."
+        bunx prettier --write {staged_files}
+        echo "📦 Re-staging fixed files..."
+        git add {staged_files}
+        echo "✅ Pre-commit checks completed!"

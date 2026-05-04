@@ -43,4 +43,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 For the full upstream license text, see:
-https://github.com/leonardomso/33-js-concepts/blob/master/LICENSE
+<https://github.com/leonardomso/33-js-concepts/blob/master/LICENSE>

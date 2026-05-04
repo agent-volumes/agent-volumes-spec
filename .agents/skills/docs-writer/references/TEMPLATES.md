@@ -9,30 +9,39 @@ example output formatting.
 
 ```markdown
 # Project Name
+
 [One-line description]
 
 ## Features
+
 - [Key features]
 
 ## Installation
+
 [Minimal install steps]
 
 ## Quick Start
+
 [Smallest working example]
 
 ## Usage
+
 [Common use cases]
 
 ## API Reference
+
 [If applicable]
 
 ## Configuration
+
 [Optional settings]
 
 ## Troubleshooting
+
 [Common issues and fixes]
 
 ## Contributing
+
 [How to contribute]
 
 ## License
@@ -40,28 +49,34 @@ example output formatting.
 
 ### API reference template
 
-```markdown
+````markdown
 ## Function/Endpoint Name
 
 [What it does and why it matters]
 
 ### Parameters
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| param1 | string | Yes | Purpose |
+
+| Name   | Type   | Required | Description |
+| ------ | ------ | -------- | ----------- |
+| param1 | string | Yes      | Purpose     |
 
 ### Returns
+
 [Return shape and meaning]
 
 ### Example
+
 ```language
 [Complete working example]
 ```
+````
 
 ### Errors
+
 | Code | Description | Solution |
-|------|-------------|----------|
-```
+| ---- | ----------- | -------- |
+
+````
 
 ### Tutorial template
 
@@ -82,32 +97,37 @@ example output formatting.
 
 ## Next Steps
 [Related follow-up paths]
-```
+````
 
 ## Common Patterns
 
 ### Installation instructions pattern
 
-```markdown
+````markdown
 ## Installation
 
 ### Using pip
+
 ```bash
 pip install package-name
 ```
+````
 
 ### Using bun
+
 ```bash
 bun install package-name
 ```
 
 ### From source
+
 ```bash
 git clone <repo-url>
 cd <repo>
 <install command>
 ```
-```
+
+````
 
 ### Troubleshooting pattern
 
@@ -120,8 +140,9 @@ cd <repo>
 **Solution:**
 ```bash
 <fix command>
-```
-```
+````
+
+````
 
 ## Example Output
 
@@ -145,16 +166,18 @@ Sort and organize files by size from the command line.
 
 ```bash
 pip install filesort
-```
+````
 
 ## Quick Start
 
 Sort files in current directory:
+
 ```bash
 filesort .
 ```
 
 Output:
+
 ```
 1.2 GB    video.mp4
 856 MB    dataset.zip
@@ -170,32 +193,36 @@ filesort [OPTIONS] DIRECTORY
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `-r, --reverse` | Show largest files first (default: smallest first) |
-| `-n, --number NUM` | Show only top N files |
-| `-e, --extension EXT` | Filter by file extension |
-| `-o, --output FILE` | Export to CSV file |
-| `--recursive` | Include subdirectories |
+| Option                | Description                                        |
+| --------------------- | -------------------------------------------------- |
+| `-r, --reverse`       | Show largest files first (default: smallest first) |
+| `-n, --number NUM`    | Show only top N files                              |
+| `-e, --extension EXT` | Filter by file extension                           |
+| `-o, --output FILE`   | Export to CSV file                                 |
+| `--recursive`         | Include subdirectories                             |
 
 ### Examples
 
 **Find your 10 largest files:**
+
 ```bash
 filesort . --reverse --number 10
 ```
 
 **Find large video files:**
+
 ```bash
 filesort ~/Videos --extension mp4 --reverse
 ```
 
 **Export file list to CSV:**
+
 ```bash
 filesort . --output files.csv
 ```
 
 **Search recursively:**
+
 ```bash
 filesort ~/Documents --recursive --reverse --number 20
 ```
@@ -208,20 +235,24 @@ Create `~/.filesort.yaml` for default options:
 reverse: true
 number: 50
 ignore:
-  - "*.tmp"
-  - "__pycache__"
+  - '*.tmp'
+  - '__pycache__'
 ```
 
 ## Troubleshooting
 
 ### "Permission denied" errors
+
 Some directories require elevated permissions:
+
 ```bash
 sudo filesort /var/log
 ```
 
 ### No files shown
+
 Check if you're filtering too aggressively:
+
 ```bash
 # This might not match anything
 filesort . --extension xyz
@@ -237,6 +268,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 MIT
+
 ```
 
 ---
@@ -251,3 +283,4 @@ MIT
 
 Keep example output concise and realistic. Prefer representative excerpts over
 very long full-document dumps.
+```

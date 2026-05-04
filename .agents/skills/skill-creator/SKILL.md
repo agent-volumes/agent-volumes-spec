@@ -1,14 +1,14 @@
 ---
 name: skill-creator
-description: "Guide for creating effective skills that extend AI assistant capabilities with specialized knowledge, workflows, and tool integrations. Use when creating or updating skills."
+description: 'Guide for creating effective skills that extend AI assistant capabilities with specialized knowledge, workflows, and tool integrations. Use when creating or updating skills.'
 license: Sustainable Use License 1.0
 
 metadata:
   domain: development
   subdomain: developer-tooling
-  tags: "skill-authoring, plugin-development, agent-tools"
-  author: "Yunseo Kim <dev@yunseo.kim>"
-  lastUpdated: "12026-02-25"
+  tags: 'skill-authoring, plugin-development, agent-tools'
+  author: 'Yunseo Kim <dev@yunseo.kim>'
+  lastUpdated: '12026-02-25'
   provenance: adapted
 ---
 
@@ -343,7 +343,6 @@ scripts/package_skill.py <path/to/skill-folder> ./dist
 The packaging script will:
 
 1. **Validate** the skill automatically, checking:
-
    - YAML frontmatter format and required fields
    - Skill naming conventions and directory structure
    - Description completeness and quality

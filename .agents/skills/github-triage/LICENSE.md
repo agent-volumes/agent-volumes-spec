@@ -6,7 +6,7 @@ This component is based on code originally from the **oh-my-opencode** project.
 
 **In accordance with the "Notices" section of the Sustainable Use License 1.0, please be advised that this software has been modified, enhanced, and restructured from its original version by Yunseo Kim on 12026-02-19.**
 
-- - -
+---
 
 ## Sustainable Use License
 

@@ -10,12 +10,12 @@ Use this profile for Next.js docs repositories with MDX and app/pages routing do
 
 Common mapping hints:
 
-| Source area | Likely docs area |
-| --- | --- |
-| Routing, layouts, rendering | Routing/layout guides and API reference |
+| Source area                             | Likely docs area                          |
+| --------------------------------------- | ----------------------------------------- |
+| Routing, layouts, rendering             | Routing/layout guides and API reference   |
 | Server logic, request handling, caching | Server features and runtime behavior docs |
-| Build/configuration changes | Configuration and deployment docs |
-| Metadata/SEO behavior | Metadata and SEO guides/reference |
+| Build/configuration changes             | Configuration and deployment docs         |
+| Metadata/SEO behavior                   | Metadata and SEO guides/reference         |
 
 ## Workflow: update existing docs
 

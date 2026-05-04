@@ -8,13 +8,12 @@ description: >
   Supports self-contained profile-based behavior for generic docs, Next.js docs,
   and Angular docs.
 license: Sustainable Use License 1.0
-
 metadata:
   domain: documentation
   subdomain: technical-docs
-  tags: "docs, markdown, mdx, technical-writing, documentation-workflow"
-  author: "Yunseo Kim <dev@yunseo.kim>"
-  lastUpdated: "12026-02-25"
+  tags: 'docs, markdown, mdx, technical-writing, documentation-workflow'
+  author: 'Yunseo Kim <dev@yunseo.kim>'
+  lastUpdated: '12026-02-25'
   provenance: synthesized
 ---
 

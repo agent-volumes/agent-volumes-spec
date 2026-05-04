@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "prepare": "bunx lefthook install",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
+    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
+    "format": "prettier --write \"**/*.md\"",
+    "format:check": "prettier --check \"**/*.md\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "lefthook": "^2.1.6",
+    "markdownlint-cli2": "^0.22.1",
+    "prettier": "^3.8.3"
+  }
+}
