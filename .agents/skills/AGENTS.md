@@ -4,21 +4,9 @@
 
 Skills here help contributors work on this repo. Distributable skills live in `catalog/skills/`.
 
-## SYMLINK STRUCTURE
-
-`.agents/skills/` is the single source. Other tool directories are symlinks:
-
-```
-.agents/skills/  (source)
-  -> .agent/skills/
-  -> .claude/skills/
-  -> .cursor/skills/
-  -> .windsurf/skills/
-```
-
-Adding/removing a skill in `.agents/skills/` requires updating all symlinked directories.
-
 ## SKILL INVENTORY
+
+### Core (Highly Relevant)
 
 | Skill | Type | Has Scripts | Has References | Purpose |
 |-------|------|:-----------:|:--------------:|---------|
@@ -28,14 +16,21 @@ Adding/removing a skill in `.agents/skills/` requires updating all symlinked dir
 | **docs-writer** | Workflow | -- | CORE-CHECKLIST.md, PROFILE-*.md, TEMPLATES.md | Profile-based documentation workflow |
 | **create-pr** | Workflow | -- | -- | Conventional Commits PR creation |
 | **github-triage** | Workflow | gh_fetch.py | -- | GitHub issue/PR triage |
-| **catalog-porter** | Workflow | -- | catalog-conventions.md, notice-templates.md, upstream-sources.md, readme-listing.md | Upstream skill analysis, classification, and porting |
 | **docs-changelog** | Workflow | -- | highlights_examples.md, index/latest/preview_template.md | Changelog generation |
 | **doc-coauthoring** | Workflow | -- | -- | Collaborative drafting |
-| **dependency-upgrade** | Reference | -- | -- | Dependency management patterns |
 | **github-actions-templates** | Reference | -- | -- | GitHub Actions patterns |
-| **gitlab-ci-patterns** | Reference | -- | -- | GitLab CI/CD patterns |
-| **javascript-testing-patterns** | Reference | -- | -- | JS/TS testing patterns |
 | **secrets-management** | Reference | -- | -- | Secrets handling patterns |
+
+### Retained (Moderate Relevance)
+
+| Skill | Type | Notes |
+|-------|------|-------|
+| **ci-triage** | Workflow | CI failure triage |
+| **code-reviewer** | Workflow | Code review for PRs |
+| **github-cli** | Workflow | GitHub CLI operations |
+| **js-docs-fact-check** | Reference | JS doc accuracy verification |
+| **js-resource-curator** | Reference | JS resource curation |
+| **mintlify** | Workflow | Documentation site building |
 
 ## DEV FRONTMATTER SCHEMA
 
@@ -67,4 +62,3 @@ python3 .agents/skills/skill-creator/scripts/package_skill.py <path/to/skill> [o
 - Do not add catalog-specific frontmatter fields (`domain`, `subdomain`, `tags`, `frameworks`) to dev skills.
 - Do not create README.md, CHANGELOG.md, or auxiliary docs inside skills -- only SKILL.md + resources.
 - Do not duplicate skill content here and in `catalog/skills/`. Catalog is the distributable copy.
-- Do not break symlinks. After adding/removing a skill, verify all 4 symlinked directories match.
