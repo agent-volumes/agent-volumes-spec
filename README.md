@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo/agent-volumes-logo-banner.svg" alt="Agent Volumes" width="100%">
+<img src="https://raw.githubusercontent.com/agent-volumes/.github/refs/heads/main/assets/logo/banner/solid-bg/agent-volumes-logo-banner-with-bg-4-1.svg" alt="Agent Volumes" width="100%">
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
