@@ -6,7 +6,10 @@
 [![SemVer Versioning](https://img.shields.io/badge/version_scheme-SemVer-0097a7)](https://semver.org/)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
+
+[![CodeQL](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql)
 [![OSV Scanner Full](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml)
+[![Markdown Lint and Format](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
@@ -202,12 +205,19 @@ The full specification covers:
 
 ## Architecture Decision Records
 
-| ADR                                                        | Decision                                                  |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
-| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md) | Use purl-aligned identity scheme with `shelf` type        |
-| [ADR-0002](decisions/0002-toml-volume-manifest.md)         | Use TOML for volume manifest format                       |
-| [ADR-0003](decisions/0003-six-component-types.md)          | Define six component types                                |
-| [ADR-0004](decisions/0004-hybrid-registry-architecture.md) | Use hybrid content delivery architecture for bibliothecas |
+| ADR                                                                                             | Decision                                                                                                 |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md)                                      | Use purl-aligned identity scheme with `shelf` type                                                       |
+| [ADR-0002](decisions/0002-toml-volume-manifest.md)                                              | Use TOML for volume manifest format                                                                      |
+| [ADR-0003](decisions/0003-six-component-types.md)                                               | Define six component types                                                                               |
+| [ADR-0004](decisions/0004-hybrid-registry-architecture.md)                                      | Use hybrid content delivery architecture for bibliothecas                                                |
+| [ADR-0005](decisions/0005-bom-strategy-cyclonedx-profile-with-agent-volumes-semantic-source.md) | Use CycloneDX as the normative BOM exchange format, with Agent Volumes semantics as the canonical source |
+| [ADR-0006](decisions/0006-sigstore-slsa-provenance-baseline.md)                                 | Use Sigstore and SLSA as the provenance and attestation baseline                                         |
+| [ADR-0007](decisions/0007-dual-subject-binding-purl-version-plus-digest.md)                     | Use dual-subject binding with purl+version and resolved digest                                           |
+| [ADR-0008](decisions/0008-dual-layer-trust-discovery-model.md)                                  | Use a dual-layer trust discovery model with canonical attachment binding and bibliotheca API projection  |
+| [ADR-0009](decisions/0009-dual-view-trust-metadata-api.md)                                      | Use a dual-view trust metadata API with summary and raw locator views                                    |
+| [ADR-0010](decisions/0010-fact-first-summary-with-optional-judgments.md)                        | Use fact-first summary semantics with optional derived judgments                                         |
+| [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
 
 ## Related Standards
 
