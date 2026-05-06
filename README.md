@@ -120,7 +120,7 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 | Document                                             | Version        | Status        |
 | ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.3 | Working Draft |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.4 | Working Draft |
 
 ### Roadmap
 
@@ -194,12 +194,18 @@ The full specification covers:
 4. **Component Types** — Six types with precise semantics
 5. **Component Export System** — Standardized discovery and loading
 6. **Cross-Runtime Compatibility Model** — Runtime, protocol, and environment declarations
-7. **Content Integrity** — SHA-256 content-hash construction and verification
-8. **Trust and Supply Chain Model** — Publisher identity, provenance, permissions, security advisories
-9. **Registry API** — HTTP API for conforming bibliothecas
+7. **Content Integrity** — normalized-file-tree integrity construction and verification
+8. **Trust and Supply Chain Model** — Publisher identity, provenance, trust attachments, threat model, security advisories
+9. **Registry API** — HTTP API for package operations, trust discovery, advisories, and capability metadata
 10. **Package Roles** — Component, plugin, provider, and meta roles
-11. **Conformance** — Requirements for conforming registries and clients
+11. **Conformance** — Requirements, fixtures, and vectors for registries and clients
 12. **Design Principles** — Seven guiding principles
+
+The repository also publishes normative machine-readable companion artifacts under:
+
+- [`schemas/`](schemas/)
+- [`openapi/`](openapi/)
+- [`conformance/fixtures/`](conformance/fixtures/)
 
 **[Read the full specification →](agent-volumes-spec.md)**
 
@@ -219,6 +225,8 @@ The full specification covers:
 | [ADR-0010](decisions/0010-fact-first-summary-with-optional-judgments.md)                        | Use fact-first summary semantics with optional derived judgments                                         |
 | [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
 | [ADR-0012](decisions/0012-use-volume-purl-type-instead-of-shelf.md)                             | Use `volume` as the purl type instead of `shelf`                                                         |
+
+For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, and conformance artifacts, see [`decisions/0013-...`](decisions/) through [`decisions/0082-...`](decisions/).
 
 ## Related Standards
 
