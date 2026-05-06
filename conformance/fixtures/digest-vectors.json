@@ -1,0 +1,15 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "fixtures": [
+    {
+      "name": "single-file-minimal",
+      "normalizedFiles": [
+        {
+          "path": "volume.toml",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "expectedIntegrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

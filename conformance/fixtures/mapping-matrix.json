@@ -1,0 +1,216 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "entries": [
+    {
+      "agentVolumesField": "volume.name",
+      "cyclonedx": {
+        "target": "metadata.component.name",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.name",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.version",
+      "cyclonedx": {
+        "target": "metadata.component.version",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.versionInfo",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.description",
+      "cyclonedx": {
+        "target": "metadata.component.description",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.summary",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.license",
+      "cyclonedx": {
+        "target": "metadata.component.licenses",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.licenseConcluded",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.homepage",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[website]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.homePage",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.repository",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[vcs]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.externalRefs[purl|vcs]",
+        "kind": "extension"
+      }
+    },
+    {
+      "agentVolumesField": "publisher.id",
+      "cyclonedx": {
+        "target": "metadata.component.publisher",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.supplier",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "components[].type",
+      "cyclonedx": {
+        "target": "component.properties[agent-volumes:type]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "components[].name",
+      "cyclonedx": {
+        "target": "component.name",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.name",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "components[].entrypoint",
+      "cyclonedx": {
+        "target": "component.properties[agent-volumes:entrypoint]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "dependencies",
+      "cyclonedx": {
+        "target": "dependencies graph",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Relationship[DEPENDS_ON]",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "release.logicalIdentity",
+      "cyclonedx": {
+        "target": "metadata.component.purl",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "ExternalRef[purl]",
+        "kind": "native"
+      },
+      "slsa": {
+        "target": "subject.name",
+        "kind": "extension"
+      }
+    },
+    {
+      "agentVolumesField": "release.immutableContentIdentity",
+      "cyclonedx": {
+        "target": "metadata.component.hashes[SHA-256]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.checksums[SHA256]",
+        "kind": "native"
+      },
+      "slsa": {
+        "target": "subject.digest.sha256",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "provenance.source-repo",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[vcs]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.externalRefs[purl|vcs]",
+        "kind": "extension"
+      },
+      "slsa": {
+        "target": "materials[].uri",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.system",
+      "cyclonedx": {
+        "target": "metadata.properties[agent-volumes:build-system]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "CreationInfo.comment",
+        "kind": "lossy"
+      },
+      "slsa": {
+        "target": "runDetails.builder.id",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.workflow",
+      "cyclonedx": {
+        "target": "metadata.properties[agent-volumes:build-workflow]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "CreationInfo.comment",
+        "kind": "lossy"
+      },
+      "slsa": {
+        "target": "buildDefinition.externalParameters.workflow",
+        "kind": "extension"
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.signed",
+      "cyclonedx": {
+        "target": "signature presence outside BOM envelope",
+        "kind": "lossy"
+      },
+      "spdx": {
+        "target": "external signing material",
+        "kind": "lossy"
+      },
+      "slsa": {
+        "target": "attestation verification is external to provenance payload",
+        "kind": "lossy"
+      }
+    }
+  ]
+}

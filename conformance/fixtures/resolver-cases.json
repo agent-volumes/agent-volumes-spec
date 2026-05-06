@@ -1,0 +1,38 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "cases": [
+    {
+      "name": "single-version-compatible",
+      "dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "availableVersions": {
+        "github-provider": ["2.0.0", "2.1.0"]
+      },
+      "expected": {
+        "outcome": "success",
+        "selected": {
+          "github-provider": "2.1.0"
+        }
+      }
+    },
+    {
+      "name": "single-version-conflict",
+      "requirements": [
+        {
+          "requester": "review-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^1.0.0"
+        },
+        {
+          "requester": "audit-agent-pack",
+          "volume": "github-provider",
+          "constraint": ">=3.0.0"
+        }
+      ],
+      "expected": {
+        "outcome": "failure"
+      }
+    }
+  ]
+}

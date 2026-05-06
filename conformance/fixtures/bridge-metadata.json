@@ -1,0 +1,11 @@
+{
+  "active": true,
+  "canonicalForm": "scopePolicy.scopelessSupported",
+  "status": "bridge-active",
+  "removalTarget": {
+    "specVersion": "0.1.0",
+    "phase": "post-draft"
+  },
+  "acceptedAliases": ["extensions.example.scope.scopeless"],
+  "warningCategory": "migration"
+}

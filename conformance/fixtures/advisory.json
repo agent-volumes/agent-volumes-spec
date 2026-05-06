@@ -1,0 +1,37 @@
+{
+  "id": {
+    "local": "BIBSEC-12026-001",
+    "preferredExternal": "GHSA-xxxx-yyyy-zzzz",
+    "aliases": ["CVE-12026-0001"]
+  },
+  "source": {
+    "ecosystem": "ghsa",
+    "url": "https://github.com/advisories/GHSA-xxxx-yyyy-zzzz"
+  },
+  "severity": "high",
+  "published": "12026-05-01T00:00:00Z",
+  "updated": "12026-05-06T00:00:00Z",
+  "relationships": [
+    {
+      "type": "related",
+      "target": "BIBSEC-12026-0002"
+    }
+  ],
+  "affected": {
+    "volume": "github-provider",
+    "events": [
+      {
+        "introduced": "0",
+        "fixed": "2.1.0"
+      }
+    ],
+    "componentImpact": [
+      {
+        "component": "tool/read-pr",
+        "note": "Informational only; normative targeting remains volume-level."
+      }
+    ]
+  },
+  "summary": "Prompt injection in GitHub issue parser",
+  "details": "The advisory demonstrates the v0.1 event-based affected-version model."
+}

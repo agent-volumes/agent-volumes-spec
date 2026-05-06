@@ -1,0 +1,13 @@
+{
+  "agentVolumesField": "volume.name",
+  "mapsTo": [
+    {
+      "target": "cyclonedx.metadata.component.name",
+      "kind": "native"
+    },
+    {
+      "target": "spdx.Package.name",
+      "kind": "native"
+    }
+  ]
+}
