@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/advisory.schema.json",
+  "title": "Agent Volumes Advisory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "source", "severity", "published", "updated", "affected"],
+  "properties": {
+    "id": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local"],
+      "properties": {
+        "local": { "type": "string" },
+        "preferredExternal": { "type": "string" },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ecosystem"],
+      "properties": {
+        "ecosystem": {
+          "type": "string",
+          "enum": ["cve", "ghsa", "osv", "bibliotheca", "other"]
+        },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"]
+    },
+    "published": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "withdrawn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string" }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "target"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["supersedes", "superseded-by", "related", "duplicate-of"]
+          },
+          "target": { "type": "string" }
+        }
+      }
+    },
+    "affected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["volume", "events"],
+      "properties": {
+        "volume": { "type": "string" },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["introduced"],
+            "properties": {
+              "introduced": { "type": "string" },
+              "fixed": { "type": "string" },
+              "lastAffected": { "type": "string" },
+              "limit": { "type": "string" }
+            }
+          }
+        },
+        "componentImpact": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["component"],
+            "properties": {
+              "component": { "type": "string" },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "summary": { "type": "string" },
+    "details": { "type": "string" }
+  }
+}

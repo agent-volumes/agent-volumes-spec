@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/bridge-metadata.schema.json",
+  "title": "Agent Volumes Extension-to-Core Bridge Metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["active", "canonicalForm", "status", "removalTarget"],
+  "properties": {
+    "active": { "type": "boolean", "const": true },
+    "canonicalForm": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["bridge-active", "bridge-ending", "bridge-ended"]
+    },
+    "removalTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specVersion"],
+      "properties": {
+        "specVersion": { "type": "string" },
+        "phase": { "type": "string" },
+        "profile": { "type": "string" }
+      }
+    },
+    "acceptedAliases": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "warningCategory": {
+      "type": "string",
+      "const": "migration"
+    }
+  }
+}

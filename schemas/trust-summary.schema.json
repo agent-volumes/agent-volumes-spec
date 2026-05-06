@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/trust-summary.schema.json",
+  "title": "Agent Volumes Trust Summary",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["subject", "artifacts", "detailAvailable"],
+  "properties": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "integrity"],
+      "properties": {
+        "purl": { "type": "string", "pattern": "^pkg:volume/" },
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]+$" }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["category", "formatsPresent"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["bom", "provenance", "signature", "other"]
+          },
+          "formatsPresent": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "present": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "detailAvailable": { "type": "boolean" },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "revision": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "judgments": {
+      "type": "object",
+      "description": "Optional derived judgments; not canonical trust facts."
+    }
+  }
+}
