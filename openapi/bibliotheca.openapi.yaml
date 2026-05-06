@@ -1,0 +1,369 @@
+openapi: 3.1.1
+info:
+  title: Agent Volumes Bibliotheca API
+  version: 0.1.0-draft.4
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+paths:
+  /api/v1/search:
+    get:
+      summary: Search the bibliotheca catalog for matching volumes
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [agent, skill, command, tool, hook, mcp-server]
+        - in: query
+          name: runtime
+          schema:
+            type: string
+        - in: query
+          name: provider
+          schema:
+            type: string
+        - in: query
+          name: keyword
+          schema:
+            type: string
+        - in: query
+          name: publisher
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+  /api/v1/volumes/{name}:
+    post:
+      summary: Publish an unscoped volume
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+  /api/v1/volumes/@{scope}/{name}:
+    post:
+      summary: Publish a scoped volume
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+  /api/v1/volumes/{name}/{version}:
+    get:
+      summary: Fetch volume release metadata
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+    delete:
+      summary: Unpublish an unscoped volume version
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Unpublish accepted or tombstoned
+  /api/v1/volumes/@{scope}/{name}/{version}:
+    get:
+      summary: Fetch scoped volume release metadata
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+    delete:
+      summary: Unpublish a scoped volume version
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Unpublish accepted or tombstoned
+  /api/v1/volumes/{name}/{version}/trust/summary:
+    get:
+      summary: Trust summary for a release
+      responses:
+        '200':
+          description: Trust summary
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-summary.schema.json
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
+    get:
+      summary: Trust summary for a scoped release
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust summary
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-summary.schema.json
+  /api/v1/volumes/{name}/{version}/trust/detail:
+    get:
+      summary: Trust detail for a release
+      responses:
+        '200':
+          description: Trust detail
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-detail.schema.json
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
+    get:
+      summary: Trust detail for a scoped release
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust detail
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-detail.schema.json
+  /api/v1/advisories:
+    get:
+      summary: Search advisories
+      parameters:
+        - in: query
+          name: volume
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Advisory list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: ../schemas/advisory.schema.json
+  /api/v1/advisories/{advisoryId}:
+    get:
+      summary: Fetch one advisory
+      parameters:
+        - in: path
+          name: advisoryId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Advisory payload
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/advisory.schema.json
+  /api/v1/capabilities:
+    get:
+      summary: Bibliotheca capability metadata
+      responses:
+        '200':
+          description: Capability metadata
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/capability-metadata.schema.json
+components:
+  schemas:
+    SearchResults:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [name, latestVersion]
+            properties:
+              name:
+                type: string
+              latestVersion:
+                type: string
+              description:
+                type: string
+              role:
+                type: string
+              providers:
+                type: array
+                items:
+                  type: string
+              components:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    name:
+                      type: string
+        total:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+        offset:
+          type: integer
+          minimum: 0
+    ReleaseMetadata:
+      type: object
+      required: [name, version, integrity, dist]
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        integrity:
+          type: string
+          pattern: ^sha256:[a-f0-9]+$
+        dist:
+          type: object
+    BridgeMetadata:
+      $ref: ../schemas/bridge-metadata.schema.json
