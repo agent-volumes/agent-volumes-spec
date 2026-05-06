@@ -43,7 +43,7 @@ Agent Volumes functions analogously to established package ecosystems — npm fo
 | Registry            | **Bibliotheca**   | Any registry that hosts and serves volumes. Latin for "library."  |
 | purl type           | `shelf`           | Package URL type identifier for supply chain interoperability.    |
 
-> **Note:** The **shelf** CLI is the reference client for the Agent Volumes standard. **Alexandria** is the reference bibliotheca implementation, operated by Windlass. See the [shelf CLI Specification](shelf-spec.md) for client behavior, dependency resolution, and Alexandria-specific integration details.
+> **Note:** The **shelf** CLI is the Windlass-maintained reference client implementation of the Agent Volumes standard. **Alexandria** is the Windlass-maintained reference bibliotheca implementation. These are downstream implementation projects, not governance artifacts of the Agent Volumes Organization, and they do not define the standard or its governance. Placeholder repository links: [`windlasstech/shelf`](https://github.com/windlasstech/shelf) and [`windlasstech/alexandria`](https://github.com/windlasstech/alexandria). Placeholder companion documentation link for shelf client behavior and dependency resolution: [`windlasstech/shelf`](https://github.com/windlasstech/shelf).
 
 ### 1.3 Scope
 
@@ -63,33 +63,40 @@ This specification (v0.1) defines:
 
 This specification does NOT define:
 
-- CLI command syntax or workflows (see the [shelf CLI Specification](shelf-spec.md))
-- Dependency resolution algorithms or lockfile formats (see the [shelf CLI Specification](shelf-spec.md))
+- CLI command syntax or workflows (planned companion documentation: [`windlasstech/shelf`](https://github.com/windlasstech/shelf))
+- Dependency resolution algorithms or lockfile formats (planned companion documentation: [`windlasstech/shelf`](https://github.com/windlasstech/shelf))
 - Specific registry operations policies (curation, moderation, pricing)
 - Runtime execution semantics (how a runtime loads and executes components)
 
 ### 1.4 Relationship to Existing Standards
 
-| Standard                                                              | Relationship                                                                                                                     |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement. |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible. The `shelf` type follows CLI-name convention (like `cargo`, `npm`, `pub`).               |
-| [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                                               |
-| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type. Protocol compatibility declarations reference MCP versions.                          |
-| [SPDX License List](https://spdx.org/licenses/)                       | License identifiers use SPDX expressions.                                                                                        |
+| Standard                                                              | Relationship                                                                                                                                                                                 |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement.                                                             |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible. The `shelf` type follows CLI-name convention (like `cargo`, `npm`, `pub`).                                                                           |
+| [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                                                                                                           |
+| [CycloneDX](https://cyclonedx.org/)                                   | CycloneDX is the normative BOM exchange format for Agent Volumes interoperability. Agent Volumes semantics remain canonical and are exported through controlled mappings and extensions.     |
+| [SPDX](https://spdx.dev/)                                             | License identifiers use SPDX expressions. SPDX documents are a secondary export and reference-compatibility target for archival, graph-oriented, and compliance-oriented exchange use cases. |
+| [SLSA](https://slsa.dev/)                                             | SLSA provenance is the baseline provenance model for Agent Volumes publish and verification workflows.                                                                                       |
+| [Sigstore](https://www.sigstore.dev/)                                 | Sigstore-family signing and verification is the baseline trust mechanism for provenance-attached artifacts.                                                                                  |
+| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type. Protocol compatibility declarations reference MCP versions.                                                                                      |
 
 ### 1.5 Terminology
 
 See [Appendix B: Glossary](#appendix-b-glossary) for the complete list. Key terms:
 
-| Term            | Definition                                                                                    |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| **Volume**      | The distribution unit. A versioned package that exports one or more agent components.         |
-| **Component**   | A functional unit executed by an agent runtime. One of six defined types.                     |
-| **Bibliotheca** | A registry that indexes, hosts, and serves volumes. Any conforming registry is a bibliotheca. |
-| **Runtime**     | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).       |
-| **Publisher**   | An entity (individual or organization) that publishes volumes to a bibliotheca.               |
-| **Scope**       | A publisher namespace (e.g., `@acme`). Bibliothecas define their own scope policies.          |
+| Term                           | Definition                                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Volume**                     | The distribution unit. A versioned package that exports one or more agent components.                                              |
+| **Component**                  | A functional unit executed by an agent runtime. One of six defined types.                                                          |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes. Any conforming registry is a bibliotheca.                                      |
+| **Runtime**                    | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).                                            |
+| **Publisher**                  | An entity (individual or organization) that publishes volumes to a bibliotheca.                                                    |
+| **Scope**                      | A publisher namespace (e.g., `@acme`). Bibliothecas define their own scope policies.                                               |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:shelf/...@version`.                                                          |
+| **Immutable content identity** | The resolved `sha256:...` digest of a published release archive.                                                                   |
+| **Trust metadata**             | BOMs, provenance attestations, signatures, scanner findings, and related metadata associated with a published release.             |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts. |
 
 ### 1.6 Notational Conventions
 
@@ -208,6 +215,8 @@ The `shelf` purl type is defined as follows:
 | `subpath`    | `<type>/<componentName>` for component references     |
 
 **Compatibility:** Shelf purl identifiers are compatible with SBOM standards (SPDX, CycloneDX), vulnerability databases (OSV, GitHub Advisory Database), and supply chain tools (Snyk, Dependabot, Grype).
+
+For trust and supply chain workflows, `pkg:shelf/...@version` is the release's **logical identity**. It is paired with the release's **immutable content identity** — the resolved `sha256:...` digest defined in [Section 7](#7-content-integrity). Trust metadata for a published release MUST remain losslessly mappable to both identities.
 
 ### 2.6 Identifier Resolution Order
 
@@ -457,6 +466,10 @@ All fields OPTIONAL. Omission means no restriction.
 
 ### 3.12 Provenance
 
+Provenance metadata in `volume.toml` declares the source and build context associated with a release. It does not replace external provenance attestations.
+
+For Agent Volumes publish, install, and verification workflows, the baseline provenance model is **SLSA provenance** and the baseline signing and verification stack is **Sigstore-family tooling**. Bibliothecas and clients MAY support additional provenance or signing systems later, but those do not replace the baseline interoperability target.
+
 ```toml
 [provenance]
 source-repo = "https://github.com/acme/research-agent-pack"
@@ -466,6 +479,8 @@ system = "github-actions"
 workflow = "release.yml"
 signed = true
 ```
+
+The manifest-level provenance section is declarative package metadata. External trust artifacts such as BOMs, provenance attestations, and signatures remain associated with the published release subject described in [Section 7.5](#75-release-subject-identity).
 
 ### 3.13 Complete Example
 
@@ -786,7 +801,7 @@ See [Section 3.11](#311-environment-requirements).
 
 ### 7.1 Content Hash
 
-Every volume version is associated with a **content hash** — a SHA-256 digest of the volume's canonical archive.
+Every volume version is associated with a **content hash** — a SHA-256 digest of the volume's canonical archive. Within trust and supply chain workflows, this digest is the release's **immutable content identity**.
 
 ### 7.2 Canonical Archive Construction
 
@@ -802,6 +817,8 @@ After download, clients MUST compute the content hash and compare against the re
 
 Bibliothecas MUST compute and store the content hash server-side at publish time.
 
+If a tarball URL, Git reference, tag, or other delivery reference resolves to content whose computed digest disagrees with the resolved immutable content identity, the digest wins and the release MUST be rejected as inconsistent.
+
 ### 7.4 Hash Format
 
 Content hashes are represented as `sha256:<hex>` strings:
@@ -809,6 +826,21 @@ Content hashes are represented as `sha256:<hex>` strings:
 ```text
 sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
 ```
+
+### 7.5 Release Subject Identity
+
+Every published release has two required, complementary identities:
+
+1. a **logical identity** expressed as `pkg:shelf/...@version`
+2. an **immutable content identity** expressed as the resolved `sha256:...` digest of the published artifact
+
+These two identities together define the published release subject for Agent Volumes trust workflows.
+
+Trust metadata associated with a release — including BOMs, provenance attestations, signatures, scanner findings, and related artifacts — MUST remain losslessly mappable to both identities.
+
+Security advisories are related security records, but they are not themselves release-bound trust metadata artifacts in this model. Advisories remain package-facing records described in [Section 8.4](#84-security-advisories).
+
+Human-facing or transport-facing references such as tarball URLs, Git repository URLs, Git tags, or similar delivery metadata remain useful locators, but they are not the ultimate trust anchor. When such references disagree with the resolved immutable content identity, the digest takes precedence.
 
 ---
 
@@ -828,9 +860,36 @@ Publishers register with a bibliotheca and own one or more scopes (or scopeless 
 
 A bibliotheca MAY automatically assign `trusted` status to curated volumes that have undergone security vetting.
 
+These publisher verification levels are bibliotheca governance signals for publisher identity. They are distinct from release-scoped trust facts and from any optional derived judgments exposed through trust metadata APIs.
+
 ### 8.2 Provenance Attestation
 
-Volumes SHOULD include build provenance per [Section 3.12](#312-provenance). The bibliotheca MAY verify via CI OIDC tokens, cryptographic signatures, and source-commit cross-referencing.
+Volumes SHOULD include manifest provenance metadata per [Section 3.12](#312-provenance) and SHOULD publish provenance attestations for released artifacts.
+
+The baseline provenance model for Agent Volumes is **SLSA provenance**, and the baseline trust mechanism for provenance-attached artifacts is **Sigstore-family signing and verification**. Bibliothecas and clients SHOULD treat this stack as the first interoperability target when generating, discovering, validating, and exchanging provenance-attached artifacts.
+
+Support for additional provenance or signing systems MAY be added later, but it does not replace the baseline interoperability target.
+
+#### 8.2.1 Trust Metadata Subject Binding
+
+Trust metadata for a published release MUST be normatively about the same release subject defined in [Section 7.5](#75-release-subject-identity).
+
+This requirement applies across release-bound trust artifacts, including BOMs, provenance attestations, signatures, scanner findings, and related release metadata.
+
+Conforming bibliothecas and clients MUST preserve a lossless mapping between:
+
+- the package-facing logical identity `pkg:shelf/...@version`
+- the immutable content identity `sha256:...`
+
+If multiple trust artifacts claim incompatible logical identities, incompatible immutable identities, or both, the release metadata MUST be treated as inconsistent and rejected.
+
+#### 8.2.2 Trust Discovery Model
+
+The canonical trust semantics of a published release live at the **attachment/binding layer**: trust metadata is associated with the release subject defined in [Section 7.5](#75-release-subject-identity).
+
+A bibliotheca exposes a package-facing discovery surface derived from that canonical binding. The discovery surface MAY normalize backend or transport differences, but it MUST NOT alter the underlying subject-binding meaning.
+
+This model applies equally to CDN-hosted and Git-backed releases. OCI-style attachment and referrer patterns remain compatible implementation strategies, but they do not define the primary user-facing interaction model of this specification.
 
 ### 8.3 Permission Model
 
@@ -859,6 +918,8 @@ title = "Prompt injection in GitHub issue parser"
 fixed-in = "2.1.0"
 ```
 
+Security advisories remain package-facing records expressed in terms of volume identity and affected versions. A bibliotheca MAY correlate advisories with immutable content identities or other trust metadata for internal processing or advanced workflows, but such correlations MUST NOT alter the advisory's package-facing meaning.
+
 ---
 
 ## 9. Registry API
@@ -866,6 +927,8 @@ fixed-in = "2.1.0"
 ### 9.1 Architecture
 
 A conforming bibliotheca exposes an HTTP API for volume operations. Bibliothecas MAY deliver content via CDN (for curated, immutable volumes) or via Git references (for community-hosted volumes).
+
+In addition to content delivery, a conforming bibliotheca exposes release-scoped trust metadata derived from the canonical trust binding model in [Section 8.2.2](#822-trust-discovery-model). The trust discovery surface MUST work for Git-backed and CDN-hosted releases without requiring clients to understand backend-specific storage conventions.
 
 ```text
                         ┌──────────────────────────────┐
@@ -937,6 +1000,8 @@ For Git-backed volumes:
 }
 ```
 
+The fetch response identifies a release by both its package-facing metadata and its immutable content identity (`integrity`). If the delivery reference later resolves to bytes whose digest does not match `integrity`, clients MUST reject the release and bibliothecas MUST treat the metadata as inconsistent.
+
 #### 9.2.3 Unpublish
 
 A bibliotheca SHOULD allow unpublishing within a grace window (RECOMMENDED: 72 hours) if no dependents exist. After the grace window, removal SHOULD require a security advisory (admin action). Unpublished version numbers SHOULD be tombstoned (reserved, cannot reuse).
@@ -946,6 +1011,49 @@ A bibliotheca SHOULD allow unpublishing within a grace window (RECOMMENDED: 72 h
 ```http
 GET /api/v1/search?q=<query>&type=<component-type>&runtime=<runtime>&provider=<provider>&domain=<domain>&keyword=<keyword>&publisher=<publisher>&limit=20&offset=0
 ```
+
+#### 9.3.1 Trust Metadata Discovery
+
+A conforming bibliotheca MUST expose a release-scoped trust metadata discovery surface.
+
+The surface MAY be implemented as a dedicated endpoint, as a subordinate release metadata resource, or as another closely related HTTP representation. Regardless of transport shape, it MUST preserve the semantics in this section and MUST remain traceable to the canonical subject binding described in [Section 8.2.1](#821-trust-metadata-subject-binding).
+
+#### 9.3.2 Summary View
+
+The trust metadata discovery surface MUST provide a **summary view** suitable for ordinary clients and user interfaces.
+
+The normative core of the summary view is **fact-first**. Required summary semantics MUST be limited to observable trust facts such as:
+
+- whether release trust artifacts are present
+- which trust artifact or predicate categories are available (for example, CycloneDX BOMs, provenance, signatures)
+- which published release subject the artifacts bind to
+- whether a raw locator or detail view is available for independent inspection
+
+Bibliothecas MAY expose additional derived judgments such as verification labels, trust labels, or policy outcomes. Those derived judgments are not canonical truth; they are bibliotheca-produced assessments derived from local trust roots, local policy, or local verification configuration.
+
+#### 9.3.3 Raw Locator and Detail View
+
+The trust metadata discovery surface MUST also provide a **raw locator/detail view** suitable for advanced clients, auditors, and independent verification workflows.
+
+The raw locator/detail view MUST expose sufficient binding and artifact-location information to allow independent retrieval, inspection, and verification of available trust artifacts.
+
+When trust artifacts are present, the raw locator/detail view MUST preserve enough information to identify:
+
+- the release subject to which the artifact is bound
+- the artifact or predicate type
+- where the artifact can be retrieved, or an equivalent embedded representation
+
+When available, this includes the normative CycloneDX BOM and the baseline provenance and signature artifacts described in [Section 8.2](#82-provenance-attestation).
+
+Package-facing advisories remain discoverable through the advisory API in [Section 9.4](#94-security-advisory-api), rather than through the release-scoped trust metadata discovery surface.
+
+#### 9.3.4 Derived Judgments and Deferred Vocabulary
+
+The draft specification does **not** define a common baseline vocabulary for optional derived judgments at this time.
+
+Bibliothecas MAY expose implementation-defined judgment fields through the trust metadata discovery surface, but their names, meanings, and value vocabularies remain implementation-defined during the draft phase.
+
+Clients MUST treat such fields as non-normative adjuncts to the canonical fact layer. Common judgment vocabulary, if needed, is deferred to a later profile or RFC.
 
 ### 9.4 Security Advisory API
 
@@ -1004,18 +1112,24 @@ Conforming bibliothecas SHOULD implement rate limiting. RECOMMENDED tiers:
 A conforming bibliotheca MUST:
 
 1. Accept and serve volumes with valid `volume.toml` manifests (§3).
-2. Implement the Registry API endpoints (§9.2).
+2. Implement the Registry API package operations (§9.2).
 3. Enforce version immutability — once published, a version's content MUST NOT change.
 4. Compute and store content hashes (SHA-256) for all published volumes (§7).
 5. Support the package identity scheme (§2) — both scoped and scopeless identifiers.
 6. Expose search and discovery endpoints (§9.3).
+7. Treat `pkg:shelf/...@version` as the logical identity of a release and the resolved `sha256:...` digest as its immutable content identity (§7.5).
+8. Reject inconsistent release metadata or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled (§7.5, §8.2.1).
+9. Expose release-scoped trust metadata discovery with both summary and raw locator/detail views (§9.3.1-§9.3.4).
+10. Ensure that any API projection of trust metadata remains faithful to the canonical subject binding and does not alter its meaning (§8.2.2).
+11. When BOMs are exposed through the trust metadata surface, support CycloneDX as the normative BOM exchange format (§1.4).
 
 A conforming bibliotheca SHOULD:
 
 1. Implement security advisory tracking (§9.4).
-2. Support provenance attestation verification (§8.2).
+2. Support baseline provenance attestation discovery and verification using SLSA provenance and Sigstore-family signing and verification (§8.2).
 3. Enforce publisher verification levels (§8.1).
 4. Implement rate limiting (§9.6).
+5. Provide SPDX as a secondary export or reference-compatibility target where such exchange is needed (§1.4).
 
 A conforming bibliotheca MAY:
 
@@ -1033,6 +1147,10 @@ A conforming client MUST:
 3. Verify content hashes after download (§7.3).
 4. Support both CDN and Git-backed content delivery.
 5. Support both scoped and scopeless volume identifiers.
+6. Treat `pkg:shelf/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata (§7.5).
+7. Reject fetched content or trust metadata that violates the digest-bound release subject identity (§7.3, §8.2.1).
+8. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata (§9.3.2-§9.3.4).
+9. Distinguish baseline SLSA and Sigstore-family provenance artifacts from unsupported or implementation-defined provenance formats when consuming provenance-attached artifacts (§8.2).
 
 A conforming client SHOULD:
 
@@ -1040,6 +1158,7 @@ A conforming client SHOULD:
 2. Check security advisories on install.
 3. Warn on permission escalation.
 4. Support frozen installs for CI environments.
+5. Support the baseline SLSA and Sigstore-family provenance workflow when consuming provenance-attached artifacts (§8.2).
 
 ---
 
@@ -1059,18 +1178,18 @@ A conforming client SHOULD:
 
 ### A.1 Top-Level Tables
 
-| Table                      | Required          | Description                    |
-| -------------------------- | ----------------- | ------------------------------ |
-| `[volume]`                 | Yes               | Package metadata and identity. |
-| `[publisher]`              | Yes               | Publisher identity.            |
-| `[[components]]`           | Yes (except meta) | Exported components.           |
-| `[dependencies]`           | No                | Volume-level dependencies.     |
-| `[component-dependencies]` | No                | Component-level dependencies.  |
-| `[[runtimes]]`             | No                | Runtime compatibility.         |
-| `[[protocols]]`            | No                | Protocol compatibility.        |
-| `[permissions]`            | No                | Required permissions.          |
-| `[environment]`            | No                | Environment requirements.      |
-| `[provenance]`             | No                | Build provenance.              |
+| Table                      | Required          | Description                                      |
+| -------------------------- | ----------------- | ------------------------------------------------ |
+| `[volume]`                 | Yes               | Package metadata and identity.                   |
+| `[publisher]`              | Yes               | Publisher identity.                              |
+| `[[components]]`           | Yes (except meta) | Exported components.                             |
+| `[dependencies]`           | No                | Volume-level dependencies.                       |
+| `[component-dependencies]` | No                | Component-level dependencies.                    |
+| `[[runtimes]]`             | No                | Runtime compatibility.                           |
+| `[[protocols]]`            | No                | Protocol compatibility.                          |
+| `[permissions]`            | No                | Required permissions.                            |
+| `[environment]`            | No                | Environment requirements.                        |
+| `[provenance]`             | No                | Source and build context for release provenance. |
 
 ### A.2 Validation Rules
 
@@ -1085,24 +1204,32 @@ A conforming client SHOULD:
 9. `permissions.*` MUST be boolean.
 10. Component permissions MUST NOT exceed volume-level permissions.
 
+`[provenance]` metadata describes package-declared source and build context. It does not replace external trust artifacts such as provenance attestations, BOMs, or signatures associated with the published release subject.
+
 ---
 
 ## Appendix B: Glossary
 
-| Term              | Definition                                                                                      |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| **Agent Volumes** | The standard defined by this specification. Abbreviated as **volumes** where unambiguous.       |
-| **Volume**        | A versioned distribution unit that exports one or more agent components.                        |
-| **Component**     | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP. |
-| **Bibliotheca**   | A registry that indexes, hosts, and serves volumes. Any conforming registry is a bibliotheca.   |
-| **Runtime**       | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).         |
-| **Publisher**     | An entity that publishes volumes to a bibliotheca.                                              |
-| **Scope**         | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                      |
-| **Content Hash**  | SHA-256 digest of a volume's canonical archive, used for integrity verification.                |
-| **purl**          | Package URL — standardized identifier. Agent Volumes uses type `shelf`.                         |
-| **Entrypoint**    | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                   |
-| **Manifest**      | `volume.toml` — package-level metadata. Distinct from component manifests (SKILL.md).           |
-| **Advisory**      | Security notice about a known vulnerability in a published volume.                              |
+| Term                           | Definition                                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Agent Volumes**              | The standard defined by this specification. Abbreviated as **volumes** where unambiguous.                                          |
+| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                           |
+| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP.                                    |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes. Any conforming registry is a bibliotheca.                                      |
+| **Runtime**                    | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).                                            |
+| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                 |
+| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                         |
+| **Content Hash**               | SHA-256 digest of a volume's canonical archive, used for integrity verification.                                                   |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:shelf/...@version`.                                                          |
+| **Immutable content identity** | The resolved `sha256:...` digest of a published release artifact.                                                                  |
+| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `shelf`.                                                            |
+| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                      |
+| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component manifests (SKILL.md).                                              |
+| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                 |
+| **Trust metadata**             | BOMs, provenance attestations, signatures, scanner findings, and related metadata associated with a published release.             |
+| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                               |
+| **Raw locator/detail view**    | A trust metadata representation exposing artifact locations and binding details for independent inspection and verification.       |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts. |
 
 ---
 
