@@ -41,7 +41,7 @@ Agent Volumes functions analogously to established package ecosystems — npm fo
 | Protocol / Standard | **Agent Volumes** | This specification. Abbreviated as **volumes** where unambiguous. |
 | Distribution unit   | **Volume**        | A versioned package of agent components. Like a library volume.   |
 | Registry            | **Bibliotheca**   | Any registry that hosts and serves volumes. Latin for "library."  |
-| purl type           | `shelf`           | Package URL type identifier for supply chain interoperability.    |
+| purl type           | `volume`          | Package URL type identifier for supply chain interoperability.    |
 
 > **Note:** The **shelf** CLI is the Windlass-maintained reference client implementation of the Agent Volumes standard. **Alexandria** is the Windlass-maintained reference bibliotheca implementation. These are downstream implementation projects, not governance artifacts of the Agent Volumes Organization, and they do not define the standard or its governance. Placeholder repository links: [`windlasstech/shelf`](https://github.com/windlasstech/shelf) and [`windlasstech/alexandria`](https://github.com/windlasstech/alexandria). Placeholder companion documentation link for shelf client behavior and dependency resolution: [`windlasstech/shelf`](https://github.com/windlasstech/shelf).
 
@@ -73,7 +73,7 @@ This specification does NOT define:
 | Standard                                                              | Relationship                                                                                                                                                                                 |
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement.                                                             |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible. The `shelf` type follows CLI-name convention (like `cargo`, `npm`, `pub`).                                                                           |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible. The `volume` type aligns with the standard's distribution-unit terminology and follows common singular ecosystem-token naming conventions.           |
 | [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                                                                                                           |
 | [CycloneDX](https://cyclonedx.org/)                                   | CycloneDX is the normative BOM exchange format for Agent Volumes interoperability. Agent Volumes semantics remain canonical and are exported through controlled mappings and extensions.     |
 | [SPDX](https://spdx.dev/)                                             | License identifiers use SPDX expressions. SPDX documents are a secondary export and reference-compatibility target for archival, graph-oriented, and compliance-oriented exchange use cases. |
@@ -93,7 +93,7 @@ See [Appendix B: Glossary](#appendix-b-glossary) for the complete list. Key term
 | **Runtime**                    | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).                                            |
 | **Publisher**                  | An entity (individual or organization) that publishes volumes to a bibliotheca.                                                    |
 | **Scope**                      | A publisher namespace (e.g., `@acme`). Bibliothecas define their own scope policies.                                               |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:shelf/...@version`.                                                          |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                         |
 | **Immutable content identity** | The resolved `sha256:...` digest of a published release archive.                                                                   |
 | **Trust metadata**             | BOMs, provenance attestations, signatures, scanner findings, and related metadata associated with a published release.             |
 | **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts. |
@@ -115,13 +115,13 @@ All volumes and components MUST be globally identifiable. The identity scheme is
 **Scopeless identifier** (when the bibliotheca supports scopeless names):
 
 ```text
-pkg:shelf/<name>
+pkg:volume/<name>
 ```
 
 **Scoped identifier:**
 
 ```text
-pkg:shelf/%40<scope>/<name>
+pkg:volume/%40<scope>/<name>
 ```
 
 The `%40` is the URL-encoded form of `@`, per purl encoding rules. In user-facing contexts (CLI, documentation), the decoded form `@scope/name` is used.
@@ -135,12 +135,12 @@ The `%40` is the URL-encoded form of `@`, per purl encoding rules. In user-facin
 
 **Examples:**
 
-| Bibliotheca | purl form                              | User-facing form           |
-| ----------- | -------------------------------------- | -------------------------- |
-| Curated     | `pkg:shelf/search-toolkit`             | `search-toolkit`           |
-| Curated     | `pkg:shelf/github-provider`            | `github-provider`          |
-| Scoped      | `pkg:shelf/%40acme/research-pack`      | `@acme/research-pack`      |
-| Scoped      | `pkg:shelf/%40yunseo-kim/arxiv-search` | `@yunseo-kim/arxiv-search` |
+| Bibliotheca | purl form                               | User-facing form           |
+| ----------- | --------------------------------------- | -------------------------- |
+| Curated     | `pkg:volume/search-toolkit`             | `search-toolkit`           |
+| Curated     | `pkg:volume/github-provider`            | `github-provider`          |
+| Scoped      | `pkg:volume/%40acme/research-pack`      | `@acme/research-pack`      |
+| Scoped      | `pkg:volume/%40yunseo-kim/arxiv-search` | `@yunseo-kim/arxiv-search` |
 
 **Naming rules:**
 
@@ -158,15 +158,15 @@ Versioned volumes follow [Semantic Versioning 2.0.0](https://semver.org/).
 **Format:**
 
 ```text
-pkg:shelf/<name>@<version>
-pkg:shelf/%40<scope>/<name>@<version>
+pkg:volume/<name>@<version>
+pkg:volume/%40<scope>/<name>@<version>
 ```
 
 **Examples:**
 
 ```text
-pkg:shelf/github-provider@1.2.0
-pkg:shelf/%40acme/research-pack@2.0.0-beta.1
+pkg:volume/github-provider@1.2.0
+pkg:volume/%40acme/research-pack@2.0.0-beta.1
 ```
 
 ### 2.3 Component Identifier
@@ -176,8 +176,8 @@ Components exported from a volume are addressable via the purl subpath field.
 **Format:**
 
 ```text
-pkg:shelf/<name>#<type>/<componentName>
-pkg:shelf/%40<scope>/<name>#<type>/<componentName>
+pkg:volume/<name>#<type>/<componentName>
+pkg:volume/%40<scope>/<name>#<type>/<componentName>
 ```
 
 | Field           | Description    | Constraints                                                       |
@@ -187,36 +187,36 @@ pkg:shelf/%40<scope>/<name>#<type>/<componentName>
 
 **Examples:**
 
-| purl form                                               | Description                                            |
-| ------------------------------------------------------- | ------------------------------------------------------ |
-| `pkg:shelf/github-provider#tool/create-issue`           | The `create-issue` tool from `github-provider`         |
-| `pkg:shelf/%40acme/research-pack#skill/summarize-paper` | The `summarize-paper` skill from `@acme/research-pack` |
+| purl form                                                | Description                                            |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| `pkg:volume/github-provider#tool/create-issue`           | The `create-issue` tool from `github-provider`         |
+| `pkg:volume/%40acme/research-pack#skill/summarize-paper` | The `summarize-paper` skill from `@acme/research-pack` |
 
 ### 2.4 Fully Qualified Reference
 
 A fully qualified reference pins both version and component.
 
 ```text
-pkg:shelf/github-provider@2.1.0#tool/create-issue
-pkg:shelf/%40acme/research-pack@1.4.0#skill/summarize-paper
+pkg:volume/github-provider@2.1.0#tool/create-issue
+pkg:volume/%40acme/research-pack@1.4.0#skill/summarize-paper
 ```
 
 ### 2.5 purl Integration
 
-The `shelf` purl type is defined as follows:
+The `volume` purl type is defined as follows:
 
 | purl field   | Mapping                                               |
 | ------------ | ----------------------------------------------------- |
-| `type`       | `shelf`                                               |
+| `type`       | `volume`                                              |
 | `namespace`  | `%40<scope>` when scoped; absent when scopeless       |
 | `name`       | Volume name                                           |
 | `version`    | SemVer version string                                 |
 | `qualifiers` | Reserved for future use (e.g., `?repository_url=...`) |
 | `subpath`    | `<type>/<componentName>` for component references     |
 
-**Compatibility:** Shelf purl identifiers are compatible with SBOM standards (SPDX, CycloneDX), vulnerability databases (OSV, GitHub Advisory Database), and supply chain tools (Snyk, Dependabot, Grype).
+**Compatibility:** Identifiers using the `volume` purl type are compatible with SBOM standards (SPDX, CycloneDX), vulnerability databases (OSV, GitHub Advisory Database), and supply chain tools (Snyk, Dependabot, Grype).
 
-For trust and supply chain workflows, `pkg:shelf/...@version` is the release's **logical identity**. It is paired with the release's **immutable content identity** — the resolved `sha256:...` digest defined in [Section 7](#7-content-integrity). Trust metadata for a published release MUST remain losslessly mappable to both identities.
+For trust and supply chain workflows, `pkg:volume/...@version` is the release's **logical identity**. It is paired with the release's **immutable content identity** — the resolved `sha256:...` digest defined in [Section 7](#7-content-integrity). Trust metadata for a published release MUST remain losslessly mappable to both identities.
 
 ### 2.6 Identifier Resolution Order
 
@@ -377,9 +377,9 @@ When a component depends on specific components from another volume, declare the
 ```toml
 [component-dependencies]
 "review-agent" = [
-  "pkg:shelf/github-provider#tool/read-pr",
-  "pkg:shelf/github-provider#tool/comment-pr",
-  "pkg:shelf/%40acme/search-pack#skill/code-search",
+  "pkg:volume/github-provider#tool/read-pr",
+  "pkg:volume/github-provider#tool/comment-pr",
+  "pkg:volume/%40acme/search-pack#skill/code-search",
 ]
 ```
 
@@ -388,7 +388,7 @@ When a component depends on specific components from another volume, declare the
 
 **Component-level resolution semantics:**
 
-1. Component-level dependencies imply volume-level dependencies. If component `review-agent` depends on `pkg:shelf/github-provider#tool/read-pr`, the resolver automatically adds `github-provider` as a volume dependency (if not already declared in `[dependencies]`).
+1. Component-level dependencies imply volume-level dependencies. If component `review-agent` depends on `pkg:volume/github-provider#tool/read-pr`, the resolver automatically adds `github-provider` as a volume dependency (if not already declared in `[dependencies]`).
 2. After volume resolution, the resolver verifies that all referenced components exist in the resolved volume version. If `github-provider@2.1.0` does not export `tool/read-pr`, resolution fails with an error.
 3. Component-level dependencies are **transitive verification checkpoints**: the resolver ensures the full component dependency chain is satisfiable, but does not resolve component versions independently of their parent volumes.
 
@@ -550,8 +550,8 @@ version = ">=2025.02"
 
 [component-dependencies]
 "literature-reviewer" = [
-  "pkg:shelf/research-agent-pack#tool/arxiv-search",
-  "pkg:shelf/research-agent-pack#skill/summarize-paper",
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
 ]
 
 # --- Permissions ---
@@ -831,7 +831,7 @@ sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
 
 Every published release has two required, complementary identities:
 
-1. a **logical identity** expressed as `pkg:shelf/...@version`
+1. a **logical identity** expressed as `pkg:volume/...@version`
 2. an **immutable content identity** expressed as the resolved `sha256:...` digest of the published artifact
 
 These two identities together define the published release subject for Agent Volumes trust workflows.
@@ -878,7 +878,7 @@ This requirement applies across release-bound trust artifacts, including BOMs, p
 
 Conforming bibliothecas and clients MUST preserve a lossless mapping between:
 
-- the package-facing logical identity `pkg:shelf/...@version`
+- the package-facing logical identity `pkg:volume/...@version`
 - the immutable content identity `sha256:...`
 
 If multiple trust artifacts claim incompatible logical identities, incompatible immutable identities, or both, the release metadata MUST be treated as inconsistent and rejected.
@@ -1117,7 +1117,7 @@ A conforming bibliotheca MUST:
 4. Compute and store content hashes (SHA-256) for all published volumes (§7).
 5. Support the package identity scheme (§2) — both scoped and scopeless identifiers.
 6. Expose search and discovery endpoints (§9.3).
-7. Treat `pkg:shelf/...@version` as the logical identity of a release and the resolved `sha256:...` digest as its immutable content identity (§7.5).
+7. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved `sha256:...` digest as its immutable content identity (§7.5).
 8. Reject inconsistent release metadata or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled (§7.5, §8.2.1).
 9. Expose release-scoped trust metadata discovery with both summary and raw locator/detail views (§9.3.1-§9.3.4).
 10. Ensure that any API projection of trust metadata remains faithful to the canonical subject binding and does not alter its meaning (§8.2.2).
@@ -1147,7 +1147,7 @@ A conforming client MUST:
 3. Verify content hashes after download (§7.3).
 4. Support both CDN and Git-backed content delivery.
 5. Support both scoped and scopeless volume identifiers.
-6. Treat `pkg:shelf/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata (§7.5).
+6. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata (§7.5).
 7. Reject fetched content or trust metadata that violates the digest-bound release subject identity (§7.3, §8.2.1).
 8. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata (§9.3.2-§9.3.4).
 9. Distinguish baseline SLSA and Sigstore-family provenance artifacts from unsupported or implementation-defined provenance formats when consuming provenance-attached artifacts (§8.2).
@@ -1220,9 +1220,9 @@ A conforming client SHOULD:
 | **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                 |
 | **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                         |
 | **Content Hash**               | SHA-256 digest of a volume's canonical archive, used for integrity verification.                                                   |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:shelf/...@version`.                                                          |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                         |
 | **Immutable content identity** | The resolved `sha256:...` digest of a published release artifact.                                                                  |
-| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `shelf`.                                                            |
+| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                           |
 | **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                      |
 | **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component manifests (SKILL.md).                                              |
 | **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                 |

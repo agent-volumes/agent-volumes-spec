@@ -32,7 +32,7 @@ Registries that host and serve volumes are called **bibliothecas**.
 | Distribution unit | **Volume**        | A versioned package of agent components.                                                                   |
 | Package manifest  | **volume.toml**   | Package-level metadata, like `package.json` or `Cargo.toml`.                                               |
 | Registry          | **Bibliotheca**   | Any registry that hosts and serves volumes.                                                                |
-| Identity scheme   | **pkg:shelf/…**   | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
+| Identity scheme   | **pkg:volume/…**  | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
 
 This specification is intended for developers building agent runtimes, registries, package managers, and related tooling. End users who consume agent components interact with the standard through client tools such as the `shelf` CLI.
 
@@ -94,7 +94,7 @@ name = "research-mcp"
 entrypoint = "./mcp/research-server.json"
 ```
 
-This volume is identified as `pkg:shelf/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:shelf/research-agent-pack@1.4.0#tool/arxiv-search`.
+This volume is identified as `pkg:volume/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search`.
 
 Install with a compatible client:
 
@@ -124,13 +124,13 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 ### Roadmap
 
-| Milestone                    | Target     | Description                                                          |
-| ---------------------------- | ---------- | -------------------------------------------------------------------- |
-| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                             |
-| Experimental implementations | Q2 2026    | Reference client (`shelf`) and bibliotheca (`Alexandria`) prototypes |
-| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                             |
-| v0.x.y                       | Q4 2026    | Stabilization before release                                         |
-| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                            |
+| Milestone                    | Target     | Description                                                                          |
+| ---------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                                             |
+| Experimental implementations | Q2 2026    | Windlass-maintained reference `shelf` client and `Alexandria` bibliotheca prototypes |
+| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                             |
+| v0.x.y                       | Q4 2026    | Stabilization before release                                                         |
+| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                                            |
 
 Feedback is welcome via [GitHub Issues](https://github.com/agent-volumes/agent-volumes-spec/issues) and [Discussions](https://github.com/agent-volumes/agent-volumes-spec/discussions).
 
@@ -218,13 +218,14 @@ The full specification covers:
 | [ADR-0009](decisions/0009-dual-view-trust-metadata-api.md)                                      | Use a dual-view trust metadata API with summary and raw locator views                                    |
 | [ADR-0010](decisions/0010-fact-first-summary-with-optional-judgments.md)                        | Use fact-first summary semantics with optional derived judgments                                         |
 | [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
+| [ADR-0012](decisions/0012-use-volume-purl-type-instead-of-shelf.md)                             | Use `volume` as the purl type instead of `shelf`                                                         |
 
 ## Related Standards
 
 | Standard                                                              | Relationship                                                                                                  |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition. |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible via the `shelf` type.                                                  |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible via the `volume` type.                                                 |
 | [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                            |
 | [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type.                                                                   |
 | [SPDX License List](https://spdx.org/licenses/)                       | License identifiers use SPDX expressions.                                                                     |
@@ -233,7 +234,7 @@ The full specification covers:
 
 The Agent Volumes specification draws on operational experience from [agent-toolbox](https://github.com/yunseo-kim/agent-toolbox), a cross-runtime distribution system for AI agent skills. Lessons from building and operating a catalog of 110+ curated components across five runtimes — including cross-runtime adapter architecture and automated security scanning — informed the design of this standard.
 
-The specification was initiated by [Yunseo Kim](https://github.com/yunseo-kim) and is now developed under the Agent Volumes Organization, an independent, vendor-neutral standards body. Development infrastructure is provided by Windlass, which operates the [Alexandria](https://github.com/agent-volumes) reference registry as a non-exclusive implementation.
+The specification was initiated by [Yunseo Kim](https://github.com/yunseo-kim) and is now developed under the Agent Volumes Organization, an independent, vendor-neutral standards body. Windlass is expected to develop and maintain reference implementations based on the standard, including the `shelf` CLI and the `Alexandria` bibliotheca. These implementation projects are distinct from the standard's governance authority. Placeholder repository links: [`windlasstech/shelf`](https://github.com/windlasstech/shelf) and [`windlasstech/alexandria`](https://github.com/windlasstech/alexandria).
 
 ## License
 
