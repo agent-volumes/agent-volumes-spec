@@ -214,6 +214,8 @@ The minimal interoperability contract for dependency interpretation is:
 
 The v0.1 core does **not** standardize registry-priority policy across independently configured bibliothecas.
 
+The v0.1 core also does **not** standardize one universal prerelease-selection policy across conforming clients. Clients MAY apply local prerelease-selection behavior or UX policy, and prerelease handling therefore remains outside the portable v0.1 resolver baseline.
+
 ---
 
 ## 3. Volume Manifest
@@ -936,6 +938,8 @@ The v0.1 core trust baseline is:
 - SLSA provenance as the baseline provenance model
 - Sigstore-family signature and verification interoperability as the baseline signing and verification stack
 
+The v0.1 core does **not** claim one stronger AI-BOM or ML-BOM profile commitment beyond that generic CycloneDX baseline. AI-specific BOM representation MAY be refined later through profiles, mappings, or extensions without changing the core BOM strategy.
+
 Scanner-finding interchange is deferred from the normative v0.1 trust baseline.
 
 ### 8.2 Publisher Identity
@@ -1086,8 +1090,10 @@ Bibliothecas MAY deliver release content via CDN, Git-backed references, or both
 POST /api/v1/volumes/{name}
 POST /api/v1/volumes/@{scope}/{name}
 Authorization: Bearer <token>
-Content-Type: application/octet-stream
+Content-Type: application/gzip
 ```
+
+For hosted archive workflows, the publish payload is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
 Publisher must own the target namespace. Version numbers are immutable once published. The bibliotheca computes `integrity` server-side.
 
@@ -1111,10 +1117,17 @@ The fetch response identifies a release by both package-facing metadata and immu
   "integrity": "sha256:a3f2b8c4...",
   "dist": {
     "source": "cdn",
-    "tarball": "https://cdn.example.com/volumes/research-agent-pack/1.4.0.tar.gz"
+    "mediaType": "application/gzip",
+    "url": "https://cdn.example.com/volumes/research-agent-pack/1.4.0.tar.gz"
   }
 }
 ```
+
+For `dist` metadata in v0.1:
+
+- `source = "cdn"` identifies a hosted archive delivery path and MUST expose a `.tar.gz` URL plus the transport media type
+- `source = "git"` identifies a Git-backed delivery path and MUST expose the source repository URL together with a concrete Git reference suitable for reproducible source resolution
+- delivery metadata remains subordinate to the release's immutable content identity; if the resolved delivery content disagrees with the normalized-file-tree digest, the release MUST be rejected as inconsistent
 
 #### 9.2.3 Unpublish
 
@@ -1154,6 +1167,10 @@ At minimum, the trust metadata API MUST support:
 - release-subject binding information
 - trust attachment status metadata
 
+If the release exists but no trust artifacts have yet been attached, the trust metadata surfaces MUST return `200 OK` success semantics with an empty artifact collection rather than treating ordinary trust-artifact absence as a missing-resource error.
+
+Such an empty success response states only that the release exists and that no trust artifacts are currently attached. It MUST NOT by itself be interpreted as successful verification, trusted status, or policy compliance.
+
 #### 9.4.1 Summary View
 
 The normative core of the summary view is **fact-first**.
@@ -1165,6 +1182,8 @@ Required summary semantics MUST be limited to observable trust facts such as:
 - which release subject the attachments bind to
 
 Bibliothecas MAY expose optional derived judgments such as verification labels, trust labels, or policy outcomes. Those derived judgments are not canonical truth.
+
+When no trust artifacts are present for an existing release, the summary view returns an empty `artifacts` array.
 
 #### 9.4.2 Detail View
 
@@ -1178,6 +1197,8 @@ When trust attachments are present, the detail view MUST preserve enough informa
 - where the artifact can be retrieved, or an equivalent embedded representation
 - lifecycle/status metadata and revision metadata when applicable
 
+When no trust artifacts are present for an existing release, the detail view returns an empty attachment collection together with the ordinary bound subject and revision/current-state metadata.
+
 The companion payload schemas for these views are [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json) and [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json).
 
 ### 9.5 Security Advisory API
@@ -1187,10 +1208,11 @@ The advisory API is a distinct package-facing discovery surface. Example topolog
 ```http
 GET /api/v1/advisories?volume={name}
 GET /api/v1/advisories/{advisoryId}
-POST /api/v1/advisories
 ```
 
 The machine-readable advisory contract MUST be JSON-based and follow the companion schema.
+
+Advisory read/discovery behavior is part of the v0.1 core interoperability contract. Advisory write operations such as create, update, withdrawal, moderation, and related authority workflows remain bibliotheca-local in v0.1.
 
 At minimum, advisory payloads MUST include:
 
@@ -1267,15 +1289,16 @@ If tooling accepts the old extension form as input during the bridge period, it 
 
 ### 9.8 Authentication
 
-| Operation           | Auth required               |
-| ------------------- | --------------------------- |
-| Search, fetch       | No                          |
-| Download            | No                          |
-| Publish             | Yes (Bearer token)          |
-| Unpublish           | Yes (Bearer + ownership)    |
-| Advisories (write)  | Yes (admin or local policy) |
-| Capability metadata | No                          |
-| Trust metadata      | No                          |
+| Operation           | Auth required            |
+| ------------------- | ------------------------ |
+| Search, fetch       | No                       |
+| Download            | No                       |
+| Publish             | Yes (Bearer token)       |
+| Unpublish           | Yes (Bearer + ownership) |
+| Capability metadata | No                       |
+| Trust metadata      | No                       |
+
+Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
 ### 9.9 Rate Limiting
 
@@ -1290,6 +1313,8 @@ Conforming bibliothecas SHOULD implement rate limiting. Recommended tiers:
 ### 9.10 Machine-Readable API Contract
 
 The normative HTTP contract companion may use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
+
+The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 7807 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
 
 ---
 
@@ -1310,6 +1335,8 @@ The normative HTTP contract companion may use OpenAPI together with appropriate 
 ### 10.4 Meta Package
 
 `role = "meta"` — dependency bundle with no required exported components.
+
+In the v0.1 core baseline, a meta package is a lightweight dependency-bundle role. It does **not** assign special normative semantics to the full transitive dependency closure beyond ordinary dependency resolution behavior.
 
 ---
 
@@ -1381,6 +1408,8 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - dependency-resolution accept/reject cases
 
 These fixtures are part of the interoperability contract. They are not merely illustrative examples.
+
+Where behavior is explicitly outside the portable v0.1 baseline, such as client-local prerelease-selection policy, the fixture corpus MAY include labeled informational cases that document the exclusion boundary without imposing one required outcome.
 
 ---
 
@@ -1517,6 +1546,8 @@ At minimum, that mapping material must identify:
 - which mappings require controlled extensions
 - which mappings are intentionally lossy
 - how provenance-related fields map into the baseline provenance model
+
+The v0.1 core does not require one narrower AI-specific BOM profile commitment beyond the generic CycloneDX baseline. Where AI-specific semantics need richer exchange treatment, the mapping material MAY identify profile-oriented or extension-oriented paths without implying that the core already guarantees a complete canonical AI-BOM crosswalk.
 
 ### C.3 Fixture Governance
 
