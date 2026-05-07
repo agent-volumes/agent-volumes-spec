@@ -8,6 +8,12 @@ on:
     paths:
       - '**/*.md'
       - '**/*.mdx'
+      - '**/*.json'
+      - '**/*.yaml'
+      - '**/*.yml'
+      - 'scripts/**'
+      - 'package.json'
+      - 'bun.lock'
       - '.github/workflows/markdown-lint.yml'
       - '.markdownlint-cli2.jsonc'
       - '.prettierrc'
@@ -17,6 +23,12 @@ on:
     paths:
       - '**/*.md'
       - '**/*.mdx'
+      - '**/*.json'
+      - '**/*.yaml'
+      - '**/*.yml'
+      - 'scripts/**'
+      - 'package.json'
+      - 'bun.lock'
       - '.github/workflows/markdown-lint.yml'
       - '.markdownlint-cli2.jsonc'
       - '.prettierrc'
@@ -46,3 +58,6 @@ jobs:
 
       - name: Lint Markdown with markdownlint
         run: bun run lint:md
+
+      - name: Validate specification artifacts
+        run: bun run validate:artifacts
