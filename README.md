@@ -217,22 +217,7 @@ The repository also publishes normative machine-readable companion artifacts und
 
 ## Architecture Decision Records
 
-| ADR                                                                                             | Decision                                                                                                 |
-| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md)                                      | Use purl-aligned identity scheme with `shelf` type (superseded by ADR-0012)                              |
-| [ADR-0002](decisions/0002-toml-volume-manifest.md)                                              | Use TOML for volume manifest format                                                                      |
-| [ADR-0003](decisions/0003-six-component-types.md)                                               | Define six component types (superseded by ADR-0085)                                                      |
-| [ADR-0004](decisions/0004-hybrid-registry-architecture.md)                                      | Use hybrid content delivery architecture for bibliothecas                                                |
-| [ADR-0005](decisions/0005-bom-strategy-cyclonedx-profile-with-agent-volumes-semantic-source.md) | Use CycloneDX as the normative BOM exchange format, with Agent Volumes semantics as the canonical source |
-| [ADR-0006](decisions/0006-sigstore-slsa-provenance-baseline.md)                                 | Use Sigstore and SLSA as the provenance and attestation baseline                                         |
-| [ADR-0007](decisions/0007-dual-subject-binding-purl-version-plus-digest.md)                     | Use dual-subject binding with purl+version and resolved digest                                           |
-| [ADR-0008](decisions/0008-dual-layer-trust-discovery-model.md)                                  | Use a dual-layer trust discovery model with canonical attachment binding and bibliotheca API projection  |
-| [ADR-0009](decisions/0009-dual-view-trust-metadata-api.md)                                      | Use a dual-view trust metadata API with summary and raw locator views                                    |
-| [ADR-0010](decisions/0010-fact-first-summary-with-optional-judgments.md)                        | Use fact-first summary semantics with optional derived judgments                                         |
-| [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
-| [ADR-0012](decisions/0012-use-volume-purl-type-instead-of-shelf.md)                             | Use `volume` as the purl type instead of `shelf`                                                         |
-
-For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, conformance artifacts, and cross-runtime compatibility refinements, see [`decisions/0013-...`](decisions/) through [`decisions/0089-...`](decisions/).
+The project's architecture decisions are recorded under [`decisions/`](decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
 
 ## Related Standards
 
