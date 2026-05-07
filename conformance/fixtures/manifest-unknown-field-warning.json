@@ -1,0 +1,36 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "name": "unknown-top-level-table-warning",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "research-agent-pack",
+      "version": "1.4.0",
+      "description": "Research assistant with literature analysis tools",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "summarize-paper",
+        "entrypoint": "./skills/summarize-paper/SKILL.md"
+      }
+    ],
+    "x-local-experiment": {
+      "note": "Unknown manifest structure is accepted in the v0.1 baseline with a warning."
+    }
+  },
+  "expected": {
+    "valid": true,
+    "warnings": [
+      {
+        "category": "unknown-field",
+        "path": "x-local-experiment"
+      }
+    ]
+  }
+}

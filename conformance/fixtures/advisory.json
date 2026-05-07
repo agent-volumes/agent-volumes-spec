@@ -9,8 +9,8 @@
     "url": "https://github.com/advisories/GHSA-xxxx-yyyy-zzzz"
   },
   "severity": "high",
-  "published": "12026-05-01T00:00:00Z",
-  "updated": "12026-05-06T00:00:00Z",
+  "published": "2026-05-01T00:00:00Z",
+  "updated": "2026-05-06T00:00:00Z",
   "relationships": [
     {
       "type": "related",
@@ -19,10 +19,18 @@
   ],
   "affected": {
     "volume": "github-provider",
-    "events": [
+    "purl": "pkg:volume/github-provider",
+    "ranges": [
       {
-        "introduced": "0",
-        "fixed": "2.1.0"
+        "type": "semver",
+        "events": [
+          {
+            "introduced": "0"
+          },
+          {
+            "fixed": "2.1.0"
+          }
+        ]
       }
     ],
     "componentImpact": [

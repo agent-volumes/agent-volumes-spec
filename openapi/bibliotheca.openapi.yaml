@@ -54,6 +54,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResults'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}:
@@ -147,7 +149,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Release metadata
+          description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
@@ -205,7 +207,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Release metadata
+          description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
@@ -372,11 +374,14 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [items]
                 properties:
                   items:
                     type: array
                     items:
                       $ref: ../schemas/advisory.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/advisories/{advisoryId}:

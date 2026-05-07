@@ -1,0 +1,38 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "name": "component-permission-escalation",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "unsafe-tool-pack",
+      "version": "1.0.0",
+      "description": "Fixture showing permission escalation rejection",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "permissions": {
+      "filesystem": "read",
+      "network": "deny",
+      "browser": "deny",
+      "shell": "deny"
+    },
+    "components": [
+      {
+        "type": "tool",
+        "name": "write-files",
+        "entrypoint": "./tools/write-files.json",
+        "permissions": {
+          "filesystem": "read-write"
+        }
+      }
+    ]
+  },
+  "expected": {
+    "valid": false,
+    "failureCategory": "permission-escalation",
+    "path": "components[0].permissions.filesystem"
+  }
+}

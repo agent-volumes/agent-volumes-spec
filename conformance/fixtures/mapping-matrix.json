@@ -211,6 +211,105 @@
         "target": "attestation verification is external to provenance payload",
         "kind": "lossy"
       }
+    },
+    {
+      "agentVolumesField": "volume.role",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:role]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "volume.secondary-roles",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:secondary-roles]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "volume.keywords",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:keywords]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "volume.providers / components[].providers",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:providers] / component.properties[agent-volumes:providers]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "runtimes[]",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:runtimes]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "protocols[]",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:protocols]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "environment",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:environment]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "permissions / components[].permissions",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:permissions] / component.properties[agent-volumes:permissions]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy"
+      }
+    },
+    {
+      "agentVolumesField": "component-dependencies",
+      "cyclonedx": {
+        "target": "dependencies graph plus component.properties[agent-volumes:component-dependencies]",
+        "kind": "extension"
+      },
+      "spdx": {
+        "target": "Relationship[DEPENDS_ON] plus Package.comment",
+        "kind": "lossy"
+      }
     }
   ]
 }

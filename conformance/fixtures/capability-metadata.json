@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1",
+  "specVersion": "0.1.0-draft.4",
+  "scopePolicy": {
+    "scopesSupported": true,
+    "scopelessSupported": true,
+    "scopesRequired": false,
+    "curatedScopelessModel": true
+  },
+  "deliveryModes": ["cdn", "git"],
+  "apis": {
+    "trustMetadata": true,
+    "advisories": true
+  },
+  "extensions": {
+    "example": {
+      "note": "Baseline clients ignore unknown extension content."
+    }
+  },
+  "cache": {
+    "maxAgeSeconds": 300,
+    "revalidate": true
+  }
+}

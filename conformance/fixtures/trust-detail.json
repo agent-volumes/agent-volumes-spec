@@ -5,7 +5,7 @@
   },
   "revision": {
     "revision": "7",
-    "updatedAt": "12026-05-06T00:00:00Z"
+    "updatedAt": "2026-05-06T00:00:00Z"
   },
   "attachments": [
     {
@@ -21,6 +21,30 @@
       },
       "status": {
         "state": "active"
+      },
+      "verification": {
+        "subjectDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "provenance-1",
+      "category": "provenance",
+      "format": {
+        "family": "slsa-provenance",
+        "mediaType": "application/vnd.in-toto+json",
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "version": "1.0"
+      },
+      "locator": {
+        "url": "https://example.test/provenance.intoto.jsonl"
+      },
+      "status": {
+        "state": "active"
+      },
+      "verification": {
+        "subjectDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle",
+        "transparencyLog": "rekor"
       }
     }
   ]
