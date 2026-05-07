@@ -890,7 +890,19 @@ At minimum, implementations MUST:
 4. sort entries lexicographically by normalized path
 5. hash the stable sequence of normalized path + file-content pairs using SHA-256
 
-The exact normalization contract is defined by the v0.1 conformance vectors in [Appendix C](#appendix-c-conformance-fixtures-and-mapping-matrix).
+The v0.1 practical interoperability rule set further requires:
+
+- include/exclude rules are derived from the release subject selected by the publisher and bibliotheca, excluding archive/container metadata, VCS administrative directories, and implementation-local transient files
+- normalized paths use forward slashes, are relative to the volume root, MUST NOT be absolute, and MUST NOT contain `.` or `..` path segments after normalization
+- duplicate normalized paths are invalid
+- file entries are sorted lexicographically by normalized path before hashing
+- line endings are hashed exactly as present in the normalized release file content; implementations MUST NOT rewrite line endings as part of digest construction
+- Unicode path strings are interpreted as UTF-8 and MUST NOT be silently normalized between Unicode normalization forms during digest construction
+- executable-bit state is part of the normalized file metadata for conformance vectors, while other platform-specific mode bits, ownership, timestamps, extended attributes, and archive header metadata are excluded
+- symlinks, hardlinks, Git submodules, device nodes, sockets, and other non-regular-file entries are outside the v0.1 portable release subject unless a future profile defines their handling; baseline releases SHOULD avoid them
+- generated files are included only when they are part of the published release subject; generated local build outputs that are not part of the release subject are excluded
+
+The exact record encoding used by the v0.1 digest vectors is defined by the v0.1 conformance fixtures in [Appendix C](#appendix-c-conformance-fixtures-and-mapping-matrix). Implementations MUST produce the expected digest for those vectors.
 
 ### 7.3 Verification
 
@@ -940,7 +952,9 @@ The v0.1 core trust baseline is:
 
 The v0.1 core does **not** claim one stronger AI-BOM or ML-BOM profile commitment beyond that generic CycloneDX baseline. AI-specific BOM representation MAY be refined later through profiles, mappings, or extensions without changing the core BOM strategy.
 
-Scanner-finding interchange is deferred from the normative v0.1 trust baseline.
+Scanner-finding interchange is **non-normative in v0.1**. Scanner results MAY inform local bibliotheca policy, local derived judgments, vulnerability triage, or future profiles, but v0.1 does not define a portable scanner-finding schema, scanner-result API, scanner severity normalization, or cross-scanner result interchange contract.
+
+The baseline provenance/signing attachment model uses release-subject binding rather than registry-local labels as the interoperability anchor. For SLSA provenance attachments, the baseline predicate type is `https://slsa.dev/provenance/v1`. Provenance and signature artifacts SHOULD be carried in an in-toto/Sigstore-family form that lets a verifier identify the signed subject digest, the logical package identity when present, the builder identity, and the signature or bundle material needed for independent verification.
 
 ### 8.2 Publisher Identity
 
@@ -1005,6 +1019,7 @@ The v0.1 baseline does not claim to solve all possible threats. At minimum, the 
 - arbitrary runtime sandbox escape not covered by runtime-specific enforcement
 - universal trust-root agreement across independent bibliothecas
 - generalized malware or vulnerability scanning result normalization across all scanners
+- portable scanner-finding interchange or scanner severity normalization
 
 #### 8.4.3 Threat-to-Mechanism Mapping
 
@@ -1068,6 +1083,10 @@ The v0.1 advisory baseline includes:
 
 Advisory targeting remains **volume-level only** in v0.1.
 
+Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
+
+Scanner findings are not advisory records by themselves in v0.1. A bibliotheca MAY create or update an advisory based on scanner information under local policy, but the portable contract is the advisory read/discovery model, not scanner-result interchange.
+
 The normative machine-readable advisory contract is published in [`schemas/advisory.schema.json`](schemas/advisory.schema.json), with a corresponding example fixture in [`conformance/fixtures/advisory.json`](conformance/fixtures/advisory.json).
 
 ---
@@ -1101,6 +1120,8 @@ Clients publishing artifacts MUST fail before submission when a component declar
 
 Bibliothecas that discover permission escalation through publish-time validation, operator review, vulnerability reporting, automated inspection, or equivalent local mechanisms MUST block the affected artifact from continued distribution. The v0.1 baseline does not require every bibliotheca to perform mandatory direct permission-escalation validation on every publish attempt.
 
+Publish conflicts MUST be reported when the target version already exists, when the uploaded package identity disagrees with the target path, or when release metadata cannot be reconciled with the computed normalized-file-tree digest. Validation failures, including malformed archives or invalid manifests, use the baseline problem-details error contract described in [Section 9.10](#910-machine-readable-api-contract).
+
 #### 9.2.2 Fetch
 
 ```http
@@ -1129,9 +1150,11 @@ For `dist` metadata in v0.1:
 - `source = "git"` identifies a Git-backed delivery path and MUST expose the source repository URL together with a concrete Git reference suitable for reproducible source resolution
 - delivery metadata remains subordinate to the release's immutable content identity; if the resolved delivery content disagrees with the normalized-file-tree digest, the release MUST be rejected as inconsistent
 
+Fetch responses expose release metadata, not a resolver policy. Registry priority, source selection across multiple configured bibliothecas, and prerelease-selection behavior remain outside the portable v0.1 API baseline.
+
 #### 9.2.3 Unpublish
 
-A bibliotheca SHOULD allow unpublishing within a grace window if local policy permits it. Unpublished version numbers SHOULD be tombstoned.
+A bibliotheca SHOULD allow unpublishing within a grace window if local policy permits it. Unpublished version numbers SHOULD be tombstoned. If a tombstoned version is requested, a bibliotheca SHOULD report the version as unavailable while preserving enough metadata to prevent silent reuse of the same version number.
 
 ### 9.3 Search API
 
@@ -1152,6 +1175,8 @@ At minimum, the search API SHOULD support filtering by:
 - keyword
 - publisher
 - pagination controls
+
+Search result ordering, ranking, and text relevance are bibliotheca-local. `limit` and `offset` are zero-based pagination controls in the baseline API contract; clients MUST NOT infer a stable global ordering across bibliothecas unless a specific bibliotheca documents one locally.
 
 The machine-readable API contract for this surface is part of [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml).
 
@@ -1244,6 +1269,8 @@ The capability metadata document MUST:
 - be cacheable with minimal cache-safety guidance
 
 Unknown capability fields or values MUST be ignored by baseline clients.
+
+Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of trust/advisory surfaces; richer trust-profile or scanner-profile negotiation remains outside the v0.1 core.
 
 The machine-readable capability metadata contract is published in [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json).
 
@@ -1401,11 +1428,14 @@ A conforming client SHOULD:
 
 The v0.1 core requires normative conformance fixtures and vectors for at least:
 
+- manifest valid/invalid/warning behavior, including unknown-field warnings
 - normalized file tree digest golden vectors
 - trust metadata summary/detail payload fixtures
 - advisory payload fixtures
+- capability metadata payload fixtures
 - BOM/provenance mapping sample fixtures
 - dependency-resolution accept/reject cases
+- permission-escalation rejection cases
 
 These fixtures are part of the interoperability contract. They are not merely illustrative examples.
 
@@ -1529,11 +1559,14 @@ The draft companion artifact inventory includes at least:
 
 The v0.1 fixture set includes at least:
 
+- manifest accept/reject/warning fixtures, including unknown-field warning behavior
 - digest vectors for normalized file trees
 - trust summary/detail payload fixtures
 - advisory payload fixtures
+- capability metadata fixtures, including unknown field/value tolerance behavior
 - bridge-metadata fixtures
 - resolver accept/reject fixtures
+- permission-escalation rejection fixtures
 - BOM/provenance mapping fixtures
 
 ### C.2 Mapping Matrix Requirement
