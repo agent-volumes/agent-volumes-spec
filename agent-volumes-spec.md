@@ -110,18 +110,18 @@ Prose-heavy or interpretive material such as governance narrative or the threat 
 
 See [Appendix D: Glossary](#appendix-d-glossary) for the complete list. Key terms:
 
-| Term                           | Definition                                                                                                                         |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Volume**                     | The distribution unit. A versioned package that exports one or more agent components.                                              |
-| **Component**                  | A functional unit executed by an agent runtime. One of seven defined types.                                                        |
-| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                |
-| **Runtime**                    | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).                                            |
-| **Publisher**                  | An entity (individual or organization) that publishes volumes to a bibliotheca.                                                    |
-| **Scope**                      | A publisher namespace (e.g., `@acme`). Bibliothecas define their own scope policies.                                               |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                         |
-| **Immutable content identity** | The resolved `sha256:...` digest of a normalized file tree for a published release.                                                |
-| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance attestations, signature, or related metadata.                            |
-| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts. |
+| Term                           | Definition                                                                                                                                                                                         |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Volume**                     | The distribution unit. A versioned package that exports one or more agent components.                                                                                                              |
+| **Component**                  | A functional unit executed by an agent runtime. One of seven defined types.                                                                                                                        |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                                                                                |
+| **Runtime**                    | A host, client, SDK, or harness capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI). Runtime identity does not identify the underlying AI model selected by that system. |
+| **Publisher**                  | An entity (individual or organization) that publishes volumes to a bibliotheca.                                                                                                                    |
+| **Scope**                      | A publisher namespace (e.g., `@acme`). Bibliothecas define their own scope policies.                                                                                                               |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                                                                         |
+| **Immutable content identity** | The resolved `sha256:...` digest of a normalized file tree for a published release.                                                                                                                |
+| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance attestations, signature, or related metadata.                                                                                            |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                                                                 |
 
 ### 1.8 Notational Conventions
 
@@ -788,16 +788,29 @@ Volumes that export exactly one component still use the same manifest model. The
 
 ### 6.1 Runtime Definitions
 
-| Runtime ID      | Description                       |
-| --------------- | --------------------------------- |
-| `claude-code`   | Anthropic's Claude Code CLI agent |
-| `opencode`      | OpenCode CLI agent                |
-| `cursor`        | Cursor AI editor                  |
-| `codex`         | OpenAI Codex CLI agent            |
-| `gemini`        | Google Gemini CLI agent           |
-| `openai-agents` | OpenAI Agents SDK                 |
-| `generic-mcp`   | Any MCP-compatible client         |
-| `generic-cli`   | Any CLI-based agent runtime       |
+A runtime identifier describes the agent execution host, client, SDK, or harness that loads and executes Agent Volumes components. It does not identify the underlying AI model selected by that runtime. Model/provider compatibility and observed model usage are intentionally outside the v0.1 core runtime identifier model and may be addressed by future profiles or extension metadata.
+
+Adding a new runtime identifier to this list is an additive, non-breaking specification update when it does not redefine, remove, or invalidate an existing runtime identifier. Such additions still require a new specification release so that the prose specification and companion artifacts remain aligned.
+
+| Runtime ID        | Description                       |
+| ----------------- | --------------------------------- |
+| `claude-code`     | Anthropic's Claude Code CLI agent |
+| `cline`           | Cline IDE and CLI agent           |
+| `continue`        | Continue IDE and CLI agent        |
+| `opencode`        | OpenCode CLI agent                |
+| `cursor`          | Cursor AI editor                  |
+| `codex`           | OpenAI Codex CLI agent            |
+| `gemini`          | Google Gemini CLI agent           |
+| `goose`           | Goose desktop and CLI agent       |
+| `crewai`          | CrewAI agent framework            |
+| `hermes-agent`    | Hermes Agent autonomous runtime   |
+| `langgraph`       | LangGraph agent runtime SDK       |
+| `openai-agents`   | OpenAI Agents SDK                 |
+| `openclaw`        | OpenClaw autonomous agent runtime |
+| `pi-agent`        | Pi coding agent runtime           |
+| `semantic-kernel` | Microsoft Semantic Kernel SDK     |
+| `generic-mcp`     | Any MCP-compatible client         |
+| `generic-cli`     | Any CLI-based agent runtime       |
 
 ### 6.2 Protocol Compatibility
 
@@ -1590,32 +1603,32 @@ Fixture updates that materially change interoperability expectations are normati
 
 ## Appendix D: Glossary
 
-| Term                           | Definition                                                                                                                                 |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Agent Volumes**              | The standard defined by this specification.                                                                                                |
-| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                                   |
-| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                         |
-| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                        |
-| **Runtime**                    | A system capable of executing agent components.                                                                                            |
-| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                         |
-| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                                 |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                 |
-| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                            |
-| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                                   |
-| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                              |
-| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter.     |
-| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                         |
-| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                       |
-| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                       |
-| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                       |
-| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                     |
-| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.         |
-| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                        |
-| **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                            |
-| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes. |
-| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                    |
-| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.            |
-| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                               |
+| Term                           | Definition                                                                                                                                                 |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agent Volumes**              | The standard defined by this specification.                                                                                                                |
+| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                                                   |
+| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                                         |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                                        |
+| **Runtime**                    | A host, client, SDK, or harness capable of executing agent components. Runtime identity does not identify the underlying AI model selected by that system. |
+| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                                         |
+| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                                                 |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                                 |
+| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                                            |
+| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                                                   |
+| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                                              |
+| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter.                     |
+| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                                         |
+| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                                       |
+| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                                       |
+| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                                       |
+| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                                     |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                         |
+| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                                        |
+| **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                                            |
+| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes.                 |
+| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                                    |
+| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.                            |
+| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                                               |
 
 ---
 
