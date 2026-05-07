@@ -21,7 +21,7 @@ An open specification for packaging, distributing, and verifying components for 
 
 **Agent Volumes** defines a packaging and distribution standard for the AI agent component ecosystem — analogous to npm for JavaScript, PyPI for Python, or crates.io for Rust — but specialized for **AI agent systems**.
 
-AI agent runtimes — Claude Code, Codex, Gemini CLI, and others — increasingly rely on skills, tools, hooks, and MCP servers. But the ecosystem currently lacks a standard way to package and distribute these components. Runtimes define incompatible layouts, agent components have no shared identity or versioning model, and there is no mechanism for dependency resolution or supply chain verification. Agent Volumes addresses these gaps.
+AI agent runtimes — Claude Code, Codex, Gemini CLI, and others — increasingly rely on skills, tools, hooks, MCP servers, and LSP servers. But the ecosystem currently lacks a standard way to package and distribute these components. Runtimes define incompatible layouts, agent components have no shared identity or versioning model, and there is no mechanism for dependency resolution or supply chain verification. Agent Volumes addresses these gaps.
 
 The distribution unit is a **volume**: a versioned package that exports one or more agent components.
 Registries that host and serve volumes are called **bibliothecas**.
@@ -42,7 +42,7 @@ Agent Volumes is designed to be runtime-neutral, enabling interoperability acros
 
 The AI agent component ecosystem faces three structural risks that a shared standard can address:
 
-- **Fragmentation.** Each runtime defines its own component layout. Developers write the same skill, tool, or MCP server multiple times for different runtimes. This duplication slows ecosystem growth and fragments quality assurance.
+- **Fragmentation.** Each runtime defines its own component layout. Developers write the same skill, tool, MCP server, or LSP server multiple times for different runtimes. This duplication slows ecosystem growth and fragments quality assurance.
 
 - **No supply chain identity.** Agent components have no standard identifier, no versioning model, and no provenance chain. Organizations cannot audit what runs inside their agent systems.
 
@@ -52,7 +52,7 @@ Agent Volumes defines a common packaging standard so that runtimes can interoper
 
 ## Component Types
 
-Volumes export six component types:
+Volumes export seven component types:
 
 | Type           | Semantics                                             | Invoked by      |
 | -------------- | ----------------------------------------------------- | --------------- |
@@ -62,10 +62,11 @@ Volumes export six component types:
 | **Tool**       | Function-call endpoints for agent use                 | Agent           |
 | **Hook**       | Lifecycle event handlers                              | Runtime events  |
 | **MCP Server** | Model Context Protocol service endpoints              | Runtime / Agent |
+| **LSP Server** | Language Server Protocol service endpoints            | Runtime / Agent |
 
 ## Quick Example
 
-A minimal `volume.toml` declaring three components:
+A minimal `volume.toml` declaring four components:
 
 ```toml
 [volume]
@@ -91,7 +92,12 @@ entrypoint = "./tools/arxiv-search.json"
 [[components]]
 type = "mcp-server"
 name = "research-mcp"
-entrypoint = "./mcp/research-server.json"
+entrypoint = "./.mcp.json"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
 ```
 
 This volume is identified as `pkg:volume/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search`.
@@ -191,7 +197,7 @@ The full specification covers:
 1. **Introduction** — Purpose, scope, and relationship to existing standards
 2. **Package Identity Scheme** — purl-aligned globally unique identifiers
 3. **Volume Manifest** — `volume.toml` schema and validation rules
-4. **Component Types** — Six types with precise semantics
+4. **Component Types** — Seven types with precise semantics
 5. **Component Export System** — Standardized discovery and loading
 6. **Cross-Runtime Compatibility Model** — Runtime, protocol, and environment declarations
 7. **Content Integrity** — normalized-file-tree integrity construction and verification
@@ -211,11 +217,13 @@ The repository also publishes normative machine-readable companion artifacts und
 
 ## Architecture Decision Records
 
+<!-- markdownlint-disable MD060 -->
+
 | ADR                                                                                             | Decision                                                                                                 |
 | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md)                                      | Use purl-aligned identity scheme with `shelf` type                                                       |
+| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md)                                      | Use purl-aligned identity scheme with `shelf` type (superseded by ADR-0012)                              |
 | [ADR-0002](decisions/0002-toml-volume-manifest.md)                                              | Use TOML for volume manifest format                                                                      |
-| [ADR-0003](decisions/0003-six-component-types.md)                                               | Define six component types                                                                               |
+| [ADR-0003](decisions/0003-six-component-types.md)                                               | Define six component types (superseded by ADR-0085)                                                      |
 | [ADR-0004](decisions/0004-hybrid-registry-architecture.md)                                      | Use hybrid content delivery architecture for bibliothecas                                                |
 | [ADR-0005](decisions/0005-bom-strategy-cyclonedx-profile-with-agent-volumes-semantic-source.md) | Use CycloneDX as the normative BOM exchange format, with Agent Volumes semantics as the canonical source |
 | [ADR-0006](decisions/0006-sigstore-slsa-provenance-baseline.md)                                 | Use Sigstore and SLSA as the provenance and attestation baseline                                         |
@@ -226,17 +234,24 @@ The repository also publishes normative machine-readable companion artifacts und
 | [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
 | [ADR-0012](decisions/0012-use-volume-purl-type-instead-of-shelf.md)                             | Use `volume` as the purl type instead of `shelf`                                                         |
 
-For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, and conformance artifacts, see [`decisions/0013-...`](decisions/) through [`decisions/0082-...`](decisions/).
+<!-- markdownlint-restore MD060 -->
+
+For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, conformance artifacts, and cross-runtime compatibility refinements, see [`decisions/0013-...`](decisions/) through [`decisions/0088-...`](decisions/).
 
 ## Related Standards
 
-| Standard                                                              | Relationship                                                                                                  |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition. |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible via the `volume` type.                                                 |
-| [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                            |
-| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type.                                                                   |
-| [SPDX License List](https://spdx.org/licenses/)                       | License identifiers use SPDX expressions.                                                                     |
+<!-- markdownlint-disable MD060 -->
+
+| Standard                                                                                | Relationship                                                                                                  |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [Agent Skills Specification](https://agentskills.io/specification.md)                   | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition. |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)                          | Volume identifiers are purl-compatible via the `volume` type.                                                 |
+| [Semantic Versioning 2.0.0](https://semver.org/)                                        | All volume versions follow SemVer.                                                                            |
+| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)                        | MCP Server is a first-class component type.                                                                   |
+| [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) | LSP Server is a first-class component type.                                                                   |
+| [SPDX License List](https://spdx.org/licenses/)                                         | License identifiers use SPDX expressions.                                                                     |
+
+<!-- markdownlint-restore MD060 -->
 
 ## Background
 

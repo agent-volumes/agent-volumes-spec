@@ -16,7 +16,7 @@ paths:
           name: type
           schema:
             type: string
-            enum: [agent, skill, command, tool, hook, mcp-server]
+            enum: [agent, skill, command, tool, hook, mcp-server, lsp-server]
         - in: query
           name: runtime
           schema:

@@ -57,7 +57,7 @@ This specification defines:
 | --------------------------- | ---------------------------------------------------------------------------------------------- |
 | Package Identity Scheme     | Globally unique identifiers for volumes and components                                         |
 | Volume Manifest             | `volume.toml` authoring format and canonical parsed-data validation model                      |
-| Component Type System       | Six component types with precise semantics                                                     |
+| Component Type System       | Seven component types with precise semantics                                                   |
 | Component Export System     | Standardized discovery and loading of exported components                                      |
 | Cross-Runtime Compatibility | Declarations for runtime, protocol, provider, and environment compatibility                    |
 | Content Integrity           | Normalized-file-tree digest construction and verification                                      |
@@ -75,16 +75,21 @@ This specification does **NOT** define:
 
 ### 1.4 Relationship to Existing Standards
 
-| Standard                                                              | Relationship                                                                                                                                                                             |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement.                                                         |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible. The `volume` type aligns with the standard's distribution-unit terminology and common singular package-ecosystem naming conventions.             |
-| [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                                                                                                       |
-| [CycloneDX](https://cyclonedx.org/)                                   | CycloneDX is the normative BOM exchange format for Agent Volumes interoperability. Agent Volumes semantics remain canonical and are exported through controlled mappings and extensions. |
-| [SPDX](https://spdx.dev/)                                             | License identifiers use SPDX expressions. SPDX is a secondary export and reference-compatibility target for archival, graph-oriented, and compliance-oriented exchange use cases.        |
-| [SLSA](https://slsa.dev/)                                             | SLSA provenance is the baseline provenance model for Agent Volumes publish and verification workflows.                                                                                   |
-| [Sigstore](https://www.sigstore.dev/)                                 | Sigstore-family signing and verification is the baseline trust mechanism for provenance-attached artifacts.                                                                              |
-| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type. Protocol compatibility declarations reference MCP versions.                                                                                  |
+<!-- markdownlint-disable MD060 -->
+
+| Standard                                                                                | Relationship                                                                                                                                                                             |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Agent Skills Specification](https://agentskills.io/specification.md)                   | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement.                                                         |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)                          | Volume identifiers are purl-compatible. The `volume` type aligns with the standard's distribution-unit terminology and common singular package-ecosystem naming conventions.             |
+| [Semantic Versioning 2.0.0](https://semver.org/)                                        | All volume versions follow SemVer.                                                                                                                                                       |
+| [CycloneDX](https://cyclonedx.org/)                                                     | CycloneDX is the normative BOM exchange format for Agent Volumes interoperability. Agent Volumes semantics remain canonical and are exported through controlled mappings and extensions. |
+| [SPDX](https://spdx.dev/)                                                               | License identifiers use SPDX expressions. SPDX is a secondary export and reference-compatibility target for archival, graph-oriented, and compliance-oriented exchange use cases.        |
+| [SLSA](https://slsa.dev/)                                                               | SLSA provenance is the baseline provenance model for Agent Volumes publish and verification workflows.                                                                                   |
+| [Sigstore](https://www.sigstore.dev/)                                                   | Sigstore-family signing and verification is the baseline trust mechanism for provenance-attached artifacts.                                                                              |
+| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)                        | MCP Server is a first-class component type. Protocol compatibility declarations reference MCP versions.                                                                                  |
+| [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) | LSP Server is a first-class component type. Protocol compatibility declarations reference LSP versions where applicable.                                                                 |
+
+<!-- markdownlint-restore MD060 -->
 
 ### 1.5 Normative Source Hierarchy
 
@@ -112,7 +117,7 @@ See [Appendix D: Glossary](#appendix-d-glossary) for the complete list. Key term
 | Term                           | Definition                                                                                                                         |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | **Volume**                     | The distribution unit. A versioned package that exports one or more agent components.                                              |
-| **Component**                  | A functional unit executed by an agent runtime. One of six defined types.                                                          |
+| **Component**                  | A functional unit executed by an agent runtime. One of seven defined types.                                                        |
 | **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                |
 | **Runtime**                    | A system capable of executing agent components (e.g., Claude Code, Cursor, Gemini CLI).                                            |
 | **Publisher**                  | An entity (individual or organization) that publishes volumes to a bibliotheca.                                                    |
@@ -175,10 +180,14 @@ pkg:volume/<name>#<type>/<componentName>
 pkg:volume/%40<scope>/<name>#<type>/<componentName>
 ```
 
-| Field           | Description    | Constraints                                                       |
-| --------------- | -------------- | ----------------------------------------------------------------- |
-| `type`          | Component type | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server` |
-| `componentName` | Component name | Lowercase alphanumeric + hyphens. 1-128 characters.               |
+<!-- markdownlint-disable MD060 -->
+
+| Field           | Description    | Constraints                                                                     |
+| --------------- | -------------- | ------------------------------------------------------------------------------- |
+| `type`          | Component type | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server` |
+| `componentName` | Component name | Lowercase alphanumeric + hyphens. 1-128 characters.                             |
+
+<!-- markdownlint-restore MD060 -->
 
 ### 2.4 Naming Policy
 
@@ -320,17 +329,27 @@ description = "Search arXiv for papers by query, author, or category"
 [[components]]
 type = "mcp-server"
 name = "research-mcp"
-entrypoint = "./mcp/research-server.json"
+entrypoint = "./.mcp.json"
 description = "MCP server providing research tool endpoints"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server configuration for research-oriented code intelligence"
 ```
 
 **Required fields per component:**
 
-| Field        | Type   | Description                                                                 |
-| ------------ | ------ | --------------------------------------------------------------------------- |
-| `type`       | string | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`.          |
-| `name`       | string | Component name. Lowercase alphanumeric + hyphens. Unique within the volume. |
-| `entrypoint` | string | Relative path from volume root to the component's entry file.               |
+<!-- markdownlint-disable MD060 -->
+
+| Field        | Type   | Description                                                                      |
+| ------------ | ------ | -------------------------------------------------------------------------------- |
+| `type`       | string | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`. |
+| `name`       | string | Component name. Lowercase alphanumeric + hyphens. Unique within the volume.      |
+| `entrypoint` | string | Relative path from volume root to the component's entry file.                    |
+
+<!-- markdownlint-restore MD060 -->
 
 **Optional fields per component:**
 
@@ -387,6 +406,10 @@ See [Section 6.1](#61-runtime-definitions) for the current runtime identifier se
 [[protocols]]
 name = "mcp"
 version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
 ```
 
 See [Section 6.2](#62-protocol-compatibility) for the current protocol compatibility model.
@@ -516,8 +539,14 @@ description = "Search arXiv for papers by query, author, or category"
 [[components]]
 type = "mcp-server"
 name = "research-mcp"
-entrypoint = "./mcp/research-server.json"
+entrypoint = "./.mcp.json"
 description = "MCP server providing research tool endpoints"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server configuration for repository-aware code intelligence"
 
 # --- Compatibility ---
 
@@ -528,6 +557,10 @@ compatibility = "^1.0"
 [[protocols]]
 name = "mcp"
 version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
 
 # --- Dependencies ---
 
@@ -563,7 +596,7 @@ source-repo = "https://github.com/example/research-agent-pack"
 
 ## 4. Component Types
 
-Agent Volumes defines six component types. Each type has distinct semantics and manifest conventions.
+Agent Volumes defines seven component types. Each type has distinct semantics and manifest conventions.
 
 ### 4.1 Agent
 
@@ -644,7 +677,9 @@ A **Hook** is a runtime event interception that executes logic in response to ag
 | Execution model      | Event-driven. Triggered automatically by the runtime at specific lifecycle points. |
 | Distinguishing trait | Reactive, not invoked directly. Responds to runtime events.                        |
 
-**Lifecycle events:** `SessionStart`, `SessionEnd`, `BeforeTool`, `AfterTool`, `BeforeModel`, `AfterModel`, `Notification`, `SubagentStart`, `SubagentEnd`.
+**Lifecycle events:** `SessionStart`, `SessionEnd`, `Setup`, `UserPromptSubmit`, `Stop`, `StopFailure`, `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `InstructionsLoaded`, `ConfigChange`, `CwdChanged`, `FileChanged`, `PreCompact`, `PostCompact`.
+
+The canonical hook event vocabulary is chosen for interoperability with established runtime conventions. These identifiers are implementation-facing discovery names; the semantics and conformance expectations remain defined by this specification.
 
 **Hook types:** `command` (shell), `script` (executable), `module` (Node.js/Python).
 
@@ -652,14 +687,35 @@ A **Hook** is a runtime event interception that executes logic in response to ag
 
 An **MCP Server** is a service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/).
 
+<!-- markdownlint-disable MD060 -->
+
 | Property             | Value                                                                        |
 | -------------------- | ---------------------------------------------------------------------------- |
 | Type identifier      | `mcp-server`                                                                 |
-| Entrypoint format    | JSON (`.json`) or YAML (`.yaml`) configuration                               |
+| Entrypoint format    | JSON configuration, canonically discoverable as `.mcp.json`                  |
 | Execution model      | Long-running process. Communicates via `stdio`, `sse`, or `streamable-http`. |
 | Distinguishing trait | Protocol-based service. Runs as a separate process.                          |
 
-### 4.7 Component Type Summary
+<!-- markdownlint-restore MD060 -->
+
+JSON is the canonical and only v0.1 baseline format for MCP server configuration in Agent Volumes. This should be understood as an interoperability convention rather than a protocol-level requirement inherited from MCP itself.
+
+### 4.7 LSP Server
+
+An **LSP Server** is a service endpoint implementing the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
+
+<!-- markdownlint-disable MD060 -->
+
+| Property             | Value                                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Type identifier      | `lsp-server`                                                                                                   |
+| Entrypoint format    | JSON configuration, canonically discoverable as `.lsp.json`                                                    |
+| Execution model      | Long-running process. Typically communicates over `stdio` or a socket transport supported by the host runtime. |
+| Distinguishing trait | Code intelligence service. Provides editor/runtime integration for language-aware operations.                  |
+
+<!-- markdownlint-restore MD060 -->
+
+### 4.8 Component Type Summary
 
 | Type       | Invoked by           | Execution                | State             | Primary format      |
 | ---------- | -------------------- | ------------------------ | ----------------- | ------------------- |
@@ -668,7 +724,8 @@ An **MCP Server** is a service endpoint implementing the [Model Context Protocol
 | Command    | User (explicit)      | Trigger-based workflow   | Per-invocation    | Markdown            |
 | Tool       | Agent (programmatic) | Function call            | Stateless         | JSON/YAML/Script    |
 | Hook       | Runtime (event)      | Event-driven             | Stateless         | YAML/Script         |
-| MCP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON/YAML config    |
+| MCP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config         |
+| LSP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config         |
 
 ---
 
@@ -696,7 +753,8 @@ volume-root/
 ├── commands/
 ├── tools/
 ├── hooks/
-├── mcp/
+├── .mcp.json
+├── .lsp.json
 └── scripts/
 ```
 
@@ -731,13 +789,14 @@ Volumes that export exactly one component still use the same manifest model. The
 
 ### 6.2 Protocol Compatibility
 
-`mcp` is the core protocol identifier in v0.1.
+`mcp` and `lsp` are the core protocol identifiers in v0.1.
 
 See [Section 3.8](#38-protocol-compatibility).
 
-| Protocol ID | Description            |
-| ----------- | ---------------------- |
-| `mcp`       | Model Context Protocol |
+| Protocol ID | Description              |
+| ----------- | ------------------------ |
+| `mcp`       | Model Context Protocol   |
+| `lsp`       | Language Server Protocol |
 
 ### 6.3 Provider Compatibility
 
@@ -752,6 +811,45 @@ See [Section 3.11](#311-environment-requirements).
 | `runtimes` | `node`, `bun`, `deno`, `python`, `ruby`, `go`, `rust` |
 | `os`       | `linux`, `macos`, `windows`                           |
 | `arch`     | `x64`, `arm64`, `x86`                                 |
+
+### 6.5 Runtime Compatibility Profiles
+
+The runtime-neutral core may be supplemented by runtime compatibility profiles for ecosystems whose packaging and lifecycle conventions are important enough to warrant structured interoperability guidance.
+
+Profiles do not replace the core model. They document compatibility affordances such as discovery filenames, hook event vocabulary alignment, and expected component packaging surfaces while leaving the underlying semantics defined by Agent Volumes.
+
+#### 6.5.1 Claude Code compatibility profile
+
+The Claude Code compatibility profile exists to reduce migration friction from an established runtime ecosystem without making Claude Code the conceptual center of the specification.
+
+At minimum, this profile assumes:
+
+- MCP server configuration is canonically packaged as `.mcp.json`
+- LSP server configuration is canonically packaged as `.lsp.json`
+- hook event identifiers align with the canonical runtime-facing vocabulary listed in [Section 4.5](#45-hook)
+- `command`, `hook`, `mcp-server`, and `lsp-server` components can be mapped into familiar Claude Code-style extension surfaces
+
+These identifiers and filenames should be read as interoperability-facing conventions rather than as evidence that Agent Volumes inherits Claude Code semantics wholesale.
+
+#### 6.5.2 Portable tool capability classes
+
+When discussing tool surfaces across runtimes, Agent Volumes distinguishes between **portable capability classes** and **runtime-specific tool names**.
+
+Portable capability classes are the stable cross-runtime concepts that profiles, permissions guidance, and interoperability notes should prefer when possible. Examples include:
+
+- shell execution
+- file read
+- file write or edit
+- file discovery
+- content search
+- web fetch
+- web search
+- MCP or external tool bridge
+- delegation or subagent execution
+- planning and task tracking
+- code intelligence
+
+Runtime-specific tool names such as `Bash`, `WebFetch`, `run_shell_command`, or `webfetch` remain profile-facing or implementation-facing examples rather than normative core taxonomy terms.
 
 ---
 
@@ -1317,7 +1415,7 @@ These fixtures are part of the interoperability contract. They are not merely il
 3. `volume.version` MUST be a valid SemVer string.
 4. `volume.license` MUST be a valid SPDX expression.
 5. `volume.role` MUST be one of: `component`, `plugin`, `provider`, `meta`.
-6. `components[].type` MUST be one of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`.
+6. `components[].type` MUST be one of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
 7. `components[].name` MUST be unique across all components in the volume.
 8. `components[].entrypoint` MUST reference an existing file.
 9. `permissions.*` MUST be boolean.
@@ -1418,7 +1516,7 @@ Fixture updates that materially change interoperability expectations are normati
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | **Agent Volumes**              | The standard defined by this specification.                                                                                            |
 | **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                               |
-| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server.                                 |
+| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                     |
 | **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                    |
 | **Runtime**                    | A system capable of executing agent components.                                                                                        |
 | **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                     |

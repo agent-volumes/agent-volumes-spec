@@ -144,7 +144,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server"]
+          "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
         },
         "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
         "entrypoint": { "type": "string" },
