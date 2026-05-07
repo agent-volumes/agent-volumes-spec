@@ -12,7 +12,7 @@
       "required": ["purl", "integrity"],
       "properties": {
         "purl": { "type": "string", "pattern": "^pkg:volume/" },
-        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]+$" }
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "revision": {
@@ -44,6 +44,7 @@
             "properties": {
               "family": { "type": "string" },
               "mediaType": { "type": "string" },
+              "predicateType": { "type": "string", "format": "uri" },
               "profile": { "type": "string" },
               "version": { "type": "string" }
             }
@@ -55,10 +56,7 @@
               "url": { "type": "string", "format": "uri" },
               "embedded": {}
             },
-            "anyOf": [
-              { "required": ["url"] },
-              { "required": ["embedded"] }
-            ]
+            "anyOf": [{ "required": ["url"] }, { "required": ["embedded"] }]
           },
           "status": {
             "type": "object",
@@ -70,6 +68,16 @@
                 "enum": ["active", "revoked", "superseded", "invalid"]
               },
               "reason": { "type": "string" }
+            }
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subjectDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "signatureFormat": { "type": "string" },
+              "transparencyLog": { "type": "string" },
+              "verifiedAt": { "type": "string", "format": "date-time" }
             }
           }
         }

@@ -12,7 +12,7 @@
       "required": ["purl", "integrity"],
       "properties": {
         "purl": { "type": "string", "pattern": "^pkg:volume/" },
-        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]+$" }
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "artifacts": {
