@@ -1,0 +1,12 @@
+{
+  "subject": {
+    "purl": "pkg:volume/research-agent-pack@1.4.0",
+    "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "artifacts": [],
+  "detailAvailable": true,
+  "revision": {
+    "revision": "8",
+    "updatedAt": "2026-05-07T00:00:00Z"
+  }
+}

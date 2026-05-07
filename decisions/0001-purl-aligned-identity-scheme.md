@@ -1,6 +1,6 @@
 ---
-status: accepted
-date: 12026-03-13
+status: superseded by ADR-0012
+date: 12026-05-06
 decision-makers: Yunseo Kim
 ---
 

@@ -6,7 +6,10 @@
 [![SemVer Versioning](https://img.shields.io/badge/version_scheme-SemVer-0097a7)](https://semver.org/)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
+
+[![CodeQL](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql)
 [![OSV Scanner Full](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml)
+[![Markdown Lint and Format](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
@@ -18,7 +21,7 @@ An open specification for packaging, distributing, and verifying components for 
 
 **Agent Volumes** defines a packaging and distribution standard for the AI agent component ecosystem — analogous to npm for JavaScript, PyPI for Python, or crates.io for Rust — but specialized for **AI agent systems**.
 
-AI agent runtimes — Claude Code, Codex, Gemini CLI, and others — increasingly rely on skills, tools, hooks, and MCP servers. But the ecosystem currently lacks a standard way to package and distribute these components. Runtimes define incompatible layouts, agent components have no shared identity or versioning model, and there is no mechanism for dependency resolution or supply chain verification. Agent Volumes addresses these gaps.
+AI agent runtimes — Claude Code, Codex, Gemini CLI, and others — increasingly rely on skills, tools, hooks, MCP servers, and LSP servers. But the ecosystem currently lacks a standard way to package and distribute these components. Runtimes define incompatible layouts, agent components have no shared identity or versioning model, and there is no mechanism for dependency resolution or supply chain verification. Agent Volumes addresses these gaps.
 
 The distribution unit is a **volume**: a versioned package that exports one or more agent components.
 Registries that host and serve volumes are called **bibliothecas**.
@@ -29,7 +32,7 @@ Registries that host and serve volumes are called **bibliothecas**.
 | Distribution unit | **Volume**        | A versioned package of agent components.                                                                   |
 | Package manifest  | **volume.toml**   | Package-level metadata, like `package.json` or `Cargo.toml`.                                               |
 | Registry          | **Bibliotheca**   | Any registry that hosts and serves volumes.                                                                |
-| Identity scheme   | **pkg:shelf/…**   | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
+| Identity scheme   | **pkg:volume/…**  | [purl](https://github.com/package-url/purl-spec)-compatible identifiers for supply chain interoperability. |
 
 This specification is intended for developers building agent runtimes, registries, package managers, and related tooling. End users who consume agent components interact with the standard through client tools such as the `shelf` CLI.
 
@@ -39,7 +42,7 @@ Agent Volumes is designed to be runtime-neutral, enabling interoperability acros
 
 The AI agent component ecosystem faces three structural risks that a shared standard can address:
 
-- **Fragmentation.** Each runtime defines its own component layout. Developers write the same skill, tool, or MCP server multiple times for different runtimes. This duplication slows ecosystem growth and fragments quality assurance.
+- **Fragmentation.** Each runtime defines its own component layout. Developers write the same skill, tool, MCP server, or LSP server multiple times for different runtimes. This duplication slows ecosystem growth and fragments quality assurance.
 
 - **No supply chain identity.** Agent components have no standard identifier, no versioning model, and no provenance chain. Organizations cannot audit what runs inside their agent systems.
 
@@ -49,7 +52,7 @@ Agent Volumes defines a common packaging standard so that runtimes can interoper
 
 ## Component Types
 
-Volumes export six component types:
+Volumes export seven component types:
 
 | Type           | Semantics                                             | Invoked by      |
 | -------------- | ----------------------------------------------------- | --------------- |
@@ -59,10 +62,11 @@ Volumes export six component types:
 | **Tool**       | Function-call endpoints for agent use                 | Agent           |
 | **Hook**       | Lifecycle event handlers                              | Runtime events  |
 | **MCP Server** | Model Context Protocol service endpoints              | Runtime / Agent |
+| **LSP Server** | Language Server Protocol service endpoints            | Runtime / Agent |
 
 ## Quick Example
 
-A minimal `volume.toml` declaring three components:
+A minimal `volume.toml` declaring four components:
 
 ```toml
 [volume]
@@ -88,10 +92,15 @@ entrypoint = "./tools/arxiv-search.json"
 [[components]]
 type = "mcp-server"
 name = "research-mcp"
-entrypoint = "./mcp/research-server.json"
+entrypoint = "./.mcp.json"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
 ```
 
-This volume is identified as `pkg:shelf/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:shelf/research-agent-pack@1.4.0#tool/arxiv-search`.
+This volume is identified as `pkg:volume/research-agent-pack@1.4.0`, and individual components are addressable — for example, `pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search`.
 
 Install with a compatible client:
 
@@ -117,17 +126,17 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 | Document                                             | Version        | Status        |
 | ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.3 | Working Draft |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.4 | Working Draft |
 
 ### Roadmap
 
-| Milestone                    | Target     | Description                                                          |
-| ---------------------------- | ---------- | -------------------------------------------------------------------- |
-| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                             |
-| Experimental implementations | Q2 2026    | Reference client (`shelf`) and bibliotheca (`Alexandria`) prototypes |
-| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                             |
-| v0.x.y                       | Q4 2026    | Stabilization before release                                         |
-| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                            |
+| Milestone                    | Target     | Description                                                                          |
+| ---------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                                             |
+| Experimental implementations | Q2 2026    | Windlass-maintained reference `shelf` client and `Alexandria` bibliotheca prototypes |
+| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                             |
+| v0.x.y                       | Q4 2026    | Stabilization before release                                                         |
+| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                                            |
 
 Feedback is welcome via [GitHub Issues](https://github.com/agent-volumes/agent-volumes-spec/issues) and [Discussions](https://github.com/agent-volumes/agent-volumes-spec/discussions).
 
@@ -188,42 +197,44 @@ The full specification covers:
 1. **Introduction** — Purpose, scope, and relationship to existing standards
 2. **Package Identity Scheme** — purl-aligned globally unique identifiers
 3. **Volume Manifest** — `volume.toml` schema and validation rules
-4. **Component Types** — Six types with precise semantics
+4. **Component Types** — Seven types with precise semantics
 5. **Component Export System** — Standardized discovery and loading
 6. **Cross-Runtime Compatibility Model** — Runtime, protocol, and environment declarations
-7. **Content Integrity** — SHA-256 content-hash construction and verification
-8. **Trust and Supply Chain Model** — Publisher identity, provenance, permissions, security advisories
-9. **Registry API** — HTTP API for conforming bibliothecas
+7. **Content Integrity** — normalized-file-tree integrity construction and verification
+8. **Trust and Supply Chain Model** — Publisher identity, provenance, trust attachments, threat model, security advisories
+9. **Registry API** — HTTP API for package operations, trust discovery, advisories, and capability metadata
 10. **Package Roles** — Component, plugin, provider, and meta roles
-11. **Conformance** — Requirements for conforming registries and clients
+11. **Conformance** — Requirements, fixtures, and vectors for registries and clients
 12. **Design Principles** — Seven guiding principles
+
+The repository also publishes normative machine-readable companion artifacts under:
+
+- [`schemas/`](schemas/)
+- [`openapi/`](openapi/)
+- [`conformance/fixtures/`](conformance/fixtures/)
 
 **[Read the full specification →](agent-volumes-spec.md)**
 
 ## Architecture Decision Records
 
-| ADR                                                        | Decision                                                  |
-| ---------------------------------------------------------- | --------------------------------------------------------- |
-| [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md) | Use purl-aligned identity scheme with `shelf` type        |
-| [ADR-0002](decisions/0002-toml-volume-manifest.md)         | Use TOML for volume manifest format                       |
-| [ADR-0003](decisions/0003-six-component-types.md)          | Define six component types                                |
-| [ADR-0004](decisions/0004-hybrid-registry-architecture.md) | Use hybrid content delivery architecture for bibliothecas |
+The project's architecture decisions are recorded under [`decisions/`](decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
 
 ## Related Standards
 
-| Standard                                                              | Relationship                                                                                                  |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| [Agent Skills Specification](https://agentskills.io/specification.md) | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition. |
-| [Package URL (purl)](https://github.com/package-url/purl-spec)        | Volume identifiers are purl-compatible via the `shelf` type.                                                  |
-| [Semantic Versioning 2.0.0](https://semver.org/)                      | All volume versions follow SemVer.                                                                            |
-| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)      | MCP Server is a first-class component type.                                                                   |
-| [SPDX License List](https://spdx.org/licenses/)                       | License identifiers use SPDX expressions.                                                                     |
+| Standard                                                                                | Relationship                                                                                                  |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [Agent Skills Specification](https://agentskills.io/specification.md)                   | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition. |
+| [Package URL (purl)](https://github.com/package-url/purl-spec)                          | Volume identifiers are purl-compatible via the `volume` type.                                                 |
+| [Semantic Versioning 2.0.0](https://semver.org/)                                        | All volume versions follow SemVer.                                                                            |
+| [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)                        | MCP Server is a first-class component type.                                                                   |
+| [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) | LSP Server is a first-class component type.                                                                   |
+| [SPDX License List](https://spdx.org/licenses/)                                         | License identifiers use SPDX expressions.                                                                     |
 
 ## Background
 
 The Agent Volumes specification draws on operational experience from [agent-toolbox](https://github.com/yunseo-kim/agent-toolbox), a cross-runtime distribution system for AI agent skills. Lessons from building and operating a catalog of 110+ curated components across five runtimes — including cross-runtime adapter architecture and automated security scanning — informed the design of this standard.
 
-The specification was initiated by [Yunseo Kim](https://github.com/yunseo-kim) and is now developed under the Agent Volumes Organization, an independent, vendor-neutral standards body. Development infrastructure is provided by Windlass, which operates the [Alexandria](https://github.com/agent-volumes) reference registry as a non-exclusive implementation.
+The specification was initiated by [Yunseo Kim](https://github.com/yunseo-kim) and is now developed under the Agent Volumes Organization, an independent, vendor-neutral standards body. Windlass is expected to develop and maintain reference implementations based on the standard, including the `shelf` CLI and the `Alexandria` bibliotheca. These implementation projects are distinct from the standard's governance authority. Placeholder repository links: [`windlasstech/shelf`](https://github.com/windlasstech/shelf) and [`windlasstech/alexandria`](https://github.com/windlasstech/alexandria).
 
 ## License
 

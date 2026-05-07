@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/volume.schema.json",
+  "title": "Agent Volumes Manifest Canonical Parsed Data Model",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["volume", "publisher"],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "volume": {
+            "properties": {
+              "role": { "enum": ["component", "plugin", "provider"] }
+            },
+            "required": ["role"]
+          }
+        },
+        "required": ["volume"]
+      },
+      "then": {
+        "required": ["components"],
+        "properties": {
+          "components": { "minItems": 1 }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "volume": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema", "name", "version", "description", "license", "role"],
+      "properties": {
+        "schema": { "type": "integer", "const": 1 },
+        "name": {
+          "type": "string",
+          "pattern": "^(@[a-z0-9-]+/)?[a-z0-9-]+$"
+        },
+        "version": { "type": "string" },
+        "description": { "type": "string", "maxLength": 256 },
+        "license": { "type": "string" },
+        "homepage": { "type": "string", "format": "uri" },
+        "repository": { "type": "string", "format": "uri" },
+        "documentation": { "type": "string", "format": "uri" },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 32 },
+          "maxItems": 16,
+          "uniqueItems": true
+        },
+        "role": {
+          "type": "string",
+          "enum": ["component", "plugin", "provider", "meta"]
+        },
+        "secondary-roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["component", "plugin", "provider", "meta"]
+          },
+          "uniqueItems": true
+        },
+        "providers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "publisher": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "component-dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "pattern": "^pkg:volume/" }
+      }
+    },
+    "runtimes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "compatibility"],
+        "properties": {
+          "name": { "type": "string" },
+          "compatibility": { "type": "string" }
+        }
+      }
+    },
+    "protocols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "version"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" }
+        }
+      }
+    },
+    "permissions": { "$ref": "#/$defs/permissions" },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "runtimes": { "$ref": "#/$defs/stringSet" },
+        "os": { "$ref": "#/$defs/stringSet" },
+        "arch": { "$ref": "#/$defs/stringSet" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source-repo": { "type": "string", "format": "uri" },
+        "build": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "system": { "type": "string" },
+            "workflow": { "type": "string" },
+            "signed": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stringSet": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "filesystem": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "network": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "browser": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "shell": {
+          "type": "string",
+          "enum": ["deny", "allow"],
+          "default": "deny"
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type", "name", "entrypoint"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
+        },
+        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "entrypoint": { "type": "string" },
+        "description": { "type": "string", "maxLength": 256 },
+        "providers": { "$ref": "#/$defs/stringSet" },
+        "permissions": { "$ref": "#/$defs/permissions" }
+      }
+    }
+  }
+}

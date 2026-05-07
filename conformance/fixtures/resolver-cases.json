@@ -1,0 +1,60 @@
+{
+  "specVersion": "0.1.0-draft.4",
+  "notes": [
+    "Prerelease-selection behavior is intentionally client-local in the v0.1 core and is therefore not fixed by these normative resolver cases.",
+    "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior."
+  ],
+  "cases": [
+    {
+      "name": "single-version-compatible",
+      "dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "availableVersions": {
+        "github-provider": ["2.0.0", "2.1.0"]
+      },
+      "expected": {
+        "outcome": "success",
+        "selected": {
+          "github-provider": "2.1.0"
+        }
+      }
+    },
+    {
+      "name": "single-version-conflict",
+      "requirements": [
+        {
+          "requester": "review-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^1.0.0"
+        },
+        {
+          "requester": "audit-agent-pack",
+          "volume": "github-provider",
+          "constraint": ">=3.0.0"
+        }
+      ],
+      "expected": {
+        "outcome": "failure"
+      }
+    },
+    {
+      "name": "prerelease-selection-client-local",
+      "kind": "informational",
+      "requirements": [
+        {
+          "requester": "preview-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^2.0.0"
+        }
+      ],
+      "availableVersions": {
+        "github-provider": ["2.0.0-rc.1", "2.0.0", "2.1.0-beta.1"]
+      },
+      "expected": {
+        "outcome": "implementation-defined",
+        "note": "Prerelease-selection behavior is intentionally client-local in the v0.1 core and is outside the portable conformance baseline."
+      }
+    }
+  ]
+}

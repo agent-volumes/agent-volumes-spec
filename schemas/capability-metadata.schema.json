@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/capability-metadata.schema.json",
+  "title": "Agent Volumes Bibliotheca Capability Metadata",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "specVersion", "scopePolicy", "deliveryModes", "apis"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "specVersion": { "type": "string" },
+    "scopePolicy": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["scopesSupported", "scopelessSupported", "scopesRequired"],
+      "properties": {
+        "scopesSupported": { "type": "boolean" },
+        "scopelessSupported": { "type": "boolean" },
+        "scopesRequired": { "type": "boolean" },
+        "curatedScopelessModel": { "type": "boolean" }
+      }
+    },
+    "deliveryModes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "apis": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["trustMetadata", "advisories"],
+      "properties": {
+        "trustMetadata": { "type": "boolean" },
+        "advisories": { "type": "boolean" }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9-]+$" },
+      "additionalProperties": true
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maxAgeSeconds": { "type": "integer", "minimum": 0 },
+        "revalidate": { "type": "boolean" }
+      }
+    }
+  }
+}

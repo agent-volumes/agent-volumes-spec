@@ -1,0 +1,46 @@
+{
+  "description": "Capability metadata with unknown fields and values that baseline clients must ignore rather than fail on.",
+  "canonicalParsedData": {
+    "schemaVersion": "1",
+    "specVersion": "0.1.0-draft.4",
+    "scopePolicy": {
+      "scopesSupported": true,
+      "scopelessSupported": true,
+      "scopesRequired": false,
+      "curatedScopelessModel": true,
+      "futureScopePolicy": "ignore"
+    },
+    "deliveryModes": ["cdn", "git", "artifact-bundle"],
+    "apis": {
+      "trustMetadata": true,
+      "advisories": true,
+      "futureApi": true
+    },
+    "extensions": {
+      "example": {
+        "note": "Baseline clients ignore unknown extension content."
+      }
+    },
+    "cache": {
+      "maxAgeSeconds": 300,
+      "revalidate": true,
+      "futureCacheHint": "ignore"
+    },
+    "futureTopLevelField": {
+      "note": "Unknown top-level capability metadata must not fail baseline clients."
+    }
+  },
+  "expected": {
+    "valid": true,
+    "warnings": [
+      {
+        "category": "unknown-capability-field",
+        "path": "futureTopLevelField"
+      },
+      {
+        "category": "unknown-capability-value",
+        "path": "deliveryModes[2]"
+      }
+    ]
+  }
+}

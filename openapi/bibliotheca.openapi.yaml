@@ -1,0 +1,561 @@
+openapi: 3.1.1
+info:
+  title: Agent Volumes Bibliotheca API
+  version: 0.1.0-draft.4
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+security: []
+paths:
+  /api/v1/search:
+    get:
+      summary: Search the bibliotheca catalog for matching volumes
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [agent, skill, command, tool, hook, mcp-server, lsp-server]
+        - in: query
+          name: runtime
+          schema:
+            type: string
+        - in: query
+          name: provider
+          schema:
+            type: string
+        - in: query
+          name: keyword
+          schema:
+            type: string
+        - in: query
+          name: publisher
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}:
+    post:
+      summary: Publish an unscoped volume
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}:
+    post:
+      summary: Publish a scoped volume
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}:
+    get:
+      summary: Fetch volume release metadata
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+    delete:
+      summary: Unpublish an unscoped volume version
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Unpublish accepted or tombstoned
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}:
+    get:
+      summary: Fetch scoped volume release metadata
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseMetadata'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+    delete:
+      summary: Unpublish a scoped volume version
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Unpublish accepted or tombstoned
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/summary:
+    get:
+      summary: Trust summary for a release
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-summary.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
+    get:
+      summary: Trust summary for a scoped release
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-summary.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/detail:
+    get:
+      summary: Trust detail for a release
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-detail.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
+    get:
+      summary: Trust detail for a scoped release
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-detail.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/advisories:
+    get:
+      summary: Search advisories
+      parameters:
+        - in: query
+          name: volume
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Advisory list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: ../schemas/advisory.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/advisories/{advisoryId}:
+    get:
+      summary: Fetch one advisory
+      parameters:
+        - in: path
+          name: advisoryId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Advisory payload
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/advisory.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/capabilities:
+    get:
+      summary: Bibliotheca capability metadata
+      responses:
+        '200':
+          description: Capability metadata
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/capability-metadata.schema.json
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ProblemDetails:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+    SearchResults:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [name, latestVersion]
+            properties:
+              name:
+                type: string
+              latestVersion:
+                type: string
+              description:
+                type: string
+              role:
+                type: string
+              providers:
+                type: array
+                items:
+                  type: string
+              components:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    name:
+                      type: string
+        total:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+        offset:
+          type: integer
+          minimum: 0
+    ReleaseMetadata:
+      type: object
+      required: [name, version, integrity, dist]
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        integrity:
+          type: string
+          pattern: ^sha256:[a-f0-9]+$
+        dist:
+          oneOf:
+            - type: object
+              required: [source, mediaType, url]
+              properties:
+                source:
+                  type: string
+                  const: cdn
+                mediaType:
+                  type: string
+                  const: application/gzip
+                url:
+                  type: string
+                  format: uri
+            - type: object
+              required: [source, repository, ref]
+              properties:
+                source:
+                  type: string
+                  const: git
+                repository:
+                  type: string
+                  format: uri
+                ref:
+                  type: string
+    BridgeMetadata:
+      $ref: ../schemas/bridge-metadata.schema.json
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Unauthorized:
+      description: Authentication required or invalid bearer token
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Forbidden:
+      description: Authenticated caller lacks permission for this operation
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Conflict:
+      description: Resource conflict
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    TooManyRequests:
+      description: Rate limited
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
