@@ -17,6 +17,7 @@
     },
     "artifacts": {
       "type": "array",
+      "description": "May be empty when the release exists but no trust artifacts have been attached yet.",
       "items": {
         "type": "object",
         "additionalProperties": false,
