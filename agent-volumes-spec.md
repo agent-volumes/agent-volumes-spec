@@ -75,8 +75,6 @@ This specification does **NOT** define:
 
 ### 1.4 Relationship to Existing Standards
 
-<!-- markdownlint-disable MD060 -->
-
 | Standard                                                                                | Relationship                                                                                                                                                                             |
 | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [Agent Skills Specification](https://agentskills.io/specification.md)                   | Component-level manifests (SKILL.md frontmatter) remain compliant. `volume.toml` is a package-level addition, not a replacement.                                                         |
@@ -88,8 +86,6 @@ This specification does **NOT** define:
 | [Sigstore](https://www.sigstore.dev/)                                                   | Sigstore-family signing and verification is the baseline trust mechanism for provenance-attached artifacts.                                                                              |
 | [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)                        | MCP Server is a first-class component type. Protocol compatibility declarations reference MCP versions.                                                                                  |
 | [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) | LSP Server is a first-class component type. Protocol compatibility declarations reference LSP versions where applicable.                                                                 |
-
-<!-- markdownlint-restore MD060 -->
 
 ### 1.5 Normative Source Hierarchy
 
@@ -180,14 +176,10 @@ pkg:volume/<name>#<type>/<componentName>
 pkg:volume/%40<scope>/<name>#<type>/<componentName>
 ```
 
-<!-- markdownlint-disable MD060 -->
-
 | Field           | Description    | Constraints                                                                     |
 | --------------- | -------------- | ------------------------------------------------------------------------------- |
 | `type`          | Component type | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server` |
 | `componentName` | Component name | Lowercase alphanumeric + hyphens. 1-128 characters.                             |
-
-<!-- markdownlint-restore MD060 -->
 
 ### 2.4 Naming Policy
 
@@ -341,15 +333,11 @@ description = "LSP server configuration for research-oriented code intelligence"
 
 **Required fields per component:**
 
-<!-- markdownlint-disable MD060 -->
-
 | Field        | Type   | Description                                                                      |
 | ------------ | ------ | -------------------------------------------------------------------------------- |
 | `type`       | string | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`. |
 | `name`       | string | Component name. Lowercase alphanumeric + hyphens. Unique within the volume.      |
 | `entrypoint` | string | Relative path from volume root to the component's entry file.                    |
-
-<!-- markdownlint-restore MD060 -->
 
 **Optional fields per component:**
 
@@ -437,20 +425,42 @@ See [Section 6.3](#63-provider-compatibility) for the cross-runtime provider com
 
 ```toml
 [permissions]
-network = true
-filesystem = false
-shell = false
-browser = false
+filesystem = "read"
+network = "deny"
+shell = "deny"
+browser = "deny"
 ```
 
-| Permission   | Type    | Default | Description                          |
-| ------------ | ------- | ------- | ------------------------------------ |
-| `network`    | boolean | `false` | May access network resources.        |
-| `filesystem` | boolean | `false` | May read/write the local filesystem. |
-| `shell`      | boolean | `false` | May execute shell commands.          |
-| `browser`    | boolean | `false` | May control a browser instance.      |
+| Permission   | Type                                     | Default | Description                                                                        |
+| ------------ | ---------------------------------------- | ------- | ---------------------------------------------------------------------------------- |
+| `filesystem` | `deny` / `read` / `write` / `read-write` | `deny`  | Controls local filesystem inspection and mutation surfaces.                        |
+| `network`    | `deny` / `read` / `write` / `read-write` | `deny`  | Controls network inspection/fetch and mutating network interactions.               |
+| `browser`    | `deny` / `read` / `write` / `read-write` | `deny`  | Controls browser observation/navigation and browser-driven side-effecting actions. |
+| `shell`      | `deny` / `allow`                         | `deny`  | Controls shell command execution as a coarse-grained permission surface.           |
 
 Permissions declared at the volume level apply to all components. Components MAY override with narrower (not broader) permissions.
+
+For `filesystem`, `network`, and `browser`, the shared action vocabulary is interpreted as follows:
+
+- `deny` — no access
+- `read` — inspect, list, search, fetch, or observe without intended side effects
+- `write` — create, modify, delete, submit, or otherwise trigger side effects
+- `read-write` — both read and write behavior are permitted
+
+For `shell`, the v0.1 baseline intentionally remains coarse: `allow` or `deny`.
+
+Permissions and portable capability classes are related but not identical:
+
+- portable capability classes describe a tool surface by role
+- permissions describe what kinds of actions within that surface are allowed
+
+One capability class MAY depend on one or more permission fields depending on runtime design. For example:
+
+- `file read` commonly maps to `filesystem = "read"`
+- `file write/edit` commonly maps to `filesystem = "write"` or `"read-write"`
+- `web fetch` and `web search` commonly map to `network = "read"`
+- `code intel` commonly depends on `filesystem = "read"`, but does not require a dedicated top-level permission field in the baseline
+- `external bridge` MAY involve `network`, `shell`, or both depending on transport and host behavior
 
 Permission escalation is a semantic validity failure. Clients performing publish, consume, install, or load workflows MUST fail when a component declares permissions broader than its parent volume permits.
 
@@ -576,9 +586,10 @@ version = ">=3.17"
 # --- Permissions ---
 
 [permissions]
-network = true
-filesystem = false
-shell = false
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
 
 # --- Environment ---
 
@@ -666,6 +677,13 @@ A **Tool** is a function or API capability that an agent can call to perform a s
 | Input        | User-provided context       | Structured parameters    |
 | Statefulness | May maintain workflow state | Stateless per call       |
 
+When discussing tool surfaces across runtimes, Agent Volumes distinguishes between **portable capability classes** and **runtime-specific tool names**.
+
+- portable capability classes describe a tool surface by role, such as `shell execution`, `file read`, `file write/edit`, or `code intel`
+- runtime-specific tool names describe how a particular runtime exposes that surface locally
+
+The core specification prefers capability-class reasoning where possible. Runtime-specific tool names remain profile-facing or implementation-facing examples rather than normative core taxonomy terms.
+
 ### 4.5 Hook
 
 A **Hook** is a runtime event interception that executes logic in response to agent lifecycle events.
@@ -687,8 +705,6 @@ The canonical hook event vocabulary is chosen for interoperability with establis
 
 An **MCP Server** is a service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/).
 
-<!-- markdownlint-disable MD060 -->
-
 | Property             | Value                                                                        |
 | -------------------- | ---------------------------------------------------------------------------- |
 | Type identifier      | `mcp-server`                                                                 |
@@ -696,15 +712,11 @@ An **MCP Server** is a service endpoint implementing the [Model Context Protocol
 | Execution model      | Long-running process. Communicates via `stdio`, `sse`, or `streamable-http`. |
 | Distinguishing trait | Protocol-based service. Runs as a separate process.                          |
 
-<!-- markdownlint-restore MD060 -->
-
 JSON is the canonical and only v0.1 baseline format for MCP server configuration in Agent Volumes. This should be understood as an interoperability convention rather than a protocol-level requirement inherited from MCP itself.
 
 ### 4.7 LSP Server
 
 An **LSP Server** is a service endpoint implementing the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
-
-<!-- markdownlint-disable MD060 -->
 
 | Property             | Value                                                                                                          |
 | -------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -712,8 +724,6 @@ An **LSP Server** is a service endpoint implementing the [Language Server Protoc
 | Entrypoint format    | JSON configuration, canonically discoverable as `.lsp.json`                                                    |
 | Execution model      | Long-running process. Typically communicates over `stdio` or a socket transport supported by the host runtime. |
 | Distinguishing trait | Code intelligence service. Provides editor/runtime integration for language-aware operations.                  |
-
-<!-- markdownlint-restore MD060 -->
 
 ### 4.8 Component Type Summary
 
@@ -828,6 +838,7 @@ At minimum, this profile assumes:
 - LSP server configuration is canonically packaged as `.lsp.json`
 - hook event identifiers align with the canonical runtime-facing vocabulary listed in [Section 4.5](#45-hook)
 - `command`, `hook`, `mcp-server`, and `lsp-server` components can be mapped into familiar Claude Code-style extension surfaces
+- runtime-local tool names should be interpreted through portable capability classes where possible, such as `shell execution`, `file read`, `file write/edit`, `web fetch`, `web search`, and `code intel`
 
 These identifiers and filenames should be read as interoperability-facing conventions rather than as evidence that Agent Volumes inherits Claude Code semantics wholesale.
 
@@ -839,15 +850,17 @@ Portable capability classes are the stable cross-runtime concepts that profiles,
 
 - shell execution
 - file read
-- file write or edit
+- file write/edit
 - file discovery
 - content search
 - web fetch
 - web search
-- MCP or external tool bridge
-- delegation or subagent execution
-- planning and task tracking
-- code intelligence
+- external bridge
+- delegation
+- planning
+- code intel
+
+These classes are portable semantic categories rather than permission fields. Permission guidance should prefer stable action distinctions such as read versus write where those distinctions remain portable across runtimes.
 
 Runtime-specific tool names such as `Bash`, `WebFetch`, `run_shell_command`, or `webfetch` remain profile-facing or implementation-facing examples rather than normative core taxonomy terms.
 
@@ -1418,8 +1431,9 @@ These fixtures are part of the interoperability contract. They are not merely il
 6. `components[].type` MUST be one of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
 7. `components[].name` MUST be unique across all components in the volume.
 8. `components[].entrypoint` MUST reference an existing file.
-9. `permissions.*` MUST be boolean.
-10. Component permissions MUST NOT exceed volume-level permissions.
+9. `permissions.filesystem`, `permissions.network`, and `permissions.browser` MUST be one of `deny`, `read`, `write`, or `read-write`.
+10. `permissions.shell` MUST be `deny` or `allow`.
+11. Component permissions MUST NOT exceed volume-level permissions.
 
 `[provenance]` metadata describes package-declared source and build context. It does not replace external trust artifacts such as provenance attestations, BOMs, or signatures associated with the published release subject.
 
@@ -1512,30 +1526,32 @@ Fixture updates that materially change interoperability expectations are normati
 
 ## Appendix D: Glossary
 
-| Term                           | Definition                                                                                                                             |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Agent Volumes**              | The standard defined by this specification.                                                                                            |
-| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                               |
-| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                     |
-| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                    |
-| **Runtime**                    | A system capable of executing agent components.                                                                                        |
-| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                     |
-| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                             |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                             |
-| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                        |
-| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                               |
-| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                          |
-| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter. |
-| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                     |
-| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                   |
-| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                   |
-| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                   |
-| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                 |
-| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.     |
-| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                    |
-| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                |
-| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.        |
-| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                           |
+| Term                           | Definition                                                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Agent Volumes**              | The standard defined by this specification.                                                                                                |
+| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                                   |
+| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                         |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                        |
+| **Runtime**                    | A system capable of executing agent components.                                                                                            |
+| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                         |
+| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                                 |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                 |
+| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                            |
+| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                                   |
+| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                              |
+| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter.     |
+| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                         |
+| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                       |
+| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                       |
+| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                       |
+| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                     |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.         |
+| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                        |
+| **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                            |
+| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes. |
+| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                    |
+| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.            |
+| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                               |
 
 ---
 

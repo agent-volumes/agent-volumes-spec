@@ -131,10 +131,26 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "network": { "type": "boolean", "default": false },
-        "filesystem": { "type": "boolean", "default": false },
-        "shell": { "type": "boolean", "default": false },
-        "browser": { "type": "boolean", "default": false }
+        "filesystem": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "network": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "browser": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "shell": {
+          "type": "string",
+          "enum": ["deny", "allow"],
+          "default": "deny"
+        }
       }
     },
     "component": {

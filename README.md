@@ -217,8 +217,6 @@ The repository also publishes normative machine-readable companion artifacts und
 
 ## Architecture Decision Records
 
-<!-- markdownlint-disable MD060 -->
-
 | ADR                                                                                             | Decision                                                                                                 |
 | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | [ADR-0001](decisions/0001-purl-aligned-identity-scheme.md)                                      | Use purl-aligned identity scheme with `shelf` type (superseded by ADR-0012)                              |
@@ -234,13 +232,9 @@ The repository also publishes normative machine-readable companion artifacts und
 | [ADR-0011](decisions/0011-defer-common-judgment-vocabulary.md)                                  | Defer common judgment vocabulary standardization to a later profile or RFC                               |
 | [ADR-0012](decisions/0012-use-volume-purl-type-instead-of-shelf.md)                             | Use `volume` as the purl type instead of `shelf`                                                         |
 
-<!-- markdownlint-restore MD060 -->
-
-For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, conformance artifacts, and cross-runtime compatibility refinements, see [`decisions/0013-...`](decisions/) through [`decisions/0088-...`](decisions/).
+For the newer implementation-readiness decisions covering integrity, trust/advisory contracts, capability metadata, extension bridge rules, conformance artifacts, and cross-runtime compatibility refinements, see [`decisions/0013-...`](decisions/) through [`decisions/0089-...`](decisions/).
 
 ## Related Standards
-
-<!-- markdownlint-disable MD060 -->
 
 | Standard                                                                                | Relationship                                                                                                  |
 | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -250,8 +244,6 @@ For the newer implementation-readiness decisions covering integrity, trust/advis
 | [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)                        | MCP Server is a first-class component type.                                                                   |
 | [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) | LSP Server is a first-class component type.                                                                   |
 | [SPDX License List](https://spdx.org/licenses/)                                         | License identifiers use SPDX expressions.                                                                     |
-
-<!-- markdownlint-restore MD060 -->
 
 ## Background
 
