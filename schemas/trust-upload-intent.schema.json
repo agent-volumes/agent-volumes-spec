@@ -53,13 +53,24 @@
         "category": { "type": "string", "enum": ["bom", "provenance", "signature", "other"] },
         "format": {
           "type": "object",
+          "description": "Trust artifact format identity. Baseline examples include CycloneDX JSON BOMs, SLSA provenance predicates, and Sigstore bundle signatures.",
           "additionalProperties": false,
           "required": ["family", "mediaType"],
           "properties": {
-            "family": { "type": "string" },
+            "family": {
+              "type": "string",
+              "description": "Format family such as cyclonedx, slsa-provenance, or sigstore-bundle."
+            },
             "mediaType": { "type": "string" },
-            "predicateType": { "type": "string", "format": "uri" },
-            "profile": { "type": "string" },
+            "predicateType": {
+              "type": "string",
+              "format": "uri",
+              "description": "Predicate URI for in-toto/SLSA-style artifacts when applicable."
+            },
+            "profile": {
+              "type": "string",
+              "description": "Optional profile identifier for a more specific artifact convention."
+            },
             "version": { "type": "string" }
           }
         }

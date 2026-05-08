@@ -254,6 +254,7 @@
         "name": { "$ref": "#/$defs/componentName" },
         "entrypoint": {
           "type": "string",
+          "$comment": "This structural schema validates path shape only. Entrypoint existence and component-type-specific format/frontmatter checks require validator logic beyond JSON Schema.",
           "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
         },
         "description": { "type": "string", "maxLength": 256 },

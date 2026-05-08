@@ -22,7 +22,8 @@
     },
     "deliveryModes": {
       "type": "array",
-      "items": { "type": "string" },
+      "description": "Known v0.1 baseline values are cdn and git. Unknown values are tolerated and may be surfaced as diagnostics rather than validation failures.",
+      "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
       "uniqueItems": true
     },
     "apis": {
@@ -39,7 +40,10 @@
     "extensions": {
       "type": "object",
       "propertyNames": {
-        "allOf": [{ "pattern": "^[a-z0-9-]+$" }, { "not": { "enum": ["agent-volumes", "core", "spec"] } }]
+        "allOf": [
+          { "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+          { "not": { "enum": ["agent-volumes", "core", "spec"] } }
+        ]
       },
       "additionalProperties": true
     },
