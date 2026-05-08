@@ -3,13 +3,15 @@
     "prepare": "bunx lefthook install",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
-    "format": "prettier --write \"**/*.md\"",
-    "format:check": "prettier --check \"**/*.md\"",
+    "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
+    "format": "prettier --write \"**/*.{md,json,yaml,yml,mjs}\"",
+    "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
     "validate:artifacts": "node scripts/validate-artifacts.mjs"
   },
   "dependencies": {},
   "devDependencies": {
-    "ajv": "^8.17.1",
+    "@redocly/cli": "^2.30.4",
+    "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "lefthook": "^2.1.6",
     "markdownlint-cli2": "^0.22.1",

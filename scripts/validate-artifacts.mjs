@@ -18,7 +18,7 @@ const assert = (condition, message) => {
   }
 };
 
-const ajv = new Ajv2020({ allErrors: true, strict: false });
+const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
 
 const schemas = {
@@ -113,7 +113,12 @@ for (const field of [
   );
 }
 
-const openapi = YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
+let openapi;
+try {
+  openapi = YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
+} catch (err) {
+  throw new Error(`OpenAPI YAML semantic validation failed: ${err.message}`);
+}
 assert(openapi.openapi === '3.1.1', 'OpenAPI document must declare version 3.1.1');
 assert(openapi.paths['/api/v1/search'], 'OpenAPI document must define search path');
 assert(openapi.paths['/api/v1/capabilities'], 'OpenAPI document must define capability metadata path');
