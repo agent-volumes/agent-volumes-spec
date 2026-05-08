@@ -1,0 +1,124 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "Hosted .tar.gz archive transport profile cases. These cases describe portable archive entry interpretation before normalized-file-tree digest construction.",
+  "cases": [
+    {
+      "name": "valid-regular-files",
+      "archiveEntries": [
+        {
+          "path": "volume.toml",
+          "entryType": "file",
+          "executable": false
+        },
+        {
+          "path": "scripts/run.sh",
+          "entryType": "file",
+          "executable": true
+        }
+      ],
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "absolute-path-rejected",
+      "archiveEntries": [
+        {
+          "path": "/volume.toml",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-archive-path"
+      }
+    },
+    {
+      "name": "parent-traversal-rejected",
+      "archiveEntries": [
+        {
+          "path": "../volume.toml",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-archive-path"
+      }
+    },
+    {
+      "name": "dot-path-rejected",
+      "archiveEntries": [
+        {
+          "path": ".",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-archive-path"
+      }
+    },
+    {
+      "name": "explicit-dot-segment-rejected",
+      "archiveEntries": [
+        {
+          "path": "./volume.toml",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-archive-path"
+      }
+    },
+    {
+      "name": "duplicate-normalized-path-rejected",
+      "archiveEntries": [
+        {
+          "path": "volume.toml",
+          "entryType": "file"
+        },
+        {
+          "path": "volume.toml",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "duplicate-archive-path"
+      }
+    },
+    {
+      "name": "normalization-induced-duplicate-rejected",
+      "archiveEntries": [
+        {
+          "path": "skills/example.md",
+          "entryType": "file"
+        },
+        {
+          "path": "skills/./example.md",
+          "entryType": "file"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "duplicate-archive-path"
+      }
+    },
+    {
+      "name": "symlink-entry-rejected",
+      "archiveEntries": [
+        {
+          "path": "skills/current",
+          "entryType": "symlink",
+          "target": "skills/example/SKILL.md"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "non-regular-archive-entry"
+      }
+    }
+  ]
+}

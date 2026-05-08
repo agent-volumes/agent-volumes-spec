@@ -48,6 +48,34 @@
         "valid": false,
         "failureCategory": "duplicate-path"
       }
+    },
+    {
+      "name": "dot-segment-rejected",
+      "normalizedFiles": [
+        {
+          "path": "./volume.toml",
+          "executable": false,
+          "content": "hello"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-path"
+      }
+    },
+    {
+      "name": "symlink-entry-rejected",
+      "normalizedFiles": [
+        {
+          "path": "linked-skill",
+          "entryType": "symlink",
+          "target": "skills/example/SKILL.md"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "non-regular-file"
+      }
     }
   ]
 }

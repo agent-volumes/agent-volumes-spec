@@ -66,6 +66,59 @@
       ],
       "canonicalInput": "file docs/unicode.txt 0 6\n안녕",
       "expectedIntegrity": "sha256:2739cda93a5d9e9ef1440e4388c90a7909b53900115ea53989725d493950e2d0"
+    },
+    {
+      "name": "line-ending-preserved",
+      "normalizedFiles": [
+        {
+          "path": "docs/crlf.txt",
+          "executable": false,
+          "content": "line\r\nnext\n"
+        }
+      ],
+      "canonicalInput": "file docs/crlf.txt 0 11\nline\r\nnext\n",
+      "expectedIntegrity": "sha256:e7fedb3fc99b259f6f8bb1a3dc2ee2714beb3009579e177e8a0ea4a0f0b6ba3f"
+    },
+    {
+      "name": "mixed-executable-order",
+      "normalizedFiles": [
+        {
+          "path": "bin/tool.sh",
+          "executable": true,
+          "content": "echo ok\n"
+        },
+        {
+          "path": "lib/helper.txt",
+          "executable": false,
+          "content": "helper"
+        }
+      ],
+      "canonicalInput": "file bin/tool.sh 1 8\necho ok\nfile lib/helper.txt 0 6\nhelper",
+      "expectedIntegrity": "sha256:d79cb68b4fadba6e2063bc1106fe3b401ba7f9fc68a234186f8c50cc5803f345"
+    },
+    {
+      "name": "generated-file-included",
+      "normalizedFiles": [
+        {
+          "path": "dist/generated.json",
+          "executable": false,
+          "content": "{\"ok\":true}\n"
+        }
+      ],
+      "canonicalInput": "file dist/generated.json 0 12\n{\"ok\":true}\n",
+      "expectedIntegrity": "sha256:c99c5bb81b8f614ef3118143eb6f32941f35da2d45ee3a4ca3e93ba119f5bbe8"
+    },
+    {
+      "name": "binary-byte-content",
+      "normalizedFiles": [
+        {
+          "path": "bin/blob.dat",
+          "executable": false,
+          "contentBase64": "AP9B"
+        }
+      ],
+      "canonicalInputBase64": "ZmlsZSBiaW4vYmxvYi5kYXQgMCAzCgD/QQ==",
+      "expectedIntegrity": "sha256:cb1cdaee35844f18e8313f5213e1826186c3694a6aebc1c67bcdc12a7c5218ca"
     }
   ]
 }
