@@ -1,0 +1,27 @@
+{
+  "description": "Capability metadata that uses a reserved extension namespace and must fail schema validation.",
+  "canonicalParsedData": {
+    "schemaVersion": "1",
+    "specVersion": "0.1.0-draft.5",
+    "scopePolicy": {
+      "scopesSupported": true,
+      "scopelessSupported": true,
+      "scopesRequired": false
+    },
+    "deliveryModes": ["cdn"],
+    "apis": {
+      "trustMetadata": true,
+      "advisories": true
+    },
+    "extensions": {
+      "core": {
+        "note": "Reserved namespace keys are unavailable for ordinary extension use."
+      }
+    }
+  },
+  "expected": {
+    "valid": false,
+    "failureCategory": "reserved-extension-namespace",
+    "path": "extensions.core"
+  }
+}
