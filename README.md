@@ -128,7 +128,7 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 | Document                                             | Version        | Status        |
 | ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.4 | Working Draft |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.5 | Working Draft |
 
 ### Roadmap
 
