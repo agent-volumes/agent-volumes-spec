@@ -49,8 +49,82 @@ const assertSpecVersion = (fixture, label) => {
   assert(fixture.specVersion === '0.1.0-draft.5', `${label} must declare specVersion 0.1.0-draft.5`);
 };
 
+const volumeNamePattern =
+  /^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?\/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
+const semverPattern =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+const digestPattern = /^sha256:[a-f0-9]{64}$/;
+const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
+const problemStatusBySlug = new Map([
+  ['authentication-required', 401],
+  ['authorization-failed', 403],
+  ['not-found', 404],
+  ['validation-failed', 400],
+  ['invalid-manifest', 400],
+  ['invalid-archive', 400],
+  ['identity-mismatch', 409],
+  ['version-conflict', 409],
+  ['digest-mismatch', 400],
+  ['subject-binding-mismatch', 400],
+  ['inconsistent-registry-state', 409],
+  ['upload-expired', 410],
+  ['missing-uploaded-bytes', 400],
+  ['invalid-upload-state', 409],
+  ['idempotency-conflict', 409],
+  ['payload-too-large', 413],
+  ['unsupported-media-type', 415],
+  ['permission-escalation', 400],
+  ['rate-limited', 429],
+]);
+
+const assertReleaseMetadata = (metadata, label) => {
+  assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
+  assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
+  assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
+  assert(metadata.dist && typeof metadata.dist === 'object', `${label} needs dist metadata`);
+  assert(['cdn', 'git'].includes(metadata.dist.source), `${label} needs cdn or git dist source`);
+};
+
+const assertProblemDetails = (payload, label) => {
+  assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
+  const slug = payload.type.replace('https://agentvolumes.org/problems/', '');
+  assert(problemStatusBySlug.has(slug), `${label} uses unknown problem type: ${slug}`);
+  assert(typeof payload.title === 'string', `${label} needs problem title`);
+  assert(typeof payload.status === 'number', `${label} needs numeric problem status`);
+  assert(payload.status === problemStatusBySlug.get(slug), `${label} status must match problem type ${slug}`);
+};
+
+const routeIdentityFromPath = (route) => {
+  const match = route.match(/^\/api\/v1\/volumes\/(?:@([^/]+)\/)?([^/]+)\/([^/]+)$/);
+  if (!match) {
+    return null;
+  }
+  const [, scope, name, version] = match;
+  return {
+    name: scope ? `@${scope}/${name}` : name,
+    version,
+  };
+};
+
+const assertRouteMetadataIdentity = (route, metadata, label) => {
+  const identity = routeIdentityFromPath(route);
+  assert(identity, `${label} needs a parseable release route`);
+  assert(metadata.name === identity.name, `${label} metadata name must match route identity`);
+  assert(metadata.version === identity.version, `${label} metadata version must match route identity`);
+};
+
 validate('advisory', readJson('conformance/fixtures/advisory.json'), 'advisory fixture');
 validate('advisory', readJson('conformance/fixtures/advisory-withdrawn.json'), 'withdrawn advisory fixture');
+assert(
+  readJson('conformance/fixtures/advisory-withdrawn.json').withdrawn?.at,
+  'withdrawn advisory fixture must include withdrawn.at'
+);
+assert(
+  readJson('conformance/fixtures/advisory.json').affected.ranges.some((range) =>
+    range.events.some((event) => 'limit' in event)
+  ),
+  'advisory fixture must exercise limit event semantics'
+);
 validate('trustSummary', readJson('conformance/fixtures/trust-summary.json'), 'trust summary fixture');
 validate('trustSummary', readJson('conformance/fixtures/trust-summary-empty.json'), 'empty trust summary fixture');
 validate('trustDetail', readJson('conformance/fixtures/trust-detail.json'), 'trust detail fixture');
@@ -65,6 +139,15 @@ const trustStates = new Set(trustDetailStatusVariants.attachments.map((attachmen
 for (const requiredState of ['revoked', 'superseded', 'invalid']) {
   assert(trustStates.has(requiredState), `trust detail status variants fixture must include ${requiredState}`);
 }
+const trustDetailFixture = readJson('conformance/fixtures/trust-detail.json');
+const trustFormatFamilies = new Set(trustDetailFixture.attachments.map((attachment) => attachment.format.family));
+for (const requiredFamily of ['cyclonedx', 'slsa-provenance', 'sigstore-bundle']) {
+  assert(trustFormatFamilies.has(requiredFamily), `trust detail fixture must include ${requiredFamily} format family`);
+}
+assert(
+  trustDetailFixture.attachments.some((attachment) => attachment.format.profile),
+  'trust detail fixture must exercise format.profile'
+);
 validate(
   'capabilityMetadata',
   readJson('conformance/fixtures/capability-metadata.json'),
@@ -80,6 +163,9 @@ for (const apiField of ['trustMetadata', 'versionIndex', 'trustUploads', 'adviso
     typeof capabilityMetadata.apis[apiField] === 'boolean',
     `capability metadata fixture must declare boolean apis.${apiField}`
   );
+}
+for (const deliveryMode of ['cdn', 'git']) {
+  assert(capabilityMetadata.deliveryModes.includes(deliveryMode), `capability metadata must include ${deliveryMode}`);
 }
 const capabilityUnknownToleranceFixture = readJson('conformance/fixtures/capability-metadata-unknown-tolerance.json');
 assert(
@@ -129,6 +215,22 @@ assert(
   new Set(bridgeStatusVariants.fixtures.map((fixture) => fixture.payload.status)).size === 2,
   'bridge status variants fixture must cover distinct non-active statuses'
 );
+
+const problemDetailsCases = readJson('conformance/fixtures/problem-details-cases.json');
+assertSpecVersion(problemDetailsCases, 'problem details cases');
+assert(
+  problemDetailsCases.cases.length === problemStatusBySlug.size,
+  'problem details cases must cover every baseline problem type'
+);
+for (const problemCase of problemDetailsCases.cases) {
+  assertProblemDetails(problemCase, `problem details case ${problemCase.type}`);
+}
+for (const slug of problemStatusBySlug.keys()) {
+  assert(
+    problemDetailsCases.cases.some((problemCase) => problemCase.type.endsWith(`/${slug}`)),
+    `problem details cases missing ${slug}`
+  );
+}
 
 const manifestValidFixture = readJson('conformance/fixtures/manifest-valid-minimal.json');
 assertSpecVersion(manifestValidFixture, 'minimal valid manifest fixture');
@@ -274,14 +376,22 @@ for (const resolverCase of resolverCases.cases) {
   }
   if (resolverCase.exactReleaseMetadata) {
     for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata)) {
-      assert(
-        typeof metadata.version === 'string',
-        `resolver case ${resolverCase.name} exact metadata ${key} needs version`
-      );
-      assert(
-        /^sha256:[a-f0-9]{64}$/.test(metadata.integrity),
-        `resolver case ${resolverCase.name} exact metadata ${key} needs valid integrity`
-      );
+      assertReleaseMetadata(metadata, `resolver case ${resolverCase.name} exact metadata ${key}`);
+      if (resolverCase.requestRoute && resolverCase.expected.failureCategory !== 'identity-mismatch') {
+        assertRouteMetadataIdentity(
+          resolverCase.requestRoute,
+          metadata,
+          `resolver case ${resolverCase.name} exact metadata ${key}`
+        );
+      }
+      if (resolverCase.expected.failureCategory === 'identity-mismatch') {
+        const identity = routeIdentityFromPath(resolverCase.requestRoute);
+        assert(identity, `resolver case ${resolverCase.name} needs a parseable route for identity mismatch`);
+        assert(
+          metadata.name !== identity.name || metadata.version !== identity.version,
+          `resolver case ${resolverCase.name} must exercise route/metadata identity mismatch`
+        );
+      }
     }
   }
 }
@@ -296,11 +406,10 @@ for (const fixture of trustUploadLifecycle.fixtures) {
     validate('trustUploadFinalize', fixture.payload, `trust upload lifecycle ${fixture.name}`);
   }
   if (fixture.schema === 'problem-details') {
+    assertProblemDetails(fixture.payload, `trust upload lifecycle ${fixture.name}`);
     assert(
-      typeof fixture.payload.type === 'string' &&
-        typeof fixture.payload.title === 'string' &&
-        typeof fixture.payload.status === 'number',
-      `trust upload lifecycle ${fixture.name} must use problem details shape`
+      fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
+      `trust upload lifecycle ${fixture.name} failureCategory must match problem type slug`
     );
   }
 }
@@ -308,15 +417,23 @@ for (const fixture of trustUploadLifecycle.fixtures) {
 const digestVectors = readJson('conformance/fixtures/digest-vectors.json');
 assertSpecVersion(digestVectors, 'digest vectors');
 for (const fixture of digestVectors.fixtures) {
+  const canonicalInputBytes = fixture.canonicalInputBase64
+    ? Buffer.from(fixture.canonicalInputBase64, 'base64')
+    : Buffer.from(fixture.canonicalInput, 'utf8');
   assert(
-    fixture.normalizedFiles.every((file) =>
-      fixture.canonicalInput.includes(
-        `file ${file.path} ${file.executable ? 1 : 0} ${Buffer.byteLength(file.content, 'utf8')}\n`
-      )
-    ),
-    `digest vector ${fixture.name} canonical input must use UTF-8 byte lengths from normalized files`
+    fixture.normalizedFiles.every((file) => {
+      const contentBytes = file.contentBase64
+        ? Buffer.from(file.contentBase64, 'base64')
+        : Buffer.from(file.content, 'utf8');
+      const recordHeader = Buffer.from(
+        `file ${file.path} ${file.executable ? 1 : 0} ${contentBytes.byteLength}\n`,
+        'utf8'
+      );
+      return canonicalInputBytes.includes(recordHeader);
+    }),
+    `digest vector ${fixture.name} canonical input must use byte lengths from normalized files`
   );
-  const actual = `sha256:${crypto.createHash('sha256').update(fixture.canonicalInput, 'utf8').digest('hex')}`;
+  const actual = `sha256:${crypto.createHash('sha256').update(canonicalInputBytes).digest('hex')}`;
   assert(
     actual === fixture.expectedIntegrity,
     `digest vector ${fixture.name} expected ${fixture.expectedIntegrity} but computed ${actual}`
@@ -324,6 +441,15 @@ for (const fixture of digestVectors.fixtures) {
 }
 const isInvalidNormalizedPath = (pathValue) =>
   pathValue.startsWith('/') || pathValue.split('/').some((segment) => segment === '.' || segment === '..');
+const normalizeArchivePath = (pathValue) => path.posix.normalize(pathValue);
+const isInvalidArchivePath = (pathValue) => {
+  const normalized = normalizeArchivePath(pathValue);
+  return (
+    pathValue.startsWith('/') ||
+    normalized === '.' ||
+    pathValue.split('/').some((segment) => segment === '.' || segment === '..')
+  );
+};
 const digestInvalidCases = readJson('conformance/fixtures/digest-invalid-cases.json');
 assertSpecVersion(digestInvalidCases, 'digest invalid cases');
 for (const digestCase of digestInvalidCases.cases) {
@@ -340,7 +466,44 @@ for (const digestCase of digestInvalidCases.cases) {
       `digest invalid case ${digestCase.name} must contain duplicate normalized paths`
     );
   }
+  if (digestCase.expected.failureCategory === 'non-regular-file') {
+    assert(
+      digestCase.normalizedFiles.some((file) => file.entryType && file.entryType !== 'file'),
+      `digest invalid case ${digestCase.name} must contain a non-regular entry`
+    );
+  }
   assert(digestCase.expected.valid === false, `digest invalid case ${digestCase.name} must be expected invalid`);
+}
+
+const tarArchiveProfileCases = readJson('conformance/fixtures/tar-archive-profile-cases.json');
+assertSpecVersion(tarArchiveProfileCases, 'tar archive profile cases');
+for (const archiveCase of tarArchiveProfileCases.cases) {
+  assert(Array.isArray(archiveCase.archiveEntries), `tar archive case ${archiveCase.name} needs archive entries`);
+  if (archiveCase.expected.valid === false) {
+    assert(
+      typeof archiveCase.expected.failureCategory === 'string',
+      `tar archive case ${archiveCase.name} needs failure category`
+    );
+  }
+  if (archiveCase.expected.failureCategory === 'invalid-archive-path') {
+    assert(
+      archiveCase.archiveEntries.some((entry) => isInvalidArchivePath(entry.path)),
+      `tar archive case ${archiveCase.name} must contain an invalid archive path`
+    );
+  }
+  if (archiveCase.expected.failureCategory === 'duplicate-archive-path') {
+    const normalizedPaths = archiveCase.archiveEntries.map((entry) => normalizeArchivePath(entry.path));
+    assert(
+      new Set(normalizedPaths).size !== normalizedPaths.length,
+      `tar archive case ${archiveCase.name} must contain duplicate normalized archive paths`
+    );
+  }
+  if (archiveCase.expected.failureCategory === 'non-regular-archive-entry') {
+    assert(
+      archiveCase.archiveEntries.some((entry) => entry.entryType !== 'file'),
+      `tar archive case ${archiveCase.name} must contain a non-regular archive entry`
+    );
+  }
 }
 
 const mappingMatrix = readJson('conformance/fixtures/mapping-matrix.json');
@@ -381,5 +544,34 @@ assert(
   'OpenAPI document must define scoped trust upload intent path'
 );
 assert(openapi.components?.schemas?.ProblemDetails, 'OpenAPI document must define ProblemDetails schema');
+assert(
+  openapi.components.schemas.ProblemDetails.properties.type.pattern ===
+    '^https://agentvolumes\\.org/problems/[a-z0-9-]+$',
+  'OpenAPI ProblemDetails.type must use Agent Volumes problem URI pattern'
+);
+for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
+  for (const [method, operation] of Object.entries(pathItem)) {
+    if (!['get', 'post', 'put', 'patch', 'delete'].includes(method)) {
+      continue;
+    }
+    for (const parameter of operation.parameters ?? []) {
+      if (parameter.in !== 'path') {
+        continue;
+      }
+      const expectedRefByName = {
+        name: '#/components/schemas/NameSegment',
+        scope: '#/components/schemas/ScopeName',
+        version: '#/components/schemas/SemVer',
+      };
+      const expectedRef = expectedRefByName[parameter.name];
+      if (expectedRef) {
+        assert(
+          parameter.schema?.$ref === expectedRef,
+          `OpenAPI ${method.toUpperCase()} ${pathName} path parameter ${parameter.name} must use ${expectedRef}`
+        );
+      }
+    }
+  }
+}
 
 console.log('Artifact validation passed.');
