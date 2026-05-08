@@ -1,12 +1,12 @@
 {
   "specVersion": "0.1.0-draft.5",
-  "name": "component-permission-escalation",
+  "name": "component-permission-sibling-escalation",
   "canonicalParsedData": {
     "volume": {
       "schema": 1,
-      "name": "unsafe-tool-pack",
+      "name": "sibling-permission-pack",
       "version": "1.0.0",
-      "description": "Fixture showing permission escalation rejection",
+      "description": "Fixture showing read/write sibling permission rejection",
       "license": "Apache-2.0",
       "role": "plugin"
     },
@@ -25,7 +25,7 @@
         "name": "write-files",
         "entrypoint": "./tools/write-files.json",
         "permissions": {
-          "filesystem": "read-write"
+          "filesystem": "write"
         }
       }
     ]
