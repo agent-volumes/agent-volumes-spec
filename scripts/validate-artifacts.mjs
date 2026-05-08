@@ -27,6 +27,9 @@ const schemas = {
   trustSummary: readJson('schemas/trust-summary.schema.json'),
   trustDetail: readJson('schemas/trust-detail.schema.json'),
   capabilityMetadata: readJson('schemas/capability-metadata.schema.json'),
+  versionIndexRow: readJson('schemas/version-index-row.schema.json'),
+  trustUploadIntent: readJson('schemas/trust-upload-intent.schema.json'),
+  trustUploadFinalize: readJson('schemas/trust-upload-finalize.schema.json'),
   bridgeMetadata: readJson('schemas/bridge-metadata.schema.json'),
 };
 
@@ -67,10 +70,17 @@ validate(
   readJson('conformance/fixtures/capability-metadata.json'),
   'capability metadata fixture'
 );
+const capabilityMetadata = readJson('conformance/fixtures/capability-metadata.json');
 assert(
-  readJson('conformance/fixtures/capability-metadata.json').specVersion === '0.1.0-draft.5',
+  capabilityMetadata.specVersion === '0.1.0-draft.5',
   'capability metadata fixture must declare specVersion 0.1.0-draft.5'
 );
+for (const apiField of ['trustMetadata', 'versionIndex', 'trustUploads', 'advisories']) {
+  assert(
+    typeof capabilityMetadata.apis[apiField] === 'boolean',
+    `capability metadata fixture must declare boolean apis.${apiField}`
+  );
+}
 const capabilityUnknownToleranceFixture = readJson('conformance/fixtures/capability-metadata-unknown-tolerance.json');
 assert(
   capabilityUnknownToleranceFixture.canonicalParsedData.specVersion === '0.1.0-draft.5',
@@ -206,6 +216,95 @@ assert(
   'permission sibling escalation fixture must be an expected failure'
 );
 
+const versionIndexRowCases = readJson('conformance/fixtures/version-index-row-cases.json');
+assertSpecVersion(versionIndexRowCases, 'version index row cases');
+for (const fixture of versionIndexRowCases.fixtures) {
+  if (fixture.expected.valid) {
+    validate('versionIndexRow', fixture.payload, `version index row ${fixture.name}`);
+  } else {
+    validateExpectedFailure('versionIndexRow', fixture.payload, `version index row ${fixture.name}`);
+  }
+}
+
+const semverRangeCases = readJson('conformance/fixtures/semver-range-cases.json');
+assertSpecVersion(semverRangeCases, 'semver range cases');
+const semverRangeSchema = {
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $ref: `${schemas.volume.$id}#/$defs/semverRange`,
+};
+const validateSemverRange = ajv.compile(semverRangeSchema);
+for (const range of semverRangeCases.accepted) {
+  assert(validateSemverRange(range), `semver range case should be accepted: ${range}`);
+}
+for (const range of semverRangeCases.rejected) {
+  assert(!validateSemverRange(range), `semver range case should be rejected: ${range}`);
+}
+
+const resolverCases = readJson('conformance/fixtures/resolver-cases.json');
+assertSpecVersion(resolverCases, 'resolver cases');
+for (const resolverCase of resolverCases.cases) {
+  assert(
+    !('dependencies' in resolverCase),
+    `resolver case ${resolverCase.name} must use requirements, not dependencies`
+  );
+  if (resolverCase.requirements) {
+    assert(
+      Array.isArray(resolverCase.requirements),
+      `resolver case ${resolverCase.name} requirements must be an array`
+    );
+    for (const requirement of resolverCase.requirements) {
+      assert(
+        typeof requirement.requester === 'string',
+        `resolver case ${resolverCase.name} requirement needs requester`
+      );
+      assert(typeof requirement.volume === 'string', `resolver case ${resolverCase.name} requirement needs volume`);
+      assert(
+        validateSemverRange(requirement.constraint),
+        `resolver case ${resolverCase.name} has invalid constraint: ${requirement.constraint}`
+      );
+    }
+  }
+  if (resolverCase.versionIndexRows) {
+    for (const [volume, rows] of Object.entries(resolverCase.versionIndexRows)) {
+      assert(Array.isArray(rows), `resolver case ${resolverCase.name} versionIndexRows.${volume} must be an array`);
+      for (const row of rows) {
+        validate('versionIndexRow', row, `resolver case ${resolverCase.name} version index row for ${volume}`);
+      }
+    }
+  }
+  if (resolverCase.exactReleaseMetadata) {
+    for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata)) {
+      assert(
+        typeof metadata.version === 'string',
+        `resolver case ${resolverCase.name} exact metadata ${key} needs version`
+      );
+      assert(
+        /^sha256:[a-f0-9]{64}$/.test(metadata.integrity),
+        `resolver case ${resolverCase.name} exact metadata ${key} needs valid integrity`
+      );
+    }
+  }
+}
+
+const trustUploadLifecycle = readJson('conformance/fixtures/trust-upload-lifecycle.json');
+assertSpecVersion(trustUploadLifecycle, 'trust upload lifecycle fixture');
+for (const fixture of trustUploadLifecycle.fixtures) {
+  if (fixture.schema === 'trust-upload-intent') {
+    validate('trustUploadIntent', fixture.payload, `trust upload lifecycle ${fixture.name}`);
+  }
+  if (fixture.schema === 'trust-upload-finalize') {
+    validate('trustUploadFinalize', fixture.payload, `trust upload lifecycle ${fixture.name}`);
+  }
+  if (fixture.schema === 'problem-details') {
+    assert(
+      typeof fixture.payload.type === 'string' &&
+        typeof fixture.payload.title === 'string' &&
+        typeof fixture.payload.status === 'number',
+      `trust upload lifecycle ${fixture.name} must use problem details shape`
+    );
+  }
+}
+
 const digestVectors = readJson('conformance/fixtures/digest-vectors.json');
 assertSpecVersion(digestVectors, 'digest vectors');
 for (const fixture of digestVectors.fixtures) {
@@ -268,6 +367,19 @@ try {
 assert(openapi.openapi === '3.1.1', 'OpenAPI document must declare version 3.1.1');
 assert(openapi.paths['/api/v1/search'], 'OpenAPI document must define search path');
 assert(openapi.paths['/api/v1/capabilities'], 'OpenAPI document must define capability metadata path');
+assert(openapi.paths['/api/v1/index/volumes/{name}'], 'OpenAPI document must define unscoped version index path');
+assert(
+  openapi.paths['/api/v1/index/volumes/@{scope}/{name}'],
+  'OpenAPI document must define scoped version index path'
+);
+assert(
+  openapi.paths['/api/v1/volumes/{name}/{version}/trust/uploads'],
+  'OpenAPI document must define unscoped trust upload intent path'
+);
+assert(
+  openapi.paths['/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads'],
+  'OpenAPI document must define scoped trust upload intent path'
+);
 assert(openapi.components?.schemas?.ProblemDetails, 'OpenAPI document must define ProblemDetails schema');
 
 console.log('Artifact validation passed.');
