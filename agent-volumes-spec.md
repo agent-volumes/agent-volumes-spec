@@ -151,10 +151,10 @@ pkg:volume/%40<scope>/<name>
 
 The `%40` is the URL-encoded form of `@`, per purl encoding rules. In user-facing contexts, the decoded form `@scope/name` is used.
 
-| Field   | Description         | Constraints                                         | Required               |
-| ------- | ------------------- | --------------------------------------------------- | ---------------------- |
-| `scope` | Publisher namespace | Lowercase alphanumeric + hyphens. 1-64 characters.  | Per bibliotheca policy |
-| `name`  | Volume name         | Lowercase alphanumeric + hyphens. 1-128 characters. | Always                 |
+| Field   | Description         | Constraints                                                                                                             | Required               |
+| ------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `scope` | Publisher namespace | Lowercase alphanumeric + hyphens. 1-64 characters. Must not start or end with a hyphen or contain consecutive hyphens.  | Per bibliotheca policy |
+| `name`  | Volume name         | Lowercase alphanumeric + hyphens. 1-128 characters. Must not start or end with a hyphen or contain consecutive hyphens. | Always                 |
 
 Bibliothecas define their own scope-governance policies. Those governance policies remain local, but the high-level shape of scope/scopeless support is discoverable through capability metadata.
 
@@ -208,12 +208,14 @@ For trust and supply chain workflows, `pkg:volume/...@version` is the release's 
 
 The minimal interoperability contract for dependency interpretation is:
 
-1. **Lockfile** — if present, use pinned versions.
+1. **Lockfile** — if present, use pinned versions and resolved source metadata.
 2. **Volume manifest** — interpret dependency constraints and component references.
 3. **Configured bibliothecas** — use package-scoped version indexes to discover eligible version candidates when available.
 4. **Exact release metadata** — fetch the authoritative release metadata before installation or trust evaluation.
 
 The v0.1 core does **not** standardize registry-priority policy across independently configured bibliothecas.
+
+The v0.1 core also does **not** standardize a lockfile file format. A lockfile, when present, is a client-local reproducibility input that pins resolved versions and source metadata. It does not replace exact release metadata retrieval, normalized-file-tree integrity verification, or trust metadata validation unless a future specification defines a stronger frozen-install profile.
 
 The v0.1 core also does **not** standardize one universal prerelease-selection policy across conforming clients. Clients MAY apply local prerelease-selection behavior or UX policy, and prerelease handling therefore remains outside the portable v0.1 resolver baseline.
 
@@ -343,6 +345,8 @@ description = "LSP server configuration for research-oriented code intelligence"
 | `type`       | string | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`. |
 | `name`       | string | Component name. Lowercase alphanumeric + hyphens. Unique within the volume.      |
 | `entrypoint` | string | Relative path from volume root to the component's entry file.                    |
+
+The manifest schema validates the structural path shape of `entrypoint`. Entrypoint existence and type-specific content validation require validator logic beyond JSON Schema and are summarized in [Section 5.3](#53-entrypoint-resolution).
 
 **Optional fields per component:**
 
@@ -770,15 +774,15 @@ An **LSP Server** is a service endpoint implementing the [Language Server Protoc
 
 ### 4.8 Component Type Summary
 
-| Type       | Invoked by           | Execution                | State             | Primary format      |
-| ---------- | -------------------- | ------------------------ | ----------------- | ------------------- |
-| Agent      | Runtime              | Autonomous, long-running | Stateful          | Markdown            |
-| Skill      | Runtime (contextual) | Loaded into context      | N/A (knowledge)   | Markdown (SKILL.md) |
-| Command    | User (explicit)      | Trigger-based workflow   | Per-invocation    | Markdown            |
-| Tool       | Agent (programmatic) | Function call            | Stateless         | JSON/YAML/Script    |
-| Hook       | Runtime (event)      | Event-driven             | Stateless         | YAML/Script         |
-| MCP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config         |
-| LSP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config         |
+| Type       | Invoked by           | Execution                | State             | Primary format       |
+| ---------- | -------------------- | ------------------------ | ----------------- | -------------------- |
+| Agent      | Runtime              | Autonomous, long-running | Stateful          | Markdown             |
+| Skill      | Runtime (contextual) | Loaded into context      | N/A (knowledge)   | Markdown (SKILL.md)  |
+| Command    | User (explicit)      | Trigger-based workflow   | Per-invocation    | Markdown             |
+| Tool       | Agent (programmatic) | Function call            | Stateless         | JSON/YAML/Script     |
+| Hook       | Runtime (event)      | Event-driven             | Stateless         | Markdown/YAML/Script |
+| MCP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config          |
+| LSP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config          |
 
 ---
 
@@ -818,6 +822,20 @@ volume-root/
 | `volume.toml` `[[components]]` entry | Highest — authoritative for package-level metadata          |
 | Entrypoint frontmatter               | Second — authoritative for component-level content metadata |
 | Inferred defaults                    | Lowest                                                      |
+
+Baseline entrypoint contracts are type-specific:
+
+| Type         | Baseline entrypoint contract                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `agent`      | Markdown (`.md`) or YAML (`.yaml`) agent definition.                                                                |
+| `skill`      | Markdown skill definition with Agent Skills-compatible frontmatter.                                                 |
+| `command`    | Markdown command definition with `trigger` frontmatter matching `^/[a-z0-9-]+$`.                                    |
+| `tool`       | JSON/YAML function description or executable script as declared by the package.                                     |
+| `hook`       | Markdown/YAML/script hook definition that declares or implies one of the canonical lifecycle events and hook types. |
+| `mcp-server` | JSON MCP server configuration, canonically discoverable as `.mcp.json` for the Claude Code compatibility profile.   |
+| `lsp-server` | JSON LSP server configuration, canonically discoverable as `.lsp.json` for the Claude Code compatibility profile.   |
+
+Conforming validators MUST verify that declared entrypoint files exist. They SHOULD surface diagnostics when an entrypoint's type-specific contract is missing required metadata such as command `trigger` frontmatter or unsupported hook event names.
 
 ### 5.4 Single-Component Volumes
 
@@ -957,7 +975,15 @@ The v0.1 practical interoperability rule set further requires:
 - symlinks, hardlinks, Git submodules, device nodes, sockets, and other non-regular-file entries are outside the v0.1 portable release subject unless a future profile defines their handling; baseline releases SHOULD avoid them
 - generated files are included only when they are part of the published release subject; generated local build outputs that are not part of the release subject are excluded
 
-The exact record encoding used by the v0.1 digest vectors is defined by the v0.1 conformance fixtures in [Appendix C](#appendix-c-conformance-fixtures-and-mapping-matrix). Implementations MUST produce the expected digest for those vectors.
+The canonical byte stream for digest construction is the direct concatenation of one record per sorted file entry. Each record is encoded as:
+
+```text
+file <normalized-path> <executable-flag> <byte-length>\n<raw-content-bytes>
+```
+
+`<executable-flag>` is `1` when the normalized file entry is executable and `0` otherwise. `<byte-length>` is the decimal byte length of `<raw-content-bytes>`, not a character count. The newline after `<byte-length>` is a single LF byte. The file content bytes are appended exactly as present in the normalized release subject, including binary bytes and line endings. Implementations MUST reject invalid normalized paths, duplicate normalized paths, and non-regular-file entries before constructing this byte stream.
+
+The v0.1 conformance fixtures in [Appendix C](#appendix-c-conformance-fixtures-and-mapping-matrix) provide executable positive and negative vectors for this encoding. Implementations MUST produce the expected digest for those vectors.
 
 ### 7.3 Verification
 
@@ -1151,7 +1177,7 @@ The v0.1 advisory baseline includes:
 
 Advisory targeting remains **volume-level only** in v0.1.
 
-Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
+Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. `introduced = "0"` is the beginning-of-time sentinel; other event values use full SemVer strings. When `withdrawn` metadata is present, it MUST include an `at` timestamp. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
 
 Scanner findings are not advisory records by themselves in v0.1. A bibliotheca MAY create or update an advisory based on scanner information under local policy, but the portable contract is the advisory read/discovery model, not scanner-result interchange.
 
@@ -1182,6 +1208,15 @@ Content-Type: application/gzip
 
 For hosted archive workflows, the publish payload is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
+Hosted archive payloads follow the v0.1 archive transport profile:
+
+- the payload is gzip-compressed tar content
+- archive entries are interpreted relative to one volume root
+- absolute paths, parent-directory traversal, duplicate normalized paths, and entries that normalize to `.` or contain `.` / `..` segments are invalid
+- regular files are the only portable baseline entry type; symlinks, hardlinks, device nodes, sockets, and other non-regular entries are invalid unless a future profile defines them
+- archive timestamps, ownership, extended attributes, platform-specific mode bits, and container metadata are not part of the release subject
+- the executable bit is the only archive mode-derived metadata preserved into normalized file tree digest construction
+
 Publisher must own the target namespace. Version numbers are immutable once published. The bibliotheca computes `integrity` server-side.
 
 Clients publishing artifacts MUST fail before submission when a component declares permissions broader than its parent volume permits.
@@ -1211,6 +1246,8 @@ The fetch response identifies a release by both package-facing metadata and immu
   }
 }
 ```
+
+The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
 
 For `dist` metadata in v0.1:
 
@@ -1245,7 +1282,7 @@ Each version index entry represents one published version row. A row SHOULD incl
 - lifecycle/status information needed to exclude unavailable versions from ordinary resolution, such as yanked, tombstoned, blocked, or unavailable states when such states are represented by the bibliotheca
 - a pointer to the authoritative exact release metadata endpoint
 
-Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
+Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Among eligible stable candidates that satisfy the applicable constraints and are not excluded by lifecycle/status metadata, clients SHOULD prefer the candidate with the highest SemVer precedence. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
 
 If version index data conflicts with exact release metadata, clients and bibliothecas MUST treat that as an inconsistent registry state rather than silently preferring the index.
 
@@ -1273,7 +1310,7 @@ At minimum, the search API SHOULD support filtering by:
 - publisher
 - pagination controls
 
-Search result ordering, ranking, and text relevance are bibliotheca-local. `limit` and `offset` are zero-based pagination controls in the baseline API contract; clients MUST NOT infer a stable global ordering across bibliothecas unless a specific bibliotheca documents one locally.
+Search result ordering, ranking, and text relevance are bibliotheca-local. `limit` and `offset` are zero-based catalog pagination controls in the baseline API contract, not resolver inputs or freshness guarantees. Clients MUST NOT infer a stable global ordering across bibliothecas unless a specific bibliotheca documents one locally. Search responses MAY be cached under ordinary HTTP semantics, but clients MUST NOT use search results as a substitute for package-scoped version indexes or exact release metadata during resolution, installation, or trust evaluation.
 
 The machine-readable API contract for this surface is part of [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml).
 
@@ -1323,6 +1360,16 @@ When no trust artifacts are present for an existing release, the detail view ret
 
 The companion payload schemas for these views are [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json) and [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json).
 
+The v0.1 baseline trust format profiles use the following format identity conventions:
+
+| Category     | `format.family`   | Key format fields                                                                                  |
+| ------------ | ----------------- | -------------------------------------------------------------------------------------------------- |
+| `bom`        | `cyclonedx`       | `mediaType = "application/vnd.cyclonedx+json"`; `version` identifies the CycloneDX schema version  |
+| `provenance` | `slsa-provenance` | `mediaType = "application/vnd.in-toto+json"`; `predicateType = "https://slsa.dev/provenance/v1"`   |
+| `signature`  | `sigstore-bundle` | `mediaType` identifies the Sigstore bundle representation; `version` identifies the bundle profile |
+
+Other format families MAY be represented through the same fields, but the table above is the portable v0.1 baseline vocabulary for dispatching common trust artifacts.
+
 #### 9.4.3 Trust Attachment Upload
 
 Write-capable bibliothecas MUST expose a two-phase trust attachment upload lifecycle for release-scoped trust attachments.
@@ -1341,7 +1388,7 @@ The upload intent request identifies the target release subject, trust attachmen
 
 The finalize request commits the upload attempt. A bibliotheca MUST verify the uploaded bytes against the declared digest, declared size when present, release-subject binding, and attachment metadata before making the attachment available through trust discovery.
 
-The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
+The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
 Successful finalization results in a trust attachment record whose lifecycle state is represented through the same `active`, `revoked`, `superseded`, and `invalid` status model used by the trust detail view. Revocation and supersession remain status changes, not deletion or replacement.
 
@@ -1391,7 +1438,7 @@ The capability metadata document MUST:
 
 Unknown capability fields or values MUST be ignored by baseline clients. Implementations MAY surface diagnostics for observability, but a baseline client MUST NOT reject a capability metadata document solely because it contains unknown capability fields or values.
 
-Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core.
+Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core. The known v0.1 baseline `deliveryModes` values are `cdn` for hosted archive delivery and `git` for Git-backed source delivery. Unknown delivery modes are ignored by baseline clients under the same unknown-value tolerance rule.
 
 The machine-readable capability metadata contract is published in [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json).
 
@@ -1406,7 +1453,7 @@ Non-core capability fields intended for portable extension use MUST be placed un
 Inside that container:
 
 - extension data is partitioned by **first-level namespace keys**
-- namespace keys use a simple slug-like identifier policy
+- namespace keys use the same strict slug-like identifier policy as Agent Volumes name segments: lowercase ASCII letters, digits, and hyphens, with no leading hyphen, trailing hyphen, or consecutive hyphens
 - a small set of spec-owned-looking namespace keys is reserved and unavailable for ordinary extension use
 
 The machine-readable reserved namespace list is published as the companion artifact [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json).
@@ -1464,6 +1511,30 @@ Conforming bibliothecas SHOULD implement rate limiting. Recommended tiers:
 The normative HTTP contract companion may use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
 
 The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 7807 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
+
+Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.org/problems/<slug>`. The following core problem types are reserved for portable clients:
+
+| Problem type slug             | Typical status | Meaning                                                                 |
+| ----------------------------- | -------------- | ----------------------------------------------------------------------- |
+| `authentication-required`     | `401`          | Bearer authentication is missing or invalid.                            |
+| `authorization-failed`        | `403`          | The authenticated caller is not authorized for the requested operation. |
+| `not-found`                   | `404`          | The requested resource does not exist or is not visible to the caller.  |
+| `validation-failed`           | `400`          | Request payload, parameters, manifest, or metadata failed validation.   |
+| `invalid-manifest`            | `400`          | A submitted `volume.toml` is structurally or semantically invalid.      |
+| `invalid-archive`             | `400`          | A submitted hosted archive violates the v0.1 archive transport profile. |
+| `identity-mismatch`           | `409`          | A package identity disagrees with its route, manifest, or metadata.     |
+| `version-conflict`            | `409`          | The target version already exists or cannot be reused.                  |
+| `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.           |
+| `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.         |
+| `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.          |
+| `upload-expired`              | `410`          | A trust upload intent expired before finalization.                      |
+| `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.          |
+| `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.              |
+| `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.             |
+| `payload-too-large`           | `413`          | The submitted payload exceeds the bibliotheca's accepted limit.         |
+| `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                      |
+| `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
+| `rate-limited`                | `429`          | The request was rate limited.                                           |
 
 ---
 
@@ -1560,6 +1631,7 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - version index row fixtures
 - SemVer range grammar accept/reject fixtures
 - trust attachment upload lifecycle fixtures
+- problem details taxonomy fixtures
 - advisory payload fixtures
 - capability metadata payload fixtures
 - BOM/provenance mapping sample fixtures
@@ -1612,7 +1684,7 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 ### A.3 Validation Rules
 
 1. `volume.schema` MUST be a recognized schema version.
-2. `volume.name` MUST match `^(@[a-z0-9-]+/)?[a-z0-9-]+$`.
+2. `volume.name` MUST satisfy the naming policy in [Section 2.4](#24-naming-policy), with optional `@scope/` prefix for scoped names.
 3. `volume.version` MUST be a valid SemVer string.
 4. `volume.license` MUST be a valid SPDX expression.
 5. `volume.role` MUST be one of: `component`, `plugin`, `provider`, `meta`.
@@ -1692,7 +1764,8 @@ The draft companion artifact inventory includes at least:
 The v0.1 fixture set includes at least:
 
 - manifest accept/reject/warning fixtures, including unknown-field warning behavior
-- digest vectors for normalized file trees
+- digest vectors and negative digest construction cases for normalized file trees
+- hosted archive transport profile cases for `.tar.gz` publish/download workflows
 - trust summary/detail payload fixtures
 - version index row fixtures
 - SemVer range grammar fixtures
