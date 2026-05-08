@@ -14,6 +14,7 @@
       "format": {
         "family": "cyclonedx",
         "mediaType": "application/vnd.cyclonedx+json",
+        "profile": "agent-volumes-bom-v0.1",
         "version": "1.7"
       },
       "locator": {
@@ -37,6 +38,27 @@
       },
       "locator": {
         "url": "https://example.test/provenance.intoto.jsonl"
+      },
+      "status": {
+        "state": "active"
+      },
+      "verification": {
+        "subjectDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle",
+        "transparencyLog": "rekor"
+      }
+    },
+    {
+      "id": "signature-1",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "profile": "sigstore-bundle-v1",
+        "version": "1"
+      },
+      "locator": {
+        "url": "https://example.test/signature.sigstore.json"
       },
       "status": {
         "state": "active"

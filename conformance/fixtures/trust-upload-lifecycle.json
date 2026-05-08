@@ -81,6 +81,66 @@
         "valid": true,
         "failureCategory": "upload-expired"
       }
+    },
+    {
+      "name": "subject-binding-mismatch-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/subject-binding-mismatch",
+        "title": "Trust attachment subject did not match the target release",
+        "status": 400,
+        "detail": "The uploaded attachment binds to a different release subject.",
+        "uploadId": "upload-4"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "subject-binding-mismatch"
+      }
+    },
+    {
+      "name": "missing-uploaded-bytes-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+        "title": "Uploaded trust attachment bytes were not found",
+        "status": 400,
+        "detail": "Upload bytes must be available before finalization.",
+        "uploadId": "upload-5"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "missing-uploaded-bytes"
+      }
+    },
+    {
+      "name": "idempotency-conflict-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/idempotency-conflict",
+        "title": "Idempotency key conflicts with an earlier upload request",
+        "status": 409,
+        "detail": "The idempotency key was previously used with different attachment metadata.",
+        "uploadId": "upload-6"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "idempotency-conflict"
+      }
+    },
+    {
+      "name": "invalid-upload-state-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-upload-state",
+        "title": "Trust attachment upload is not ready to finalize",
+        "status": 409,
+        "detail": "Only uploaded trust attachment intents can be finalized.",
+        "uploadId": "upload-7"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "invalid-upload-state"
+      }
     }
   ]
 }

@@ -84,13 +84,58 @@
       },
       "exactReleaseMetadata": {
         "github-provider@2.0.0": {
+          "name": "github-provider",
           "version": "2.0.0",
-          "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+          "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/github-provider/2.0.0.tar.gz"
+          }
         }
       },
       "expected": {
         "outcome": "failure",
         "failureCategory": "inconsistent-registry-state"
+      }
+    },
+    {
+      "name": "scoped-release-metadata-name-canonical",
+      "requestRoute": "/api/v1/volumes/@acme/github-provider/2.0.0",
+      "exactReleaseMetadata": {
+        "@acme/github-provider@2.0.0": {
+          "name": "@acme/github-provider",
+          "version": "2.0.0",
+          "integrity": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/@acme/github-provider/2.0.0.tar.gz"
+          }
+        }
+      },
+      "expected": {
+        "outcome": "success"
+      }
+    },
+    {
+      "name": "route-release-metadata-identity-mismatch",
+      "requestRoute": "/api/v1/volumes/@acme/github-provider/2.0.0",
+      "exactReleaseMetadata": {
+        "@acme/github-provider@2.0.0": {
+          "name": "@other/github-provider",
+          "version": "2.0.0",
+          "integrity": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/@other/github-provider/2.0.0.tar.gz"
+          }
+        }
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "identity-mismatch"
       }
     },
     {
