@@ -1,0 +1,53 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "Negative normalized-file-tree digest cases that must be rejected before hash construction.",
+  "cases": [
+    {
+      "name": "absolute-path-rejected",
+      "normalizedFiles": [
+        {
+          "path": "/volume.toml",
+          "executable": false,
+          "content": "hello"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-path"
+      }
+    },
+    {
+      "name": "parent-segment-rejected",
+      "normalizedFiles": [
+        {
+          "path": "../volume.toml",
+          "executable": false,
+          "content": "hello"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-path"
+      }
+    },
+    {
+      "name": "duplicate-normalized-path-rejected",
+      "normalizedFiles": [
+        {
+          "path": "volume.toml",
+          "executable": false,
+          "content": "hello"
+        },
+        {
+          "path": "volume.toml",
+          "executable": false,
+          "content": "hello again"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "failureCategory": "duplicate-path"
+      }
+    }
+  ]
+}

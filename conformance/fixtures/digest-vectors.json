@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.4",
+  "specVersion": "0.1.0-draft.5",
   "canonicalInputFormat": "Each normalized file record is encoded as: file <path> <executable-flag> <byte-length>\\n<content>. Records are sorted lexicographically by normalized path and concatenated directly; byte-length determines where each content payload ends. executable-flag is 1 for executable files and 0 otherwise.",
   "fixtures": [
     {
@@ -42,6 +42,30 @@
       ],
       "canonicalInput": "file scripts/run.sh 1 18\n#!/bin/sh\necho ok\n",
       "expectedIntegrity": "sha256:ae0d7f0da8f1ac127af0abd7ff409db01f7eef202c09f7b7d8ce051b81dea55f"
+    },
+    {
+      "name": "empty-file-content",
+      "normalizedFiles": [
+        {
+          "path": "empty.txt",
+          "executable": false,
+          "content": ""
+        }
+      ],
+      "canonicalInput": "file empty.txt 0 0\n",
+      "expectedIntegrity": "sha256:9df98c2ebc1150e8de1da65f92d243f2bcfd30e4f013c30fe2ef95f10bc28190"
+    },
+    {
+      "name": "utf8-byte-length",
+      "normalizedFiles": [
+        {
+          "path": "docs/unicode.txt",
+          "executable": false,
+          "content": "안녕"
+        }
+      ],
+      "canonicalInput": "file docs/unicode.txt 0 6\n안녕",
+      "expectedIntegrity": "sha256:2739cda93a5d9e9ef1440e4388c90a7909b53900115ea53989725d493950e2d0"
     }
   ]
 }
