@@ -56,7 +56,10 @@
               "url": { "type": "string", "format": "uri" },
               "embedded": {}
             },
-            "anyOf": [{ "required": ["url"] }, { "required": ["embedded"] }]
+            "anyOf": [
+              { "properties": { "url": { "type": "string", "format": "uri" } }, "required": ["url"] },
+              { "properties": { "embedded": {} }, "required": ["embedded"] }
+            ]
           },
           "status": {
             "type": "object",

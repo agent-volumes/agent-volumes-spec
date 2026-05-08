@@ -8,8 +8,10 @@
   "allOf": [
     {
       "if": {
+        "type": "object",
         "properties": {
           "volume": {
+            "type": "object",
             "properties": {
               "role": { "enum": ["component", "plugin", "provider"] }
             },
@@ -19,9 +21,10 @@
         "required": ["volume"]
       },
       "then": {
+        "type": "object",
         "required": ["components"],
         "properties": {
-          "components": { "minItems": 1 }
+          "components": { "type": "array", "minItems": 1 }
         }
       }
     }
