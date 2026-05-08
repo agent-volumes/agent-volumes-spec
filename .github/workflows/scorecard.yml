@@ -18,5 +18,5 @@ jobs:
       id-token: write
     uses: agent-volumes/.github/.github/workflows/scorecard-reusable.yml@main
     with:
-      publish-results: false
-      upload-code-scanning: false
+      publish-results: true
+      upload-code-scanning: true
