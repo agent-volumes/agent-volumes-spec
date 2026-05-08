@@ -127,7 +127,7 @@ See [Appendix D: Glossary](#appendix-d-glossary) for the complete list. Key term
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
 
-TOML examples use [TOML v1.0.0](https://toml.io/en/v1.0.0) syntax.
+TOML examples use [TOML v1.1.0](https://toml.io/en/v1.1.0) syntax.
 
 ---
 
