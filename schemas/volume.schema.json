@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/volume.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/volume.schema.json",
   "title": "Agent Volumes Manifest Canonical Parsed Data Model",
   "type": "object",
   "additionalProperties": true,
@@ -36,13 +36,14 @@
       "required": ["schema", "name", "version", "description", "license", "role"],
       "properties": {
         "schema": { "type": "integer", "const": 1 },
-        "name": {
+        "name": { "$ref": "#/$defs/volumeName" },
+        "version": { "$ref": "#/$defs/semver" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "license": {
           "type": "string",
-          "pattern": "^(@[a-z0-9-]+/)?[a-z0-9-]+$"
+          "minLength": 1,
+          "$comment": "Normative SPDX expression validation requires validator logic beyond this structural schema."
         },
-        "version": { "type": "string" },
-        "description": { "type": "string", "maxLength": 256 },
-        "license": { "type": "string" },
         "homepage": { "type": "string", "format": "uri" },
         "repository": { "type": "string", "format": "uri" },
         "documentation": { "type": "string", "format": "uri" },
@@ -76,7 +77,7 @@
       "additionalProperties": true,
       "required": ["id"],
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+        "id": { "$ref": "#/$defs/scopeName" }
       }
     },
     "components": {
@@ -85,6 +86,7 @@
     },
     "dependencies": {
       "type": "object",
+      "propertyNames": { "$ref": "#/$defs/volumeName" },
       "additionalProperties": { "type": "string" }
     },
     "component-dependencies": {
@@ -101,7 +103,7 @@
         "additionalProperties": true,
         "required": ["name", "compatibility"],
         "properties": {
-          "name": { "type": "string" },
+          "name": { "$ref": "#/$defs/runtimeName" },
           "compatibility": { "type": "string" }
         }
       }
@@ -113,7 +115,7 @@
         "additionalProperties": true,
         "required": ["name", "version"],
         "properties": {
-          "name": { "type": "string" },
+          "name": { "type": "string", "enum": ["mcp", "lsp"] },
           "version": { "type": "string" }
         }
       }
@@ -123,9 +125,21 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "runtimes": { "$ref": "#/$defs/stringSet" },
-        "os": { "$ref": "#/$defs/stringSet" },
-        "arch": { "$ref": "#/$defs/stringSet" }
+        "runtimes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["node", "bun", "deno", "python", "ruby", "go", "rust"] },
+          "uniqueItems": true
+        },
+        "os": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["linux", "macos", "windows"] },
+          "uniqueItems": true
+        },
+        "arch": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["x64", "arm64", "x86"] },
+          "uniqueItems": true
+        }
       }
     },
     "provenance": {
@@ -146,6 +160,52 @@
     }
   },
   "$defs": {
+    "nameSegment": {
+      "type": "string",
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "scopeName": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "runtimeName": {
+      "type": "string",
+      "enum": [
+        "aider",
+        "claude-code",
+        "cline",
+        "codex",
+        "continue",
+        "cursor",
+        "crewai",
+        "gemini",
+        "generic-cli",
+        "generic-mcp",
+        "goose",
+        "hermes-agent",
+        "langgraph",
+        "openai-agents",
+        "openclaw",
+        "opencode",
+        "pi-agent",
+        "semantic-kernel"
+      ]
+    },
     "stringSet": {
       "type": "array",
       "items": { "type": "string" },
@@ -186,8 +246,11 @@
           "type": "string",
           "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
         },
-        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-        "entrypoint": { "type": "string" },
+        "name": { "$ref": "#/$defs/componentName" },
+        "entrypoint": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+        },
         "description": { "type": "string", "maxLength": 256 },
         "providers": { "$ref": "#/$defs/stringSet" },
         "permissions": { "$ref": "#/$defs/permissions" }
