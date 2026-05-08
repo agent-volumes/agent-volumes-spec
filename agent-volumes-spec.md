@@ -2,9 +2,9 @@
 
 # Agent Volumes Specification
 
-**Version:** 0.1.0-draft.4  
+**Version:** 0.1.0-draft.5  
 **Status:** Draft  
-**Date:** 12026-05-06  
+**Date:** 12026-05-09  
 **Authors:** Yunseo Kim
 
 ---
@@ -466,6 +466,17 @@ One capability class MAY depend on one or more permission fields depending on ru
 
 Permission escalation is a semantic validity failure. Clients performing publish, consume, install, or load workflows MUST fail when a component declares permissions broader than its parent volume permits.
 
+For `filesystem`, `network`, and `browser`, permission narrowing uses this partial order:
+
+```text
+deny < read < read-write
+deny < write < read-write
+```
+
+`read` and `write` are sibling permissions: neither is narrower than the other. A component MAY omit a permission field to inherit the corresponding volume-level permission. If a component declares a permission field, the declared value MUST be less than or equal to the parent volume permission under the partial order above. A component declaration of `write` is therefore not a valid narrowing of a parent declaration of `read`, and a declaration of `read` is not a valid narrowing of a parent declaration of `write`.
+
+For `shell`, `deny < allow`. A component MAY omit `shell` to inherit the parent volume shell permission.
+
 Bibliothecas MUST block artifacts with discovered permission escalation from continued distribution, but the v0.1 baseline does not require every bibliotheca to perform mandatory direct escalation validation on every publish attempt.
 
 Defaults are semantic assumptions. Validators and parsers are not required to materialize omitted permission fields into normalized output.
@@ -508,6 +519,8 @@ For `volume.toml` validation:
 - warning handling MUST use structured warning categories rather than free text alone when a machine-readable diagnostic form is exposed
 
 This rule applies to manifest structure. It does **not** imply the same behavior for all other artifact families.
+
+The JSON Schema companion artifact validates the structural subset of the canonical parsed-data model that is expressible in JSON Schema. Some normative validation requirements, including SPDX expression validation, entrypoint existence checks, component-name uniqueness, dependency-graph validation, and permission-escalation checks, require validator logic in addition to schema evaluation.
 
 ### 3.14 Complete Example
 
@@ -1282,7 +1295,7 @@ The capability metadata document MUST:
 - allow forward-compatible extension through a reserved extension container
 - be cacheable with minimal cache-safety guidance
 
-Unknown capability fields or values MUST be ignored by baseline clients.
+Unknown capability fields or values MUST be ignored by baseline clients. Implementations MAY surface diagnostics for observability, but a baseline client MUST NOT reject a capability metadata document solely because it contains unknown capability fields or values.
 
 Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of trust/advisory surfaces; richer trust-profile or scanner-profile negotiation remains outside the v0.1 core.
 
@@ -1294,7 +1307,7 @@ The capability metadata document uses a **reserved extension container** for non
 
 #### 9.7.1 Reserved Extension Container
 
-Non-core capability fields MUST be placed under a reserved extension container rather than appearing as ordinary peer fields to the core model.
+Non-core capability fields intended for portable extension use MUST be placed under a reserved extension container rather than appearing as ordinary peer fields to the core model. Baseline clients still tolerate unknown peer fields for forward compatibility, but such fields are not the canonical extension mechanism and MUST NOT be required for baseline behavior.
 
 Inside that container:
 
@@ -1549,7 +1562,7 @@ The draft companion artifacts are organized as follows:
 
 ### B.3 Lockstep Versioning
 
-Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.4` is part of the same draft release surface as this specification.
+Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.5` is part of the same draft release surface as this specification.
 
 ### B.4 Artifact Inventory
 
@@ -1633,4 +1646,4 @@ Fixture updates that materially change interoperability expectations are normati
 
 ---
 
-End of Agent Volumes Specification v0.1.0-draft.4
+End of Agent Volumes Specification v0.1.0-draft.5
