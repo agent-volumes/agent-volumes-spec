@@ -87,7 +87,7 @@
     "dependencies": {
       "type": "object",
       "propertyNames": { "$ref": "#/$defs/volumeName" },
-      "additionalProperties": { "type": "string" }
+      "additionalProperties": { "$ref": "#/$defs/semverRange" }
     },
     "component-dependencies": {
       "type": "object",
@@ -182,6 +182,11 @@
     "semver": {
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "semverRange": {
+      "type": "string",
+      "$comment": "Portable v0.1 dependency range grammar: exact full SemVer operands, caret, tilde, comparators, and comma/whitespace conjunction. Build metadata, partial versions, wildcards, OR expressions, hyphen ranges, tags, and registry-specific selectors are excluded.",
+      "pattern": "^(?:(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)(?:(?:\\s*,\\s*|\\s+)(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)*$"
     },
     "runtimeName": {
       "type": "string",
