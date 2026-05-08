@@ -53,18 +53,18 @@ Agent Volumes functions analogously to established package ecosystems — npm fo
 
 This specification defines:
 
-| System                      | Coverage                                                                                       |
-| --------------------------- | ---------------------------------------------------------------------------------------------- |
-| Package Identity Scheme     | Globally unique identifiers for volumes and components                                         |
-| Volume Manifest             | `volume.toml` authoring format and canonical parsed-data validation model                      |
-| Component Type System       | Seven component types with precise semantics                                                   |
-| Component Export System     | Standardized discovery and loading of exported components                                      |
-| Cross-Runtime Compatibility | Declarations for runtime, protocol, provider, and environment compatibility                    |
-| Content Integrity           | Normalized-file-tree digest construction and verification                                      |
-| Trust and Supply Chain      | Publisher identity, trust attachments, provenance, signatures, threat model, advisories        |
-| Registry API                | HTTP API for package operations, trust discovery, advisories, and capability metadata          |
-| Conformance                 | Requirements plus normative fixtures and vectors for independent interoperability              |
-| Companion Artifacts         | Normative machine-readable artifacts for structured contracts where prose-only would be weaker |
+| System                      | Coverage                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Package Identity Scheme     | Globally unique identifiers for volumes and components                                                              |
+| Volume Manifest             | `volume.toml` authoring format and canonical parsed-data validation model                                           |
+| Component Type System       | Seven component types with precise semantics                                                                        |
+| Component Export System     | Standardized discovery and loading of exported components                                                           |
+| Cross-Runtime Compatibility | Declarations for runtime, protocol, provider, and environment compatibility                                         |
+| Content Integrity           | Normalized-file-tree digest construction and verification                                                           |
+| Trust and Supply Chain      | Publisher identity, trust attachments, provenance, signatures, threat model, advisories                             |
+| Registry API                | HTTP API for package operations, version discovery, trust discovery and upload, advisories, and capability metadata |
+| Conformance                 | Requirements plus normative fixtures and vectors for independent interoperability                                   |
+| Companion Artifacts         | Normative machine-readable artifacts for structured contracts where prose-only would be weaker                      |
 
 This specification does **NOT** define:
 
@@ -209,12 +209,15 @@ For trust and supply chain workflows, `pkg:volume/...@version` is the release's 
 The minimal interoperability contract for dependency interpretation is:
 
 1. **Lockfile** — if present, use pinned versions.
-2. **Volume manifest** — interpret version constraints and component references.
-3. **Configured bibliothecas** — discover eligible versions.
+2. **Volume manifest** — interpret dependency constraints and component references.
+3. **Configured bibliothecas** — use package-scoped version indexes to discover eligible version candidates when available.
+4. **Exact release metadata** — fetch the authoritative release metadata before installation or trust evaluation.
 
 The v0.1 core does **not** standardize registry-priority policy across independently configured bibliothecas.
 
 The v0.1 core also does **not** standardize one universal prerelease-selection policy across conforming clients. Clients MAY apply local prerelease-selection behavior or UX policy, and prerelease handling therefore remains outside the portable v0.1 resolver baseline.
+
+Package-scoped version indexes are resolver inputs, not lockfiles, search rankings, or complete release records. If version index data conflicts with exact release metadata, clients and bibliothecas MUST treat the result as an inconsistent registry state rather than silently preferring either representation.
 
 ---
 
@@ -361,6 +364,31 @@ description = "LSP server configuration for research-oriented code intelligence"
 
 The key is the volume identifier (scopeless name or `@scope/name`); the value is a version constraint string.
 
+Portable v0.1 dependency constraints use a constrained npm-like SemVer range grammar. The grammar applies to dependency constraints in manifests and to resolver-facing dependency constraints carried in version index rows. It does not redefine the validity of a volume's own `volume.version` SemVer string.
+
+The portable grammar includes:
+
+- exact full SemVer operands, such as `1.2.3`
+- caret ranges over full SemVer operands, such as `^1.2.3`
+- tilde ranges over full SemVer operands, such as `~1.2.3`
+- comparator terms using `<`, `<=`, `>`, `>=`, or `=` with full SemVer operands
+- comma conjunction and whitespace conjunction, such as `>=1.5.0, <3.0.0`
+
+The portable grammar excludes:
+
+- OR/disjunction syntax such as `||`
+- wildcard and partial-version syntax such as `*`, `1.x`, `1.*`, `1`, or `1.2`
+- hyphen ranges such as `1.0.0 - 2.0.0`
+- aliases or tags such as `latest`
+- registry-specific selector syntax, channels, tracks, or dist-tags
+- build metadata in range operands, such as `1.2.3+build.1`
+
+Full SemVer operands in dependency range expressions are three-component SemVer versions with optional prerelease identifiers and without build metadata. Build metadata may remain valid where this specification separately allows SemVer version strings, but it is not part of the portable v0.1 range operand grammar.
+
+`=1.2.3` is equivalent to the exact version range `1.2.3`. `^X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than the next breaking boundary according to SemVer-compatible caret semantics. `~X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than `X.(Y + 1).0`. Multiple comparator terms joined by comma and/or whitespace are interpreted as logical AND.
+
+Prerelease operands MAY be parsed as valid full SemVer operands, but prerelease candidate-selection behavior remains client-local in v0.1 unless a later specification release changes that policy.
+
 #### 3.6.2 Component-Level Dependencies
 
 ```toml
@@ -383,7 +411,7 @@ A dependency graph MUST NOT contain multiple versions of the same volume. Confor
 ```toml
 [[runtimes]]
 name = "claude-code"
-compatibility = "^1.0"
+compatibility = "^1.0.0"
 ```
 
 If the `runtimes` array is omitted, the volume makes no runtime-specific compatibility claim.
@@ -577,7 +605,7 @@ description = "LSP server configuration for repository-aware code intelligence"
 
 [[runtimes]]
 name = "claude-code"
-compatibility = "^1.0"
+compatibility = "^1.0.0"
 
 [[protocols]]
 name = "mcp"
@@ -1082,6 +1110,19 @@ Trust discovery exposes the **current state** together with **revision metadata*
 
 If a trust attachment later becomes invalid, superseded, or revoked, it remains part of the append-only record and is represented through **status metadata**, not silent deletion.
 
+Write-capable bibliothecas expose release-scoped trust attachment uploads through a two-phase lifecycle:
+
+1. create an upload intent for a trust attachment bound to a release subject
+2. upload the attachment bytes using the upload instructions returned by the bibliotheca
+3. finalize the upload so the bibliotheca can verify digest, size, subject binding, and metadata consistency
+4. expose the resulting attachment through the existing trust discovery model once it becomes available
+
+The upload instructions returned by a bibliotheca are opaque interoperability data. They MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, or another implementation-local upload target. The portable contract is the intent and finalize lifecycle plus the resulting standard trust attachment record, not the storage backend or byte-transfer protocol.
+
+A bibliotheca MUST NOT mark an uploaded trust attachment as available until it verifies that uploaded bytes match the declared digest and that the attachment metadata binds to the intended release subject. Failed, expired, conflicting, or invalid uploads MUST NOT silently create active trust attachments.
+
+Pending upload state is write-side state. The baseline trust summary and detail discovery views expose finalized available attachments and their current lifecycle status; they do not expose pending upload intents unless a future profile or extension defines such discovery.
+
 ### 8.6 Client Trust Consumption Baseline
 
 At minimum:
@@ -1126,7 +1167,7 @@ A conforming bibliotheca exposes an HTTP API for package operations and discover
 
 The machine-readable API contract is published as a normative companion artifact listed in [Appendix B](#appendix-b-machine-readable-companion-artifacts), including [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml).
 
-Bibliothecas MAY deliver release content via CDN, Git-backed references, or both. However, backend delivery choices do not change the canonical release subject or the API semantics defined here.
+Bibliothecas MAY deliver release content via CDN, Git-backed references, or both. However, backend delivery choices do not change the canonical release subject or the API semantics defined here. Version indexes and trust upload instructions are likewise API contracts over logical resources; their physical storage, replication, and byte-transfer mechanisms remain implementation-local unless explicitly defined by this specification.
 
 ### 9.2 Package Operations
 
@@ -1182,6 +1223,35 @@ Fetch responses expose release metadata, not a resolver policy. Registry priorit
 #### 9.2.3 Unpublish
 
 A bibliotheca SHOULD allow unpublishing within a grace window if local policy permits it. Unpublished version numbers SHOULD be tombstoned. If a tombstoned version is requested, a bibliotheca SHOULD report the version as unavailable while preserving enough metadata to prevent silent reuse of the same version number.
+
+#### 9.2.4 Version Index
+
+The v0.1 core defines a package-scoped version index read surface for each volume identity.
+
+Example topology:
+
+```http
+GET /api/v1/index/volumes/{name}
+GET /api/v1/index/volumes/@{scope}/{name}
+```
+
+The version index is a machine-facing resolver input. It is distinct from catalog search: search ranking and ordering are bibliotheca-local, while version index entries are package-scoped candidate records.
+
+Each version index entry represents one published version row. A row SHOULD include at least:
+
+- the SemVer version string
+- the release's normalized-file-tree `integrity` value when available
+- the version's volume-level dependency declarations needed for candidate pruning
+- lifecycle/status information needed to exclude unavailable versions from ordinary resolution, such as yanked, tombstoned, blocked, or unavailable states when such states are represented by the bibliotheca
+- a pointer to the authoritative exact release metadata endpoint
+
+Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
+
+If version index data conflicts with exact release metadata, clients and bibliothecas MUST treat that as an inconsistent registry state rather than silently preferring the index.
+
+Bibliothecas are expected to update the version index promptly when publish, unpublish, yank, tombstone, blocking, or equivalent version-state changes occur.
+
+The v0.1 core MUST NOT require Cargo's physical index layout, path sharding algorithm, Git-backed index storage, sparse-index URL layout, append-only file format, or replication protocol. Bibliothecas MAY implement the version index using database queries, generated JSON documents, static files, CDN-backed sparse indexes, Git-backed indexes, or other local storage mechanisms as long as the normative API contract and conformance behavior are preserved.
 
 ### 9.3 Search API
 
@@ -1253,6 +1323,28 @@ When no trust artifacts are present for an existing release, the detail view ret
 
 The companion payload schemas for these views are [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json) and [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json).
 
+#### 9.4.3 Trust Attachment Upload
+
+Write-capable bibliothecas MUST expose a two-phase trust attachment upload lifecycle for release-scoped trust attachments.
+
+Example topology:
+
+```http
+POST /api/v1/volumes/{name}/{version}/trust/uploads
+POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize
+
+POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads
+POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
+```
+
+The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes.
+
+The finalize request commits the upload attempt. A bibliotheca MUST verify the uploaded bytes against the declared digest, declared size when present, release-subject binding, and attachment metadata before making the attachment available through trust discovery.
+
+The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
+
+Successful finalization results in a trust attachment record whose lifecycle state is represented through the same `active`, `revoked`, `superseded`, and `invalid` status model used by the trust detail view. Revocation and supersession remain status changes, not deletion or replacement.
+
 ### 9.5 Security Advisory API
 
 The advisory API is a distinct package-facing discovery surface. Example topology:
@@ -1286,6 +1378,8 @@ That endpoint is the primary structured discovery surface for registry-wide fact
 - scope/scopeless policy shape
 - delivery modes
 - trust metadata API availability
+- version index API availability
+- trust attachment upload API availability
 - advisory API availability
 
 The capability metadata document MUST:
@@ -1297,7 +1391,7 @@ The capability metadata document MUST:
 
 Unknown capability fields or values MUST be ignored by baseline clients. Implementations MAY surface diagnostics for observability, but a baseline client MUST NOT reject a capability metadata document solely because it contains unknown capability fields or values.
 
-Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of trust/advisory surfaces; richer trust-profile or scanner-profile negotiation remains outside the v0.1 core.
+Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core.
 
 The machine-readable capability metadata contract is published in [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json).
 
@@ -1351,6 +1445,7 @@ If tooling accepts the old extension form as input during the bridge period, it 
 | Unpublish           | Yes (Bearer + ownership) |
 | Capability metadata | No                       |
 | Trust metadata      | No                       |
+| Trust upload        | Yes (Bearer + ownership) |
 
 Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
@@ -1413,13 +1508,15 @@ A conforming bibliotheca MUST:
 5. Compute and store normalized-file-tree integrity digests ([Section 7](#7-content-integrity)).
 6. Support the package identity scheme ([Section 2](#2-package-identity-scheme)).
 7. Expose the query-based catalog search API ([Section 9.3](#93-search-api)).
-8. Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
-9. Reject inconsistent release metadata or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
-10. Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
-11. Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
-12. Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-13. Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
-14. Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
+8. Expose the package-scoped version index API and keep version index rows synchronized with release lifecycle changes ([Section 9.2.4](#924-version-index)).
+9. Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
+10. Reject inconsistent release metadata, version index metadata, or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
+11. Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
+12. For write-capable bibliothecas, expose the two-phase trust attachment upload API and verify digest, size, subject binding, and metadata consistency before activation ([Section 9.4.3](#943-trust-attachment-upload)).
+13. Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
+14. Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+15. Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
+16. Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
 
 A conforming bibliotheca SHOULD:
 
@@ -1433,16 +1530,18 @@ A conforming bibliotheca SHOULD:
 A conforming client MUST:
 
 1. Parse `volume.toml` and validate against the canonical parsed-data model rules ([Section 3](#3-volume-manifest)).
-2. Fail on permission escalation during publish, consume, install, or load workflows when a component declares broader permissions than its parent volume permits ([Section 3.10](#310-permissions)).
-3. Enforce single-version resolution — reject dependency graphs requiring multiple versions of the same volume ([Section 3.6.3](#363-single-version-enforcement)).
-4. Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
-5. Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
-6. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
-7. Reject subject-binding or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
-8. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
-9. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
-10. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-11. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+2. Parse portable dependency range expressions using the constrained v0.1 SemVer range grammar ([Section 3.6.1](#361-volume-level-dependencies)).
+3. Fail on permission escalation during publish, consume, install, or load workflows when a component declares broader permissions than its parent volume permits ([Section 3.10](#310-permissions)).
+4. Enforce single-version resolution — reject dependency graphs requiring multiple versions of the same volume ([Section 3.6.3](#363-single-version-enforcement)).
+5. Fetch exact release metadata before installation or trust evaluation, even when version index rows are used for candidate pruning ([Section 9.2.4](#924-version-index)).
+6. Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
+7. Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
+8. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
+9. Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
+10. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
+11. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
+12. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+13. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
 
@@ -1458,6 +1557,9 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - manifest valid/invalid/warning behavior, including unknown-field warnings
 - normalized file tree digest golden vectors
 - trust metadata summary/detail payload fixtures
+- version index row fixtures
+- SemVer range grammar accept/reject fixtures
+- trust attachment upload lifecycle fixtures
 - advisory payload fixtures
 - capability metadata payload fixtures
 - BOM/provenance mapping sample fixtures
@@ -1573,6 +1675,9 @@ The draft companion artifact inventory includes at least:
 - [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json)
 - [`schemas/advisory.schema.json`](schemas/advisory.schema.json)
 - [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json)
+- [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json)
+- [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
+- [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
 - [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml)
@@ -1589,6 +1694,9 @@ The v0.1 fixture set includes at least:
 - manifest accept/reject/warning fixtures, including unknown-field warning behavior
 - digest vectors for normalized file trees
 - trust summary/detail payload fixtures
+- version index row fixtures
+- SemVer range grammar fixtures
+- trust attachment upload lifecycle fixtures
 - advisory payload fixtures
 - capability metadata fixtures, including unknown field/value tolerance behavior
 - bridge-metadata fixtures
@@ -1617,32 +1725,35 @@ Fixture updates that materially change interoperability expectations are normati
 
 ## Appendix D: Glossary
 
-| Term                           | Definition                                                                                                                                                 |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Agent Volumes**              | The standard defined by this specification.                                                                                                                |
-| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                                                   |
-| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                                         |
-| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                                        |
-| **Runtime**                    | A host, client, SDK, or harness capable of executing agent components. Runtime identity does not identify the underlying AI model selected by that system. |
-| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                                         |
-| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                                                 |
-| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                                 |
-| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                                            |
-| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                                                   |
-| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                                              |
-| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter.                     |
-| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                                         |
-| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                                       |
-| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                                       |
-| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                                       |
-| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                                     |
-| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                         |
-| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                                        |
-| **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                                            |
-| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes.                 |
-| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                                    |
-| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.                            |
-| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                                               |
+| Term                           | Definition                                                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agent Volumes**              | The standard defined by this specification.                                                                                                                                           |
+| **Volume**                     | A versioned distribution unit that exports one or more agent components.                                                                                                              |
+| **Component**                  | A functional unit executed by an agent runtime. One of: Agent, Skill, Command, Tool, Hook, MCP Server, LSP Server.                                                                    |
+| **Bibliotheca**                | A registry that indexes, hosts, and serves volumes.                                                                                                                                   |
+| **Runtime**                    | A host, client, SDK, or harness capable of executing agent components. Runtime identity does not identify the underlying AI model selected by that system.                            |
+| **Publisher**                  | An entity that publishes volumes to a bibliotheca.                                                                                                                                    |
+| **Scope**                      | A namespace prefix (`@scope`) for publisher identity within a bibliotheca.                                                                                                            |
+| **Logical identity**           | The package-facing release identity expressed as `pkg:volume/...@version`.                                                                                                            |
+| **Immutable content identity** | The resolved `sha256:...` digest of a published release's normalized file tree.                                                                                                       |
+| **purl**                       | Package URL — standardized identifier. Agent Volumes uses type `volume`.                                                                                                              |
+| **Entrypoint**                 | The primary file of a component, referenced by `entrypoint` in `volume.toml`.                                                                                                         |
+| **Manifest**                   | `volume.toml` — package-level metadata. Distinct from component-level manifests or entrypoint metadata such as `SKILL.md` frontmatter.                                                |
+| **Advisory**                   | Security notice about a known vulnerability in a published volume.                                                                                                                    |
+| **Integrity**                  | The release digest computed over the canonical normalized file tree.                                                                                                                  |
+| **Version index**              | A package-scoped resolver-facing collection of version rows used for candidate discovery before exact release metadata is fetched.                                                    |
+| **Version index row**          | One resolver-facing metadata record for a published volume version, including version, integrity when available, dependency declarations, status, and exact release metadata pointer. |
+| **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                                                                  |
+| **Upload intent**              | Write-side trust attachment upload state created before bytes are uploaded and finalized.                                                                                             |
+| **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                                                                  |
+| **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                                                                |
+| **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                                                    |
+| **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                                                                   |
+| **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                                                                       |
+| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes.                                            |
+| **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                                                               |
+| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.                                                       |
+| **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                                                                          |
 
 ---
 
