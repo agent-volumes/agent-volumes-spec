@@ -256,6 +256,65 @@ paths:
           $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+  /api/v1/index/volumes/{name}:
+    get:
+      summary: Fetch resolver-facing version index rows for an unscoped volume
+      operationId: getVolumeVersionIndex
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: ../schemas/version-index-row.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/index/volumes/@{scope}/{name}:
+    get:
+      summary: Fetch resolver-facing version index rows for a scoped volume
+      operationId: getScopedVolumeVersionIndex
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: ../schemas/version-index-row.schema.json
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}/trust/summary:
     get:
       summary: Trust summary for a release
@@ -339,6 +398,106 @@ paths:
           $ref: '#/components/responses/NotFound'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/uploads:
+    post:
+      summary: Create a trust attachment upload intent for an unscoped release
+      operationId: createVolumeTrustUploadIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadIntentRequest'
+      responses:
+        '201':
+          description: Upload intent created. Upload instructions are opaque implementation data.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-intent.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a trust attachment upload for an unscoped release
+      operationId: finalizeVolumeTrustUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+      responses:
+        '201':
+          description: Upload finalized and trust attachment made available through trust discovery.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
     get:
       summary: Trust detail for a scoped release
@@ -368,6 +527,116 @@ paths:
                 $ref: ../schemas/trust-detail.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads:
+    post:
+      summary: Create a trust attachment upload intent for a scoped release
+      operationId: createScopedVolumeTrustUploadIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadIntentRequest'
+      responses:
+        '201':
+          description: Upload intent created. Upload instructions are opaque implementation data.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-intent.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a trust attachment upload for a scoped release
+      operationId: finalizeScopedVolumeTrustUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+      responses:
+        '201':
+          description: Upload finalized and trust attachment made available through trust discovery.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/advisories:
@@ -534,6 +803,58 @@ components:
                   format: uri
                 ref:
                   type: string
+    TrustUploadIntentRequest:
+      type: object
+      additionalProperties: false
+      required: [subject, attachment, declaredDigest]
+      properties:
+        subject:
+          type: object
+          additionalProperties: false
+          required: [purl, integrity]
+          properties:
+            purl:
+              type: string
+              pattern: ^pkg:volume/.+@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+            integrity:
+              type: string
+              pattern: ^sha256:[a-f0-9]{64}$
+        attachment:
+          type: object
+          additionalProperties: false
+          required: [category, format]
+          properties:
+            category:
+              type: string
+              enum: [bom, provenance, signature, other]
+            format:
+              type: object
+              additionalProperties: false
+              required: [family, mediaType]
+              properties:
+                family:
+                  type: string
+                mediaType:
+                  type: string
+                predicateType:
+                  type: string
+                  format: uri
+                profile:
+                  type: string
+                version:
+                  type: string
+        declaredDigest:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        declaredSize:
+          type: integer
+          minimum: 0
+    TrustUploadFinalizeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        idempotencyKey:
+          type: string
     BridgeMetadata:
       $ref: ../schemas/bridge-metadata.schema.json
   responses:
@@ -563,6 +884,24 @@ components:
             $ref: '#/components/schemas/ProblemDetails'
     Conflict:
       description: Resource conflict
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Gone:
+      description: Resource no longer available, such as an expired upload intent
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    PayloadTooLarge:
+      description: Payload too large
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    UnsupportedMediaType:
+      description: Unsupported media type
       content:
         application/problem+json:
           schema:
