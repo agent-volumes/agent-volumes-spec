@@ -1,0 +1,29 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "name": "invalid-leading-hyphen-name",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "-bad-name",
+      "version": "1.0.0",
+      "description": "Invalid name fixture",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "valid-skill",
+        "entrypoint": "./skills/valid-skill/SKILL.md"
+      }
+    ]
+  },
+  "expected": {
+    "valid": false,
+    "failureCategory": "invalid-name",
+    "path": "volume.name"
+  }
+}

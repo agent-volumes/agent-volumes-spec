@@ -1,0 +1,23 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "name": "minimal-valid-meta-package",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "agent-bundle",
+      "version": "1.0.0",
+      "description": "Dependency bundle with no exported components",
+      "license": "Apache-2.0",
+      "role": "meta"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "dependencies": {
+      "research-agent-pack": "^1.4.0"
+    }
+  },
+  "expected": {
+    "valid": true
+  }
+}

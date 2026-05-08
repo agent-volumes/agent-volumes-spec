@@ -1,0 +1,44 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "name": "minimal-valid-plugin",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "research-agent-pack",
+      "version": "1.4.0",
+      "description": "Research assistant with literature analysis tools",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "summarize-paper",
+        "entrypoint": "./skills/summarize-paper/SKILL.md"
+      }
+    ],
+    "runtimes": [
+      {
+        "name": "claude-code",
+        "compatibility": "^1.0"
+      }
+    ],
+    "protocols": [
+      {
+        "name": "mcp",
+        "version": ">=2025.02"
+      }
+    ],
+    "environment": {
+      "runtimes": ["node", "python"],
+      "os": ["linux", "macos"],
+      "arch": ["x64", "arm64"]
+    }
+  },
+  "expected": {
+    "valid": true
+  }
+}

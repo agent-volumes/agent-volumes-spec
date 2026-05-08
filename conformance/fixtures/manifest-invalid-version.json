@@ -1,0 +1,29 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "name": "invalid-semver-version",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "bad-version-pack",
+      "version": "v1.0",
+      "description": "Invalid version fixture",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "valid-skill",
+        "entrypoint": "./skills/valid-skill/SKILL.md"
+      }
+    ]
+  },
+  "expected": {
+    "valid": false,
+    "failureCategory": "invalid-version",
+    "path": "volume.version"
+  }
+}
