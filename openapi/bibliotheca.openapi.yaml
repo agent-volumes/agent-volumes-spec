@@ -70,7 +70,7 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
       requestBody:
         required: true
         content:
@@ -106,12 +106,12 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
       requestBody:
         required: true
         content:
@@ -145,12 +145,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
@@ -172,12 +172,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '202':
           description: Unpublish accepted or tombstoned
@@ -200,17 +200,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
@@ -232,17 +232,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '202':
           description: Unpublish accepted or tombstoned
@@ -265,7 +265,7 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
       responses:
         '200':
           description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
@@ -292,12 +292,12 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
       responses:
         '200':
           description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
@@ -324,12 +324,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -350,17 +350,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -381,12 +381,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -409,12 +409,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
         - in: header
           name: Idempotency-Key
           required: false
@@ -460,12 +460,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
         - in: path
           name: uploadId
           required: true
@@ -507,17 +507,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -540,17 +540,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
         - in: header
           name: Idempotency-Key
           required: false
@@ -596,17 +596,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
         - in: path
           name: uploadId
           required: true
@@ -709,13 +709,33 @@ components:
       type: http
       scheme: bearer
   schemas:
+    NameSegment:
+      type: string
+      pattern: ^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+    ScopeName:
+      type: string
+      maxLength: 64
+      pattern: ^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+    VolumeName:
+      type: string
+      maxLength: 194
+      description: Canonical full user-facing volume name. Scoped volumes use @scope/name; scopeless volumes use name.
+      pattern: ^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$
+    SemVer:
+      type: string
+      pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+    Digest:
+      type: string
+      pattern: ^sha256:[a-f0-9]{64}$
     ProblemDetails:
       type: object
+      description: RFC 7807 Problem Details. Agent Volumes baseline problem type URIs use https://agentvolumes.org/problems/<slug>.
       required: [type, title, status]
       properties:
         type:
           type: string
           format: uri-reference
+          pattern: ^https://agentvolumes\.org/problems/[a-z0-9-]+$
         title:
           type: string
         status:
@@ -738,9 +758,9 @@ components:
             required: [name, latestVersion]
             properties:
               name:
-                type: string
+                $ref: '#/components/schemas/VolumeName'
               latestVersion:
-                type: string
+                $ref: '#/components/schemas/SemVer'
               description:
                 type: string
               role:
@@ -760,24 +780,26 @@ components:
                       type: string
         total:
           type: integer
+          description: Total matching results for the bibliotheca-local query snapshot.
           minimum: 0
         limit:
           type: integer
+          description: Page size used for this catalog search response; not a resolver ordering signal.
           minimum: 1
         offset:
           type: integer
+          description: Zero-based offset used for this catalog search response; search ordering remains bibliotheca-local.
           minimum: 0
     ReleaseMetadata:
       type: object
       required: [name, version, integrity, dist]
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/VolumeName'
         version:
-          type: string
+          $ref: '#/components/schemas/SemVer'
         integrity:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
+          $ref: '#/components/schemas/Digest'
         dist:
           oneOf:
             - type: object
@@ -788,6 +810,7 @@ components:
                   const: cdn
                 mediaType:
                   type: string
+                  description: Gzip-compressed tar archive transport for the hosted Agent Volumes archive profile.
                   const: application/gzip
                 url:
                   type: string
@@ -817,8 +840,7 @@ components:
               type: string
               pattern: ^pkg:volume/.+@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
             integrity:
-              type: string
-              pattern: ^sha256:[a-f0-9]{64}$
+              $ref: '#/components/schemas/Digest'
         attachment:
           type: object
           additionalProperties: false
@@ -844,8 +866,7 @@ components:
                 version:
                   type: string
         declaredDigest:
-          type: string
-          pattern: ^sha256:[a-f0-9]{64}$
+          $ref: '#/components/schemas/Digest'
         declaredSize:
           type: integer
           minimum: 0
