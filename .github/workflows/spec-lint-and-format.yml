@@ -1,4 +1,4 @@
-name: Markdown Lint and Format
+name: Specification Lint and Format
 
 permissions:
   contents: read
@@ -14,9 +14,13 @@ on:
       - 'scripts/**'
       - 'package.json'
       - 'bun.lock'
-      - '.github/workflows/markdown-lint.yml'
+      - '.github/workflows/spec-lint-and-format.yml'
       - '.markdownlint-cli2.jsonc'
       - '.prettierrc'
+      - 'redocly.yaml'
+      - 'openapi/**'
+      - 'schemas/**'
+      - 'conformance/**'
   push:
     branches:
       - main
@@ -29,9 +33,13 @@ on:
       - 'scripts/**'
       - 'package.json'
       - 'bun.lock'
-      - '.github/workflows/markdown-lint.yml'
+      - '.github/workflows/spec-lint-and-format.yml'
       - '.markdownlint-cli2.jsonc'
       - '.prettierrc'
+      - 'redocly.yaml'
+      - 'openapi/**'
+      - 'schemas/**'
+      - 'conformance/**'
 
 jobs:
   lint:
@@ -58,6 +66,9 @@ jobs:
 
       - name: Lint Markdown with markdownlint
         run: bun run lint:md
+
+      - name: Lint OpenAPI with Redocly
+        run: bun run lint:openapi
 
       - name: Validate specification artifacts
         run: bun run validate:artifacts

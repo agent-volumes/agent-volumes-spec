@@ -7,9 +7,11 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
+[![Specification Lint and Format](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/spec-lint-and-format.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/spec-lint-and-format.yml)
 [![CodeQL](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/github-code-scanning/codeql)
 [![OSV Scanner Full](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml)
-[![Markdown Lint and Format](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/markdown-lint.yml)
+[![Dependency Review](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/agent-volumes/agent-volumes-spec/badge)](https://scorecard.dev/viewer/?uri=github.com/agent-volumes/agent-volumes-spec)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
