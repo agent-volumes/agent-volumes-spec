@@ -794,23 +794,24 @@ Adding a new runtime identifier to this list is an additive, non-breaking specif
 
 | Runtime ID        | Description                       |
 | ----------------- | --------------------------------- |
+| `aider`           | Aider CLI coding agent            |
 | `claude-code`     | Anthropic's Claude Code CLI agent |
 | `cline`           | Cline IDE and CLI agent           |
-| `continue`        | Continue IDE and CLI agent        |
-| `opencode`        | OpenCode CLI agent                |
-| `cursor`          | Cursor AI editor                  |
 | `codex`           | OpenAI Codex CLI agent            |
-| `gemini`          | Google Gemini CLI agent           |
-| `goose`           | Goose desktop and CLI agent       |
+| `continue`        | Continue IDE and CLI agent        |
+| `cursor`          | Cursor AI editor                  |
 | `crewai`          | CrewAI agent framework            |
+| `gemini`          | Google Gemini CLI agent           |
+| `generic-cli`     | Any CLI-based agent runtime       |
+| `generic-mcp`     | Any MCP-compatible client         |
+| `goose`           | Goose desktop and CLI agent       |
 | `hermes-agent`    | Hermes Agent autonomous runtime   |
 | `langgraph`       | LangGraph agent runtime SDK       |
 | `openai-agents`   | OpenAI Agents SDK                 |
 | `openclaw`        | OpenClaw autonomous agent runtime |
+| `opencode`        | OpenCode CLI agent                |
 | `pi-agent`        | Pi coding agent runtime           |
 | `semantic-kernel` | Microsoft Semantic Kernel SDK     |
-| `generic-mcp`     | Any MCP-compatible client         |
-| `generic-cli`     | Any CLI-based agent runtime       |
 
 ### 6.2 Protocol Compatibility
 
