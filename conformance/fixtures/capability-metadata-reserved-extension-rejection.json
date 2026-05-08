@@ -11,6 +11,8 @@
     "deliveryModes": ["cdn"],
     "apis": {
       "trustMetadata": true,
+      "versionIndex": true,
+      "trustUploads": true,
       "advisories": true
     },
     "extensions": {

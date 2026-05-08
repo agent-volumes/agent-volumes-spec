@@ -1,0 +1,86 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "fixtures": [
+    {
+      "name": "intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "opaque-url",
+          "url": "https://uploads.example.test/upload-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-1",
+        "attachmentId": "bom-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "digest-mismatch-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/digest-mismatch",
+        "title": "Uploaded trust attachment digest did not match the declared digest",
+        "status": 400,
+        "detail": "The uploaded bytes computed to a different sha256 digest.",
+        "uploadId": "upload-2"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "digest-mismatch"
+      }
+    },
+    {
+      "name": "expired-upload-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/upload-expired",
+        "title": "Trust attachment upload intent expired",
+        "status": 410,
+        "detail": "Create a new upload intent before retrying.",
+        "uploadId": "upload-3"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "upload-expired"
+      }
+    }
+  ]
+}

@@ -10,6 +10,8 @@
   "deliveryModes": ["cdn", "git"],
   "apis": {
     "trustMetadata": true,
+    "versionIndex": true,
+    "trustUploads": true,
     "advisories": true
   },
   "extensions": {

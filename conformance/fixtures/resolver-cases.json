@@ -2,22 +2,95 @@
   "specVersion": "0.1.0-draft.5",
   "notes": [
     "Prerelease-selection behavior is intentionally client-local in the v0.1 core and is therefore not fixed by these normative resolver cases.",
-    "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior."
+    "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior.",
+    "Version index rows are resolver inputs for candidate pruning. Clients still fetch exact release metadata before installation or trust evaluation."
   ],
   "cases": [
     {
       "name": "single-version-compatible",
-      "dependencies": {
-        "github-provider": "^2.0.0"
-      },
-      "availableVersions": {
-        "github-provider": ["2.0.0", "2.1.0"]
+      "requirements": [
+        {
+          "requester": "research-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^2.0.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          },
+          {
+            "version": "2.1.0",
+            "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
+          }
+        ]
       },
       "expected": {
         "outcome": "success",
         "selected": {
           "github-provider": "2.1.0"
         }
+      }
+    },
+    {
+      "name": "version-index-excludes-yanked-candidate",
+      "requirements": [
+        {
+          "requester": "review-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^2.0.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          },
+          {
+            "version": "2.1.0",
+            "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "status": { "state": "yanked", "reason": "Published with incorrect dependency metadata" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "success",
+        "selected": {
+          "github-provider": "2.0.0"
+        }
+      }
+    },
+    {
+      "name": "version-index-release-metadata-conflict",
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          }
+        ]
+      },
+      "exactReleaseMetadata": {
+        "github-provider@2.0.0": {
+          "version": "2.0.0",
+          "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+        }
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "inconsistent-registry-state"
       }
     },
     {

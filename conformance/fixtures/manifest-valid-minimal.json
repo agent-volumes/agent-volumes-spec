@@ -23,7 +23,7 @@
     "runtimes": [
       {
         "name": "claude-code",
-        "compatibility": "^1.0"
+        "compatibility": "^1.0.0"
       }
     ],
     "protocols": [

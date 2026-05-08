@@ -1,0 +1,9 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "accepted": ["1.2.3", "=1.2.3", "^1.2.3", "~1.2.3", ">=1.5.0, <3.0.0", ">=1.5.0 <3.0.0", "1.2.3-rc.1"],
+  "rejected": ["^1.2", "1", "1.2", "1.x", "*", "1.0.0 - 2.0.0", "^1.0.0 || ^2.0.0", "latest", "1.2.3+build.1"],
+  "notes": [
+    "These cases cover the portable dependency and version-index range grammar only.",
+    "Prerelease candidate-selection behavior remains client-local in v0.1."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "fixtures": [
+    {
+      "name": "available-version-with-dependencies",
+      "payload": {
+        "version": "2.1.0",
+        "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "dependencies": {
+          "search-toolkit": "^2.0.0",
+          "@acme/github-provider": ">=1.5.0, <3.0.0"
+        },
+        "status": {
+          "state": "available"
+        },
+        "release": {
+          "url": "/api/v1/volumes/research-agent-pack/2.1.0"
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "yanked-version-row",
+      "payload": {
+        "version": "2.1.1",
+        "integrity": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "status": {
+          "state": "yanked",
+          "reason": "Incorrect dependency metadata"
+        },
+        "release": {
+          "url": "/api/v1/volumes/research-agent-pack/2.1.1"
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "invalid-partial-range-dependency",
+      "payload": {
+        "version": "2.1.2",
+        "dependencies": {
+          "search-toolkit": "^2.0"
+        },
+        "status": {
+          "state": "available"
+        },
+        "release": {
+          "url": "/api/v1/volumes/research-agent-pack/2.1.2"
+        }
+      },
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-range-grammar"
+      }
+    }
+  ]
+}

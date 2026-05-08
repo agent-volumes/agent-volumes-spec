@@ -13,6 +13,8 @@
     "deliveryModes": ["cdn", "git", "artifact-bundle"],
     "apis": {
       "trustMetadata": true,
+      "versionIndex": true,
+      "trustUploads": true,
       "advisories": true,
       "futureApi": true
     },
