@@ -14,7 +14,7 @@
       "format": {
         "family": "cyclonedx",
         "mediaType": "application/vnd.cyclonedx+json",
-        "version": "1.6"
+        "version": "1.7"
       },
       "locator": {
         "url": "https://example.test/bom.json"
