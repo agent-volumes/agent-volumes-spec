@@ -3,9 +3,7 @@ extends:
   - spec
 
 rules:
-  operation-operationId: off
   no-ambiguous-paths: warn
   no-enum-type-mismatch: warn
   no-invalid-media-type-examples: warn
-  security-defined: off
   spec-strict-refs: warn
