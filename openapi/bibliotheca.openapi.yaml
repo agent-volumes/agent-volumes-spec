@@ -8,6 +8,7 @@ paths:
   /api/v1/search:
     get:
       summary: Search the bibliotheca catalog for matching volumes
+      operationId: searchVolumes
       parameters:
         - in: query
           name: q
@@ -61,6 +62,7 @@ paths:
   /api/v1/volumes/{name}:
     post:
       summary: Publish an unscoped volume
+      operationId: publishVolume
       security:
         - bearerAuth: []
       parameters:
@@ -96,6 +98,7 @@ paths:
   /api/v1/volumes/@{scope}/{name}:
     post:
       summary: Publish a scoped volume
+      operationId: publishScopedVolume
       security:
         - bearerAuth: []
       parameters:
@@ -136,6 +139,7 @@ paths:
   /api/v1/volumes/{name}/{version}:
     get:
       summary: Fetch volume release metadata
+      operationId: getVolumeRelease
       parameters:
         - in: path
           name: name
@@ -160,6 +164,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
     delete:
       summary: Unpublish an unscoped volume version
+      operationId: unpublishVolumeRelease
       security:
         - bearerAuth: []
       parameters:
@@ -189,6 +194,7 @@ paths:
   /api/v1/volumes/@{scope}/{name}/{version}:
     get:
       summary: Fetch scoped volume release metadata
+      operationId: getScopedVolumeRelease
       parameters:
         - in: path
           name: scope
@@ -218,6 +224,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
     delete:
       summary: Unpublish a scoped volume version
+      operationId: unpublishScopedVolumeRelease
       security:
         - bearerAuth: []
       parameters:
@@ -252,6 +259,7 @@ paths:
   /api/v1/volumes/{name}/{version}/trust/summary:
     get:
       summary: Trust summary for a release
+      operationId: getVolumeTrustSummary
       parameters:
         - in: path
           name: name
@@ -277,6 +285,7 @@ paths:
   /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
     get:
       summary: Trust summary for a scoped release
+      operationId: getScopedVolumeTrustSummary
       parameters:
         - in: path
           name: scope
@@ -307,6 +316,7 @@ paths:
   /api/v1/volumes/{name}/{version}/trust/detail:
     get:
       summary: Trust detail for a release
+      operationId: getVolumeTrustDetail
       parameters:
         - in: path
           name: name
@@ -332,6 +342,7 @@ paths:
   /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
     get:
       summary: Trust detail for a scoped release
+      operationId: getScopedVolumeTrustDetail
       parameters:
         - in: path
           name: scope
@@ -362,6 +373,7 @@ paths:
   /api/v1/advisories:
     get:
       summary: Search advisories
+      operationId: searchAdvisories
       parameters:
         - in: query
           name: volume
@@ -387,6 +399,7 @@ paths:
   /api/v1/advisories/{advisoryId}:
     get:
       summary: Fetch one advisory
+      operationId: getAdvisory
       parameters:
         - in: path
           name: advisoryId
@@ -407,6 +420,7 @@ paths:
   /api/v1/capabilities:
     get:
       summary: Bibliotheca capability metadata
+      operationId: getCapabilityMetadata
       responses:
         '200':
           description: Capability metadata
