@@ -57,6 +57,7 @@ Under this decision:
   - lifecycle/status information needed to exclude unavailable versions from ordinary resolution, such as yanked, tombstoned, blocked, or unavailable states when such states are represented by the bibliotheca
   - a pointer to the authoritative exact release metadata endpoint
 - clients MAY use the version index to choose candidate versions before fetching exact release metadata
+- among eligible stable candidates that satisfy the applicable constraints and are not excluded by lifecycle/status metadata, clients SHOULD prefer the candidate with the highest SemVer precedence
 - clients MUST still fetch exact release metadata before installation or trust evaluation
 - exact release metadata and normalized-file-tree integrity remain authoritative for release validation
 - if version index data conflicts with exact release metadata, clients and bibliothecas MUST treat that as an inconsistent registry state rather than silently preferring the index
@@ -64,7 +65,15 @@ Under this decision:
 - the v0.1 core MUST NOT require Cargo's physical index layout, path sharding algorithm, Git-backed index storage, sparse-index URL layout, append-only file format, or replication protocol
 - bibliothecas MAY implement the version index using database queries, generated JSON documents, static files, CDN-backed sparse indexes, Git-backed indexes, or other local storage mechanisms as long as the normative API contract and conformance behavior are preserved
 
-This decision does not define one universal version-selection algorithm. It provides the version discovery data surface needed by the resolver baseline and later SemVer range grammar work.
+This decision defines the version discovery data surface needed by the resolver baseline, but it stops short of standardizing a full backtracking solver. Within the portable v0.1 baseline, clients SHOULD prefer the highest SemVer-compatible version among eligible stable candidates that satisfy the applicable constraints.
+
+Several selection behaviors remain outside this portable baseline:
+
+- prerelease candidate selection remains client-local under ADR-0093
+- registry priority and source selection policy remain out of scope under ADR-0019
+- lockfile pinning and update workflow UX are not governed by this model
+
+The version index provides the raw candidate data and status metadata needed for clients to apply these boundaries while preserving the SemVer range grammar work defined by ADR-0098.
 
 ## Consequences
 
