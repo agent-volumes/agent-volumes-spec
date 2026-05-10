@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-upload-finalize.schema.json",
+  "title": "Agent Volumes Release Upload Finalize Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["uploadId", "release", "detailUrl"],
+  "properties": {
+    "uploadId": { "type": "string", "minLength": 1 },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "integrity", "dist"],
+      "properties": {
+        "name": { "$ref": "#/$defs/volumeName" },
+        "version": { "$ref": "#/$defs/semver" },
+        "integrity": { "$ref": "#/$defs/digest" },
+        "dist": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "mediaType", "url"],
+          "properties": {
+            "source": { "type": "string", "const": "cdn" },
+            "mediaType": { "type": "string", "const": "application/gzip" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        }
+      }
+    },
+    "detailUrl": { "type": "string", "format": "uri-reference" }
+  },
+  "$defs": {
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}

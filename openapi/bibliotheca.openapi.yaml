@@ -61,8 +61,8 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}:
     post:
-      summary: Publish an unscoped volume
-      operationId: publishVolume
+      summary: Create a release upload intent for an unscoped volume
+      operationId: createVolumeUploadIntent
       security:
         - bearerAuth: []
       parameters:
@@ -71,20 +71,24 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/NameSegment'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
-          application/gzip:
+          application/json:
             schema:
-              type: string
-              format: binary
+              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
       responses:
         '201':
-          description: Published release metadata
+          description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-upload-intent.schema.json
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -95,10 +99,50 @@ paths:
           $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a release upload for an unscoped volume
+      operationId: finalizeVolumeUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/release-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}:
     post:
-      summary: Publish a scoped volume
-      operationId: publishScopedVolume
+      summary: Create a release upload intent for a scoped volume
+      operationId: createScopedVolumeUploadIntent
       security:
         - bearerAuth: []
       parameters:
@@ -112,20 +156,24 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/NameSegment'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
-          application/gzip:
+          application/json:
             schema:
-              type: string
-              format: binary
+              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
       responses:
         '201':
-          description: Published release metadata
+          description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-upload-intent.schema.json
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -134,6 +182,51 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '409':
           $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a release upload for a scoped volume
+      operationId: finalizeScopedVolumeUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/release-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}:
@@ -790,6 +883,23 @@ components:
           type: integer
           description: Zero-based offset used for this catalog search response; search ordering remains bibliotheca-local.
           minimum: 0
+    ReleaseUploadIntentRequest:
+      type: object
+      additionalProperties: false
+      required: [version, mediaType]
+      properties:
+        version:
+          $ref: '#/components/schemas/SemVer'
+        mediaType:
+          type: string
+          const: application/gzip
+        declaredDigest:
+          $ref: '#/components/schemas/Digest'
+        declaredSize:
+          type: integer
+          minimum: 0
+        idempotencyKey:
+          type: string
     ReleaseMetadata:
       type: object
       required: [name, version, integrity, dist]
