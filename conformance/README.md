@@ -22,8 +22,10 @@ At minimum, a runner MUST:
    logical release subjects;
 4. verify normalized-file-tree digest vectors byte-for-byte;
 5. validate offline trust artifact material when `artifact.bytesBase64` is
-   present, including its declared byte digest and release-subject binding; and
-6. keep implementation-local policy decisions separate from portable baseline
+   present, including its declared byte digest and release-subject binding;
+6. preserve runtime and protocol compatibility version expressions without
+   treating unknown schemes as portable rejection filters; and
+7. keep implementation-local policy decisions separate from portable baseline
    fixture outcomes.
 
 The repository smoke runner is:
@@ -52,7 +54,7 @@ does not imply live registry interoperability.
 
 | Area                             | Fixture files                                                                        |
 | -------------------------------- | ------------------------------------------------------------------------------------ |
-| Manifest validation              | `manifest-*.json`, `semantic-validation-cases.json`                                  |
+| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`     |
 | Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`     |
 | Package identity                 | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`     |
 | Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |

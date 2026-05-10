@@ -31,6 +31,7 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 | Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`             |
 | Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
 | Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
+| Manifest parsing     | `schemas/manifest-parse-case.schema.json`                                                  |
 | Fixtures and vectors | `conformance/fixtures/`                                                                    |
 | Conformance reports  | `schemas/conformance-report.schema.json`                                                   |
 
@@ -46,10 +47,12 @@ A baseline client implementation should support the following before claiming v0
 6. Resolve `dist` metadata, retrieve release bytes or source material, construct the normalized file tree, and verify `integrity`.
 7. Reject digest mismatch, subject-binding mismatch, inconsistent registry state, and component permission escalation.
 8. Validate entrypoint existence and type-specific portable load boundaries before handing components to runtime adapters.
-9. Consume trust summary/detail metadata and distinguish objective trust facts from optional derived judgments.
-10. Treat revoked or invalid trust attachments as failures by default while keeping broader trust-root policy local.
-11. Consume capability metadata without failing solely on unknown capability fields or values.
-12. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, and non-canonical entrypoint conventions.
+9. Preserve and expose runtime/protocol compatibility version expressions, compare them only for known schemes, and avoid rejecting solely because an expression uses an unknown runtime or protocol scheme.
+10. Consume trust summary/detail metadata and distinguish objective trust facts from optional derived judgments.
+11. Treat revoked or invalid trust attachments as failures by default while keeping broader trust-root policy local.
+12. Validate objective trust artifact facts for formats the implementation claims to support, and never report unsupported artifact formats as verified.
+13. Consume capability metadata without failing solely on unknown capability fields or values.
+14. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, and non-canonical entrypoint conventions.
 
 ## Minimum viable conforming bibliotheca
 
@@ -73,18 +76,18 @@ A baseline bibliotheca implementation should support the following before claimi
 
 The v0.1 core intentionally leaves several operational choices local. Prototype projects should document their choices explicitly rather than treating them as standard behavior.
 
-| Choice               | Prototype documentation needed                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------ |
-| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources          |
-| Upload byte transfer | Which opaque upload instruction shape is returned and how bytes are staged before finalize |
-| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                |
-| Lockfile behavior    | File format, update workflow, and frozen-install UX                                        |
-| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                    |
-| Prerelease selection | Whether prerelease candidates are considered by default                                    |
-| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                      |
-| Advisory authority   | Who can create/update/withdraw advisories in the implementation                            |
-| Scanner results      | Local scanner ingestion and policy mapping, if any                                         |
-| Runtime adapters     | How valid components are mapped into each target runtime's local execution model           |
+| Choice               | Prototype documentation needed                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                             |
+| Upload byte transfer | Which opaque upload instruction shape is returned and how bytes are staged before finalize                                                    |
+| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                   |
+| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                           |
+| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                       |
+| Prerelease selection | Whether prerelease candidates are considered by default                                                                                       |
+| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                         |
+| Advisory authority   | Who can create/update/withdraw advisories in the implementation                                                                               |
+| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                            |
+| Runtime adapters     | How valid components are mapped into each target runtime's local execution model, including any known-scheme compatibility comparison support |
 
 ## Smoke conformance path
 
@@ -102,7 +105,7 @@ Then map implementation tests to fixture families:
 
 | Implementation area              | Fixture files                                                                        |
 | -------------------------------- | ------------------------------------------------------------------------------------ |
-| Manifest validation              | `manifest-*.json`, `semantic-validation-cases.json`                                  |
+| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`     |
 | Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`     |
 | Purl handling                    | `purl-canonicalization-cases.json`                                                   |
 | Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |
@@ -117,7 +120,7 @@ Then map implementation tests to fixture families:
 
 Fixture updates that materially change expected behavior are normative draft changes and should be versioned with the prose release.
 
-Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects should add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract.
+Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects should add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract. Unsupported trust artifact formats remain unverified rather than successfully verified.
 
 ## Implementation order
 

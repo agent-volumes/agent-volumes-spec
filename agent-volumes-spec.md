@@ -447,6 +447,8 @@ compatibility = "^1.0.0"
 
 If the `runtimes` array is omitted, the volume makes no runtime-specific compatibility claim.
 
+The `compatibility` field is a compatibility version expression, not a dependency constraint. Baseline clients MUST preserve and expose the expression as authored. A client MAY compare it only when the client explicitly understands the version scheme for the corresponding runtime identifier. Otherwise, the expression is advisory metadata for discovery, display, diagnostics, and adapter selection.
+
 See [Section 6.1](#61-runtime-definitions) for the current runtime identifier set and compatibility context.
 
 ### 3.8 Protocol Compatibility
@@ -460,6 +462,8 @@ version = ">=2025.02"
 name = "lsp"
 version = ">=3.17"
 ```
+
+The `version` field is a protocol compatibility version expression, not a portable dependency range. Protocol ecosystems may use date-like versions, short numeric versions, SemVer-compatible versions, or future protocol-specific schemes. Baseline clients MUST NOT reject or filter solely because they cannot evaluate a protocol version expression.
 
 See [Section 6.2](#62-protocol-compatibility) for the current protocol compatibility model.
 
@@ -891,6 +895,8 @@ Volumes that export exactly one component still use the same manifest model. The
 
 A runtime identifier describes the agent execution host, client, SDK, or harness that loads and executes Agent Volumes components. It does not identify the underlying AI model selected by that runtime. Model/provider compatibility and observed model usage are intentionally outside the v0.1 core runtime identifier model and may be addressed by future profiles or extension metadata.
 
+Runtime compatibility declarations use compatibility version expressions. The v0.1 core does not define one universal runtime-version ordering. Runtime profiles MAY define stronger comparison semantics for identifiers whose version scheme is known. Without such support, clients treat the expression as advisory metadata and MUST NOT claim portable compatibility rejection based on that unknown scheme.
+
 Adding a new runtime identifier to this list is an additive, non-breaking specification update when it does not redefine, remove, or invalidate an existing runtime identifier. Such additions still require a new specification release so that the prose specification and companion artifacts remain aligned.
 
 | Runtime ID        | Description                       |
@@ -917,6 +923,8 @@ Adding a new runtime identifier to this list is an additive, non-breaking specif
 ### 6.2 Protocol Compatibility
 
 `mcp` and `lsp` are the core protocol identifiers in v0.1.
+
+Protocol compatibility declarations use protocol-facing compatibility version expressions. The v0.1 core does not require one universal grammar across protocol version schemes. Protocol profiles MAY define stronger comparison semantics later; until then, unknown protocol version expressions remain advisory metadata.
 
 See [Section 3.8](#38-protocol-compatibility).
 
@@ -1397,11 +1405,13 @@ At minimum, the search API SHOULD support filtering by:
 
 - freeform query text
 - component type
-- runtime compatibility
+- runtime compatibility metadata
 - provider declaration
 - keyword
 - publisher
 - pagination controls
+
+Runtime and protocol compatibility filters are discovery aids. A bibliotheca MAY evaluate compatibility expressions only for schemes it explicitly understands, and MUST NOT present unknown-scheme filtering as portable accept/reject compatibility.
 
 Search result ordering, ranking, and text relevance are bibliotheca-local. `limit` and `offset` are zero-based catalog pagination controls in the baseline API contract, not resolver inputs or freshness guarantees. Clients MUST NOT infer a stable global ordering across bibliothecas unless a specific bibliotheca documents one locally. Search responses MAY be cached under ordinary HTTP semantics, but clients MUST NOT use search results as a substitute for package-scoped version indexes or exact release metadata during resolution, installation, or trust evaluation.
 
@@ -1641,6 +1651,21 @@ Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.or
 | `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
 | `rate-limited`                | `429`          | The request was rate limited.                                           |
 
+Representative endpoint failure mappings include:
+
+| Endpoint family                                       | Representative problem type slugs                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                     |
+| `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/...`                             | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
+| `POST /api/v1/volumes/.../finalize`                   | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
+| `GET /api/v1/volumes/.../trust`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
+| `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
+| `GET /api/v1/advisories...`                           | `not-found`, `rate-limited`                                                                             |
+| `GET /api/v1/capabilities`                            | `rate-limited`                                                                                          |
+
 ---
 
 ## 10. Package Roles
@@ -1717,9 +1742,10 @@ A conforming client MUST:
 10. Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
 11. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
 12. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
-13. Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local ([Section 8.1](#81-core-trust-baseline)).
-14. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-15. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+13. Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local. Clients MUST validate objective artifact facts for formats they claim to support and MUST NOT report unsupported trust artifact formats as verified ([Section 8.1](#81-core-trust-baseline)).
+14. Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
+15. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+16. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
 
@@ -1733,7 +1759,9 @@ A conforming client SHOULD:
 The v0.1 core requires normative conformance fixtures and vectors for at least:
 
 - manifest valid/invalid/warning behavior, including unknown-field warnings
+- authored `volume.toml` parse-to-canonical parsed-data cases
 - component entrypoint semantic validation, including missing files, wrong formats, missing command triggers, unsupported hook events, and non-canonical entrypoint warnings
+- runtime and protocol compatibility expression preservation cases
 - normalized file tree digest golden vectors
 - trust metadata summary/detail payload fixtures
 - version index row fixtures
@@ -1775,8 +1803,8 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 | `[[components]]`           | Yes (except meta) | Exported components.                                                  |
 | `[dependencies]`           | No                | Volume-level dependencies.                                            |
 | `[component-dependencies]` | No                | Component-level dependencies.                                         |
-| `[[runtimes]]`             | No                | Runtime compatibility.                                                |
-| `[[protocols]]`            | No                | Protocol compatibility.                                               |
+| `[[runtimes]]`             | No                | Runtime compatibility version expressions.                            |
+| `[[protocols]]`            | No                | Protocol compatibility version expressions.                           |
 | `[permissions]`            | No                | Required permissions.                                                 |
 | `[environment]`            | No                | Environment requirements.                                             |
 | `[provenance]`             | No                | Declarative source and build context metadata for release provenance. |
@@ -1872,6 +1900,7 @@ The draft companion artifact inventory includes at least:
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
 - [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json)
 - [`schemas/warning.schema.json`](schemas/warning.schema.json)
+- [`schemas/manifest-parse-case.schema.json`](schemas/manifest-parse-case.schema.json)
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
 - [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
@@ -1888,12 +1917,14 @@ The draft companion artifact inventory includes at least:
 The v0.1 fixture set includes at least:
 
 - manifest accept/reject/warning fixtures, including unknown-field warning behavior
+- authored `volume.toml` parse-to-canonical parsed-data fixtures
 - digest vectors and negative digest construction cases for normalized file trees
 - hosted archive transport profile cases for `.tar.gz` publish/download workflows
 - trust summary/detail payload fixtures
 - version index row fixtures, including yanked, tombstoned, blocked, and unavailable states
 - exact release metadata lifecycle fixtures, including CDN, Git, yanked warning, and non-installable blocked, tombstoned, and unavailable states
 - SemVer range grammar fixtures
+- runtime and protocol compatibility expression preservation fixtures
 - release upload lifecycle fixtures
 - trust attachment upload lifecycle fixtures
 - layered trust artifact verification fixtures for BOM, SLSA provenance, and Sigstore-family signature facts
@@ -1909,7 +1940,7 @@ The v0.1 fixture set includes at least:
 - permission-escalation rejection fixtures
 - BOM/provenance mapping matrix and sample fixtures
 
-Layered trust artifact verification fixtures define deterministic checks over objective artifact facts: declared format family, media type, predicate or signature format, release-subject purl, release-subject integrity, trust attachment byte identity, trust attachment lifecycle status, and provided offline signature or attestation material. These fixtures intentionally do not standardize one global trust-root store, online transparency-log policy, or bibliotheca-local acceptance judgment. Implementations that perform cryptographic SLSA or Sigstore validation MUST still bind the verified artifact facts back to the release subject and lifecycle vectors represented by these fixtures.
+Layered trust artifact verification fixtures define deterministic checks over objective artifact facts: declared format family, media type, predicate or signature format, release-subject purl, release-subject integrity, trust attachment byte identity, trust attachment lifecycle status, and provided offline signature or attestation material. These fixtures intentionally do not standardize one global trust-root store, online transparency-log policy, or bibliotheca-local acceptance judgment. Implementations that claim support for a baseline trust artifact format MUST validate the objective facts and offline material for that format, and implementations that do not support an artifact format MUST NOT report that artifact as verified. Implementations that perform cryptographic SLSA or Sigstore validation MUST still bind the verified artifact facts back to the release subject and lifecycle vectors represented by these fixtures.
 
 ### C.2 Mapping Matrix Requirement
 
