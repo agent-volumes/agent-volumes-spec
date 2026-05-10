@@ -76,6 +76,14 @@ agent-volumes-spec/
 - Do **not** create README.md, CHANGELOG.md, or auxiliary docs inside skills — only `SKILL.md` + resources.
 - Do **not** duplicate skill content between `.agents/skills/` and `catalog/skills/`.
 
+## NORMATIVE LANGUAGE (BCP 14)
+
+When editing normative prose — primarily `agent-volumes-spec.md` and machine-readable schema descriptions — use BCP 14 keywords with their RFC-defined meanings:
+
+- **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** are reserved for normative requirements and carry the meanings defined in [BCP 14](https://www.rfc-editor.org/info/bcp14), [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174).
+- In **non-normative** sentences (explanations, examples, rationales, ADRs), prefer alternative phrasing and avoid lowercase variants of these terms to prevent ambiguity.
+- Decision records under `decisions/` are non-normative context and are not subject to BCP 14 lowercase warnings.
+
 ## COMMANDS
 
 ```bash
