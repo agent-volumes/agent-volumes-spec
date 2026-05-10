@@ -18,6 +18,17 @@
       "expected": { "valid": true }
     },
     {
+      "name": "versionless-component-dependency-authoring-form",
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/github-provider#tool/read-pr", "pkg:volume/%40acme/search-pack#skill/code-search"]
+      },
+      "resolvedComponents": [
+        "pkg:volume/github-provider#tool/read-pr",
+        "pkg:volume/%40acme/search-pack#skill/code-search"
+      ],
+      "expected": { "valid": true }
+    },
+    {
       "name": "missing-component-dependency-after-volume-resolution",
       "component-dependencies": {
         "review-agent": [
