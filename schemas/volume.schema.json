@@ -162,6 +162,7 @@
   "$defs": {
     "nameSegment": {
       "type": "string",
+      "maxLength": 128,
       "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
     },
     "scopeName": {

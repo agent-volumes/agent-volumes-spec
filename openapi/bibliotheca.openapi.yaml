@@ -253,6 +253,8 @@ paths:
                 $ref: '#/components/schemas/ReleaseMetadata'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
     delete:
@@ -313,6 +315,8 @@ paths:
                 $ref: '#/components/schemas/ReleaseMetadata'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
     delete:
@@ -374,6 +378,8 @@ paths:
                       $ref: ../schemas/version-index-row.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/index/volumes/@{scope}/{name}:
@@ -406,6 +412,8 @@ paths:
                       $ref: ../schemas/version-index-row.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}/trust/summary:
@@ -432,6 +440,8 @@ paths:
                 $ref: ../schemas/trust-summary.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
@@ -463,6 +473,8 @@ paths:
                 $ref: ../schemas/trust-summary.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}/trust/detail:
@@ -489,6 +501,8 @@ paths:
                 $ref: ../schemas/trust-detail.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}/trust/uploads:
@@ -620,6 +634,8 @@ paths:
                 $ref: ../schemas/trust-detail.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads:
@@ -804,6 +820,7 @@ components:
   schemas:
     NameSegment:
       type: string
+      maxLength: 128
       pattern: ^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
     ScopeName:
       type: string
@@ -825,6 +842,7 @@ components:
       pattern: ^sha256:[a-f0-9]{64}$
     ProblemDetails:
       type: object
+      additionalProperties: true
       description: RFC 7807 Problem Details. Agent Volumes baseline problem type URIs use https://agentvolumes.org/problems/<slug>.
       required: [type, title, status]
       properties:
@@ -834,6 +852,7 @@ components:
           pattern: ^https://agentvolumes\.org/problems/[a-z0-9-]+$
         title:
           type: string
+          minLength: 1
         status:
           type: integer
           minimum: 100
@@ -1037,51 +1056,156 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            validationFailed:
+              summary: Request or metadata validation failed
+              value:
+                type: https://agentvolumes.org/problems/validation-failed
+                title: Validation failed
+                status: 400
+            invalidManifest:
+              summary: Submitted volume.toml is invalid
+              value:
+                type: https://agentvolumes.org/problems/invalid-manifest
+                title: Invalid manifest
+                status: 400
+            invalidArchive:
+              summary: Submitted archive violates the transport profile
+              value:
+                type: https://agentvolumes.org/problems/invalid-archive
+                title: Invalid archive
+                status: 400
+            digestMismatch:
+              summary: Submitted bytes do not match the declared digest
+              value:
+                type: https://agentvolumes.org/problems/digest-mismatch
+                title: Digest mismatch
+                status: 400
+            subjectBindingMismatch:
+              summary: Trust artifact subject does not match the release
+              value:
+                type: https://agentvolumes.org/problems/subject-binding-mismatch
+                title: Subject binding mismatch
+                status: 400
+            missingUploadedBytes:
+              summary: Finalize was requested before upload bytes were available
+              value:
+                type: https://agentvolumes.org/problems/missing-uploaded-bytes
+                title: Missing uploaded bytes
+                status: 400
     Unauthorized:
       description: Authentication required or invalid bearer token
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            authenticationRequired:
+              value:
+                type: https://agentvolumes.org/problems/authentication-required
+                title: Authentication required
+                status: 401
     Forbidden:
       description: Authenticated caller lacks permission for this operation
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            authorizationFailed:
+              value:
+                type: https://agentvolumes.org/problems/authorization-failed
+                title: Authorization failed
+                status: 403
     NotFound:
       description: Resource not found
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            notFound:
+              value:
+                type: https://agentvolumes.org/problems/not-found
+                title: Not found
+                status: 404
     Conflict:
       description: Resource conflict
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            versionConflict:
+              value:
+                type: https://agentvolumes.org/problems/version-conflict
+                title: Version conflict
+                status: 409
+            identityMismatch:
+              value:
+                type: https://agentvolumes.org/problems/identity-mismatch
+                title: Identity mismatch
+                status: 409
+            idempotencyConflict:
+              value:
+                type: https://agentvolumes.org/problems/idempotency-conflict
+                title: Idempotency conflict
+                status: 409
+            invalidUploadState:
+              value:
+                type: https://agentvolumes.org/problems/invalid-upload-state
+                title: Invalid upload state
+                status: 409
+            inconsistentRegistryState:
+              value:
+                type: https://agentvolumes.org/problems/inconsistent-registry-state
+                title: Inconsistent registry state
+                status: 409
     Gone:
       description: Resource no longer available, such as an expired upload intent
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            uploadExpired:
+              value:
+                type: https://agentvolumes.org/problems/upload-expired
+                title: Upload expired
+                status: 410
     PayloadTooLarge:
       description: Payload too large
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            payloadTooLarge:
+              value:
+                type: https://agentvolumes.org/problems/payload-too-large
+                title: Payload too large
+                status: 413
     UnsupportedMediaType:
       description: Unsupported media type
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            unsupportedMediaType:
+              value:
+                type: https://agentvolumes.org/problems/unsupported-media-type
+                title: Unsupported media type
+                status: 415
     TooManyRequests:
       description: Rate limited
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            rateLimited:
+              value:
+                type: https://agentvolumes.org/problems/rate-limited
+                title: Rate limited
+                status: 429
