@@ -62,7 +62,10 @@ does not imply live registry interoperability.
 | Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
 | Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
 | BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
-| Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
+| Errors and warnings              | `problem-details-cases.json`                                                         |
+
+Warning payloads use the companion schema
+[`../schemas/warning.schema.json`](../schemas/warning.schema.json).
 
 `mapping-sample.json` is a concrete offline export vector. It binds one source
 manifest and release subject to CycloneDX, SPDX, and SLSA output objects so
