@@ -24,11 +24,14 @@ addFormats(ajv);
 const schemas = {
   volume: readJson('schemas/volume.schema.json'),
   advisory: readJson('schemas/advisory.schema.json'),
+  advisoryList: readJson('schemas/advisory-list.schema.json'),
   advisoryValidationCase: readJson('schemas/advisory-validation-case.schema.json'),
   trustSummary: readJson('schemas/trust-summary.schema.json'),
   trustDetail: readJson('schemas/trust-detail.schema.json'),
   capabilityMetadata: readJson('schemas/capability-metadata.schema.json'),
+  searchResults: readJson('schemas/search-results.schema.json'),
   versionIndexRow: readJson('schemas/version-index-row.schema.json'),
+  versionIndex: readJson('schemas/version-index.schema.json'),
   trustUploadIntent: readJson('schemas/trust-upload-intent.schema.json'),
   trustUploadFinalize: readJson('schemas/trust-upload-finalize.schema.json'),
   bridgeMetadata: readJson('schemas/bridge-metadata.schema.json'),
@@ -38,10 +41,12 @@ const schemas = {
   conformanceReport: readJson('schemas/conformance-report.schema.json'),
   exactReleaseMetadataCase: readJson('schemas/exact-release-metadata-case.schema.json'),
   problemDetails: readJson('schemas/problem-details.schema.json'),
+  problemRegistry: readJson('schemas/problem-registry.schema.json'),
   warning: readJson('schemas/warning.schema.json'),
   manifestParseCase: readJson('schemas/manifest-parse-case.schema.json'),
   componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
   semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
+  conformanceCoverage: readJson('schemas/conformance-coverage.schema.json'),
   trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
   mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
   mappingSample: readJson('schemas/mapping-sample.schema.json'),
@@ -518,6 +523,8 @@ const assertRouteMetadataIdentity = (route, metadata, label) => {
 
 validate('advisory', readJson('conformance/fixtures/advisory.json'), 'advisory fixture');
 validate('advisory', readJson('conformance/fixtures/advisory-withdrawn.json'), 'withdrawn advisory fixture');
+validate('advisoryList', readJson('conformance/fixtures/advisory-list.json'), 'advisory list fixture');
+validate('searchResults', readJson('conformance/fixtures/search-results.json'), 'search results fixture');
 assert(
   readJson('conformance/fixtures/advisory-withdrawn.json').withdrawn?.at,
   'withdrawn advisory fixture must include withdrawn.at'
@@ -665,6 +672,20 @@ for (const slug of problemStatusBySlug.keys()) {
     `problem details cases missing ${slug}`
   );
 }
+const problemRegistry = readJson('conformance/fixtures/problem-registry.json');
+validate('problemRegistry', problemRegistry, 'problem registry fixture');
+assertSpecVersion(problemRegistry, 'problem registry fixture');
+assert(
+  problemRegistry.problems.length === problemStatusBySlug.size,
+  'problem registry must cover every baseline problem type'
+);
+for (const problem of problemRegistry.problems) {
+  assert(problem.type.endsWith(`/${problem.slug}`), `problem registry ${problem.slug} type must end with slug`);
+  assert(
+    problem.status === problemStatusBySlug.get(problem.slug),
+    `problem registry ${problem.slug} status must match`
+  );
+}
 
 const releaseUploadLifecycle = readJson('conformance/fixtures/release-upload-lifecycle.json');
 assertSpecVersion(releaseUploadLifecycle, 'release upload lifecycle fixture');
@@ -732,6 +753,41 @@ const manifestValidFixture = readJson('conformance/fixtures/manifest-valid-minim
 assertSpecVersion(manifestValidFixture, 'minimal valid manifest fixture');
 validate('volume', manifestValidFixture.canonicalParsedData, 'minimal valid manifest fixture');
 assert(manifestValidFixture.expected.valid === true, 'minimal valid manifest fixture must be expected valid');
+
+const manifestComponentFixture = readJson('conformance/fixtures/manifest-valid-component.json');
+assertSpecVersion(manifestComponentFixture, 'component package manifest fixture');
+validate('volume', manifestComponentFixture.canonicalParsedData, 'component package manifest fixture');
+assert(manifestComponentFixture.expected.valid === true, 'component package manifest fixture must be expected valid');
+assert(
+  manifestComponentFixture.canonicalParsedData.volume.role === 'component' &&
+    manifestComponentFixture.canonicalParsedData.components.length === 1,
+  'component package manifest fixture must declare exactly one component'
+);
+
+const invalidComponentRoleFixture = readJson(
+  'conformance/fixtures/manifest-invalid-component-role-multiple-components.json'
+);
+assertSpecVersion(invalidComponentRoleFixture, 'invalid component role manifest fixture');
+validate('volume', invalidComponentRoleFixture.canonicalParsedData, 'invalid component role manifest fixture');
+assert(
+  invalidComponentRoleFixture.canonicalParsedData.volume.role === 'component' &&
+    invalidComponentRoleFixture.canonicalParsedData.components.length > 1,
+  'invalid component role fixture must exercise multiple component declarations'
+);
+assert(
+  invalidComponentRoleFixture.expected.failureCategory === 'invalid-component-role-cardinality',
+  'invalid component role fixture must classify component role cardinality failure'
+);
+
+const manifestProviderFixture = readJson('conformance/fixtures/manifest-valid-provider.json');
+assertSpecVersion(manifestProviderFixture, 'provider package manifest fixture');
+validate('volume', manifestProviderFixture.canonicalParsedData, 'provider package manifest fixture');
+assert(manifestProviderFixture.expected.valid === true, 'provider package manifest fixture must be expected valid');
+assert(
+  manifestProviderFixture.canonicalParsedData.volume.role === 'provider' &&
+    manifestProviderFixture.canonicalParsedData.volume.providers?.length > 0,
+  'provider package manifest fixture must declare provider metadata'
+);
 
 const manifestMetaFixture = readJson('conformance/fixtures/manifest-valid-meta.json');
 assertSpecVersion(manifestMetaFixture, 'meta package manifest fixture');
@@ -865,6 +921,9 @@ for (const fixture of versionIndexRowCases.fixtures) {
     validateExpectedFailure('versionIndexRow', fixture.payload, `version index row ${fixture.name}`);
   }
 }
+const versionIndexFixture = readJson('conformance/fixtures/version-index.json');
+validate('versionIndex', versionIndexFixture, 'version index collection fixture');
+assert(versionIndexFixture.items.length >= 2, 'version index collection fixture must include multiple rows');
 
 const semverRangeCases = readJson('conformance/fixtures/semver-range-cases.json');
 assertSpecVersion(semverRangeCases, 'semver range cases');
@@ -1348,6 +1407,16 @@ for (const dependencyCase of componentDependencyCases.cases) {
     );
   }
 }
+assert(
+  componentDependencyCases.cases.some((dependencyCase) =>
+    Object.values(dependencyCase['component-dependencies'])
+      .flat()
+      .some(
+        (dependency) => /^pkg:volume\/[^@#]+#/.test(dependency) || /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency)
+      )
+  ),
+  'component dependency cases must include versionless authoring references'
+);
 
 const semanticValidationCases = readJson('conformance/fixtures/semantic-validation-cases.json');
 validate('semanticValidationCase', semanticValidationCases, 'semantic validation cases fixture');
@@ -1499,6 +1568,23 @@ assert(
 assert(
   semanticValidationCases.cases.some((semanticCase) => semanticCase.expected.failureCategory === 'digest-mismatch'),
   'semantic validation cases must include trust attachment byte identity mismatch'
+);
+
+const conformanceCoverage = readJson('conformance/fixtures/conformance-coverage.json');
+validate('conformanceCoverage', conformanceCoverage, 'conformance coverage fixture');
+assertSpecVersion(conformanceCoverage, 'conformance coverage fixture');
+const coverageRequirementIds = new Set(conformanceCoverage.requirements.map((requirement) => requirement.id));
+for (const id of [
+  ...Array.from({ length: 16 }, (_, index) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
+  ...Array.from({ length: 16 }, (_, index) => `AV-CLI-${String(index + 1).padStart(3, '0')}`),
+]) {
+  assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
+}
+assert(
+  conformanceCoverage.requirements.some((requirement) =>
+    requirement.coverage.some((coverage) => coverage.fixture === 'search-results.json')
+  ),
+  'conformance coverage fixture must map search API coverage'
 );
 
 const mappingMatrix = readJson('conformance/fixtures/mapping-matrix.json');
@@ -1928,29 +2014,51 @@ for (const [openapiName, schemaDefName] of [
   }
 }
 assert(
-  openapi.components.schemas.ProblemDetails.properties.type.pattern ===
-    '^https://agentvolumes\\.org/problems/[a-z0-9-]+$',
-  'OpenAPI ProblemDetails.type must use Agent Volumes problem URI pattern'
+  Array.isArray(openapi.components.schemas.ProblemDetails?.oneOf) &&
+    openapi.components.schemas.ProblemDetails.oneOf.length === problemStatusBySlug.size,
+  'OpenAPI ProblemDetails must expose one variant for each standalone problem-details type'
+);
+for (const [slug, status] of problemStatusBySlug) {
+  const componentName = `${slug
+    .split('-')
+    .map((part) => `${part[0].toUpperCase()}${part.slice(1)}`)
+    .join('')}Problem`;
+  const problemSchema = openapi.components.schemas[componentName];
+  assert(problemSchema, `OpenAPI ProblemDetails must define ${componentName}`);
+  const constraint = problemSchema.allOf?.[1]?.properties;
+  assert(
+    constraint?.type?.const === `https://agentvolumes.org/problems/${slug}` && constraint?.status?.const === status,
+    `OpenAPI ${componentName} must mirror standalone problem type/status mapping`
+  );
+}
+assert(
+  openapi.components.schemas.ProblemDetailsBase?.required?.join(',') === schemas.problemDetails.required.join(','),
+  'OpenAPI ProblemDetailsBase.required must match standalone schema'
 );
 assert(
-  openapi.components.schemas.ProblemDetails.required.join(',') === schemas.problemDetails.required.join(','),
-  'OpenAPI ProblemDetails.required must match standalone schema'
+  openapi.components.schemas.SearchResults.$ref === '../schemas/search-results.schema.json',
+  'OpenAPI SearchResults must reference standalone search-results schema'
 );
 assert(
-  openapi.components.schemas.ProblemDetails.additionalProperties === schemas.problemDetails.additionalProperties,
-  'OpenAPI ProblemDetails.additionalProperties must match standalone schema'
+  openapi.components.schemas.VersionIndex?.properties?.items?.items?.$ref ===
+    '../schemas/version-index-row.schema.json',
+  'OpenAPI VersionIndex must expose version-index-row items while standalone version-index schema validates fixtures'
 );
 assert(
-  openapi.components.schemas.ProblemDetails.properties.title.minLength ===
-    schemas.problemDetails.properties.title.minLength,
-  'OpenAPI ProblemDetails.title.minLength must match standalone schema'
+  openapi.components.schemas.AdvisoryList?.properties?.items?.items?.$ref === '../schemas/advisory.schema.json',
+  'OpenAPI AdvisoryList must expose advisory items while standalone advisory-list schema validates fixtures'
 );
 assert(
-  openapi.components.schemas.ProblemDetails.properties.status.minimum ===
-    schemas.problemDetails.properties.status.minimum &&
-    openapi.components.schemas.ProblemDetails.properties.status.maximum ===
-      schemas.problemDetails.properties.status.maximum,
-  'OpenAPI ProblemDetails.status bounds must match standalone schema'
+  openapi.paths['/api/v1/index/volumes/{name}'].get.responses['200'].content['application/json'].schema.$ref ===
+    '#/components/schemas/VersionIndex' &&
+    openapi.paths['/api/v1/index/volumes/@{scope}/{name}'].get.responses['200'].content['application/json'].schema
+      .$ref === '#/components/schemas/VersionIndex',
+  'OpenAPI version index endpoints must use the VersionIndex component'
+);
+assert(
+  openapi.paths['/api/v1/advisories'].get.responses['200'].content['application/json'].schema.$ref ===
+    '#/components/schemas/AdvisoryList',
+  'OpenAPI advisory list endpoint must use the AdvisoryList component'
 );
 for (const [responseName, response] of Object.entries(openapi.components.responses)) {
   const problemContent = response.content?.['application/problem+json'];

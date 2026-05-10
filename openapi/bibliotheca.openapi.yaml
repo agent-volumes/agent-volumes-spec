@@ -383,13 +383,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: ../schemas/version-index-row.schema.json
+                $ref: '#/components/schemas/VersionIndex'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -417,13 +411,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: ../schemas/version-index-row.schema.json
+                $ref: '#/components/schemas/VersionIndex'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -791,13 +779,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: ../schemas/advisory.schema.json
+                $ref: '#/components/schemas/AdvisoryList'
         '400':
           $ref: '#/components/responses/BadRequest'
         '429':
@@ -869,15 +851,33 @@ components:
       type: string
       pattern: ^sha256:[a-f0-9]{64}$
     ProblemDetails:
+      oneOf:
+        - $ref: '#/components/schemas/AuthenticationRequiredProblem'
+        - $ref: '#/components/schemas/AuthorizationFailedProblem'
+        - $ref: '#/components/schemas/NotFoundProblem'
+        - $ref: '#/components/schemas/ValidationFailedProblem'
+        - $ref: '#/components/schemas/InvalidManifestProblem'
+        - $ref: '#/components/schemas/InvalidArchiveProblem'
+        - $ref: '#/components/schemas/IdentityMismatchProblem'
+        - $ref: '#/components/schemas/VersionConflictProblem'
+        - $ref: '#/components/schemas/DigestMismatchProblem'
+        - $ref: '#/components/schemas/SubjectBindingMismatchProblem'
+        - $ref: '#/components/schemas/InconsistentRegistryStateProblem'
+        - $ref: '#/components/schemas/UploadExpiredProblem'
+        - $ref: '#/components/schemas/MissingUploadedBytesProblem'
+        - $ref: '#/components/schemas/InvalidUploadStateProblem'
+        - $ref: '#/components/schemas/IdempotencyConflictProblem'
+        - $ref: '#/components/schemas/PayloadTooLargeProblem'
+        - $ref: '#/components/schemas/UnsupportedMediaTypeProblem'
+        - $ref: '#/components/schemas/PermissionEscalationProblem'
+        - $ref: '#/components/schemas/RateLimitedProblem'
+    ProblemDetailsBase:
       type: object
       additionalProperties: true
-      description: RFC 7807 Problem Details. Agent Volumes baseline problem type URIs use https://agentvolumes.org/problems/<slug>.
       required: [type, title, status]
       properties:
         type:
           type: string
-          format: uri-reference
-          pattern: ^https://agentvolumes\.org/problems/[a-z0-9-]+$
         title:
           type: string
           minLength: 1
@@ -890,49 +890,197 @@ components:
         instance:
           type: string
           format: uri-reference
+    AuthenticationRequiredProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/authentication-required
+            status:
+              const: 401
+    AuthorizationFailedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/authorization-failed
+            status:
+              const: 403
+    NotFoundProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/not-found
+            status:
+              const: 404
+    ValidationFailedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/validation-failed
+            status:
+              const: 400
+    InvalidManifestProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-manifest
+            status:
+              const: 400
+    InvalidArchiveProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-archive
+            status:
+              const: 400
+    IdentityMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/identity-mismatch
+            status:
+              const: 409
+    VersionConflictProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/version-conflict
+            status:
+              const: 409
+    DigestMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/digest-mismatch
+            status:
+              const: 400
+    SubjectBindingMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/subject-binding-mismatch
+            status:
+              const: 400
+    InconsistentRegistryStateProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/inconsistent-registry-state
+            status:
+              const: 409
+    UploadExpiredProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/upload-expired
+            status:
+              const: 410
+    MissingUploadedBytesProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/missing-uploaded-bytes
+            status:
+              const: 400
+    InvalidUploadStateProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-upload-state
+            status:
+              const: 409
+    IdempotencyConflictProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/idempotency-conflict
+            status:
+              const: 409
+    PayloadTooLargeProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/payload-too-large
+            status:
+              const: 413
+    UnsupportedMediaTypeProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/unsupported-media-type
+            status:
+              const: 415
+    PermissionEscalationProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/permission-escalation
+            status:
+              const: 400
+    RateLimitedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/rate-limited
+            status:
+              const: 429
     SearchResults:
+      $ref: ../schemas/search-results.schema.json
+    VersionIndex:
       type: object
-      required: [items, total, limit, offset]
+      additionalProperties: false
+      required: [items]
       properties:
         items:
           type: array
           items:
-            type: object
-            required: [name, latestVersion]
-            properties:
-              name:
-                $ref: '#/components/schemas/VolumeName'
-              latestVersion:
-                $ref: '#/components/schemas/SemVer'
-              description:
-                type: string
-              role:
-                type: string
-              providers:
-                type: array
-                items:
-                  type: string
-              components:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                    name:
-                      type: string
-        total:
-          type: integer
-          description: Total matching results for the bibliotheca-local query snapshot.
-          minimum: 0
-        limit:
-          type: integer
-          description: Page size used for this catalog search response; not a resolver ordering signal.
-          minimum: 1
-        offset:
-          type: integer
-          description: Zero-based offset used for this catalog search response; search ordering remains bibliotheca-local.
-          minimum: 0
+            $ref: ../schemas/version-index-row.schema.json
+    AdvisoryList:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: ../schemas/advisory.schema.json
     ReleaseUploadIntentRequest:
       type: object
       additionalProperties: false
