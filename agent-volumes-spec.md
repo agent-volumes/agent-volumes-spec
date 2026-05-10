@@ -129,7 +129,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 TOML examples use [TOML v1.1.0](https://toml.io/en/v1.1.0) syntax.
 
-Human-readable documents in this specification use Human Era / Holocene Era (HE) dates. Machine-readable artifacts use the date and timestamp formats required by their companion schemas or external standards.
+Human-readable documents in this specification use Human Era / Holocene Era (HE) dates. Machine-readable artifacts use the date and timestamp formats specified by their companion schemas or external standards.
 
 ---
 
@@ -428,7 +428,7 @@ The portable grammar excludes:
 - registry-specific selector syntax, channels, tracks, or dist-tags
 - build metadata in range operands, such as `1.2.3+build.1`
 
-Full SemVer operands in dependency range expressions are three-component SemVer versions with optional prerelease identifiers and without build metadata. Build metadata can remain valid where this specification separately allows SemVer version strings, but it is not part of the portable v0.1 range operand grammar.
+Full SemVer operands in dependency range expressions are three-component SemVer versions with prerelease identifiers allowed and without build metadata. Build metadata can remain valid where this specification separately allows SemVer version strings, but it is not part of the portable v0.1 range operand grammar.
 
 `=1.2.3` is equivalent to the exact version range `1.2.3`. `^X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than the next breaking boundary according to SemVer-compatible caret semantics. `~X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than `X.(Y + 1).0`. Multiple comparator terms joined by comma and/or whitespace are interpreted as logical AND.
 
@@ -564,7 +564,7 @@ For `shell`, `deny < allow`. A component MAY omit `shell` to inherit the parent 
 
 Bibliothecas MUST block artifacts with discovered permission escalation from continued distribution, but the v0.1 baseline does not require every bibliotheca to perform mandatory direct escalation validation on every publish attempt.
 
-Defaults are semantic assumptions. Validators and parsers are not required to materialize omitted permission fields into normalized output.
+Defaults are semantic assumptions. Validators and parsers need not materialize omitted permission fields into normalized output.
 
 ### 3.11 Environment Requirements
 
@@ -575,7 +575,7 @@ os = ["linux", "macos"]
 arch = ["x64", "arm64"]
 ```
 
-All fields are optional. Omission means no restriction.
+All fields can be omitted. Omission means no restriction.
 
 See [Section 6.4](#64-environment-requirements) for the baseline runtime, OS, and architecture value set.
 
@@ -906,7 +906,7 @@ The following conditions are portable validation failures in the v0.1 baseline:
 
 - the `entrypoint` path is absolute, escapes the volume root, contains a `..` segment, normalizes to an empty path or `.` path, resolves to a non-regular file, or is absent from the release subject
 - the entrypoint's file type is incompatible with the declared component `type`
-- a parseable descriptor is required by the declared component `type`, but the descriptor cannot be parsed
+- a parseable descriptor is needed by the declared component `type`, but the descriptor cannot be parsed
 - a `command` entrypoint omits `trigger` frontmatter or declares a `trigger` that does not match `^/[a-z0-9-]+$`
 - a `hook` entrypoint declares a lifecycle event outside the canonical event vocabulary in [Section 4.5](#45-hook) or a hook type outside `command`, `script`, and `module`
 - an `mcp-server` or `lsp-server` entrypoint is not JSON, or does not parse to a JSON object
@@ -1091,7 +1091,7 @@ sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
 
 ### 7.5 Release Subject Identity
 
-Every published release has two required, complementary identities:
+Every published release has two mandatory, complementary identities:
 
 1. a **logical identity** expressed as `pkg:volume/...@version`
 2. an **immutable content identity** expressed as the resolved `sha256:...` digest of the normalized file tree
@@ -1127,7 +1127,7 @@ The v0.1 verifier validates objective artifact facts while leaving broader trust
 
 1. Resolve and validate the release subject: package-facing identity `pkg:volume/...@version` plus normalized-file-tree `sha256` integrity.
 2. Discover trust summary and detail metadata for the release.
-3. Ignore absent optional trust artifacts as missing evidence rather than an automatic baseline hard failure.
+3. Ignore absent non-mandatory trust artifacts as missing evidence rather than an automatic baseline hard failure.
 4. Exclude or fail on trust attachments whose lifecycle status is `revoked` or `invalid`; exclude `superseded` attachments from current-state evidence satisfaction while preserving them for historical or audit evaluation.
 5. Validate trust artifact format identity against the baseline category and format conventions.
 6. Retrieve or inspect the trust artifact bytes or embedded representation.
@@ -1235,7 +1235,7 @@ Trust discovery exposes the **current state** together with **revision metadata*
 
 If a trust attachment later becomes invalid, superseded, or revoked, it remains part of the append-only record and is represented through **status metadata**, not silent deletion.
 
-The `superseded` status is a freshness and replacement state. It does not by itself mean the attachment was compromised, revoked, or cryptographically invalid. A superseded attachment remains part of the append-only record and MAY be evaluated by historical, audit, or reproducibility workflows that explicitly evaluate a past observation context. It MUST NOT satisfy required evidence in baseline current-state trust evaluation.
+The `superseded` status is a freshness and replacement state. It does not by itself mean the attachment was compromised, revoked, or cryptographically invalid. A superseded attachment remains part of the append-only record and MAY be evaluated by historical, audit, or reproducibility workflows that explicitly evaluate a past observation context. It MUST NOT satisfy mandatory evidence in baseline current-state trust evaluation.
 
 Write-capable bibliothecas expose release-scoped trust attachment uploads through a two-phase lifecycle:
 
@@ -1256,8 +1256,8 @@ At minimum:
 
 - digest or subject-binding mismatch MUST fail
 - explicit revocation or invalidation MUST fail by default unless an implementation applies an explicit non-baseline override
-- superseded trust attachments MUST NOT satisfy required current-state evidence; when only superseded evidence is available for a required trust category, clients MUST report a stale or insufficient-current-evidence diagnostic distinct from revoked or invalid evidence
-- simple absence of optional trust evidence is weaker than explicit invalidation
+- superseded trust attachments MUST NOT satisfy mandatory current-state evidence; when only superseded evidence is available for a mandatory trust category, clients MUST report a stale or insufficient-current-evidence diagnostic distinct from revoked or invalid evidence
+- simple absence of non-mandatory trust evidence is weaker than explicit invalidation
 
 The v0.1 verifier SHOULD report objective verification facts and failures separately from local policy judgments. Absence of baseline trust artifacts, builder identity allowlists, and vulnerability blocking policy remain local policy inputs rather than v0.1 core hard failures by themselves.
 
@@ -1269,15 +1269,15 @@ Advisories are **not** release-bound trust attachments.
 
 The v0.1 advisory baseline includes:
 
-- a required bibliotheca-local advisory ID
+- a mandatory bibliotheca-local advisory ID
 - preferred external ecosystem identifiers when available
 - a structured source/ecosystem field
-- required `published` and `updated` lifecycle fields
+- mandatory `published` and `updated` lifecycle fields
 - explicit withdrawal lifecycle semantics
 - a small core severity vocabulary
 - a small core set of advisory relationships
 - a full event model for affected version semantics
-- optional informational component-impact metadata
+- informational component-impact metadata that can be omitted
 
 The v0.1 core severity vocabulary is `critical`, `high`, `medium`, and `low`. The v0.1 core advisory source ecosystem vocabulary is `cve`, `ghsa`, `osv`, `bibliotheca`, and `other`. Advisory relationships use `supersedes`, `superseded-by`, `related`, and `duplicate-of`.
 
@@ -1369,7 +1369,7 @@ The fetch response identifies a release by both package-facing metadata and immu
 }
 ```
 
-The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The `purl` field is the required canonical package-facing logical identity for that exact release and MUST equal the canonical purl derived from `name` and `version`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"` and `"purl": "pkg:volume/%40acme/research-agent-pack@<version>"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
+The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The `purl` field is the mandatory canonical package-facing logical identity for that exact release and MUST equal the canonical purl derived from `name` and `version`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"` and `"purl": "pkg:volume/%40acme/research-agent-pack@<version>"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
 
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
@@ -1484,7 +1484,7 @@ Required summary semantics MUST be limited to observable trust facts such as:
 - which trust artifact categories are available
 - which release subject the attachments bind to
 
-Bibliothecas MAY expose optional derived judgments such as verification labels, trust labels, or policy outcomes. Those derived judgments are not canonical truth.
+Bibliothecas MAY expose non-mandatory derived judgments such as verification labels, trust labels, or policy outcomes. Those derived judgments are not canonical truth.
 
 When no trust artifacts are present for an existing release, the summary view returns an empty `artifacts` array.
 
@@ -1503,7 +1503,7 @@ When trust attachments are present, the detail view MUST preserve enough informa
 
 When no trust artifacts are present for an existing release, the detail view returns an empty attachment collection together with the ordinary bound subject and revision/current-state metadata.
 
-For current-state trust evaluation, clients MUST distinguish active current evidence from superseded historical evidence. Detail views preserve superseded attachments for append-only history, but a superseded attachment does not satisfy required current evidence unless a workflow explicitly opts into historical or stale-evidence evaluation.
+For current-state trust evaluation, clients MUST distinguish active current evidence from superseded historical evidence. Detail views preserve superseded attachments for append-only history, but a superseded attachment does not satisfy mandatory current evidence unless a workflow explicitly opts into historical or stale-evidence evaluation.
 
 The companion payload schemas for these views are [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json) and [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json).
 
@@ -1615,7 +1615,7 @@ The capability metadata document uses a **reserved extension container** for non
 
 #### 9.7.1 Reserved Extension Container
 
-Non-core capability fields intended for portable extension use MUST be placed under a reserved extension container rather than appearing as ordinary peer fields to the core model. Baseline clients still tolerate unknown peer fields for forward compatibility, but such fields are not the canonical extension mechanism and MUST NOT be required for baseline behavior.
+Non-core capability fields intended for portable extension use MUST be placed under a reserved extension container rather than appearing as ordinary peer fields to the core model. Baseline clients still tolerate unknown peer fields for forward compatibility, but such fields are not the canonical extension mechanism and MUST NOT be necessary for baseline behavior.
 
 Inside that container:
 
@@ -1653,7 +1653,7 @@ If tooling accepts the old extension form as input during the bridge period, it 
 
 The v0.1 registry API uses registry-local resource-scoped bearer token semantics for protected writes. Bearer tokens remain opaque to clients. A bibliotheca derives authorization decisions from registry-local state based on the token subject, the requested action, and the target resource.
 
-| Operation           | Auth required      | Portable authorization semantics                              |
+| Operation           | Auth needed        | Portable authorization semantics                              |
 | ------------------- | ------------------ | ------------------------------------------------------------- |
 | Search, fetch       | No                 | N/A                                                           |
 | Download            | No                 | N/A                                                           |
@@ -1665,7 +1665,7 @@ The v0.1 registry API uses registry-local resource-scoped bearer token semantics
 
 Ownership is evaluated by the bibliotheca. A token subject can act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
 
-Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the required action or resource authorization is an authorization failure and uses `403 Forbidden`.
+Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`.
 
 Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
@@ -1757,7 +1757,7 @@ Provider packages SHOULD declare provider metadata at the volume level, componen
 
 ### 10.4 Meta Package
 
-`role = "meta"` — dependency bundle with no required exported components.
+`role = "meta"` — dependency bundle with no mandatory exported components.
 
 In the v0.1 core baseline, a meta package is a lightweight dependency-bundle role. It does **not** assign special normative semantics to the full transitive dependency closure beyond ordinary dependency resolution behavior.
 
@@ -1807,7 +1807,7 @@ A conforming bibliotheca MUST:
 13. **AV-BIB-013** — Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
 14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint, including capability document version fields, HTTP API major family, exact compatible spec version sets when claimed, and supported upload profiles for advertised upload surfaces ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 15. **AV-BIB-015** — Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
-16. **AV-BIB-016** — Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
+16. **AV-BIB-016** — Publish the mandatory machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
 
 A conforming bibliotheca SHOULD:
 
@@ -1830,12 +1830,12 @@ A conforming client MUST:
 8. **AV-CLI-008** — Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
 9. **AV-CLI-009** — Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
 10. **AV-CLI-010** — Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
-11. **AV-CLI-011** — Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
-12. **AV-CLI-012** — Treat explicit trust invalidation or revocation as failure by default, and treat superseded trust attachments as stale evidence that does not satisfy required current-state trust evidence ([Section 8.6](#86-client-trust-consumption-baseline)).
+11. **AV-CLI-011** — Distinguish canonical trust facts from non-mandatory derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
+12. **AV-CLI-012** — Treat explicit trust invalidation or revocation as failure by default, and treat superseded trust attachments as stale evidence that does not satisfy mandatory current-state trust evidence ([Section 8.6](#86-client-trust-consumption-baseline)).
 13. **AV-CLI-013** — Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local. Clients MUST validate objective artifact facts for formats they claim to support and MUST NOT report unsupported trust artifact formats as verified ([Section 8.1](#81-core-trust-baseline)).
 14. **AV-CLI-014** — Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
 15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values, while preserving the exact-array semantics of `compatibleSpecVersions` and the HTTP API-family semantics of `apiVersion` ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-16. **AV-CLI-016** — Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+16. **AV-CLI-016** — Surface mandatory migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
 
@@ -1870,7 +1870,7 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 
 These fixtures are part of the interoperability contract. They are not merely illustrative examples.
 
-Where behavior is explicitly outside the portable v0.1 baseline, such as client-local prerelease-selection policy, the fixture corpus MAY include labeled informational cases that document the exclusion boundary without imposing one required outcome.
+Where behavior is explicitly outside the portable v0.1 baseline, such as client-local prerelease-selection policy, the fixture corpus MAY include labeled informational cases that document the exclusion boundary without imposing one mandatory outcome.
 
 ---
 
@@ -1908,13 +1908,13 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 1. The typed output of the TOML parser is the baseline input to the canonical parsed-data model.
 2. Key ordering is not semantically significant.
 3. Ambiguous shapes are invalid rather than coerced.
-4. Specification-defined defaults are interpretive semantics, not required injected normalized output.
+4. Specification-defined defaults are interpretive semantics, not injected normalized output.
 5. Unknown manifest structure MAY be accepted in the baseline only with explicit warnings.
 
 ### A.3 Validation Rules
 
 1. `volume.schema` MUST be a recognized schema version.
-2. `volume.name` MUST satisfy the naming policy in [Section 2.4](#24-naming-policy), with optional `@scope/` prefix for scoped names.
+2. `volume.name` MUST satisfy the naming policy in [Section 2.4](#24-naming-policy), with a permitted `@scope/` prefix for scoped names.
 3. `volume.version` MUST be a valid SemVer string.
 4. `volume.license` MUST be a valid SPDX expression.
 5. `volume.role` MUST be one of: `component`, `plugin`, `provider`, `meta`.
