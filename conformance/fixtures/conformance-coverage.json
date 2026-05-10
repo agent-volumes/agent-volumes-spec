@@ -86,8 +86,11 @@
     {
       "id": "AV-BIB-012",
       "role": "bibliotheca",
-      "requirement": "Expose two-phase release and trust uploads for write-capable bibliothecas.",
-      "coverage": [{ "fixture": "trust-upload-lifecycle.json", "area": "trust-upload", "coverageType": "algorithmic" }]
+      "requirement": "Expose two-phase release and trust uploads for write-capable bibliothecas, including the http-put portable upload profile.",
+      "coverage": [
+        { "fixture": "release-upload-lifecycle.json", "area": "release-upload", "coverageType": "algorithmic" },
+        { "fixture": "trust-upload-lifecycle.json", "area": "trust-upload", "coverageType": "algorithmic" }
+      ]
     },
     {
       "id": "AV-BIB-013",
@@ -98,8 +101,15 @@
     {
       "id": "AV-BIB-014",
       "role": "bibliotheca",
-      "requirement": "Expose dedicated capability metadata endpoint.",
-      "coverage": [{ "fixture": "capability-metadata.json", "area": "capability", "coverageType": "schema" }]
+      "requirement": "Expose dedicated capability metadata endpoint with version fields, API family, and supported upload profiles.",
+      "coverage": [
+        { "fixture": "capability-metadata.json", "area": "capability", "coverageType": "schema" },
+        {
+          "fixture": "capability-invalid-compatibility-cases.json",
+          "area": "capability",
+          "coverageType": "negative"
+        }
+      ]
     },
     {
       "id": "AV-BIB-015",
@@ -205,9 +215,15 @@
     {
       "id": "AV-CLI-012",
       "role": "client",
-      "requirement": "Treat explicit trust invalidation or revocation as failure by default.",
+      "requirement": "Treat explicit trust invalidation or revocation as failure by default and superseded trust attachments as stale current evidence.",
       "coverage": [
-        { "fixture": "trust-detail-status-variants.json", "area": "trust-discovery", "coverageType": "negative" }
+        { "fixture": "trust-detail-status-variants.json", "area": "trust-discovery", "coverageType": "negative" },
+        {
+          "fixture": "trust-artifact-verification-cases.json",
+          "area": "trust-verification",
+          "coverageType": "negative",
+          "case": "trust-artifact-rejects-superseded-current-evidence"
+        }
       ]
     },
     {
@@ -238,9 +254,14 @@
     {
       "id": "AV-CLI-015",
       "role": "client",
-      "requirement": "Consume capability metadata without failing solely on unknown fields or values.",
+      "requirement": "Consume capability metadata without failing solely on unknown fields or values while preserving exact spec-version set semantics.",
       "coverage": [
-        { "fixture": "capability-metadata-unknown-tolerance.json", "area": "capability", "coverageType": "positive" }
+        { "fixture": "capability-metadata-unknown-tolerance.json", "area": "capability", "coverageType": "positive" },
+        {
+          "fixture": "capability-invalid-compatibility-cases.json",
+          "area": "capability",
+          "coverageType": "negative"
+        }
       ]
     },
     {
