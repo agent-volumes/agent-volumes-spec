@@ -1,0 +1,60 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "all-core-relationships",
+      "payload": {
+        "id": { "local": "BIBSEC-12026-010" },
+        "source": { "ecosystem": "bibliotheca" },
+        "severity": "medium",
+        "published": "2026-05-01T00:00:00Z",
+        "updated": "2026-05-09T00:00:00Z",
+        "relationships": [
+          { "type": "supersedes", "target": "BIBSEC-12026-009" },
+          { "type": "superseded-by", "target": "BIBSEC-12026-011" },
+          { "type": "related", "target": "GHSA-xxxx-yyyy-zzzz" },
+          { "type": "duplicate-of", "target": "CVE-12026-0001" }
+        ],
+        "affected": {
+          "volume": "github-provider",
+          "purl": "pkg:volume/github-provider",
+          "ranges": [
+            {
+              "type": "semver",
+              "events": [{ "introduced": "0" }, { "fixed": "2.1.0" }]
+            }
+          ],
+          "componentImpact": [
+            {
+              "component": "tool/read-pr",
+              "note": "Informational only; normative targeting remains volume-level."
+            }
+          ]
+        },
+        "summary": "Relationship vocabulary coverage fixture"
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "invalid-relationship-type",
+      "payload": {
+        "id": { "local": "BIBSEC-12026-011" },
+        "source": { "ecosystem": "bibliotheca" },
+        "severity": "low",
+        "published": "2026-05-01T00:00:00Z",
+        "updated": "2026-05-09T00:00:00Z",
+        "relationships": [{ "type": "merged-into", "target": "BIBSEC-12026-012" }],
+        "affected": {
+          "volume": "github-provider",
+          "ranges": [
+            {
+              "type": "semver",
+              "events": [{ "introduced": "0" }, { "lastAffected": "1.0.0" }]
+            }
+          ]
+        }
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-advisory-relationship" }
+    }
+  ]
+}
