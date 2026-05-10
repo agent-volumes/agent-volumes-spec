@@ -31,6 +31,8 @@ const schemas = {
   trustUploadIntent: readJson('schemas/trust-upload-intent.schema.json'),
   trustUploadFinalize: readJson('schemas/trust-upload-finalize.schema.json'),
   bridgeMetadata: readJson('schemas/bridge-metadata.schema.json'),
+  releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
+  releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
 };
 
 const validators = Object.fromEntries(Object.entries(schemas).map(([name, schema]) => [name, ajv.compile(schema)]));
@@ -158,7 +160,7 @@ assert(
   capabilityMetadata.specVersion === '0.1.0-draft.5',
   'capability metadata fixture must declare specVersion 0.1.0-draft.5'
 );
-for (const apiField of ['trustMetadata', 'versionIndex', 'trustUploads', 'advisories']) {
+for (const apiField of ['trustMetadata', 'versionIndex', 'releaseUploads', 'trustUploads', 'advisories']) {
   assert(
     typeof capabilityMetadata.apis[apiField] === 'boolean',
     `capability metadata fixture must declare boolean apis.${apiField}`
@@ -230,6 +232,46 @@ for (const slug of problemStatusBySlug.keys()) {
     problemDetailsCases.cases.some((problemCase) => problemCase.type.endsWith(`/${slug}`)),
     `problem details cases missing ${slug}`
   );
+}
+
+const releaseUploadLifecycle = readJson('conformance/fixtures/release-upload-lifecycle.json');
+assertSpecVersion(releaseUploadLifecycle, 'release upload lifecycle fixture');
+const releaseUploadFailures = new Set(
+  releaseUploadLifecycle.fixtures
+    .filter((fixture) => fixture.schema === 'problem-details')
+    .map((fixture) => fixture.expected.failureCategory)
+);
+for (const failureCategory of [
+  'version-conflict',
+  'invalid-archive',
+  'identity-mismatch',
+  'digest-mismatch',
+  'missing-uploaded-bytes',
+  'invalid-upload-state',
+  'idempotency-conflict',
+  'upload-expired',
+]) {
+  assert(releaseUploadFailures.has(failureCategory), `release upload lifecycle missing ${failureCategory}`);
+}
+for (const fixture of releaseUploadLifecycle.fixtures) {
+  if (fixture.schema === 'release-upload-intent') {
+    validate('releaseUploadIntent', fixture.payload, `release upload lifecycle ${fixture.name}`);
+    assert(
+      fixture.payload.mediaType === 'application/gzip',
+      `release upload lifecycle ${fixture.name} must use application/gzip`
+    );
+  }
+  if (fixture.schema === 'release-upload-finalize') {
+    validate('releaseUploadFinalize', fixture.payload, `release upload lifecycle ${fixture.name}`);
+    assertReleaseMetadata(fixture.payload.release, `release upload lifecycle ${fixture.name} release metadata`);
+  }
+  if (fixture.schema === 'problem-details') {
+    assertProblemDetails(fixture.payload, `release upload lifecycle ${fixture.name}`);
+    assert(
+      fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
+      `release upload lifecycle ${fixture.name} failureCategory must match problem type slug`
+    );
+  }
 }
 
 const manifestValidFixture = readJson('conformance/fixtures/manifest-valid-minimal.json');
@@ -344,6 +386,24 @@ for (const range of semverRangeCases.rejected) {
 
 const resolverCases = readJson('conformance/fixtures/resolver-cases.json');
 assertSpecVersion(resolverCases, 'resolver cases');
+assert(
+  resolverCases.cases.some(
+    (resolverCase) =>
+      resolverCase.resolutionMode === 'exact-pinned' &&
+      resolverCase.expected.outcome === 'success' &&
+      resolverCase.expected.warnings?.some((warning) => warning.category === 'yanked-version')
+  ),
+  'resolver cases must include exact-pinned yanked warning success'
+);
+for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registry-state']) {
+  assert(
+    resolverCases.cases.some(
+      (resolverCase) =>
+        resolverCase.resolutionMode === 'exact-pinned' && resolverCase.expected.failureCategory === requiredFailure
+    ),
+    `resolver cases must include exact-pinned ${requiredFailure} failure`
+  );
+}
 for (const resolverCase of resolverCases.cases) {
   assert(
     !('dependencies' in resolverCase),
@@ -534,6 +594,31 @@ assert(openapi.paths['/api/v1/index/volumes/{name}'], 'OpenAPI document must def
 assert(
   openapi.paths['/api/v1/index/volumes/@{scope}/{name}'],
   'OpenAPI document must define scoped version index path'
+);
+assert(openapi.paths['/api/v1/volumes/{name}'], 'OpenAPI document must define unscoped release upload intent path');
+assert(
+  openapi.paths['/api/v1/volumes/{name}'].post.parameters.some(
+    (parameter) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
+  ),
+  'OpenAPI unscoped release upload intent path must accept Idempotency-Key header'
+);
+assert(
+  openapi.paths['/api/v1/volumes/{name}/uploads/{uploadId}/finalize'],
+  'OpenAPI document must define unscoped release upload finalize path'
+);
+assert(
+  openapi.paths['/api/v1/volumes/@{scope}/{name}'],
+  'OpenAPI document must define scoped release upload intent path'
+);
+assert(
+  openapi.paths['/api/v1/volumes/@{scope}/{name}'].post.parameters.some(
+    (parameter) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
+  ),
+  'OpenAPI scoped release upload intent path must accept Idempotency-Key header'
+);
+assert(
+  openapi.paths['/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize'],
+  'OpenAPI document must define scoped release upload finalize path'
 );
 assert(
   openapi.paths['/api/v1/volumes/{name}/{version}/trust/uploads'],
