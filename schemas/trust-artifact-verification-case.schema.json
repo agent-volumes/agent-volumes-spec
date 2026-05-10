@@ -87,6 +87,8 @@
                   "unsupported-signature-format",
                   "revoked-trust-artifact",
                   "invalid-trust-artifact",
+                  "stale-trust-evidence-only",
+                  "insufficient-current-trust-evidence",
                   "missing-artifact-subject",
                   "unsupported-artifact-format"
                 ]

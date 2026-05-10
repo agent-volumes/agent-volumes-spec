@@ -808,6 +808,7 @@ paths:
   /api/v1/capabilities:
     get:
       summary: Bibliotheca capability metadata
+      description: Returns registry-level capability metadata, including capability schema/spec versions, HTTP API major family, and supported upload profiles such as the v0.1 `http-put` baseline.
       operationId: getCapabilityMetadata
       responses:
         '200':

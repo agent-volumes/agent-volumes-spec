@@ -29,9 +29,12 @@
       "additionalProperties": true,
       "required": ["instructionType"],
       "properties": {
-        "instructionType": { "type": "string" },
+        "instructionType": {
+          "type": "string",
+          "description": "Upload profile identifier. The v0.1 portable baseline profile is http-put."
+        },
         "url": { "type": "string", "format": "uri-reference" },
-        "method": { "type": "string" },
+        "method": { "type": "string", "description": "HTTP method for http-put; omitted or PUT means PUT." },
         "headers": {
           "type": "object",
           "additionalProperties": { "type": "string" }

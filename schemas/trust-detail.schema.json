@@ -79,6 +79,7 @@
           },
           "status": {
             "type": "object",
+            "description": "Lifecycle status for append-only trust attachments. Superseded attachments are preserved for history but do not satisfy current-state trust evidence.",
             "additionalProperties": false,
             "required": ["state"],
             "properties": {
