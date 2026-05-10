@@ -191,6 +191,39 @@
       }
     },
     {
+      "name": "compatibility-preserves-semver-looking-runtime-expression",
+      "area": "manifest",
+      "payload": {
+        "runtimes": [{ "name": "claude-code", "compatibility": "^1.0.0" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "compatibility-preserves-date-like-protocol-expression",
+      "area": "manifest",
+      "payload": {
+        "protocols": [{ "name": "mcp", "version": ">=2025.02" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "compatibility-preserves-short-numeric-protocol-expression",
+      "area": "manifest",
+      "payload": {
+        "protocols": [{ "name": "lsp", "version": ">=3.17" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "unknown-compatibility-scheme-is-advisory-not-rejection",
+      "area": "load",
+      "payload": {
+        "runtime": { "name": "generic-cli", "compatibility": "channel:nightly" },
+        "clientComparisonSupport": []
+      },
+      "expected": { "valid": true }
+    },
+    {
       "name": "runtime-policy-blocks-valid-mcp-load",
       "area": "load",
       "payload": {

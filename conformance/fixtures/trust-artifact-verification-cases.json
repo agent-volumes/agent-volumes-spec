@@ -212,6 +212,25 @@
       "expected": { "valid": false, "failureCategory": "subject-binding-mismatch" }
     },
     {
+      "name": "trust-artifact-rejects-logical-purl-mismatch",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/other-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "subject-binding-mismatch" }
+    },
+    {
       "name": "trust-artifact-rejects-revoked-default",
       "category": "bom",
       "format": {
