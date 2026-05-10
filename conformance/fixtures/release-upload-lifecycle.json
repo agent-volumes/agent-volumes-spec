@@ -110,6 +110,7 @@
         "release": {
           "name": "@acme/research-agent-pack",
           "version": "1.4.0",
+          "purl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
           "integrity": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "status": {
             "state": "available"

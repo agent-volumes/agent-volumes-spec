@@ -10,10 +10,11 @@
     "release": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version", "integrity", "status", "dist"],
+      "required": ["name", "version", "purl", "integrity", "status", "dist"],
       "properties": {
         "name": { "$ref": "#/$defs/volumeName" },
         "version": { "$ref": "#/$defs/semver" },
+        "purl": { "$ref": "#/$defs/releasePurl" },
         "integrity": { "$ref": "#/$defs/digest" },
         "status": {
           "type": "object",
@@ -47,6 +48,10 @@
     "semver": {
       "type": "string",
       "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "releasePurl": {
+      "type": "string",
+      "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
     },
     "digest": {
       "type": "string",

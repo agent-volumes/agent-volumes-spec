@@ -4,7 +4,7 @@
   "title": "Agent Volumes Release Metadata",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "version", "integrity", "status"],
+  "required": ["name", "version", "purl", "integrity", "status"],
   "allOf": [
     {
       "if": {

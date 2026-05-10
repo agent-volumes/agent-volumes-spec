@@ -906,7 +906,7 @@ components:
           type: string
     ReleaseMetadata:
       type: object
-      required: [name, version, integrity, status]
+      required: [name, version, purl, integrity, status]
       properties:
         name:
           $ref: '#/components/schemas/VolumeName'

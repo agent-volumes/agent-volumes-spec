@@ -231,6 +231,7 @@
         "github-provider@2.0.0": {
           "name": "github-provider",
           "version": "2.0.0",
+          "purl": "pkg:volume/github-provider@2.0.0",
           "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
           "status": { "state": "available" },
           "dist": {
@@ -252,6 +253,7 @@
         "@acme/github-provider@2.0.0": {
           "name": "@acme/github-provider",
           "version": "2.0.0",
+          "purl": "pkg:volume/%40acme/github-provider@2.0.0",
           "integrity": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
           "status": { "state": "available" },
           "dist": {
@@ -272,6 +274,7 @@
         "@acme/github-provider@2.0.0": {
           "name": "@other/github-provider",
           "version": "2.0.0",
+          "purl": "pkg:volume/%40other/github-provider@2.0.0",
           "integrity": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
           "status": { "state": "available" },
           "dist": {
