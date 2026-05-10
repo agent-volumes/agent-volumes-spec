@@ -596,6 +596,14 @@ assert(
   capabilityMetadata.specVersion === '0.1.0-draft.5',
   'capability metadata fixture must declare specVersion 0.1.0-draft.5'
 );
+assert(capabilityMetadata.schemaVersion === '1', 'capability metadata fixture must declare schemaVersion 1');
+assert(capabilityMetadata.apiVersion === 'v1', 'capability metadata fixture must declare apiVersion v1');
+assert(
+  Array.isArray(capabilityMetadata.compatibleSpecVersions) &&
+    capabilityMetadata.compatibleSpecVersions.includes('0.1.0-draft.5') &&
+    new Set(capabilityMetadata.compatibleSpecVersions).size === capabilityMetadata.compatibleSpecVersions.length,
+  'capability metadata fixture must declare unique exact compatibleSpecVersions including 0.1.0-draft.5'
+);
 for (const apiField of ['trustMetadata', 'versionIndex', 'releaseUploads', 'trustUploads', 'advisories']) {
   assert(
     typeof capabilityMetadata.apis[apiField] === 'boolean',
@@ -604,6 +612,17 @@ for (const apiField of ['trustMetadata', 'versionIndex', 'releaseUploads', 'trus
 }
 for (const deliveryMode of ['cdn', 'git']) {
   assert(capabilityMetadata.deliveryModes.includes(deliveryMode), `capability metadata must include ${deliveryMode}`);
+}
+for (const [surface, enabled] of Object.entries({
+  releaseUploads: capabilityMetadata.apis.releaseUploads,
+  trustUploads: capabilityMetadata.apis.trustUploads,
+})) {
+  if (enabled) {
+    assert(
+      capabilityMetadata.uploadProfiles?.[surface]?.includes('http-put'),
+      `capability metadata must advertise http-put for ${surface}`
+    );
+  }
 }
 const capabilityUnknownToleranceFixture = readJson('conformance/fixtures/capability-metadata-unknown-tolerance.json');
 assert(
@@ -627,9 +646,15 @@ assert(
 );
 assert(
   capabilityUnknownToleranceFixture.expected.warnings.some(
-    (warning) => warning.category === 'unknown-capability-value'
+    (warning) => warning.category === 'unknown-capability-value' && warning.path === 'deliveryModes[2]'
   ),
-  'capability metadata unknown tolerance fixture must expect an unknown capability value warning'
+  'capability metadata unknown tolerance fixture must expect an unknown delivery mode value warning'
+);
+assert(
+  capabilityUnknownToleranceFixture.expected.warnings.some(
+    (warning) => warning.category === 'unknown-capability-value' && warning.path.startsWith('uploadProfiles.')
+  ),
+  'capability metadata unknown tolerance fixture must expect an unknown upload profile value warning'
 );
 for (const warning of capabilityUnknownToleranceFixture.expected.warnings) {
   assertWarning(warning, 'capability metadata unknown tolerance warning');
@@ -646,6 +671,20 @@ assert(
   capabilityReservedExtensionFixture.expected.valid === false,
   'capability metadata reserved extension fixture must be an expected failure'
 );
+const capabilityInvalidCompatibilityFixture = readJson(
+  'conformance/fixtures/capability-invalid-compatibility-cases.json'
+);
+for (const fixture of capabilityInvalidCompatibilityFixture.fixtures) {
+  validateExpectedFailure(
+    'capabilityMetadata',
+    fixture.canonicalParsedData,
+    `capability metadata invalid compatibility fixture ${fixture.name}`
+  );
+  assert(
+    fixture.expected.valid === false,
+    `capability metadata invalid compatibility fixture ${fixture.name} must be an expected failure`
+  );
+}
 validate('bridgeMetadata', readJson('conformance/fixtures/bridge-metadata.json'), 'bridge metadata fixture');
 const bridgeStatusVariants = readJson('conformance/fixtures/bridge-metadata-status-variants.json');
 for (const fixture of bridgeStatusVariants.fixtures) {
@@ -725,6 +764,15 @@ for (const fixture of releaseUploadLifecycle.fixtures) {
       fixture.payload.mediaType === 'application/gzip',
       `release upload lifecycle ${fixture.name} must use application/gzip`
     );
+    assert(
+      fixture.payload.upload.instructionType === 'http-put',
+      `release upload lifecycle ${fixture.name} must use http-put upload instructions`
+    );
+    assert(
+      fixture.payload.upload.method === undefined || fixture.payload.upload.method === 'PUT',
+      `release upload lifecycle ${fixture.name} http-put method must be omitted or PUT`
+    );
+    assert(fixture.payload.upload.url, `release upload lifecycle ${fixture.name} http-put upload needs a URL`);
     if (fixture.expected.state) {
       assert(
         fixture.payload.state === fixture.expected.state,
@@ -1103,6 +1151,15 @@ for (const fixture of trustUploadLifecycle.fixtures) {
     validate('trustUploadIntent', fixture.payload, `trust upload lifecycle ${fixture.name}`);
     trustUploadIntentCategories.add(fixture.payload.attachment.category);
     trustUploadStates.add(fixture.payload.state);
+    assert(
+      fixture.payload.upload.instructionType === 'http-put',
+      `trust upload lifecycle ${fixture.name} must use http-put upload instructions`
+    );
+    assert(
+      fixture.payload.upload.method === undefined || fixture.payload.upload.method === 'PUT',
+      `trust upload lifecycle ${fixture.name} http-put method must be omitted or PUT`
+    );
+    assert(fixture.payload.upload.url, `trust upload lifecycle ${fixture.name} http-put upload needs a URL`);
     if (fixture.expected.state) {
       assert(
         fixture.payload.state === fixture.expected.state,
@@ -1228,6 +1285,12 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
     assert(
       (trustCase.lifecycleStatus?.state === 'invalid' || trustCase.artifact) && trustCase.expected.valid === false,
       `trust artifact case ${trustCase.name} must model invalid lifecycle or malformed artifact failures`
+    );
+  }
+  if (trustCase.expected.failureCategory === 'stale-trust-evidence-only') {
+    assert(
+      trustCase.lifecycleStatus?.state === 'superseded' && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model superseded attachments as stale current evidence`
     );
   }
   if (trustCase.expected.valid) {
