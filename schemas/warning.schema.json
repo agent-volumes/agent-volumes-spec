@@ -9,7 +9,7 @@
     "category": {
       "type": "string",
       "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
-      "description": "Core v0.1 categories are unknown-field, deprecated, migration, unknown-capability-field, unknown-capability-value, and yanked-version. Extension categories use the same slug-like syntax."
+      "description": "Core v0.1 categories are unknown-field, deprecated, migration, unknown-capability-field, unknown-capability-value, yanked-version, and noncanonical-entrypoint. Extension categories use the same slug-like syntax."
     },
     "message": { "type": "string" },
     "path": { "type": "string" },

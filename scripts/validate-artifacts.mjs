@@ -663,6 +663,34 @@ for (const semanticCase of semanticValidationCases.cases) {
     assertWarning(warning, `semantic validation case ${semanticCase.name} warning`);
   }
 }
+for (const requiredComponentFailure of [
+  'missing-entrypoint',
+  'missing-command-trigger',
+  'unsupported-hook-event',
+  'unsupported-entrypoint-format',
+]) {
+  assert(
+    semanticValidationCases.cases.some(
+      (semanticCase) =>
+        semanticCase.area === 'manifest' && semanticCase.expected.failureCategory === requiredComponentFailure
+    ),
+    `semantic validation cases must include component entrypoint failure ${requiredComponentFailure}`
+  );
+}
+assert(
+  semanticValidationCases.cases.some(
+    (semanticCase) =>
+      semanticCase.area === 'warning' &&
+      semanticCase.expected.warnings?.some((warning) => warning.category === 'noncanonical-entrypoint')
+  ),
+  'semantic validation cases must include noncanonical-entrypoint warning'
+);
+assert(
+  semanticValidationCases.cases.some(
+    (semanticCase) => semanticCase.area === 'load' && semanticCase.expected.failureCategory === 'load-policy-blocked'
+  ),
+  'semantic validation cases must include load-time policy blocking boundary'
+);
 assert(
   semanticValidationCases.cases.some(
     (semanticCase) => semanticCase.expected.failureCategory === 'non-regular-archive-entry'

@@ -28,6 +28,62 @@
       }
     },
     {
+      "name": "component-entrypoint-missing-file",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/missing/SKILL.md" },
+        "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"]
+      },
+      "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
+    },
+    {
+      "name": "command-entrypoint-missing-trigger",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes" }
+      },
+      "expected": { "valid": false, "failureCategory": "missing-command-trigger" }
+    },
+    {
+      "name": "hook-entrypoint-unsupported-event",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "hook", "name": "before-review", "entrypoint": "./hooks/before-review.yaml" },
+        "hook": { "event": "BeforeReview", "type": "command" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-hook-event" }
+    },
+    {
+      "name": "mcp-entrypoint-must-be-json",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./mcp/research.yaml" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
+    },
+    {
+      "name": "mcp-entrypoint-noncanonical-filename-warning",
+      "area": "warning",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./config/research-mcp.json" }
+      },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "noncanonical-entrypoint", "path": "./config/research-mcp.json" }]
+      }
+    },
+    {
+      "name": "runtime-policy-blocks-valid-mcp-load",
+      "area": "load",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./.mcp.json" },
+        "manifestValidation": "valid",
+        "runtimePolicy": "blocked-by-managed-allowlist"
+      },
+      "expected": { "valid": false, "failureCategory": "load-policy-blocked" }
+    },
+    {
       "name": "yanked-exact-pinned-warning",
       "area": "resolver",
       "payload": { "state": "yanked", "resolutionMode": "exact-pinned" },
