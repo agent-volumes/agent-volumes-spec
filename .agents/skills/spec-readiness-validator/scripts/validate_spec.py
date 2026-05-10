@@ -80,10 +80,16 @@ class SpecValidator:
 
         lowercase_issues = []
         for spec_file in spec_files:
+            rel_parts = spec_file.relative_to(self.spec_path).parts
+            # Skip non-normative directories
+            if any(p in rel_parts for p in ("decisions", ".agents", "node_modules")):
+                continue
             content = spec_file.read_text()
             for term in ["must", "should", "may"]:
                 if re.search(rf'\b{term}\b', content):
-                    lowercase_issues.append(f"{spec_file.name}: lowercase '{term}' found")
+                    lowercase_issues.append(
+                        f"{'/'.join(rel_parts)}: lowercase '{term}' found"
+                    )
 
         result = {
             "status": "PASS",
