@@ -1126,7 +1126,7 @@ The v0.1 verifier validates objective artifact facts while leaving broader trust
 1. Resolve and validate the release subject: package-facing identity `pkg:volume/...@version` plus normalized-file-tree `sha256` integrity.
 2. Discover trust summary and detail metadata for the release.
 3. Ignore absent optional trust artifacts as missing evidence rather than an automatic baseline hard failure.
-4. Exclude or fail on trust attachments whose lifecycle status is `revoked` or `invalid`.
+4. Exclude or fail on trust attachments whose lifecycle status is `revoked` or `invalid`; exclude `superseded` attachments from current-state evidence satisfaction while preserving them for historical or audit evaluation.
 5. Validate trust artifact format identity against the baseline category and format conventions.
 6. Retrieve or inspect the trust artifact bytes or embedded representation.
 7. Validate release-subject binding for each artifact against both logical identity and immutable content identity.
@@ -1233,6 +1233,8 @@ Trust discovery exposes the **current state** together with **revision metadata*
 
 If a trust attachment later becomes invalid, superseded, or revoked, it remains part of the append-only record and is represented through **status metadata**, not silent deletion.
 
+The `superseded` status is a freshness and replacement state. It does not by itself mean the attachment was compromised, revoked, or cryptographically invalid. A superseded attachment remains part of the append-only record and MAY be evaluated by historical, audit, or reproducibility workflows that explicitly evaluate a past observation context. It MUST NOT satisfy required evidence in baseline current-state trust evaluation.
+
 Write-capable bibliothecas expose release-scoped trust attachment uploads through a two-phase lifecycle:
 
 1. create an upload intent for a trust attachment bound to a release subject
@@ -1240,7 +1242,7 @@ Write-capable bibliothecas expose release-scoped trust attachment uploads throug
 3. finalize the upload so the bibliotheca can verify digest, size, subject binding, and metadata consistency
 4. expose the resulting attachment through the existing trust discovery model once it becomes available
 
-The upload instructions returned by a bibliotheca are opaque interoperability data. They MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, or another implementation-local upload target. The portable contract is the intent and finalize lifecycle plus the resulting standard trust attachment record, not the storage backend or byte-transfer protocol.
+The upload instructions returned by a bibliotheca are opaque interoperability data. They MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, or another implementation-local upload target. The portable contract is the intent and finalize lifecycle, the `http-put` minimum portable upload profile when trust uploads are supported, and the resulting standard trust attachment record; storage backends and non-`http-put` byte-transfer profiles remain implementation-local unless another profile explicitly standardizes them.
 
 A bibliotheca MUST NOT mark an uploaded trust attachment as available until it verifies that uploaded bytes match the declared digest and that the attachment metadata binds to the intended release subject. Failed, expired, conflicting, or invalid uploads MUST NOT silently create active trust attachments.
 
@@ -1252,6 +1254,7 @@ At minimum:
 
 - digest or subject-binding mismatch MUST fail
 - explicit revocation or invalidation MUST fail by default unless an implementation applies an explicit non-baseline override
+- superseded trust attachments MUST NOT satisfy required current-state evidence; when only superseded evidence is available for a required trust category, clients MUST report a stale or insufficient-current-evidence diagnostic distinct from revoked or invalid evidence
 - simple absence of optional trust evidence is weaker than explicit invalidation
 
 The v0.1 verifier SHOULD report objective verification facts and failures separately from local policy judgments. Absence of baseline trust artifacts, builder identity allowlists, and vulnerability blocking policy remain local policy inputs rather than v0.1 core hard failures by themselves.
@@ -1333,6 +1336,8 @@ The bibliotheca MUST NOT make a release available until finalize succeeds. Durin
 Successful release finalization creates or preserves exactly one lifecycle-marked version identity. A version number that has been published, yanked, tombstoned, blocked, unavailable, or otherwise lifecycle-marked MUST NOT be reused for different release content.
 
 The upload instructions returned by a bibliotheca MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, a direct upload target, or another implementation-local upload target. Direct binary upload remains an implementation strategy behind those instructions, but direct binary `POST` of release bytes is not the portable hosted release publishing boundary.
+
+Every write-capable v0.1 bibliotheca that exposes release upload intents MUST support the portable `http-put` upload profile for release uploads. For an `http-put` release upload intent, `upload.instructionType` is `"http-put"`, the upload target is the opaque `upload.url`, and the upload method is `PUT` when `upload.method` is omitted or explicitly set. Clients MUST send any headers supplied in the upload instruction and MUST NOT infer release identity, authorization scope, or final availability from the upload URL itself.
 
 Publish conflicts MUST be reported when the target version already exists, when the uploaded package identity disagrees with the target path, or when release metadata cannot be reconciled with the computed normalized-file-tree digest. Validation failures, including malformed archives or invalid manifests, use the baseline problem-details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
@@ -1496,6 +1501,8 @@ When trust attachments are present, the detail view MUST preserve enough informa
 
 When no trust artifacts are present for an existing release, the detail view returns an empty attachment collection together with the ordinary bound subject and revision/current-state metadata.
 
+For current-state trust evaluation, clients MUST distinguish active current evidence from superseded historical evidence. Detail views preserve superseded attachments for append-only history, but a superseded attachment does not satisfy required current evidence unless a workflow explicitly opts into historical or stale-evidence evaluation.
+
 The companion payload schemas for these views are [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json) and [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json).
 
 The v0.1 baseline trust format profiles use the following format identity conventions:
@@ -1527,6 +1534,8 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
 ```
 
 The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes.
+
+Every write-capable v0.1 bibliotheca that exposes trust attachment upload intents MUST support the portable `http-put` upload profile for trust uploads. For an `http-put` trust upload intent, `upload.instructionType` is `"http-put"`, `upload.url` is the opaque byte-transfer target, and the upload method is `PUT` when `upload.method` is omitted or explicitly set. Baseline clients that support trust attachment publishing SHOULD support `http-put` and MUST fail locally with an unsupported-upload-profile diagnostic when an upload intent advertises only unsupported profiles.
 
 The finalize request commits the upload attempt. A bibliotheca MUST verify the uploaded bytes against the declared digest, declared size when present, release-subject binding, and attachment metadata before making the attachment available through trust discovery.
 
@@ -1586,6 +1595,15 @@ The capability metadata document MUST:
 Unknown capability fields or values MUST be ignored by baseline clients. Implementations MAY surface diagnostics for observability, but a baseline client MUST NOT reject a capability metadata document solely because it contains unknown capability fields or values.
 
 Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, release upload, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core. The known v0.1 baseline `deliveryModes` values are `cdn` for hosted archive delivery and `git` for Git-backed source delivery. Unknown delivery modes are ignored by baseline clients under the same unknown-value tolerance rule.
+
+The capability metadata document separates capability-document shape, Agent Volumes spec release compatibility, and HTTP API family:
+
+- `schemaVersion` identifies the capability metadata document-shape major version; the v0.1 baseline uses `"1"`.
+- `specVersion` identifies the Agent Volumes specification release implemented by the bibliotheca.
+- `compatibleSpecVersions`, when present, is an explicit set of exact Agent Volumes spec versions, not a range expression.
+- `apiVersion` identifies the HTTP API major family, such as `"v1"`; it is not a complete Agent Volumes spec compatibility boundary.
+
+When release uploads or trust uploads are advertised as supported, capability metadata MUST expose the supported upload profiles for the corresponding upload surface. A write-capable v0.1 bibliotheca that supports release uploads or trust attachment uploads MUST advertise `http-put` for that surface. Unknown upload-profile values are ignored by baseline clients unless a stricter local policy chooses otherwise.
 
 The machine-readable capability metadata contract is published in [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json).
 
@@ -1755,13 +1773,13 @@ Conformance claims are role-scoped. Passing the offline fixture suite is an
 **artifact conformance** claim, not a product certification badge. Implementations
 SHOULD describe claims using one or more of these labels:
 
-| Claim label                      | Meaning                                                                                                                                      |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `artifact-fixture-pass`          | The implementation or harness evaluated the v0.1 fixture corpus and produced a conforming report.                                            |
-| `client-role`                    | The implementation satisfies the client requirements in [Section 11.3](#113-conforming-client).                                              |
-| `bibliotheca-read-role`          | The implementation satisfies read/discovery bibliotheca behavior for search, fetch, version index, trust, advisory, and capability metadata. |
-| `bibliotheca-write-capable-role` | The implementation satisfies read behavior plus protected release upload and trust attachment upload behavior.                               |
-| `validator-exporter-role`        | The implementation validates manifests, fixtures, mapping exports, or trust artifacts without claiming live registry behavior.               |
+| Claim label                      | Meaning                                                                                                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artifact-fixture-pass`          | The implementation or harness evaluated the v0.1 fixture corpus and produced a conforming report.                                                                |
+| `client-role`                    | The implementation satisfies the client requirements in [Section 11.3](#113-conforming-client).                                                                  |
+| `bibliotheca-read-role`          | The implementation satisfies read/discovery bibliotheca behavior for search, fetch, version index, trust, advisory, and capability metadata.                     |
+| `bibliotheca-write-capable-role` | The implementation satisfies read behavior plus protected release upload and trust attachment upload behavior, including the `http-put` portable upload profile. |
+| `validator-exporter-role`        | The implementation validates manifests, fixtures, mapping exports, or trust artifacts without claiming live registry behavior.                                   |
 
 Claims MAY include multiple labels when all corresponding requirements are met.
 They MUST NOT imply live cross-registry interoperability, hosted service
@@ -1783,9 +1801,9 @@ A conforming bibliotheca MUST:
 9. **AV-BIB-009** — Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
 10. **AV-BIB-010** — Reject inconsistent release metadata, version index metadata, or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
 11. **AV-BIB-011** — Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
-12. **AV-BIB-012** — For write-capable bibliothecas, expose the two-phase release upload API and the two-phase trust attachment upload API, verifying digest, size, subject binding, and metadata consistency before activation ([Section 9.2.1](#921-publish), [Section 9.4.3](#943-trust-attachment-upload)).
+12. **AV-BIB-012** — For write-capable bibliothecas, expose the two-phase release upload API and the two-phase trust attachment upload API, support the `http-put` portable upload profile for each advertised write surface, and verify digest, size, subject binding, and metadata consistency before activation ([Section 9.2.1](#921-publish), [Section 9.4.3](#943-trust-attachment-upload)).
 13. **AV-BIB-013** — Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
-14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint, including capability document version fields, HTTP API major family, exact compatible spec version sets when claimed, and supported upload profiles for advertised upload surfaces ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 15. **AV-BIB-015** — Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
 16. **AV-BIB-016** — Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
 
@@ -1811,10 +1829,10 @@ A conforming client MUST:
 9. **AV-CLI-009** — Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
 10. **AV-CLI-010** — Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
 11. **AV-CLI-011** — Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
-12. **AV-CLI-012** — Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
+12. **AV-CLI-012** — Treat explicit trust invalidation or revocation as failure by default, and treat superseded trust attachments as stale evidence that does not satisfy required current-state trust evidence ([Section 8.6](#86-client-trust-consumption-baseline)).
 13. **AV-CLI-013** — Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local. Clients MUST validate objective artifact facts for formats they claim to support and MUST NOT report unsupported trust artifact formats as verified ([Section 8.1](#81-core-trust-baseline)).
 14. **AV-CLI-014** — Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
-15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values, while preserving the exact-array semantics of `compatibleSpecVersions` and the HTTP API-family semantics of `apiVersion` ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 16. **AV-CLI-016** — Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
@@ -1833,15 +1851,16 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - component entrypoint semantic validation, including missing files, wrong formats, missing command triggers, unsupported hook events, and non-canonical entrypoint warnings
 - runtime and protocol compatibility expression preservation cases
 - normalized file tree digest golden vectors
-- trust metadata summary/detail payload fixtures
+- trust metadata summary/detail payload fixtures, including append-only status variants
 - version index row fixtures
 - SemVer range grammar accept/reject fixtures
-- trust attachment upload lifecycle fixtures
+- release upload lifecycle fixtures, including the `http-put` portable upload profile
+- trust attachment upload lifecycle fixtures, including the `http-put` portable upload profile
 - problem details taxonomy fixtures
 - problem registry fixtures that close the portable problem type/status set
 - advisory payload fixtures
 - search, version-index collection, and advisory-list payload fixtures
-- capability metadata payload fixtures
+- capability metadata payload fixtures, including exact compatible spec version sets, HTTP API family, supported upload profiles, and unknown field/value tolerance
 - BOM/provenance mapping sample fixtures
 - conformance coverage fixtures mapping `AV-BIB-*` and `AV-CLI-*` requirements to fixture families
 - dependency-resolution accept/reject cases
@@ -1918,6 +1937,8 @@ The v0.1 core warning categories are:
 - `unknown-capability-field`
 - `unknown-capability-value`
 - `yanked-version`
+- `stale-trust-evidence-only`
+- `insufficient-current-trust-evidence`
 - `noncanonical-entrypoint`
 
 Implementations MAY add extension warning categories, but baseline clients can rely on the core set.
@@ -2007,10 +2028,10 @@ The v0.1 fixture set includes at least:
 - release upload lifecycle fixtures
 - trust attachment upload lifecycle fixtures
 - layered trust artifact verification fixtures for BOM, SLSA provenance, and Sigstore-family signature facts
-- explicit trust attachment lifecycle-status verification fixtures, including revoked and invalid default-failure behavior
+- explicit trust attachment lifecycle-status verification fixtures, including revoked and invalid default-failure behavior and superseded stale-current-evidence behavior
 - problem details taxonomy fixtures
 - advisory payload and advisory validation fixtures
-- capability metadata fixtures, including unknown field/value tolerance behavior
+- capability metadata fixtures, including exact compatible spec version sets, HTTP API family, supported upload profiles, and unknown field/value tolerance behavior
 - bridge-metadata fixtures
 - resolver accept/reject fixtures
 - purl canonicalization fixtures

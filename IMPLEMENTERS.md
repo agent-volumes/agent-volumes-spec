@@ -49,9 +49,9 @@ A baseline client implementation should support the following before claiming v0
 8. Validate entrypoint existence and type-specific portable load boundaries before handing components to runtime adapters.
 9. Preserve and expose runtime/protocol compatibility version expressions, compare them only for known schemes, and avoid rejecting solely because an expression uses an unknown runtime or protocol scheme.
 10. Consume trust summary/detail metadata and distinguish objective trust facts from optional derived judgments.
-11. Treat revoked or invalid trust attachments as failures by default while keeping broader trust-root policy local.
+11. Treat revoked or invalid trust attachments as failures by default, and treat superseded trust attachments as stale evidence that does not satisfy current-state trust requirements.
 12. Validate objective trust artifact facts for formats the implementation claims to support, and never report unsupported artifact formats as verified.
-13. Consume capability metadata without failing solely on unknown capability fields or values.
+13. Consume capability metadata without failing solely on unknown capability fields or values, while interpreting `compatibleSpecVersions` as exact version sets and `apiVersion` as the HTTP API major family.
 14. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, and non-canonical entrypoint conventions.
 
 ## Minimum viable conforming bibliotheca
@@ -60,14 +60,14 @@ A baseline bibliotheca implementation should support the following before claimi
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
-3. Create release upload intents and finalize uploaded `.tar.gz` release bytes.
+3. Create release upload intents, support the `http-put` portable upload profile for release uploads, and finalize uploaded `.tar.gz` release bytes.
 4. Verify uploaded-byte digest and size when declared, validate archive profile rules, validate manifest identity against the route identity, compute normalized-file-tree `integrity`, and publish only after finalize succeeds.
 5. Preserve version immutability: a lifecycle-marked version number must not be reused for different content.
 6. Serve exact release metadata with lifecycle status and distribution metadata only when the release state permits portable exact fetch semantics.
 7. Serve package-scoped version index rows synchronized with publish, yank, tombstone, block, and unavailable state changes.
 8. Expose catalog search as discovery only; search results must not substitute for version indexes or exact metadata during resolution.
 9. Expose trust summary/detail views and preserve append-only trust attachment status/revision semantics.
-10. Support trust attachment upload intent/finalize when the bibliotheca is write-capable for trust artifacts.
+10. Support trust attachment upload intent/finalize and the `http-put` portable upload profile when the bibliotheca is write-capable for trust artifacts.
 11. Expose advisory read/discovery endpoints for the v0.1 advisory schema.
 12. Use RFC 7807 Problem Details for portable API errors.
 13. Block continued distribution of artifacts with discovered permission escalation.
@@ -76,18 +76,18 @@ A baseline bibliotheca implementation should support the following before claimi
 
 The v0.1 core intentionally leaves several operational choices local. Prototype projects should document their choices explicitly rather than treating them as standard behavior.
 
-| Choice               | Prototype documentation needed                                                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                             |
-| Upload byte transfer | Which opaque upload instruction shape is returned and how bytes are staged before finalize                                                    |
-| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                   |
-| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                           |
-| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                       |
-| Prerelease selection | Whether prerelease candidates are considered by default                                                                                       |
-| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                         |
-| Advisory authority   | Who can create/update/withdraw advisories in the implementation                                                                               |
-| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                            |
-| Runtime adapters     | How valid components are mapped into each target runtime's local execution model, including any known-scheme compatibility comparison support |
+| Choice               | Prototype documentation needed                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                               |
+| Upload byte transfer | Which non-core upload instruction shapes are returned beyond the required `http-put` portable baseline and how bytes are staged before finalize |
+| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                     |
+| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                             |
+| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                         |
+| Prerelease selection | Whether prerelease candidates are considered by default                                                                                         |
+| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                           |
+| Advisory authority   | Who can create/update/withdraw advisories in the implementation                                                                                 |
+| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                              |
+| Runtime adapters     | How valid components are mapped into each target runtime's local execution model, including any known-scheme compatibility comparison support   |
 
 ## Smoke conformance path
 
