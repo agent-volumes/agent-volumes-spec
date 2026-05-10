@@ -1,0 +1,136 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "Hosted release upload intent and finalize lifecycle conformance cases.",
+  "fixtures": [
+    {
+      "name": "release-upload-intent-success",
+      "schema": "release-upload-intent",
+      "expected": { "valid": true },
+      "payload": {
+        "uploadId": "upload-123",
+        "target": {
+          "name": "@acme/research-agent-pack",
+          "version": "1.4.0"
+        },
+        "mediaType": "application/gzip",
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "opaque-url",
+          "method": "PUT",
+          "url": "https://storage.example.test/uploads/upload-123"
+        },
+        "expiresAt": "2026-05-10T12:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "release-intent-key-1"
+      }
+    },
+    {
+      "name": "release-upload-finalize-success",
+      "schema": "release-upload-finalize",
+      "expected": { "valid": true },
+      "payload": {
+        "uploadId": "upload-123",
+        "release": {
+          "name": "@acme/research-agent-pack",
+          "version": "1.4.0",
+          "integrity": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/@acme/research-agent-pack/1.4.0.tar.gz"
+          }
+        },
+        "detailUrl": "/api/v1/volumes/@acme/research-agent-pack/1.4.0"
+      }
+    },
+    {
+      "name": "release-upload-conflict",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "version-conflict" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/version-conflict",
+        "title": "Version conflict",
+        "status": 409,
+        "detail": "Version 1.4.0 already exists."
+      }
+    },
+    {
+      "name": "release-upload-invalid-archive",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "invalid-archive" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-archive",
+        "title": "Invalid archive",
+        "status": 400,
+        "detail": "Uploaded release bytes are not a valid v0.1 hosted archive."
+      }
+    },
+    {
+      "name": "release-upload-identity-mismatch",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "identity-mismatch" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/identity-mismatch",
+        "title": "Identity mismatch",
+        "status": 409,
+        "detail": "The uploaded manifest identity does not match the target upload path."
+      }
+    },
+    {
+      "name": "release-upload-digest-mismatch",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "digest-mismatch" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/digest-mismatch",
+        "title": "Digest mismatch",
+        "status": 400,
+        "detail": "Uploaded release bytes do not match the declared uploaded-byte digest."
+      }
+    },
+    {
+      "name": "release-upload-missing-bytes",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "missing-uploaded-bytes" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+        "title": "Missing uploaded bytes",
+        "status": 400,
+        "detail": "Release upload bytes must be available before finalization."
+      }
+    },
+    {
+      "name": "release-upload-invalid-state",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "invalid-upload-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-upload-state",
+        "title": "Invalid upload state",
+        "status": 409,
+        "detail": "Only uploaded release upload intents can be finalized."
+      }
+    },
+    {
+      "name": "release-upload-idempotency-conflict",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "idempotency-conflict" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/idempotency-conflict",
+        "title": "Idempotency conflict",
+        "status": 409,
+        "detail": "The idempotency key was previously used with different release upload metadata."
+      }
+    },
+    {
+      "name": "release-upload-expired",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "upload-expired" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/upload-expired",
+        "title": "Upload expired",
+        "status": 410,
+        "detail": "The release upload intent has expired."
+      }
+    }
+  ]
+}

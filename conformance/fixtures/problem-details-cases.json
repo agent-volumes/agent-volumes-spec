@@ -10,7 +10,8 @@
     {
       "type": "https://agentvolumes.org/problems/authorization-failed",
       "title": "Authorization failed",
-      "status": 403
+      "status": 403,
+      "detail": "Authenticated subject lacks 'trust_upload' action on resource 'pkg:volume/research-agent-pack@1.4.0'."
     },
     { "type": "https://agentvolumes.org/problems/not-found", "title": "Resource not found", "status": 404 },
     { "type": "https://agentvolumes.org/problems/validation-failed", "title": "Validation failed", "status": 400 },
