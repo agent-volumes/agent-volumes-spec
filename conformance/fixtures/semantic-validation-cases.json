@@ -1,0 +1,40 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "release-file-selection-rejects-non-regular-entry",
+      "area": "release",
+      "payload": {
+        "archiveEntries": [{ "path": "skills/review/SKILL.md", "entryType": "symlink" }]
+      },
+      "expected": { "valid": false, "failureCategory": "non-regular-archive-entry" }
+    },
+    {
+      "name": "trust-attachment-byte-identity-mismatch",
+      "area": "trust",
+      "payload": {
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "retrievedDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "expected": { "valid": false, "failureCategory": "digest-mismatch" }
+    },
+    {
+      "name": "unknown-manifest-field-warning",
+      "area": "warning",
+      "payload": { "field": "x-example" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "unknown-field", "field": "x-example" }]
+      }
+    },
+    {
+      "name": "yanked-exact-pinned-warning",
+      "area": "resolver",
+      "payload": { "state": "yanked", "resolutionMode": "exact-pinned" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "yanked-version" }]
+      }
+    }
+  ]
+}

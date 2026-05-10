@@ -1,0 +1,32 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "component-dependency-exists-after-volume-resolution",
+      "component-dependencies": {
+        "review-agent": [
+          "pkg:volume/github-provider@2.1.0#tool/read-pr",
+          "pkg:volume/github-provider@2.1.0#tool/comment-pr",
+          "pkg:volume/%40acme/search-pack@1.4.0#skill/code-search"
+        ]
+      },
+      "resolvedComponents": [
+        "pkg:volume/github-provider@2.1.0#tool/read-pr",
+        "pkg:volume/github-provider@2.1.0#tool/comment-pr",
+        "pkg:volume/%40acme/search-pack@1.4.0#skill/code-search"
+      ],
+      "expected": { "valid": true }
+    },
+    {
+      "name": "missing-component-dependency-after-volume-resolution",
+      "component-dependencies": {
+        "review-agent": [
+          "pkg:volume/github-provider@2.1.0#tool/read-pr",
+          "pkg:volume/github-provider@2.1.0#tool/comment-pr"
+        ]
+      },
+      "resolvedComponents": ["pkg:volume/github-provider@2.1.0#tool/read-pr"],
+      "expected": { "valid": false, "failureCategory": "missing-component-dependency" }
+    }
+  ]
+}

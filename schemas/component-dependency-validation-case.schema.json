@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/component-dependency-validation-case.schema.json",
+  "title": "Agent Volumes Component Dependency Validation Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "cases"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "component-dependencies", "resolvedComponents", "expected"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "component-dependencies": {
+            "type": "object",
+            "propertyNames": { "$ref": "#/$defs/componentName" },
+            "additionalProperties": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/componentPurl" }
+            }
+          },
+          "resolvedComponents": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/componentPurl" },
+            "uniqueItems": true
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["valid"],
+            "properties": {
+              "valid": { "type": "boolean" },
+              "failureCategory": {
+                "type": "string",
+                "enum": ["missing-component-dependency"]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "componentName": {
+      "type": "string",
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
+    },
+    "componentPurl": {
+      "type": "string",
+      "pattern": "^pkg:volume/.+#(agent|skill|command|tool|hook|mcp-server|lsp-server)/(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
+    }
+  }
+}

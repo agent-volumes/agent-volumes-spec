@@ -1,0 +1,35 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "scopeless-release-purl",
+      "volume": "research-agent-pack",
+      "version": "1.4.0",
+      "expectedPurl": "pkg:volume/research-agent-pack@1.4.0",
+      "expected": { "valid": true }
+    },
+    {
+      "name": "scoped-release-purl-encodes-scope-marker",
+      "volume": "@acme/research-agent-pack",
+      "version": "1.4.0",
+      "expectedPurl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+      "expected": { "valid": true }
+    },
+    {
+      "name": "component-purl-uses-subpath",
+      "volume": "@acme/research-agent-pack",
+      "version": "1.4.0",
+      "component": { "type": "tool", "name": "github-search" },
+      "expectedPurl": "pkg:volume/%40acme/research-agent-pack@1.4.0#tool/github-search",
+      "expected": { "valid": true }
+    },
+    {
+      "name": "decoded-scoped-purl-is-not-canonical",
+      "volume": "@acme/research-agent-pack",
+      "version": "1.4.0",
+      "candidatePurl": "pkg:volume/@acme/research-agent-pack@1.4.0",
+      "expectedPurl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+      "expected": { "valid": false, "failureCategory": "non-canonical-purl" }
+    }
+  ]
+}
