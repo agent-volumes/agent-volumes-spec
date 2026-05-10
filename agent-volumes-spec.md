@@ -1909,7 +1909,7 @@ The v0.1 fixture set includes at least:
 - permission-escalation rejection fixtures
 - BOM/provenance mapping matrix and sample fixtures
 
-Layered trust artifact verification fixtures define deterministic checks over objective artifact facts: declared format family, media type, predicate or signature format, release-subject purl, release-subject integrity, and trust attachment lifecycle status. These fixtures intentionally do not standardize one global trust-root store, online transparency-log policy, or bibliotheca-local acceptance judgment. Implementations that perform cryptographic SLSA or Sigstore validation MUST still bind the verified artifact facts back to the release subject and lifecycle vectors represented by these fixtures.
+Layered trust artifact verification fixtures define deterministic checks over objective artifact facts: declared format family, media type, predicate or signature format, release-subject purl, release-subject integrity, trust attachment byte identity, trust attachment lifecycle status, and provided offline signature or attestation material. These fixtures intentionally do not standardize one global trust-root store, online transparency-log policy, or bibliotheca-local acceptance judgment. Implementations that perform cryptographic SLSA or Sigstore validation MUST still bind the verified artifact facts back to the release subject and lifecycle vectors represented by these fixtures.
 
 ### C.2 Mapping Matrix Requirement
 
@@ -1925,6 +1925,8 @@ At minimum, that mapping material must identify:
 The mapping matrix fixture MUST be serialized as a canonical JSON fixture object with `specVersion` and `entries` fields. `entries` MUST be ordered lexicographically by `agentVolumesField` for stable review diffs and deterministic conformance checks. Each entry MUST use stable target-family keys (`cyclonedx`, `spdx`, and `slsa`) when a mapping exists for that family, and each family mapping MUST classify its `kind` as exactly one of `native`, `extension`, or `lossy`.
 
 Mappings with `kind = "extension"` MUST name the controlled Agent Volumes extension namespace used for serialization. Mappings with `kind = "lossy"` MUST explain the lost semantics so implementations do not treat the target as round-trip-safe. Mapping targets MAY use family-native path notation, but extension property names and lossiness explanations MUST remain stable across fixture updates unless the prose release intentionally changes the interoperability contract.
+
+The mapping sample fixture MUST provide at least one concrete offline export example that binds a source Agent Volumes manifest and release subject to CycloneDX, SPDX, and SLSA output objects. The sample fixture is a deterministic conformance vector: native and controlled-extension mappings that are represented in the target output MUST round-trip to the source values, intentionally lossy mappings MUST remain identified as lossy by the matrix, and release-subject purl plus SHA-256 identity MUST be recoverable from the applicable CycloneDX, SPDX, and SLSA output fields.
 
 The v0.1 core does not require one narrower AI-specific BOM profile commitment beyond the generic CycloneDX baseline. Where AI-specific semantics need richer exchange treatment, the mapping material MAY identify profile-oriented or extension-oriented paths without implying that the core already guarantees a complete canonical AI-BOM crosswalk.
 

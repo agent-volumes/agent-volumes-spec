@@ -64,5 +64,10 @@ does not imply live registry interoperability.
 | BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
 | Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
 
+`mapping-sample.json` is a concrete offline export vector. It binds one source
+manifest and release subject to CycloneDX, SPDX, and SLSA output objects so
+validators can check round-trip-safe native and extension mappings separately
+from intentionally lossy mappings.
+
 Fixture updates that materially change expected behavior are normative draft
 changes and MUST remain version-aligned with the prose specification.

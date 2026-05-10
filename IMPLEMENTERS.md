@@ -27,6 +27,7 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 | Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json` |
 | Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`     |
 | Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                     |
+| Mapping samples      | `schemas/mapping-matrix.schema.json`, `schemas/mapping-sample.schema.json`                 |
 | Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`             |
 | Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
 | Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
