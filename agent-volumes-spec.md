@@ -221,6 +221,12 @@ The v0.1 core also does **not** standardize one universal prerelease-selection p
 
 Package-scoped version indexes are resolver inputs, not lockfiles, search rankings, or complete release records. If version index data conflicts with exact release metadata, clients and bibliothecas MUST treat the result as an inconsistent registry state rather than silently preferring either representation.
 
+Ordinary dependency resolution means selection of a version candidate from dependency constraints and version index rows when the version was not already fixed by an exact user request, an existing lockfile, or an equivalent client-local reproducibility input. Conforming clients MUST NOT select `yanked`, `tombstoned`, `blocked`, or `unavailable` versions during ordinary dependency resolution.
+
+Clients MAY install a `yanked` version when that exact version was explicitly requested, already pinned, or selected by an existing lockfile or equivalent reproducibility input. Clients MUST surface a warning when installing a `yanked` version.
+
+Clients MUST NOT install `blocked` versions by default, including when the version is exactly pinned or present in an existing lockfile. Clients MUST treat `tombstoned` as a preserved version identity whose artifact is no longer installable in the portable v0.1 baseline. Clients MUST treat `unavailable` as excluded from ordinary resolution and as a non-security availability, registry-state, or artifact-state failure rather than as a security block.
+
 ---
 
 ## 3. Volume Manifest
@@ -1037,6 +1043,19 @@ Scanner-finding interchange is **non-normative in v0.1**. Scanner results MAY in
 
 The baseline provenance/signing attachment model uses release-subject binding rather than registry-local labels as the interoperability anchor. For SLSA provenance attachments, the baseline predicate type is `https://slsa.dev/provenance/v1`. Provenance and signature artifacts SHOULD be carried in an in-toto/Sigstore-family form that lets a verifier identify the signed subject digest, the logical package identity when present, the builder identity, and the signature or bundle material needed for independent verification.
 
+The v0.1 verifier validates objective artifact facts while leaving broader trust policy local. Conforming clients and bibliothecas MUST perform layered artifact verification:
+
+1. Resolve and validate the release subject: package-facing identity `pkg:volume/...@version` plus normalized-file-tree `sha256` integrity.
+2. Discover trust summary and detail metadata for the release.
+3. Ignore absent optional trust artifacts as missing evidence rather than an automatic baseline hard failure.
+4. Exclude or fail on trust attachments whose lifecycle status is `revoked` or `invalid`.
+5. Validate trust artifact format identity against the baseline category and format conventions.
+6. Retrieve or inspect the trust artifact bytes or embedded representation.
+7. Validate release-subject binding for each artifact against both logical identity and immutable content identity.
+8. For Sigstore-family signatures or bundles, verify the cryptographic signature, signing certificate or key material, bundled transparency or timestamp evidence when present in the supported bundle profile, and the signed subject digest.
+9. For SLSA provenance, verify the attestation envelope, require the baseline predicate type `https://slsa.dev/provenance/v1`, and validate that the provenance subject digest matches the release integrity.
+10. For CycloneDX BOMs, validate the BOM structure and schema/profile identity, and validate the mapped package identity and SHA-256 hash fields when present.
+
 ### 8.2 Publisher Identity
 
 Publishers register with a bibliotheca and own one or more scopes (or scopeless names, per registry policy).
@@ -1157,6 +1176,8 @@ At minimum:
 - explicit revocation or invalidation MUST fail by default unless an implementation applies an explicit non-baseline override
 - simple absence of optional trust evidence is weaker than explicit invalidation
 
+The v0.1 verifier SHOULD report objective verification facts and failures separately from local policy judgments. Absence of baseline trust artifacts, builder identity allowlists, and vulnerability blocking policy remain local policy inputs rather than v0.1 core hard failures by themselves.
+
 ### 8.7 Security Advisories
 
 Security advisories are package-facing records expressed in terms of **volume identity** and **affected version history**.
@@ -1199,14 +1220,14 @@ Bibliothecas MAY deliver release content via CDN, Git-backed references, or both
 
 #### 9.2.1 Publish
 
-```http
-POST /api/v1/volumes/{name}
-POST /api/v1/volumes/@{scope}/{name}
-Authorization: Bearer <token>
-Content-Type: application/gzip
-```
+Write-capable bibliothecas expose hosted archive publishing through a two-phase upload lifecycle:
 
-For hosted archive workflows, the publish payload is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
+1. Create a release upload intent for a target volume identity and version.
+2. Upload the `.tar.gz` release bytes using the upload instructions returned by the bibliotheca.
+3. Finalize the upload so the bibliotheca can validate the archive, manifest identity, authorization, version conflict state, permission model, and normalized-file-tree integrity.
+4. Expose the resulting release metadata and distribution metadata only after the release is accepted.
+
+For hosted archive workflows, the release transport is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
 Hosted archive payloads follow the v0.1 archive transport profile:
 
@@ -1217,11 +1238,15 @@ Hosted archive payloads follow the v0.1 archive transport profile:
 - archive timestamps, ownership, extended attributes, platform-specific mode bits, and container metadata are not part of the release subject
 - the executable bit is the only archive mode-derived metadata preserved into normalized file tree digest construction
 
-Publisher must own the target namespace. Version numbers are immutable once published. The bibliotheca computes `integrity` server-side.
+Publisher must own the target namespace. Version numbers are immutable once published. The bibliotheca MUST compute the authoritative normalized-file-tree `integrity` value during finalize before the release becomes available.
 
 Clients publishing artifacts MUST fail before submission when a component declares permissions broader than its parent volume permits.
 
 Bibliothecas that discover permission escalation through publish-time validation, operator review, vulnerability reporting, automated inspection, or equivalent local mechanisms MUST block the affected artifact from continued distribution. The v0.1 baseline does not require every bibliotheca to perform mandatory direct permission-escalation validation on every publish attempt.
+
+The bibliotheca MUST NOT make a release available until finalize succeeds. During finalize, the bibliotheca MUST verify that uploaded bytes match any declared digest and size constraints, the archive is valid, manifest identity is consistent, the version is not already lifecycle-marked, the caller remains authorized, and integrity can be computed.
+
+The upload instructions returned by a bibliotheca MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, a direct upload target, or another implementation-local upload target. Direct binary upload remains an implementation strategy behind those instructions, but direct binary `POST` of release bytes is not the portable hosted release publishing boundary.
 
 Publish conflicts MUST be reported when the target version already exists, when the uploaded package identity disagrees with the target path, or when release metadata cannot be reconciled with the computed normalized-file-tree digest. Validation failures, including malformed archives or invalid manifests, use the baseline problem-details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
@@ -1283,6 +1308,16 @@ Each version index entry represents one published version row. A row SHOULD incl
 - a pointer to the authoritative exact release metadata endpoint
 
 Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Among eligible stable candidates that satisfy the applicable constraints and are not excluded by lifecycle/status metadata, clients SHOULD prefer the candidate with the highest SemVer precedence. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
+
+Version index lifecycle states carry the following portable client behavior:
+
+| State         | Ordinary resolution | Exact pinned fetch / install                                             |
+| ------------- | ------------------- | ------------------------------------------------------------------------ |
+| `available`   | Allowed             | Allowed                                                                  |
+| `yanked`      | Excluded            | Allowed with warning                                                     |
+| `tombstoned`  | Excluded            | Fails unless using non-baseline implementation-local cache-only behavior |
+| `blocked`     | Excluded            | Fails                                                                    |
+| `unavailable` | Excluded            | Fails or reports an availability or inconsistent-registry-state error    |
 
 If version index data conflicts with exact release metadata, clients and bibliothecas MUST treat that as an inconsistent registry state rather than silently preferring the index.
 
@@ -1426,6 +1461,7 @@ That endpoint is the primary structured discovery surface for registry-wide fact
 - delivery modes
 - trust metadata API availability
 - version index API availability
+- release upload API availability
 - trust attachment upload API availability
 - advisory API availability
 
@@ -1438,7 +1474,7 @@ The capability metadata document MUST:
 
 Unknown capability fields or values MUST be ignored by baseline clients. Implementations MAY surface diagnostics for observability, but a baseline client MUST NOT reject a capability metadata document solely because it contains unknown capability fields or values.
 
-Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core. The known v0.1 baseline `deliveryModes` values are `cdn` for hosted archive delivery and `git` for Git-backed source delivery. Unknown delivery modes are ignored by baseline clients under the same unknown-value tolerance rule.
+Capability metadata is a narrow discovery surface, not a full negotiation framework. It identifies scope policy shape, supported delivery modes, and availability of version index, trust, advisory, release upload, and trust upload surfaces; richer trust-profile, scanner-profile, or upload-mode negotiation remains outside the v0.1 core. The known v0.1 baseline `deliveryModes` values are `cdn` for hosted archive delivery and `git` for Git-backed source delivery. Unknown delivery modes are ignored by baseline clients under the same unknown-value tolerance rule.
 
 The machine-readable capability metadata contract is published in [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json).
 
@@ -1484,15 +1520,21 @@ If tooling accepts the old extension form as input during the bridge period, it 
 
 ### 9.8 Authentication
 
-| Operation           | Auth required            |
-| ------------------- | ------------------------ |
-| Search, fetch       | No                       |
-| Download            | No                       |
-| Publish             | Yes (Bearer token)       |
-| Unpublish           | Yes (Bearer + ownership) |
-| Capability metadata | No                       |
-| Trust metadata      | No                       |
-| Trust upload        | Yes (Bearer + ownership) |
+The v0.1 registry API uses registry-local resource-scoped bearer token semantics for protected writes. Bearer tokens remain opaque to clients. A bibliotheca derives authorization decisions from registry-local state based on the token subject, the requested action, and the target resource.
+
+| Operation           | Auth required      | Portable authorization semantics                              |
+| ------------------- | ------------------ | ------------------------------------------------------------- |
+| Search, fetch       | No                 | N/A                                                           |
+| Download            | No                 | N/A                                                           |
+| Publish             | Yes (Bearer token) | Authorized to publish the volume identity or namespace.       |
+| Unpublish           | Yes (Bearer token) | Authorized to unpublish the volume identity or exact release. |
+| Capability metadata | No                 | N/A                                                           |
+| Trust metadata      | No                 | N/A                                                           |
+| Trust upload        | Yes (Bearer token) | Authorized to add trust attachments for the exact release.    |
+
+Ownership is evaluated by the bibliotheca. A token subject may act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
+
+Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the required action or resource authorization is an authorization failure and uses `403 Forbidden`.
 
 Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
@@ -1527,7 +1569,7 @@ Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.or
 | `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.           |
 | `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.         |
 | `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.          |
-| `upload-expired`              | `410`          | A trust upload intent expired before finalization.                      |
+| `upload-expired`              | `410`          | An upload intent expired before finalization.                           |
 | `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.          |
 | `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.              |
 | `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.             |
@@ -1575,15 +1617,15 @@ A conforming bibliotheca MUST:
 1. Accept and serve volumes with valid `volume.toml` manifests ([Section 3](#3-volume-manifest)).
 2. Block continued distribution of artifacts with discovered permission escalation, even though the v0.1 baseline does not require mandatory direct escalation validation on every publish attempt ([Section 3.10](#310-permissions)).
 3. Implement the package operations API ([Section 9.2](#92-package-operations)).
-4. Enforce version immutability — once published, a version's content MUST NOT change ([Section 9.2.1](#921-publish)).
-5. Compute and store normalized-file-tree integrity digests ([Section 7](#7-content-integrity)).
+4. Enforce version immutability: once published, a version number MUST NOT be reused after it has been published, yanked, tombstoned, blocked, or otherwise lifecycle-marked ([Section 9.2.1](#921-publish)).
+5. Compute the authoritative normalized-file-tree `integrity` value during finalize before a release becomes available ([Section 9.2.1](#921-publish)).
 6. Support the package identity scheme ([Section 2](#2-package-identity-scheme)).
 7. Expose the query-based catalog search API ([Section 9.3](#93-search-api)).
 8. Expose the package-scoped version index API and keep version index rows synchronized with release lifecycle changes ([Section 9.2.4](#924-version-index)).
 9. Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
 10. Reject inconsistent release metadata, version index metadata, or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
 11. Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
-12. For write-capable bibliothecas, expose the two-phase trust attachment upload API and verify digest, size, subject binding, and metadata consistency before activation ([Section 9.4.3](#943-trust-attachment-upload)).
+12. For write-capable bibliothecas, expose the two-phase release upload API and the two-phase trust attachment upload API, verifying digest, size, subject binding, and metadata consistency before activation ([Section 9.2.1](#921-publish), [Section 9.4.3](#943-trust-attachment-upload)).
 13. Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
 14. Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 15. Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
@@ -1604,15 +1646,17 @@ A conforming client MUST:
 2. Parse portable dependency range expressions using the constrained v0.1 SemVer range grammar ([Section 3.6.1](#361-volume-level-dependencies)).
 3. Fail on permission escalation during publish, consume, install, or load workflows when a component declares broader permissions than its parent volume permits ([Section 3.10](#310-permissions)).
 4. Enforce single-version resolution — reject dependency graphs requiring multiple versions of the same volume ([Section 3.6.3](#363-single-version-enforcement)).
-5. Fetch exact release metadata before installation or trust evaluation, even when version index rows are used for candidate pruning ([Section 9.2.4](#924-version-index)).
-6. Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
-7. Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
-8. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
-9. Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
-10. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
-11. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
-12. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-13. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+5. Apply version lifecycle semantics during ordinary resolution, exact pinned fetches, and lock-based installs: ordinary resolution selects only `available` versions, exact pinned `yanked` installs warn, and `blocked`, `tombstoned`, or `unavailable` versions fail in the portable baseline ([Section 2.6](#26-identifier-resolution-order), [Section 9.2.4](#924-version-index)).
+6. Fetch exact release metadata before installation or trust evaluation, even when version index rows are used for candidate pruning ([Section 9.2.4](#924-version-index)).
+7. Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
+8. Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
+9. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
+10. Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
+11. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
+12. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
+13. Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local ([Section 8.1](#81-core-trust-baseline)).
+14. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+15. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
 
@@ -1748,6 +1792,8 @@ The draft companion artifact inventory includes at least:
 - [`schemas/advisory.schema.json`](schemas/advisory.schema.json)
 - [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json)
 - [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json)
+- [`schemas/release-upload-intent.schema.json`](schemas/release-upload-intent.schema.json)
+- [`schemas/release-upload-finalize.schema.json`](schemas/release-upload-finalize.schema.json)
 - [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
 - [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
@@ -1767,9 +1813,11 @@ The v0.1 fixture set includes at least:
 - digest vectors and negative digest construction cases for normalized file trees
 - hosted archive transport profile cases for `.tar.gz` publish/download workflows
 - trust summary/detail payload fixtures
-- version index row fixtures
+- version index row fixtures, including yanked, tombstoned, blocked, and unavailable states
 - SemVer range grammar fixtures
+- release upload lifecycle fixtures
 - trust attachment upload lifecycle fixtures
+- problem details taxonomy fixtures
 - advisory payload fixtures
 - capability metadata fixtures, including unknown field/value tolerance behavior
 - bridge-metadata fixtures
@@ -1817,7 +1865,11 @@ Fixture updates that materially change interoperability expectations are normati
 | **Version index**              | A package-scoped resolver-facing collection of version rows used for candidate discovery before exact release metadata is fetched.                                                    |
 | **Version index row**          | One resolver-facing metadata record for a published volume version, including version, integrity when available, dependency declarations, status, and exact release metadata pointer. |
 | **Trust attachment**           | A release-scoped trust artifact such as a BOM, provenance statement, signature, or related metadata.                                                                                  |
-| **Upload intent**              | Write-side trust attachment upload state created before bytes are uploaded and finalized.                                                                                             |
+| **Yanked**                     | A lifecycle state excluded from ordinary resolution while remaining installable with warning when exactly requested or already pinned.                                                |
+| **Tombstoned**                 | A preserved version identity whose artifact is no longer installable in the portable v0.1 baseline and whose version number cannot be reused.                                         |
+| **Blocked**                    | A hard lifecycle state for security, policy, or governance failures that prevents installation even for exact or lock-based requests by default.                                      |
+| **Unavailable**                | A non-security availability, registry-state, or artifact-state condition excluded from ordinary resolution and treated as a fetch/install failure in the portable baseline.           |
+| **Upload intent**              | Write-side release or trust attachment upload state created before bytes are uploaded and finalized.                                                                                  |
 | **Summary view**               | A fact-first trust metadata representation for ordinary clients and user interfaces.                                                                                                  |
 | **Detail view**                | A trust metadata representation exposing artifact locations, binding details, revision metadata, and status semantics.                                                                |
 | **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                                                    |
