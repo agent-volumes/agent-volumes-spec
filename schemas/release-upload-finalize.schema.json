@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-upload-finalize.schema.json",
+  "title": "Agent Volumes Release Upload Finalize Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["uploadId", "release", "detailUrl"],
+  "properties": {
+    "uploadId": { "type": "string", "minLength": 1 },
+    "release": {
+      "allOf": [
+        { "$ref": "release-metadata.schema.json" },
+        {
+          "type": "object",
+          "required": ["dist"],
+          "properties": {
+            "dist": {},
+            "status": {
+              "type": "object",
+              "required": ["state"],
+              "properties": {
+                "state": { "type": "string", "const": "available" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "detailUrl": { "type": "string", "format": "uri-reference" }
+  }
+}

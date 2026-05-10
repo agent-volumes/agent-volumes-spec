@@ -1,0 +1,111 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "available-cdn-release-metadata-is-installable",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.0",
+      "metadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.0",
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": { "state": "available" },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.0.tar.gz"
+        }
+      },
+      "expected": { "outcome": "success", "installable": true, "distSource": "cdn" }
+    },
+    {
+      "name": "available-git-release-metadata-is-installable",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.1",
+      "metadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.1",
+        "purl": "pkg:volume/research-agent-pack@1.4.1",
+        "integrity": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "status": { "state": "available" },
+        "dist": {
+          "source": "git",
+          "repository": "https://git.example.test/acme/research-agent-pack.git",
+          "ref": "refs/tags/v1.4.1"
+        }
+      },
+      "expected": { "outcome": "success", "installable": true, "distSource": "git" }
+    },
+    {
+      "name": "yanked-exact-release-metadata-warns-but-remains-installable",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.2",
+      "metadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.2",
+        "purl": "pkg:volume/research-agent-pack@1.4.2",
+        "integrity": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "status": { "state": "yanked", "reason": "Published with incorrect metadata" },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.2.tar.gz"
+        }
+      },
+      "expected": {
+        "outcome": "success",
+        "installable": true,
+        "distSource": "cdn",
+        "warnings": [{ "category": "yanked-version" }]
+      }
+    },
+    {
+      "name": "blocked-exact-release-fails-without-portable-dist",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.3",
+      "problem": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Release is blocked",
+        "status": 403,
+        "detail": "The requested release is blocked by bibliotheca policy."
+      },
+      "expected": { "outcome": "failure", "installable": false, "failureCategory": "blocked" }
+    },
+    {
+      "name": "tombstoned-exact-release-fails-without-portable-dist",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.4",
+      "problem": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release is tombstoned",
+        "status": 404,
+        "detail": "The version identity is preserved but no portable artifact is installable."
+      },
+      "expected": { "outcome": "failure", "installable": false, "failureCategory": "tombstoned" }
+    },
+    {
+      "name": "unavailable-exact-release-fails-with-availability-state",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.5",
+      "problem": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Release artifact is unavailable",
+        "status": 409,
+        "detail": "The bibliotheca cannot reconcile release metadata with retrievable artifact bytes."
+      },
+      "expected": { "outcome": "failure", "installable": false, "failureCategory": "availability-or-registry-state" }
+    },
+    {
+      "name": "blocked-release-metadata-with-dist-is-invalid",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.6",
+      "invalidMetadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.6",
+        "purl": "pkg:volume/research-agent-pack@1.4.6",
+        "integrity": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "status": { "state": "blocked", "reason": "Blocked by registry policy" },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.6.tar.gz"
+        }
+      },
+      "expected": { "outcome": "failure", "installable": false, "failureCategory": "non-installable-dist" }
+    }
+  ]
+}

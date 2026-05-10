@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/exact-release-metadata-case.schema.json",
+  "title": "Agent Volumes Exact Release Metadata Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "cases"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "expected"],
+        "oneOf": [
+          {
+            "required": ["metadata"],
+            "properties": { "metadata": true }
+          },
+          {
+            "required": ["problem"],
+            "properties": { "problem": true }
+          },
+          {
+            "required": ["invalidMetadata"],
+            "properties": { "invalidMetadata": true }
+          }
+        ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "requestRoute": { "type": "string" },
+          "metadata": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-metadata.schema.json" },
+          "invalidMetadata": { "type": "object" },
+          "problem": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/problem-details.schema.json" },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["outcome"],
+            "properties": {
+              "outcome": { "type": "string", "enum": ["success", "failure"] },
+              "installable": { "type": "boolean" },
+              "distSource": { "type": "string", "enum": ["cdn", "git"] },
+              "failureCategory": { "type": "string" },
+              "warnings": {
+                "type": "array",
+                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/warning.schema.json" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

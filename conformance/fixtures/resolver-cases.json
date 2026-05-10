@@ -1,23 +1,292 @@
 {
-  "specVersion": "0.1.0-draft.4",
+  "specVersion": "0.1.0-draft.5",
   "notes": [
     "Prerelease-selection behavior is intentionally client-local in the v0.1 core and is therefore not fixed by these normative resolver cases.",
-    "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior."
+    "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior.",
+    "Version index rows are resolver inputs for candidate pruning. Clients still fetch exact release metadata before installation or trust evaluation."
   ],
   "cases": [
     {
       "name": "single-version-compatible",
-      "dependencies": {
-        "github-provider": "^2.0.0"
-      },
-      "availableVersions": {
-        "github-provider": ["2.0.0", "2.1.0"]
+      "requirements": [
+        {
+          "requester": "research-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^2.0.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          },
+          {
+            "version": "2.1.0",
+            "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
+          }
+        ]
       },
       "expected": {
         "outcome": "success",
         "selected": {
           "github-provider": "2.1.0"
         }
+      }
+    },
+    {
+      "name": "version-index-excludes-yanked-candidate",
+      "requirements": [
+        {
+          "requester": "review-agent-pack",
+          "volume": "github-provider",
+          "constraint": "^2.0.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          },
+          {
+            "version": "2.1.0",
+            "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "status": { "state": "yanked", "reason": "Published with incorrect dependency metadata" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "success",
+        "selected": {
+          "github-provider": "2.0.0"
+        }
+      }
+    },
+    {
+      "name": "pinned-yanked-success",
+      "resolutionMode": "exact-pinned",
+      "requirements": [
+        {
+          "requester": "fixed-agent",
+          "volume": "github-provider",
+          "constraint": "2.1.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.1.0",
+            "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "status": { "state": "yanked", "reason": "Minor bug" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "success",
+        "warnings": [{ "category": "yanked-version" }],
+        "selected": {
+          "github-provider": "2.1.0"
+        }
+      }
+    },
+    {
+      "name": "pinned-blocked-failure",
+      "resolutionMode": "exact-pinned",
+      "requirements": [
+        {
+          "requester": "fixed-agent",
+          "volume": "github-provider",
+          "constraint": "2.2.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.2.0",
+            "integrity": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            "status": { "state": "blocked", "reason": "Security vulnerability" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.2.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "blocked"
+      }
+    },
+    {
+      "name": "pinned-tombstoned-failure",
+      "resolutionMode": "exact-pinned",
+      "requirements": [
+        {
+          "requester": "fixed-agent",
+          "volume": "github-provider",
+          "constraint": "2.3.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.3.0",
+            "integrity": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+            "status": { "state": "tombstoned" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.3.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "tombstoned"
+      }
+    },
+    {
+      "name": "pinned-unavailable-failure",
+      "resolutionMode": "exact-pinned",
+      "requirements": [
+        {
+          "requester": "fixed-agent",
+          "volume": "github-provider",
+          "constraint": "2.4.0"
+        }
+      ],
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.4.0",
+            "integrity": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+            "status": { "state": "unavailable", "reason": "Artifact storage is temporarily inconsistent" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.4.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "availability-or-registry-state"
+      }
+    },
+    {
+      "name": "ordinary-excludes-all-non-available",
+      "resolutionMode": "ordinary",
+      "requirements": [
+        {
+          "requester": "app",
+          "volume": "lib",
+          "constraint": "^1.0.0"
+        }
+      ],
+      "versionIndexRows": {
+        "lib": [
+          {
+            "version": "1.0.0",
+            "integrity": "sha256:0001000100010001000100010001000100010001000100010001000100010001",
+            "status": { "state": "yanked" },
+            "release": { "url": "/api/v1/volumes/lib/1.0.0" }
+          },
+          {
+            "version": "1.1.0",
+            "integrity": "sha256:0002000200020002000200020002000200020002000200020002000200020002",
+            "status": { "state": "blocked" },
+            "release": { "url": "/api/v1/volumes/lib/1.1.0" }
+          },
+          {
+            "version": "1.2.0",
+            "integrity": "sha256:0003000300030003000300030003000300030003000300030003000300030003",
+            "status": { "state": "tombstoned" },
+            "release": { "url": "/api/v1/volumes/lib/1.2.0" }
+          },
+          {
+            "version": "1.3.0",
+            "integrity": "sha256:0004000400040004000400040004000400040004000400040004000400040004",
+            "status": { "state": "unavailable" },
+            "release": { "url": "/api/v1/volumes/lib/1.3.0" }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "failure"
+      }
+    },
+    {
+      "name": "version-index-release-metadata-conflict",
+      "versionIndexRows": {
+        "github-provider": [
+          {
+            "version": "2.0.0",
+            "integrity": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "status": { "state": "available" },
+            "release": { "url": "/api/v1/volumes/github-provider/2.0.0" }
+          }
+        ]
+      },
+      "exactReleaseMetadata": {
+        "github-provider@2.0.0": {
+          "name": "github-provider",
+          "version": "2.0.0",
+          "purl": "pkg:volume/github-provider@2.0.0",
+          "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "status": { "state": "available" },
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/github-provider/2.0.0.tar.gz"
+          }
+        }
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "inconsistent-registry-state"
+      }
+    },
+    {
+      "name": "scoped-release-metadata-name-canonical",
+      "requestRoute": "/api/v1/volumes/@acme/github-provider/2.0.0",
+      "exactReleaseMetadata": {
+        "@acme/github-provider@2.0.0": {
+          "name": "@acme/github-provider",
+          "version": "2.0.0",
+          "purl": "pkg:volume/%40acme/github-provider@2.0.0",
+          "integrity": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "status": { "state": "available" },
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/@acme/github-provider/2.0.0.tar.gz"
+          }
+        }
+      },
+      "expected": {
+        "outcome": "success"
+      }
+    },
+    {
+      "name": "route-release-metadata-identity-mismatch",
+      "requestRoute": "/api/v1/volumes/@acme/github-provider/2.0.0",
+      "exactReleaseMetadata": {
+        "@acme/github-provider@2.0.0": {
+          "name": "@other/github-provider",
+          "version": "2.0.0",
+          "purl": "pkg:volume/%40other/github-provider@2.0.0",
+          "integrity": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "status": { "state": "available" },
+          "dist": {
+            "source": "cdn",
+            "mediaType": "application/gzip",
+            "url": "https://cdn.example.test/volumes/@other/github-provider/2.0.0.tar.gz"
+          }
+        }
+      },
+      "expected": {
+        "outcome": "failure",
+        "failureCategory": "identity-mismatch"
       }
     },
     {

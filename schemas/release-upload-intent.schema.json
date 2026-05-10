@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-upload-intent.schema.json",
+  "title": "Agent Volumes Release Upload Intent",
+  "description": "Created for a route-derived target package identity and request-body target version. The target name in this response echoes the reconciled release identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["uploadId", "target", "mediaType", "upload", "expiresAt", "state"],
+  "properties": {
+    "uploadId": { "type": "string", "minLength": 1 },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "$ref": "#/$defs/volumeName" },
+        "version": { "$ref": "#/$defs/semver" }
+      }
+    },
+    "mediaType": {
+      "type": "string",
+      "const": "application/gzip",
+      "description": "Portable hosted archive upload media type for .tar.gz release bytes."
+    },
+    "declaredDigest": { "$ref": "#/$defs/digest" },
+    "declaredSize": { "type": "integer", "minimum": 0 },
+    "upload": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["instructionType"],
+      "properties": {
+        "instructionType": {
+          "type": "string",
+          "description": "Upload profile identifier. The v0.1 portable baseline profile is http-put."
+        },
+        "url": { "type": "string", "format": "uri-reference" },
+        "method": { "type": "string", "description": "HTTP method for http-put; omitted or PUT means PUT." },
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "state": {
+      "type": "string",
+      "enum": ["pending-upload", "uploading", "uploaded", "expired", "failed"]
+    },
+    "idempotencyKey": { "type": "string" }
+  },
+  "$defs": {
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}

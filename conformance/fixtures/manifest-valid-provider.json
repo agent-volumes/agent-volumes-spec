@@ -1,0 +1,29 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "A role=provider package declares provider-oriented integration metadata and at least one exported integration component.",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "github-provider",
+      "version": "2.1.0",
+      "description": "GitHub provider integration components",
+      "license": "Apache-2.0",
+      "role": "provider",
+      "providers": ["github"]
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "tool",
+        "name": "read-pr",
+        "entrypoint": "./tools/read-pr.json",
+        "providers": ["github"]
+      }
+    ]
+  },
+  "expected": {
+    "valid": true
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/mapping-matrix.schema.json",
+  "title": "Agent Volumes Mapping Matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "entries"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["agentVolumesField"],
+        "properties": {
+          "agentVolumesField": { "type": "string", "minLength": 1 },
+          "cyclonedx": { "$ref": "#/$defs/mapping" },
+          "spdx": { "$ref": "#/$defs/mapping" },
+          "slsa": { "$ref": "#/$defs/mapping" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "kind"],
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "extension" } }, "required": ["kind"] },
+          "then": { "properties": { "extensionNamespace": true }, "required": ["extensionNamespace"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "lossy" } }, "required": ["kind"] },
+          "then": { "properties": { "lossiness": true }, "required": ["lossiness"] }
+        }
+      ],
+      "properties": {
+        "target": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["native", "extension", "lossy"] },
+        "extensionNamespace": { "type": "string", "pattern": "^agent-volumes(?::[a-z0-9-]+)?$" },
+        "lossiness": { "type": "string", "minLength": 1 },
+        "serialization": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

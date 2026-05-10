@@ -1,0 +1,157 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "minimal-plugin-authored-toml",
+      "authoredToml": "[volume]\nschema = 1\nname = \"research-agent-pack\"\nversion = \"1.4.0\"\ndescription = \"Research assistant with literature analysis tools\"\nlicense = \"Apache-2.0\"\nrole = \"plugin\"\n\n[publisher]\nid = \"example\"\n\n[[components]]\ntype = \"skill\"\nname = \"summarize-paper\"\nentrypoint = \"./skills/summarize-paper/SKILL.md\"\n\n[[runtimes]]\nname = \"claude-code\"\ncompatibility = \"^1.0.0\"\n\n[[protocols]]\nname = \"mcp\"\nversion = \">=2025.02\"\n\n[environment]\nruntimes = [\"node\", \"python\"]\nos = [\"linux\", \"macos\"]\narch = [\"x64\", \"arm64\"]\n",
+      "expected": {
+        "valid": true,
+        "canonicalParsedData": {
+          "volume": {
+            "schema": 1,
+            "name": "research-agent-pack",
+            "version": "1.4.0",
+            "description": "Research assistant with literature analysis tools",
+            "license": "Apache-2.0",
+            "role": "plugin"
+          },
+          "publisher": {
+            "id": "example"
+          },
+          "components": [
+            {
+              "type": "skill",
+              "name": "summarize-paper",
+              "entrypoint": "./skills/summarize-paper/SKILL.md"
+            }
+          ],
+          "runtimes": [
+            {
+              "name": "claude-code",
+              "compatibility": "^1.0.0"
+            }
+          ],
+          "protocols": [
+            {
+              "name": "mcp",
+              "version": ">=2025.02"
+            }
+          ],
+          "environment": {
+            "runtimes": ["node", "python"],
+            "os": ["linux", "macos"],
+            "arch": ["x64", "arm64"]
+          }
+        }
+      }
+    },
+    {
+      "name": "meta-package-without-components",
+      "authoredToml": "[volume]\nschema = 1\nname = \"agent-bundle\"\nversion = \"1.0.0\"\ndescription = \"Dependency bundle with no exported components\"\nlicense = \"Apache-2.0\"\nrole = \"meta\"\n\n[publisher]\nid = \"example\"\n\n[dependencies]\nresearch-agent-pack = \"^1.4.0\"\n",
+      "expected": {
+        "valid": true,
+        "canonicalParsedData": {
+          "volume": {
+            "schema": 1,
+            "name": "agent-bundle",
+            "version": "1.0.0",
+            "description": "Dependency bundle with no exported components",
+            "license": "Apache-2.0",
+            "role": "meta"
+          },
+          "publisher": {
+            "id": "example"
+          },
+          "dependencies": {
+            "research-agent-pack": "^1.4.0"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown-top-level-table-warning",
+      "authoredToml": "[volume]\nschema = 1\nname = \"research-agent-pack\"\nversion = \"1.4.0\"\ndescription = \"Research assistant with literature analysis tools\"\nlicense = \"Apache-2.0\"\nrole = \"plugin\"\n\n[publisher]\nid = \"example\"\n\n[[components]]\ntype = \"skill\"\nname = \"summarize-paper\"\nentrypoint = \"./skills/summarize-paper/SKILL.md\"\n\n[x-local-experiment]\nnote = \"Unknown manifest structure is accepted in the v0.1 baseline with a warning.\"\n",
+      "expected": {
+        "valid": true,
+        "canonicalParsedData": {
+          "volume": {
+            "schema": 1,
+            "name": "research-agent-pack",
+            "version": "1.4.0",
+            "description": "Research assistant with literature analysis tools",
+            "license": "Apache-2.0",
+            "role": "plugin"
+          },
+          "publisher": {
+            "id": "example"
+          },
+          "components": [
+            {
+              "type": "skill",
+              "name": "summarize-paper",
+              "entrypoint": "./skills/summarize-paper/SKILL.md"
+            }
+          ],
+          "x-local-experiment": {
+            "note": "Unknown manifest structure is accepted in the v0.1 baseline with a warning."
+          }
+        },
+        "warnings": [{ "category": "unknown-field", "path": "x-local-experiment" }]
+      }
+    },
+    {
+      "name": "no-default-materialization",
+      "authoredToml": "[volume]\nschema = 1\nname = \"no-defaults-pack\"\nversion = \"1.0.0\"\ndescription = \"Manifest omitting permissions to preserve interpretive defaults\"\nlicense = \"Apache-2.0\"\nrole = \"plugin\"\n\n[publisher]\nid = \"example\"\n\n[[components]]\ntype = \"command\"\nname = \"review\"\nentrypoint = \"./commands/review.md\"\n",
+      "expected": {
+        "valid": true,
+        "canonicalParsedData": {
+          "volume": {
+            "schema": 1,
+            "name": "no-defaults-pack",
+            "version": "1.0.0",
+            "description": "Manifest omitting permissions to preserve interpretive defaults",
+            "license": "Apache-2.0",
+            "role": "plugin"
+          },
+          "publisher": {
+            "id": "example"
+          },
+          "components": [
+            {
+              "type": "command",
+              "name": "review",
+              "entrypoint": "./commands/review.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid-singleton-component-shape",
+      "authoredToml": "[volume]\nschema = 1\nname = \"singleton-component-pack\"\nversion = \"1.0.0\"\ndescription = \"Invalid singleton component shape\"\nlicense = \"Apache-2.0\"\nrole = \"plugin\"\n\n[publisher]\nid = \"example\"\n\n[components]\ntype = \"skill\"\nname = \"summarize-paper\"\nentrypoint = \"./skills/summarize-paper/SKILL.md\"\n",
+      "expected": {
+        "valid": false,
+        "failureCategory": "invalid-manifest-shape",
+        "path": "components",
+        "canonicalParsedData": {
+          "volume": {
+            "schema": 1,
+            "name": "singleton-component-pack",
+            "version": "1.0.0",
+            "description": "Invalid singleton component shape",
+            "license": "Apache-2.0",
+            "role": "plugin"
+          },
+          "publisher": {
+            "id": "example"
+          },
+          "components": {
+            "type": "skill",
+            "name": "summarize-paper",
+            "entrypoint": "./skills/summarize-paper/SKILL.md"
+          }
+        }
+      }
+    }
+  ]
+}

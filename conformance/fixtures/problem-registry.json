@@ -1,0 +1,138 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "problems": [
+    {
+      "slug": "authentication-required",
+      "type": "https://agentvolumes.org/problems/authentication-required",
+      "status": 401,
+      "title": "Authentication required",
+      "meaning": "Bearer authentication is missing or invalid."
+    },
+    {
+      "slug": "authorization-failed",
+      "type": "https://agentvolumes.org/problems/authorization-failed",
+      "status": 403,
+      "title": "Authorization failed",
+      "meaning": "The authenticated caller is not authorized for the requested operation."
+    },
+    {
+      "slug": "not-found",
+      "type": "https://agentvolumes.org/problems/not-found",
+      "status": 404,
+      "title": "Resource not found",
+      "meaning": "The requested resource does not exist or is not visible to the caller."
+    },
+    {
+      "slug": "validation-failed",
+      "type": "https://agentvolumes.org/problems/validation-failed",
+      "status": 400,
+      "title": "Validation failed",
+      "meaning": "Request payload, parameters, manifest, or metadata failed validation."
+    },
+    {
+      "slug": "invalid-manifest",
+      "type": "https://agentvolumes.org/problems/invalid-manifest",
+      "status": 400,
+      "title": "Invalid manifest",
+      "meaning": "A submitted volume.toml is structurally or semantically invalid."
+    },
+    {
+      "slug": "invalid-archive",
+      "type": "https://agentvolumes.org/problems/invalid-archive",
+      "status": 400,
+      "title": "Invalid archive",
+      "meaning": "A submitted hosted archive violates the v0.1 archive transport profile."
+    },
+    {
+      "slug": "identity-mismatch",
+      "type": "https://agentvolumes.org/problems/identity-mismatch",
+      "status": 409,
+      "title": "Identity mismatch",
+      "meaning": "A package identity disagrees with its route, manifest, or metadata."
+    },
+    {
+      "slug": "version-conflict",
+      "type": "https://agentvolumes.org/problems/version-conflict",
+      "status": 409,
+      "title": "Version conflict",
+      "meaning": "The target version already exists or cannot be reused."
+    },
+    {
+      "slug": "digest-mismatch",
+      "type": "https://agentvolumes.org/problems/digest-mismatch",
+      "status": 400,
+      "title": "Digest mismatch",
+      "meaning": "Submitted or resolved bytes do not match the declared digest."
+    },
+    {
+      "slug": "subject-binding-mismatch",
+      "type": "https://agentvolumes.org/problems/subject-binding-mismatch",
+      "status": 400,
+      "title": "Subject binding mismatch",
+      "meaning": "A trust artifact does not bind to the intended release subject."
+    },
+    {
+      "slug": "inconsistent-registry-state",
+      "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+      "status": 409,
+      "title": "Inconsistent registry state",
+      "meaning": "Index, exact metadata, or trust metadata cannot be reconciled."
+    },
+    {
+      "slug": "upload-expired",
+      "type": "https://agentvolumes.org/problems/upload-expired",
+      "status": 410,
+      "title": "Upload expired",
+      "meaning": "An upload intent expired before finalization."
+    },
+    {
+      "slug": "missing-uploaded-bytes",
+      "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+      "status": 400,
+      "title": "Missing uploaded bytes",
+      "meaning": "Finalization was requested before upload bytes were available."
+    },
+    {
+      "slug": "invalid-upload-state",
+      "type": "https://agentvolumes.org/problems/invalid-upload-state",
+      "status": 409,
+      "title": "Invalid upload state",
+      "meaning": "The upload intent is not in a state that can be finalized."
+    },
+    {
+      "slug": "idempotency-conflict",
+      "type": "https://agentvolumes.org/problems/idempotency-conflict",
+      "status": 409,
+      "title": "Idempotency conflict",
+      "meaning": "A reused idempotency key conflicts with an earlier request."
+    },
+    {
+      "slug": "payload-too-large",
+      "type": "https://agentvolumes.org/problems/payload-too-large",
+      "status": 413,
+      "title": "Payload too large",
+      "meaning": "The submitted payload exceeds the bibliotheca's accepted limit."
+    },
+    {
+      "slug": "unsupported-media-type",
+      "type": "https://agentvolumes.org/problems/unsupported-media-type",
+      "status": 415,
+      "title": "Unsupported media type",
+      "meaning": "The submitted payload media type is not supported."
+    },
+    {
+      "slug": "permission-escalation",
+      "type": "https://agentvolumes.org/problems/permission-escalation",
+      "status": 400,
+      "title": "Permission escalation",
+      "meaning": "Component permissions exceed the parent volume permission boundary."
+    },
+    {
+      "slug": "rate-limited",
+      "type": "https://agentvolumes.org/problems/rate-limited",
+      "status": 429,
+      "title": "Rate limited",
+      "meaning": "The request was rate limited."
+    }
+  ]
+}

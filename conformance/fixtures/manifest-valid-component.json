@@ -1,0 +1,28 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "A role=component package has exactly one primary exported component in the v0.1 baseline.",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "summarize-paper-skill",
+      "version": "1.0.0",
+      "description": "Single portable skill component",
+      "license": "Apache-2.0",
+      "role": "component"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "summarize-paper",
+        "entrypoint": "./skills/summarize-paper/SKILL.md"
+      }
+    ]
+  },
+  "expected": {
+    "valid": true,
+    "componentCount": 1
+  }
+}

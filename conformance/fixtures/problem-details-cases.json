@@ -1,0 +1,62 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "description": "Baseline RFC 7807 Problem Details taxonomy cases for portable Agent Volumes clients.",
+  "cases": [
+    {
+      "type": "https://agentvolumes.org/problems/authentication-required",
+      "title": "Authentication required",
+      "status": 401
+    },
+    {
+      "type": "https://agentvolumes.org/problems/authorization-failed",
+      "title": "Authorization failed",
+      "status": 403,
+      "detail": "Authenticated subject lacks 'trust_upload' action on resource 'pkg:volume/research-agent-pack@1.4.0'."
+    },
+    { "type": "https://agentvolumes.org/problems/not-found", "title": "Resource not found", "status": 404 },
+    { "type": "https://agentvolumes.org/problems/validation-failed", "title": "Validation failed", "status": 400 },
+    { "type": "https://agentvolumes.org/problems/invalid-manifest", "title": "Invalid manifest", "status": 400 },
+    { "type": "https://agentvolumes.org/problems/invalid-archive", "title": "Invalid archive", "status": 400 },
+    { "type": "https://agentvolumes.org/problems/identity-mismatch", "title": "Identity mismatch", "status": 409 },
+    { "type": "https://agentvolumes.org/problems/version-conflict", "title": "Version conflict", "status": 409 },
+    { "type": "https://agentvolumes.org/problems/digest-mismatch", "title": "Digest mismatch", "status": 400 },
+    {
+      "type": "https://agentvolumes.org/problems/subject-binding-mismatch",
+      "title": "Subject binding mismatch",
+      "status": 400
+    },
+    {
+      "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+      "title": "Inconsistent registry state",
+      "status": 409
+    },
+    { "type": "https://agentvolumes.org/problems/upload-expired", "title": "Upload expired", "status": 410 },
+    {
+      "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+      "title": "Missing uploaded bytes",
+      "status": 400
+    },
+    {
+      "type": "https://agentvolumes.org/problems/invalid-upload-state",
+      "title": "Invalid upload state",
+      "status": 409
+    },
+    {
+      "type": "https://agentvolumes.org/problems/idempotency-conflict",
+      "title": "Idempotency conflict",
+      "status": 409
+    },
+    { "type": "https://agentvolumes.org/problems/payload-too-large", "title": "Payload too large", "status": 413 },
+    {
+      "type": "https://agentvolumes.org/problems/unsupported-media-type",
+      "title": "Unsupported media type",
+      "status": 415
+    },
+    {
+      "type": "https://agentvolumes.org/problems/permission-escalation",
+      "title": "Permission escalation",
+      "status": 400
+    },
+    { "type": "https://agentvolumes.org/problems/rate-limited", "title": "Rate limited", "status": 429 }
+  ]
+}

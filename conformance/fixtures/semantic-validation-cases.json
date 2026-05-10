@@ -1,0 +1,246 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "release-file-selection-rejects-non-regular-entry",
+      "area": "release",
+      "payload": {
+        "archiveEntries": [{ "path": "skills/review/SKILL.md", "entryType": "symlink" }]
+      },
+      "expected": { "valid": false, "failureCategory": "non-regular-archive-entry" }
+    },
+    {
+      "name": "trust-attachment-byte-identity-mismatch",
+      "area": "trust",
+      "payload": {
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "retrievedDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "expected": { "valid": false, "failureCategory": "digest-mismatch" }
+    },
+    {
+      "name": "unknown-manifest-field-warning",
+      "area": "warning",
+      "payload": { "field": "x-example" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "unknown-field", "field": "x-example" }]
+      }
+    },
+    {
+      "name": "component-entrypoint-missing-file",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/missing/SKILL.md" },
+        "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"]
+      },
+      "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
+    },
+    {
+      "name": "command-entrypoint-missing-trigger",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes" }
+      },
+      "expected": { "valid": false, "failureCategory": "missing-command-trigger" }
+    },
+    {
+      "name": "hook-entrypoint-unsupported-event",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "hook", "name": "before-review", "entrypoint": "./hooks/before-review.yaml" },
+        "hook": { "event": "BeforeReview", "type": "command" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-hook-event" }
+    },
+    {
+      "name": "mcp-entrypoint-must-be-json",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./mcp/research.yaml" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
+    },
+    {
+      "name": "invalid-spdx-license-expression",
+      "area": "manifest",
+      "payload": {
+        "license": "Apache-2.0 OR"
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-spdx-expression" }
+    },
+    {
+      "name": "agent-entrypoint-portable-markdown-frontmatter",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "agent", "name": "review-agent", "entrypoint": "./agents/review/AGENT.md" },
+        "releaseFiles": ["volume.toml", "agents/review/AGENT.md"],
+        "frontmatter": { "description": "Reviews pull requests", "tools": ["tool/read-pr"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "skill-entrypoint-portable-skill-markdown",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"],
+        "frontmatter": { "description": "Summarize academic papers" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "skill-entrypoint-missing-description-frontmatter",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "frontmatter": {}
+      },
+      "expected": { "valid": false, "failureCategory": "missing-skill-description" }
+    },
+    {
+      "name": "command-entrypoint-valid-trigger",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes", "trigger": "/review" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "command-entrypoint-invalid-trigger-format",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes", "trigger": "review" }
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-command-trigger" }
+    },
+    {
+      "name": "tool-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.json" },
+        "descriptor": { "name": "read-pr", "inputSchema": { "type": "object" } }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "tool-entrypoint-portable-yaml-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.yaml" },
+        "descriptor": { "name": "read-pr", "inputSchema": { "type": "object" } }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "tool-entrypoint-rejects-unsupported-descriptor-format",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.toml" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
+    },
+    {
+      "name": "hook-entrypoint-portable-yaml-event",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "hook", "name": "before-tool", "entrypoint": "./hooks/before-tool.yaml" },
+        "hook": { "event": "PreToolUse", "type": "command" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "lsp-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "descriptor": { "command": "typescript-language-server", "args": ["--stdio"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "lsp-entrypoint-must-be-json-object",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "descriptor": ["typescript-language-server", "--stdio"]
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-lsp-descriptor" }
+    },
+    {
+      "name": "mcp-entrypoint-noncanonical-filename-warning",
+      "area": "warning",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./config/research-mcp.json" }
+      },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "noncanonical-entrypoint", "path": "./config/research-mcp.json" }]
+      }
+    },
+    {
+      "name": "deprecated-warning-category",
+      "area": "warning",
+      "payload": { "field": "volume.providers" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "deprecated", "field": "volume.providers" }]
+      }
+    },
+    {
+      "name": "compatibility-preserves-semver-looking-runtime-expression",
+      "area": "manifest",
+      "payload": {
+        "runtimes": [{ "name": "claude-code", "compatibility": "^1.0.0" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "compatibility-preserves-date-like-protocol-expression",
+      "area": "manifest",
+      "payload": {
+        "protocols": [{ "name": "mcp", "version": ">=2025.02" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "compatibility-preserves-short-numeric-protocol-expression",
+      "area": "manifest",
+      "payload": {
+        "protocols": [{ "name": "lsp", "version": ">=3.17" }]
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "unknown-compatibility-scheme-is-advisory-not-rejection",
+      "area": "load",
+      "payload": {
+        "runtime": { "name": "generic-cli", "compatibility": "channel:nightly" },
+        "clientComparisonSupport": []
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "runtime-policy-blocks-valid-mcp-load",
+      "area": "load",
+      "payload": {
+        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./.mcp.json" },
+        "manifestValidation": "valid",
+        "runtimePolicy": "blocked-by-managed-allowlist"
+      },
+      "expected": { "valid": false, "failureCategory": "load-policy-blocked" }
+    },
+    {
+      "name": "yanked-exact-pinned-warning",
+      "area": "resolver",
+      "payload": { "state": "yanked", "resolutionMode": "exact-pinned" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "yanked-version" }]
+      }
+    }
+  ]
+}

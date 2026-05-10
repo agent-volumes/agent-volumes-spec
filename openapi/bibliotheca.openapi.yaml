@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: Agent Volumes Bibliotheca API
-  version: 0.1.0-draft.4
+  version: 0.1.0-draft.5
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 security: []
 paths:
@@ -61,8 +61,8 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}:
     post:
-      summary: Publish an unscoped volume
-      operationId: publishVolume
+      summary: Create a release upload intent for an unscoped volume
+      operationId: createVolumeUploadIntent
       security:
         - bearerAuth: []
       parameters:
@@ -70,21 +70,26 @@ paths:
           name: name
           required: true
           schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
             type: string
       requestBody:
         required: true
         content:
-          application/gzip:
+          application/json:
             schema:
-              type: string
-              format: binary
+              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
       responses:
         '201':
-          description: Published release metadata
+          description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-upload-intent.schema.json
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -95,37 +100,36 @@ paths:
           $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
-  /api/v1/volumes/@{scope}/{name}:
+  /api/v1/volumes/{name}/uploads/{uploadId}/finalize:
     post:
-      summary: Publish a scoped volume
-      operationId: publishScopedVolume
+      summary: Finalize a release upload for an unscoped volume
+      operationId: finalizeVolumeUpload
       security:
         - bearerAuth: []
       parameters:
         - in: path
-          name: scope
-          required: true
-          schema:
-            type: string
-        - in: path
           name: name
           required: true
           schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/gzip:
-            schema:
-              type: string
-              format: binary
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values MUST match exactly.
+          schema:
+            type: string
       responses:
         '201':
           description: Published release metadata
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-upload-finalize.schema.json
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -134,6 +138,109 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '409':
           $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}:
+    post:
+      summary: Create a release upload intent for a scoped volume
+      operationId: createScopedVolumeUploadIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
+      responses:
+        '201':
+          description: Upload intent created. Upload instructions are opaque implementation data.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/release-upload-intent.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a release upload for a scoped volume
+      operationId: finalizeScopedVolumeUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values MUST match exactly.
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Published release metadata
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/release-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}:
@@ -145,21 +252,23 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
     delete:
@@ -172,12 +281,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '202':
           description: Unpublish accepted or tombstoned
@@ -200,26 +309,28 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
     delete:
@@ -232,17 +343,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '202':
           description: Unpublish accepted or tombstoned
@@ -250,6 +361,57 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/index/volumes/{name}:
+    get:
+      summary: Fetch resolver-facing version index rows for an unscoped volume
+      operationId: getVolumeVersionIndex
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+      responses:
+        '200':
+          description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionIndex'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/index/volumes/@{scope}/{name}:
+    get:
+      summary: Fetch resolver-facing version index rows for a scoped volume
+      operationId: getScopedVolumeVersionIndex
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+      responses:
+        '200':
+          description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionIndex'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -265,12 +427,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -280,6 +442,8 @@ paths:
                 $ref: ../schemas/trust-summary.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
@@ -291,17 +455,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -311,6 +475,8 @@ paths:
                 $ref: ../schemas/trust-summary.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/{name}/{version}/trust/detail:
@@ -322,12 +488,12 @@ paths:
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -337,6 +503,115 @@ paths:
                 $ref: ../schemas/trust-detail.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/uploads:
+    post:
+      summary: Create a trust attachment upload intent for an unscoped release
+      operationId: createVolumeTrustUploadIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: version
+          required: true
+          schema:
+            $ref: '#/components/schemas/SemVer'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadIntentRequest'
+      responses:
+        '201':
+          description: Upload intent created. Upload instructions are opaque implementation data.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-intent.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a trust attachment upload for an unscoped release
+      operationId: finalizeVolumeTrustUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: version
+          required: true
+          schema:
+            $ref: '#/components/schemas/SemVer'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+      responses:
+        '201':
+          description: Upload finalized and trust attachment made available through trust discovery.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
@@ -348,17 +623,17 @@ paths:
           name: scope
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/ScopeName'
         - in: path
           name: name
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/NameSegment'
         - in: path
           name: version
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/SemVer'
       responses:
         '200':
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
@@ -368,6 +643,125 @@ paths:
                 $ref: ../schemas/trust-detail.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads:
+    post:
+      summary: Create a trust attachment upload intent for a scoped release
+      operationId: createScopedVolumeTrustUploadIntent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: version
+          required: true
+          schema:
+            $ref: '#/components/schemas/SemVer'
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadIntentRequest'
+      responses:
+        '201':
+          description: Upload intent created. Upload instructions are opaque implementation data.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-intent.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize:
+    post:
+      summary: Finalize a trust attachment upload for a scoped release
+      operationId: finalizeScopedVolumeTrustUpload
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: scope
+          required: true
+          schema:
+            $ref: '#/components/schemas/ScopeName'
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/NameSegment'
+        - in: path
+          name: version
+          required: true
+          schema:
+            $ref: '#/components/schemas/SemVer'
+        - in: path
+          name: uploadId
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they MUST match exactly.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+      responses:
+        '201':
+          description: Upload finalized and trust attachment made available through trust discovery.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/trust-upload-finalize.schema.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '410':
+          $ref: '#/components/responses/Gone'
         '429':
           $ref: '#/components/responses/TooManyRequests'
   /api/v1/advisories:
@@ -385,13 +779,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: ../schemas/advisory.schema.json
+                $ref: '#/components/schemas/AdvisoryList'
         '400':
           $ref: '#/components/responses/BadRequest'
         '429':
@@ -420,6 +808,7 @@ paths:
   /api/v1/capabilities:
     get:
       summary: Bibliotheca capability metadata
+      description: Returns registry-level capability metadata, including capability schema/spec versions, HTTP API major family, and supported upload profiles such as the v0.1 `http-put` baseline.
       operationId: getCapabilityMetadata
       responses:
         '200':
@@ -440,15 +829,59 @@ components:
       type: http
       scheme: bearer
   schemas:
+    NameSegment:
+      type: string
+      maxLength: 128
+      pattern: ^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+    ScopeName:
+      type: string
+      maxLength: 64
+      pattern: ^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$
+    VolumeName:
+      type: string
+      maxLength: 194
+      description: Canonical full user-facing volume name. Scoped volumes use @scope/name; scopeless volumes use name.
+      pattern: ^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$
+    SemVer:
+      type: string
+      pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+    ReleasePurl:
+      type: string
+      pattern: ^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+    Digest:
+      type: string
+      pattern: ^sha256:[a-f0-9]{64}$
     ProblemDetails:
+      oneOf:
+        - $ref: '#/components/schemas/AuthenticationRequiredProblem'
+        - $ref: '#/components/schemas/AuthorizationFailedProblem'
+        - $ref: '#/components/schemas/NotFoundProblem'
+        - $ref: '#/components/schemas/ValidationFailedProblem'
+        - $ref: '#/components/schemas/InvalidManifestProblem'
+        - $ref: '#/components/schemas/InvalidArchiveProblem'
+        - $ref: '#/components/schemas/IdentityMismatchProblem'
+        - $ref: '#/components/schemas/VersionConflictProblem'
+        - $ref: '#/components/schemas/DigestMismatchProblem'
+        - $ref: '#/components/schemas/SubjectBindingMismatchProblem'
+        - $ref: '#/components/schemas/InconsistentRegistryStateProblem'
+        - $ref: '#/components/schemas/UploadExpiredProblem'
+        - $ref: '#/components/schemas/MissingUploadedBytesProblem'
+        - $ref: '#/components/schemas/InvalidUploadStateProblem'
+        - $ref: '#/components/schemas/IdempotencyConflictProblem'
+        - $ref: '#/components/schemas/PayloadTooLargeProblem'
+        - $ref: '#/components/schemas/UnsupportedMediaTypeProblem'
+        - $ref: '#/components/schemas/PermissionEscalationProblem'
+        - $ref: '#/components/schemas/RateLimitedProblem'
+    ProblemDetailsBase:
       type: object
+      additionalProperties: true
       required: [type, title, status]
       properties:
         type:
           type: string
-          format: uri-reference
         title:
           type: string
+          minLength: 1
         status:
           type: integer
           minimum: 100
@@ -458,82 +891,274 @@ components:
         instance:
           type: string
           format: uri-reference
+    AuthenticationRequiredProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/authentication-required
+            status:
+              const: 401
+    AuthorizationFailedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/authorization-failed
+            status:
+              const: 403
+    NotFoundProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/not-found
+            status:
+              const: 404
+    ValidationFailedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/validation-failed
+            status:
+              const: 400
+    InvalidManifestProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-manifest
+            status:
+              const: 400
+    InvalidArchiveProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-archive
+            status:
+              const: 400
+    IdentityMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/identity-mismatch
+            status:
+              const: 409
+    VersionConflictProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/version-conflict
+            status:
+              const: 409
+    DigestMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/digest-mismatch
+            status:
+              const: 400
+    SubjectBindingMismatchProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/subject-binding-mismatch
+            status:
+              const: 400
+    InconsistentRegistryStateProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/inconsistent-registry-state
+            status:
+              const: 409
+    UploadExpiredProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/upload-expired
+            status:
+              const: 410
+    MissingUploadedBytesProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/missing-uploaded-bytes
+            status:
+              const: 400
+    InvalidUploadStateProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/invalid-upload-state
+            status:
+              const: 409
+    IdempotencyConflictProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/idempotency-conflict
+            status:
+              const: 409
+    PayloadTooLargeProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/payload-too-large
+            status:
+              const: 413
+    UnsupportedMediaTypeProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/unsupported-media-type
+            status:
+              const: 415
+    PermissionEscalationProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/permission-escalation
+            status:
+              const: 400
+    RateLimitedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - type: object
+          properties:
+            type:
+              const: https://agentvolumes.org/problems/rate-limited
+            status:
+              const: 429
     SearchResults:
+      $ref: ../schemas/search-results.schema.json
+    VersionIndex:
       type: object
-      required: [items, total, limit, offset]
+      additionalProperties: false
+      required: [items]
       properties:
         items:
           type: array
           items:
-            type: object
-            required: [name, latestVersion]
-            properties:
-              name:
-                type: string
-              latestVersion:
-                type: string
-              description:
-                type: string
-              role:
-                type: string
-              providers:
-                type: array
-                items:
-                  type: string
-              components:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                    name:
-                      type: string
-        total:
-          type: integer
-          minimum: 0
-        limit:
-          type: integer
-          minimum: 1
-        offset:
-          type: integer
-          minimum: 0
-    ReleaseMetadata:
+            $ref: ../schemas/version-index-row.schema.json
+    AdvisoryList:
       type: object
-      required: [name, version, integrity, dist]
+      additionalProperties: false
+      required: [items]
       properties:
-        name:
-          type: string
+        items:
+          type: array
+          items:
+            $ref: ../schemas/advisory.schema.json
+    ReleaseUploadIntentRequest:
+      type: object
+      additionalProperties: false
+      description: The target package name is route-derived. This body supplies the target version and upload constraints; it does not override the path identity.
+      required: [version, mediaType]
+      properties:
         version:
+          $ref: '#/components/schemas/SemVer'
+        mediaType:
           type: string
-        integrity:
+          const: application/gzip
+        declaredDigest:
+          $ref: '#/components/schemas/Digest'
+        declaredSize:
+          type: integer
+          minimum: 0
+        idempotencyKey:
           type: string
-          pattern: ^sha256:[a-f0-9]+$
-        dist:
-          oneOf:
-            - type: object
-              required: [source, mediaType, url]
+    VersionStatus:
+      type: object
+      additionalProperties: false
+      required: [state]
+      properties:
+        state:
+          type: string
+          enum: [available, yanked, tombstoned, blocked, unavailable]
+        reason:
+          type: string
+    TrustUploadIntentRequest:
+      type: object
+      additionalProperties: false
+      required: [subject, attachment, declaredDigest]
+      properties:
+        subject:
+          type: object
+          additionalProperties: false
+          required: [purl, integrity]
+          properties:
+            purl:
+              $ref: '#/components/schemas/ReleasePurl'
+            integrity:
+              $ref: '#/components/schemas/Digest'
+        attachment:
+          type: object
+          additionalProperties: false
+          required: [category, format]
+          properties:
+            category:
+              type: string
+              enum: [bom, provenance, signature, other]
+            format:
+              type: object
+              additionalProperties: false
+              required: [family, mediaType]
               properties:
-                source:
+                family:
                   type: string
-                  const: cdn
                 mediaType:
                   type: string
-                  const: application/gzip
-                url:
+                predicateType:
                   type: string
                   format: uri
-            - type: object
-              required: [source, repository, ref]
-              properties:
-                source:
+                profile:
                   type: string
-                  const: git
-                repository:
+                version:
                   type: string
-                  format: uri
-                ref:
-                  type: string
+        declaredDigest:
+          $ref: '#/components/schemas/Digest'
+        declaredSize:
+          type: integer
+          minimum: 0
+    TrustUploadFinalizeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        idempotencyKey:
+          type: string
     BridgeMetadata:
       $ref: ../schemas/bridge-metadata.schema.json
   responses:
@@ -543,33 +1168,156 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            validationFailed:
+              summary: Request or metadata validation failed
+              value:
+                type: https://agentvolumes.org/problems/validation-failed
+                title: Validation failed
+                status: 400
+            invalidManifest:
+              summary: Submitted volume.toml is invalid
+              value:
+                type: https://agentvolumes.org/problems/invalid-manifest
+                title: Invalid manifest
+                status: 400
+            invalidArchive:
+              summary: Submitted archive violates the transport profile
+              value:
+                type: https://agentvolumes.org/problems/invalid-archive
+                title: Invalid archive
+                status: 400
+            digestMismatch:
+              summary: Submitted bytes do not match the declared digest
+              value:
+                type: https://agentvolumes.org/problems/digest-mismatch
+                title: Digest mismatch
+                status: 400
+            subjectBindingMismatch:
+              summary: Trust artifact subject does not match the release
+              value:
+                type: https://agentvolumes.org/problems/subject-binding-mismatch
+                title: Subject binding mismatch
+                status: 400
+            missingUploadedBytes:
+              summary: Finalize was requested before upload bytes were available
+              value:
+                type: https://agentvolumes.org/problems/missing-uploaded-bytes
+                title: Missing uploaded bytes
+                status: 400
     Unauthorized:
-      description: Authentication required or invalid bearer token
+      description: Authentication needed or invalid bearer token
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            authenticationRequired:
+              value:
+                type: https://agentvolumes.org/problems/authentication-required
+                title: Authentication required
+                status: 401
     Forbidden:
       description: Authenticated caller lacks permission for this operation
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            authorizationFailed:
+              value:
+                type: https://agentvolumes.org/problems/authorization-failed
+                title: Authorization failed
+                status: 403
     NotFound:
       description: Resource not found
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            notFound:
+              value:
+                type: https://agentvolumes.org/problems/not-found
+                title: Not found
+                status: 404
     Conflict:
       description: Resource conflict
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            versionConflict:
+              value:
+                type: https://agentvolumes.org/problems/version-conflict
+                title: Version conflict
+                status: 409
+            identityMismatch:
+              value:
+                type: https://agentvolumes.org/problems/identity-mismatch
+                title: Identity mismatch
+                status: 409
+            idempotencyConflict:
+              value:
+                type: https://agentvolumes.org/problems/idempotency-conflict
+                title: Idempotency conflict
+                status: 409
+            invalidUploadState:
+              value:
+                type: https://agentvolumes.org/problems/invalid-upload-state
+                title: Invalid upload state
+                status: 409
+            inconsistentRegistryState:
+              value:
+                type: https://agentvolumes.org/problems/inconsistent-registry-state
+                title: Inconsistent registry state
+                status: 409
+    Gone:
+      description: Resource no longer available, such as an expired upload intent
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            uploadExpired:
+              value:
+                type: https://agentvolumes.org/problems/upload-expired
+                title: Upload expired
+                status: 410
+    PayloadTooLarge:
+      description: Payload too large
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            payloadTooLarge:
+              value:
+                type: https://agentvolumes.org/problems/payload-too-large
+                title: Payload too large
+                status: 413
+    UnsupportedMediaType:
+      description: Unsupported media type
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            unsupportedMediaType:
+              value:
+                type: https://agentvolumes.org/problems/unsupported-media-type
+                title: Unsupported media type
+                status: 415
     TooManyRequests:
       description: Rate limited
       content:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            rateLimited:
+              value:
+                type: https://agentvolumes.org/problems/rate-limited
+                title: Rate limited
+                status: 429

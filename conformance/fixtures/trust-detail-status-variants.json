@@ -1,0 +1,77 @@
+{
+  "subject": {
+    "purl": "pkg:volume/research-agent-pack@1.4.0",
+    "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "revision": {
+    "revision": "9",
+    "updatedAt": "2026-05-08T00:00:00Z"
+  },
+  "attachments": [
+    {
+      "id": "signature-revoked-1",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "version": "0.3"
+      },
+      "artifactDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "artifactSize": 1024,
+      "locator": {
+        "embedded": {
+          "mediaType": "application/vnd.dev.sigstore.bundle+json",
+          "value": {}
+        }
+      },
+      "status": {
+        "state": "revoked",
+        "reason": "Signing identity was revoked after publication"
+      },
+      "verification": {
+        "subjectDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle"
+      }
+    },
+    {
+      "id": "bom-superseded-1",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "artifactDigest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "artifactSize": 2048,
+      "locator": {
+        "url": "https://example.test/bom-v1.json"
+      },
+      "status": {
+        "state": "superseded",
+        "reason": "Replaced by bom-2"
+      }
+    },
+    {
+      "id": "provenance-invalid-1",
+      "category": "provenance",
+      "format": {
+        "family": "slsa-provenance",
+        "mediaType": "application/vnd.in-toto+json",
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "version": "1.0"
+      },
+      "artifactDigest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "artifactSize": 4096,
+      "locator": {
+        "url": "https://example.test/provenance-invalid.intoto.jsonl"
+      },
+      "status": {
+        "state": "invalid",
+        "reason": "Subject binding mismatch was discovered"
+      },
+      "verification": {
+        "subjectDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    }
+  ]
+}

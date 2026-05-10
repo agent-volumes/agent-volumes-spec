@@ -1,0 +1,392 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "fixtures": [
+    {
+      "name": "intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "intent-uploading-state",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-uploading",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-uploading",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "uploading"
+      },
+      "expected": { "valid": true, "state": "uploading", "finalizable": false }
+    },
+    {
+      "name": "intent-uploaded-state",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-uploaded",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-uploaded",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "uploaded"
+      },
+      "expected": { "valid": true, "state": "uploaded", "finalizable": true }
+    },
+    {
+      "name": "intent-expired-state",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-expired-state",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-expired-state",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "expired"
+      },
+      "expected": { "valid": true, "state": "expired", "finalizable": false }
+    },
+    {
+      "name": "intent-failed-state",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-failed-state",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "bom",
+          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+        },
+        "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "declaredSize": 4096,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-failed-state",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "failed"
+      },
+      "expected": { "valid": true, "state": "failed", "finalizable": false }
+    },
+    {
+      "name": "finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-1",
+        "attachmentId": "bom-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "artifactDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "artifactSize": 4096,
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "provenance-intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-provenance-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "provenance",
+          "format": {
+            "family": "slsa-provenance",
+            "mediaType": "application/vnd.in-toto+json",
+            "predicateType": "https://slsa.dev/provenance/v1",
+            "version": "1.0"
+          }
+        },
+        "declaredDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "declaredSize": 8192,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-provenance-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-provenance-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "provenance-finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-provenance-1",
+        "attachmentId": "provenance-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "artifactDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "artifactSize": 8192,
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "signature-intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-signature-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "signature",
+          "format": {
+            "family": "sigstore-bundle",
+            "mediaType": "application/vnd.dev.sigstore.bundle+json",
+            "profile": "sigstore-bundle-v0.3",
+            "version": "0.3"
+          }
+        },
+        "declaredDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "declaredSize": 2048,
+        "upload": {
+          "instructionType": "http-put",
+          "url": "https://uploads.example.test/upload-signature-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-signature-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "signature-finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-signature-1",
+        "attachmentId": "signature-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "artifactDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "artifactSize": 2048,
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "digest-mismatch-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/digest-mismatch",
+        "title": "Uploaded trust attachment digest did not match the declared digest",
+        "status": 400,
+        "detail": "The uploaded bytes computed to a different sha256 digest.",
+        "uploadId": "upload-2"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "digest-mismatch"
+      }
+    },
+    {
+      "name": "expired-upload-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/upload-expired",
+        "title": "Trust attachment upload intent expired",
+        "status": 410,
+        "detail": "Create a new upload intent before retrying.",
+        "uploadId": "upload-3"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "upload-expired"
+      }
+    },
+    {
+      "name": "subject-binding-mismatch-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/subject-binding-mismatch",
+        "title": "Trust attachment subject did not match the target release",
+        "status": 400,
+        "detail": "The uploaded attachment binds to a different release subject.",
+        "uploadId": "upload-4"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "subject-binding-mismatch"
+      }
+    },
+    {
+      "name": "missing-uploaded-bytes-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+        "title": "Uploaded trust attachment bytes were not found",
+        "status": 400,
+        "detail": "Upload bytes must be available before finalization.",
+        "uploadId": "upload-5"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "missing-uploaded-bytes"
+      }
+    },
+    {
+      "name": "idempotency-conflict-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/idempotency-conflict",
+        "title": "Idempotency key conflicts with an earlier upload request",
+        "status": 409,
+        "detail": "The idempotency key was previously used with different attachment metadata.",
+        "uploadId": "upload-6"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "idempotency-conflict"
+      }
+    },
+    {
+      "name": "invalid-upload-state-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-upload-state",
+        "title": "Trust attachment upload is not ready to finalize",
+        "status": 409,
+        "detail": "Only uploaded trust attachment intents can be finalized.",
+        "uploadId": "upload-7"
+      },
+      "expected": {
+        "valid": true,
+        "failureCategory": "invalid-upload-state"
+      }
+    },
+    {
+      "name": "payload-too-large-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/payload-too-large",
+        "title": "Trust attachment payload is too large",
+        "status": 413,
+        "detail": "The uploaded trust attachment exceeds the registry limit.",
+        "uploadId": "upload-8"
+      },
+      "expected": { "valid": true, "failureCategory": "payload-too-large" }
+    },
+    {
+      "name": "unsupported-media-type-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/unsupported-media-type",
+        "title": "Unsupported trust attachment media type",
+        "status": 415,
+        "detail": "The uploaded trust attachment media type is not accepted for this category.",
+        "uploadId": "upload-9"
+      },
+      "expected": { "valid": true, "failureCategory": "unsupported-media-type" }
+    },
+    {
+      "name": "authorization-failed-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Publisher is not authorized for this release subject",
+        "status": 403,
+        "detail": "The authenticated publisher cannot attach trust artifacts to this release.",
+        "uploadId": "upload-10"
+      },
+      "expected": { "valid": true, "failureCategory": "authorization-failed" }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/conformance-coverage.schema.json",
+  "title": "Agent Volumes Conformance Requirement Coverage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "requirements"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "role", "requirement", "coverage"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^AV-(?:BIB|CLI)-[0-9]{3}$" },
+          "role": { "type": "string", "enum": ["bibliotheca", "client"] },
+          "requirement": { "type": "string", "minLength": 1 },
+          "coverage": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["fixture", "area"],
+              "properties": {
+                "fixture": { "type": "string", "minLength": 1 },
+                "case": { "type": "string", "minLength": 1 },
+                "area": {
+                  "type": "string",
+                  "enum": [
+                    "manifest",
+                    "digest",
+                    "archive",
+                    "identity",
+                    "resolver",
+                    "release-metadata",
+                    "release-upload",
+                    "trust-discovery",
+                    "trust-upload",
+                    "trust-verification",
+                    "advisory",
+                    "capability",
+                    "mapping",
+                    "problem-details",
+                    "warning",
+                    "openapi"
+                  ]
+                },
+                "coverageType": {
+                  "type": "string",
+                  "enum": ["positive", "negative", "algorithmic", "schema", "openapi", "prose-boundary"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

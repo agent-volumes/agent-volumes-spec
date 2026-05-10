@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/problem-registry.schema.json",
+  "title": "Agent Volumes Problem Type Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "problems"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "problems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "type", "status", "title", "meaning"],
+        "properties": {
+          "slug": { "$ref": "#/$defs/problemSlug" },
+          "type": { "$ref": "#/$defs/problemType" },
+          "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+          "title": { "type": "string", "minLength": 1 },
+          "meaning": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "problemSlug": {
+      "type": "string",
+      "enum": [
+        "authentication-required",
+        "authorization-failed",
+        "not-found",
+        "validation-failed",
+        "invalid-manifest",
+        "invalid-archive",
+        "identity-mismatch",
+        "version-conflict",
+        "digest-mismatch",
+        "subject-binding-mismatch",
+        "inconsistent-registry-state",
+        "upload-expired",
+        "missing-uploaded-bytes",
+        "invalid-upload-state",
+        "idempotency-conflict",
+        "payload-too-large",
+        "unsupported-media-type",
+        "permission-escalation",
+        "rate-limited"
+      ]
+    },
+    "problemType": {
+      "type": "string",
+      "enum": [
+        "https://agentvolumes.org/problems/authentication-required",
+        "https://agentvolumes.org/problems/authorization-failed",
+        "https://agentvolumes.org/problems/not-found",
+        "https://agentvolumes.org/problems/validation-failed",
+        "https://agentvolumes.org/problems/invalid-manifest",
+        "https://agentvolumes.org/problems/invalid-archive",
+        "https://agentvolumes.org/problems/identity-mismatch",
+        "https://agentvolumes.org/problems/version-conflict",
+        "https://agentvolumes.org/problems/digest-mismatch",
+        "https://agentvolumes.org/problems/subject-binding-mismatch",
+        "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "https://agentvolumes.org/problems/upload-expired",
+        "https://agentvolumes.org/problems/missing-uploaded-bytes",
+        "https://agentvolumes.org/problems/invalid-upload-state",
+        "https://agentvolumes.org/problems/idempotency-conflict",
+        "https://agentvolumes.org/problems/payload-too-large",
+        "https://agentvolumes.org/problems/unsupported-media-type",
+        "https://agentvolumes.org/problems/permission-escalation",
+        "https://agentvolumes.org/problems/rate-limited"
+      ]
+    }
+  }
+}

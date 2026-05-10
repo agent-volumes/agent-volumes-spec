@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/advisory.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/advisory.schema.json",
   "title": "Agent Volumes Advisory",
   "type": "object",
   "additionalProperties": false,
@@ -41,6 +41,7 @@
     "withdrawn": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["at"],
       "properties": {
         "at": { "type": "string", "format": "date-time" },
         "reason": { "type": "string" }
@@ -66,7 +67,7 @@
       "additionalProperties": false,
       "required": ["volume", "ranges"],
       "properties": {
-        "volume": { "type": "string", "pattern": "^(@[a-z0-9-]+/)?[a-z0-9-]+$" },
+        "volume": { "$ref": "#/$defs/volumeName" },
         "purl": { "type": "string", "pattern": "^pkg:volume/" },
         "ranges": {
           "type": "array",
@@ -86,10 +87,10 @@
                   "minProperties": 1,
                   "maxProperties": 1,
                   "properties": {
-                    "introduced": { "type": "string" },
-                    "fixed": { "type": "string" },
-                    "lastAffected": { "type": "string" },
-                    "limit": { "type": "string" }
+                    "introduced": { "$ref": "#/$defs/advisoryVersionEventValue" },
+                    "fixed": { "$ref": "#/$defs/semver" },
+                    "lastAffected": { "$ref": "#/$defs/semver" },
+                    "limit": { "$ref": "#/$defs/semver" }
                   }
                 }
               }
@@ -103,7 +104,10 @@
             "additionalProperties": false,
             "required": ["component"],
             "properties": {
-              "component": { "type": "string" },
+              "component": {
+                "type": "string",
+                "description": "Informational component impact only; does not change the normative volume-level advisory target."
+              },
               "note": { "type": "string" }
             }
           }
@@ -112,5 +116,21 @@
     },
     "summary": { "type": "string" },
     "details": { "type": "string" }
+  },
+  "$defs": {
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "advisoryVersionEventValue": {
+      "type": "string",
+      "description": "OSV-style introduced events may use 0 as the beginning-of-time sentinel; other values use full SemVer.",
+      "pattern": "^(?:0|(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?)$"
+    }
   }
 }

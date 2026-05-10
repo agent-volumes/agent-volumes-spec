@@ -77,6 +77,7 @@ name = "research-agent-pack"
 version = "1.4.0"
 description = "Research assistant with literature analysis tools"
 license = "Apache-2.0"
+role = "plugin"
 
 [publisher]
 id = "acme"
@@ -128,7 +129,7 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 | Document                                             | Version        | Status        |
 | ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.4 | Working Draft |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.5 | Working Draft |
 
 ### Roadmap
 
@@ -155,7 +156,7 @@ Specification development is guided by a Technical Steering Committee (TSC) that
 | Security policy    | [SECURITY.md](https://github.com/agent-volumes/.github/blob/main/SECURITY.md)               |
 | Code of Conduct    | [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md) |
 
-Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development should open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
+Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development are encouraged to open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
 
 ## Get Involved
 
@@ -214,6 +215,10 @@ The repository also publishes normative machine-readable companion artifacts und
 - [`schemas/`](schemas/)
 - [`openapi/`](openapi/)
 - [`conformance/fixtures/`](conformance/fixtures/)
+
+See [`conformance/README.md`](conformance/README.md) for the offline runner contract and report schema guidance.
+
+For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Implementers Guide](IMPLEMENTERS.md). It maps the normative artifacts to concrete implementation tasks and identifies prototype-local choices that the v0.1 core intentionally leaves outside the standard.
 
 **[Read the full specification →](agent-volumes-spec.md)**
 

@@ -1,92 +1,34 @@
 {
-  "specVersion": "0.1.0-draft.4",
+  "specVersion": "0.1.0-draft.5",
   "entries": [
     {
-      "agentVolumesField": "volume.name",
+      "agentVolumesField": "component-dependencies",
       "cyclonedx": {
-        "target": "metadata.component.name",
-        "kind": "native"
+        "target": "dependencies graph plus component.properties[agent-volumes:component-dependencies]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
-        "target": "Package.name",
-        "kind": "native"
+        "target": "Relationship[DEPENDS_ON] plus Package.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "volume.version",
+      "agentVolumesField": "components[].entrypoint",
       "cyclonedx": {
-        "target": "metadata.component.version",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.versionInfo",
-        "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "volume.description",
-      "cyclonedx": {
-        "target": "metadata.component.description",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.summary",
-        "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "volume.license",
-      "cyclonedx": {
-        "target": "metadata.component.licenses",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.licenseConcluded",
-        "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "volume.homepage",
-      "cyclonedx": {
-        "target": "metadata.component.externalReferences[website]",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.homePage",
-        "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "volume.repository",
-      "cyclonedx": {
-        "target": "metadata.component.externalReferences[vcs]",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.externalRefs[purl|vcs]",
-        "kind": "extension"
-      }
-    },
-    {
-      "agentVolumesField": "publisher.id",
-      "cyclonedx": {
-        "target": "metadata.component.publisher",
-        "kind": "native"
-      },
-      "spdx": {
-        "target": "Package.supplier",
-        "kind": "lossy"
-      }
-    },
-    {
-      "agentVolumesField": "components[].type",
-      "cyclonedx": {
-        "target": "component.properties[agent-volumes:type]",
-        "kind": "extension"
+        "target": "component.properties[agent-volumes:entrypoint]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
@@ -97,18 +39,24 @@
       },
       "spdx": {
         "target": "Package.name",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "components[].entrypoint",
+      "agentVolumesField": "components[].type",
       "cyclonedx": {
-        "target": "component.properties[agent-volumes:entrypoint]",
-        "kind": "extension"
+        "target": "component.properties[agent-volumes:type]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
@@ -123,18 +71,139 @@
       }
     },
     {
-      "agentVolumesField": "release.logicalIdentity",
+      "agentVolumesField": "environment",
       "cyclonedx": {
-        "target": "metadata.component.purl",
+        "target": "metadata.component.properties[agent-volumes:environment]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "permissions / components[].permissions",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:permissions] / component.properties[agent-volumes:permissions]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "protocols[]",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:protocols]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      },
+      "spdx": {
+        "target": "Package.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.signed",
+      "cyclonedx": {
+        "target": "signature presence outside BOM envelope",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      },
+      "spdx": {
+        "target": "external signing material",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      },
+      "slsa": {
+        "target": "attestation verification is external to provenance payload",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.system",
+      "cyclonedx": {
+        "target": "metadata.properties[agent-volumes:build-system]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      },
+      "spdx": {
+        "target": "CreationInfo.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      },
+      "slsa": {
+        "target": "runDetails.builder.id",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "provenance.build.workflow",
+      "cyclonedx": {
+        "target": "metadata.properties[agent-volumes:build-workflow]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      },
+      "spdx": {
+        "target": "CreationInfo.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      },
+      "slsa": {
+        "target": "buildDefinition.externalParameters.workflow",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      }
+    },
+    {
+      "agentVolumesField": "provenance.source-repo",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[vcs]",
         "kind": "native"
       },
       "spdx": {
-        "target": "ExternalRef[purl]",
-        "kind": "native"
+        "target": "Package.externalRefs[purl|vcs]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "slsa": {
-        "target": "subject.name",
-        "kind": "extension"
+        "target": "materials[].uri",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "publisher.id",
+      "cyclonedx": {
+        "target": "metadata.component.publisher",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.supplier",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
@@ -153,162 +222,176 @@
       }
     },
     {
-      "agentVolumesField": "provenance.source-repo",
+      "agentVolumesField": "release.logicalIdentity",
       "cyclonedx": {
-        "target": "metadata.component.externalReferences[vcs]",
+        "target": "metadata.component.purl",
         "kind": "native"
       },
       "spdx": {
-        "target": "Package.externalRefs[purl|vcs]",
-        "kind": "extension"
-      },
-      "slsa": {
-        "target": "materials[].uri",
+        "target": "ExternalRef[purl]",
         "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "provenance.build.system",
-      "cyclonedx": {
-        "target": "metadata.properties[agent-volumes:build-system]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "CreationInfo.comment",
-        "kind": "lossy"
       },
       "slsa": {
-        "target": "runDetails.builder.id",
-        "kind": "native"
-      }
-    },
-    {
-      "agentVolumesField": "provenance.build.workflow",
-      "cyclonedx": {
-        "target": "metadata.properties[agent-volumes:build-workflow]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "CreationInfo.comment",
-        "kind": "lossy"
-      },
-      "slsa": {
-        "target": "buildDefinition.externalParameters.workflow",
-        "kind": "extension"
-      }
-    },
-    {
-      "agentVolumesField": "provenance.build.signed",
-      "cyclonedx": {
-        "target": "signature presence outside BOM envelope",
-        "kind": "lossy"
-      },
-      "spdx": {
-        "target": "external signing material",
-        "kind": "lossy"
-      },
-      "slsa": {
-        "target": "attestation verification is external to provenance payload",
-        "kind": "lossy"
-      }
-    },
-    {
-      "agentVolumesField": "volume.role",
-      "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:role]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "Package.comment",
-        "kind": "lossy"
-      }
-    },
-    {
-      "agentVolumesField": "volume.secondary-roles",
-      "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:secondary-roles]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "Package.comment",
-        "kind": "lossy"
-      }
-    },
-    {
-      "agentVolumesField": "volume.keywords",
-      "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:keywords]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "Package.comment",
-        "kind": "lossy"
-      }
-    },
-    {
-      "agentVolumesField": "volume.providers / components[].providers",
-      "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:providers] / component.properties[agent-volumes:providers]",
-        "kind": "extension"
-      },
-      "spdx": {
-        "target": "Package.comment",
-        "kind": "lossy"
+        "target": "subject.name",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       }
     },
     {
       "agentVolumesField": "runtimes[]",
       "cyclonedx": {
         "target": "metadata.component.properties[agent-volumes:runtimes]",
-        "kind": "extension"
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "protocols[]",
+      "agentVolumesField": "volume.description",
       "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:protocols]",
-        "kind": "extension"
+        "target": "metadata.component.description",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.summary",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.documentation",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[documentation]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.externalRefs[documentation]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes documentation URL as a stable external reference using the agent-volumes extension namespace when the target family lacks a native documentation reference type."
+      }
+    },
+    {
+      "agentVolumesField": "volume.homepage",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[website]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.homePage",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.keywords",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:keywords]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "environment",
+      "agentVolumesField": "volume.license",
       "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:environment]",
-        "kind": "extension"
+        "target": "metadata.component.licenses",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.licenseConcluded",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.name",
+      "cyclonedx": {
+        "target": "metadata.component.name",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.name",
+        "kind": "native"
+      }
+    },
+    {
+      "agentVolumesField": "volume.providers / components[].providers",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:providers] / component.properties[agent-volumes:providers]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "permissions / components[].permissions",
+      "agentVolumesField": "volume.repository",
       "cyclonedx": {
-        "target": "metadata.component.properties[agent-volumes:permissions] / component.properties[agent-volumes:permissions]",
-        "kind": "extension"
+        "target": "metadata.component.externalReferences[vcs]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.externalRefs[purl|vcs]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
+      }
+    },
+    {
+      "agentVolumesField": "volume.role",
+      "cyclonedx": {
+        "target": "metadata.component.properties[agent-volumes:role]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
         "target": "Package.comment",
-        "kind": "lossy"
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
       }
     },
     {
-      "agentVolumesField": "component-dependencies",
+      "agentVolumesField": "volume.secondary-roles",
       "cyclonedx": {
-        "target": "dependencies graph plus component.properties[agent-volumes:component-dependencies]",
-        "kind": "extension"
+        "target": "metadata.component.properties[agent-volumes:secondary-roles]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes field using stable JSON field names under the agent-volumes extension namespace."
       },
       "spdx": {
-        "target": "Relationship[DEPENDS_ON] plus Package.comment",
-        "kind": "lossy"
+        "target": "Package.comment",
+        "kind": "lossy",
+        "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
+        "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "volume.version",
+      "cyclonedx": {
+        "target": "metadata.component.version",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.versionInfo",
+        "kind": "native"
       }
     }
   ]

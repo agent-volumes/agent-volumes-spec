@@ -1,0 +1,125 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "component-dependency-exists-after-volume-resolution",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0",
+        "@acme/search-pack": "^1.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": [
+          "pkg:volume/github-provider@2.1.0#tool/read-pr",
+          "pkg:volume/github-provider@2.1.0#tool/comment-pr",
+          "pkg:volume/%40acme/search-pack@1.4.0#skill/code-search"
+        ]
+      },
+      "resolvedComponents": [
+        "pkg:volume/github-provider@2.1.0#tool/read-pr",
+        "pkg:volume/github-provider@2.1.0#tool/comment-pr",
+        "pkg:volume/%40acme/search-pack@1.4.0#skill/code-search"
+      ],
+      "expected": { "valid": true }
+    },
+    {
+      "name": "versionless-component-dependency-authoring-form",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0",
+        "@acme/search-pack": "^1.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/github-provider#tool/read-pr", "pkg:volume/%40acme/search-pack#skill/code-search"]
+      },
+      "resolvedComponents": [
+        "pkg:volume/github-provider#tool/read-pr",
+        "pkg:volume/%40acme/search-pack#skill/code-search"
+      ],
+      "expected": { "valid": true }
+    },
+    {
+      "name": "missing-component-dependency-after-volume-resolution",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": [
+          "pkg:volume/github-provider@2.1.0#tool/read-pr",
+          "pkg:volume/github-provider@2.1.0#tool/comment-pr"
+        ]
+      },
+      "resolvedComponents": ["pkg:volume/github-provider@2.1.0#tool/read-pr"],
+      "expected": { "valid": false, "failureCategory": "missing-component-dependency" }
+    },
+    {
+      "name": "component-dependency-key-must-reference-local-component",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "component-dependencies": {
+        "undeclared-agent": ["pkg:volume/github-provider#tool/read-pr"]
+      },
+      "resolvedComponents": ["pkg:volume/github-provider#tool/read-pr"],
+      "expected": { "valid": false, "failureCategory": "unknown-local-component" }
+    },
+    {
+      "name": "component-dependency-purl-must-include-component-subpath",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/github-provider@2.1.0"]
+      },
+      "resolvedComponents": [],
+      "expected": { "valid": false, "failureCategory": "invalid-component-purl" }
+    },
+    {
+      "name": "component-dependency-purl-rejects-double-hyphen-volume-name",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "github-provider": "^2.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/github--provider#tool/read-pr"]
+      },
+      "resolvedComponents": [],
+      "expected": { "valid": false, "failureCategory": "invalid-component-purl" }
+    },
+    {
+      "name": "component-dependency-purl-rejects-double-hyphen-scope-name",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {
+        "@acme/search-pack": "^1.0.0"
+      },
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/%40bad--scope/search-pack#skill/code-search"]
+      },
+      "resolvedComponents": [],
+      "expected": { "valid": false, "failureCategory": "invalid-component-purl" }
+    },
+    {
+      "name": "versionless-component-dependency-requires-parent-volume-dependency",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {},
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/github-provider#tool/read-pr"]
+      },
+      "resolvedComponents": ["pkg:volume/github-provider#tool/read-pr"],
+      "expected": { "valid": false, "failureCategory": "missing-parent-volume-dependency" }
+    },
+    {
+      "name": "scoped-versionless-component-dependency-requires-parent-volume-dependency",
+      "declaredComponents": ["review-agent"],
+      "volume-dependencies": {},
+      "component-dependencies": {
+        "review-agent": ["pkg:volume/%40acme/search-pack#skill/code-search"]
+      },
+      "resolvedComponents": ["pkg:volume/%40acme/search-pack#skill/code-search"],
+      "expected": { "valid": false, "failureCategory": "missing-parent-volume-dependency" }
+    }
+  ]
+}

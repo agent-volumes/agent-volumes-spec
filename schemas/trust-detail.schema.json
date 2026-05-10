@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.4/schemas/trust-detail.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/trust-detail.schema.json",
   "title": "Agent Volumes Trust Detail",
   "type": "object",
   "additionalProperties": false,
@@ -11,7 +11,10 @@
       "additionalProperties": false,
       "required": ["purl", "integrity"],
       "properties": {
-        "purl": { "type": "string", "pattern": "^pkg:volume/" },
+        "purl": {
+          "type": "string",
+          "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
         "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
@@ -30,7 +33,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "category", "format", "locator", "status"],
+        "required": ["id", "category", "format", "artifactDigest", "locator", "status"],
         "properties": {
           "id": { "type": "string" },
           "category": {
@@ -39,16 +42,29 @@
           },
           "format": {
             "type": "object",
+            "description": "Trust artifact format identity. Baseline examples include CycloneDX JSON BOMs, SLSA provenance predicates, and Sigstore bundle signatures.",
             "additionalProperties": false,
             "required": ["family", "mediaType"],
             "properties": {
-              "family": { "type": "string" },
+              "family": {
+                "type": "string",
+                "description": "Format family such as cyclonedx, slsa-provenance, or sigstore-bundle."
+              },
               "mediaType": { "type": "string" },
-              "predicateType": { "type": "string", "format": "uri" },
-              "profile": { "type": "string" },
+              "predicateType": {
+                "type": "string",
+                "format": "uri",
+                "description": "Predicate URI for in-toto/SLSA-style artifacts when applicable."
+              },
+              "profile": {
+                "type": "string",
+                "description": "Optional profile identifier for a more specific artifact convention."
+              },
               "version": { "type": "string" }
             }
           },
+          "artifactDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "artifactSize": { "type": "integer", "minimum": 0 },
           "locator": {
             "type": "object",
             "additionalProperties": false,
@@ -63,6 +79,7 @@
           },
           "status": {
             "type": "object",
+            "description": "Lifecycle status for append-only trust attachments. Superseded attachments are preserved for history but do not satisfy current-state trust evidence.",
             "additionalProperties": false,
             "required": ["state"],
             "properties": {

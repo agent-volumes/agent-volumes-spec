@@ -14,8 +14,11 @@
       "format": {
         "family": "cyclonedx",
         "mediaType": "application/vnd.cyclonedx+json",
+        "profile": "agent-volumes-bom-v0.1",
         "version": "1.7"
       },
+      "artifactDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "artifactSize": 2048,
       "locator": {
         "url": "https://example.test/bom.json"
       },
@@ -35,8 +38,33 @@
         "predicateType": "https://slsa.dev/provenance/v1",
         "version": "1.0"
       },
+      "artifactDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "artifactSize": 4096,
       "locator": {
         "url": "https://example.test/provenance.intoto.jsonl"
+      },
+      "status": {
+        "state": "active"
+      },
+      "verification": {
+        "subjectDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle",
+        "transparencyLog": "rekor"
+      }
+    },
+    {
+      "id": "signature-1",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "profile": "sigstore-bundle-v1",
+        "version": "1"
+      },
+      "artifactDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "artifactSize": 1024,
+      "locator": {
+        "url": "https://example.test/signature.sigstore.json"
       },
       "status": {
         "state": "active"

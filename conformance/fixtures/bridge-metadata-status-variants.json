@@ -1,0 +1,36 @@
+{
+  "fixtures": [
+    {
+      "name": "bridge-ending",
+      "payload": {
+        "active": true,
+        "canonicalForm": "apis.trustMetadata",
+        "status": "bridge-ending",
+        "removalTarget": {
+          "specVersion": "0.2.0",
+          "phase": "release-candidate"
+        },
+        "acceptedAliases": ["extensions.example.trustMetadata"],
+        "warningCategory": "migration"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "bridge-ended",
+      "payload": {
+        "active": true,
+        "canonicalForm": "apis.advisories",
+        "status": "bridge-ended",
+        "removalTarget": {
+          "specVersion": "0.2.0"
+        },
+        "warningCategory": "migration"
+      },
+      "expected": {
+        "valid": true
+      }
+    }
+  ]
+}
