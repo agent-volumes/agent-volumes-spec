@@ -31,6 +31,7 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 | Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
 | Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
 | Fixtures and vectors | `conformance/fixtures/`                                                                    |
+| Conformance reports  | `schemas/conformance-report.schema.json`                                                   |
 
 ## Minimum viable conforming client
 
@@ -92,6 +93,9 @@ Run the repository artifact checks before comparing implementation behavior agai
 npm run validate:artifacts
 npm run lint:openapi
 ```
+
+The fixture runner contract and portable report shape are documented in
+`conformance/README.md` and `schemas/conformance-report.schema.json`.
 
 Then map implementation tests to fixture families:
 

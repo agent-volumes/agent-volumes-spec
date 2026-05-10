@@ -1309,6 +1309,7 @@ The fetch response identifies a release by both package-facing metadata and immu
 {
   "name": "research-agent-pack",
   "version": "1.4.0",
+  "purl": "pkg:volume/research-agent-pack@1.4.0",
   "integrity": "sha256:a3f2b8c4...",
   "status": {
     "state": "available"
@@ -1321,7 +1322,7 @@ The fetch response identifies a release by both package-facing metadata and immu
 }
 ```
 
-The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
+The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The `purl` field is the required canonical package-facing logical identity for that exact release and MUST equal the canonical purl derived from `name` and `version`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"` and `"purl": "pkg:volume/%40acme/research-agent-pack@<version>"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
 
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
@@ -1863,6 +1864,7 @@ The draft companion artifact inventory includes at least:
 - [`schemas/release-upload-intent.schema.json`](schemas/release-upload-intent.schema.json)
 - [`schemas/release-upload-finalize.schema.json`](schemas/release-upload-finalize.schema.json)
 - [`schemas/release-metadata.schema.json`](schemas/release-metadata.schema.json)
+- [`schemas/conformance-report.schema.json`](schemas/conformance-report.schema.json)
 - [`schemas/exact-release-metadata-case.schema.json`](schemas/exact-release-metadata-case.schema.json)
 - [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
 - [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)

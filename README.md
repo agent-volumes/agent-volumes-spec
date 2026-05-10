@@ -216,6 +216,8 @@ The repository also publishes normative machine-readable companion artifacts und
 - [`openapi/`](openapi/)
 - [`conformance/fixtures/`](conformance/fixtures/)
 
+See [`conformance/README.md`](conformance/README.md) for the offline runner contract and report schema guidance.
+
 For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Implementers Guide](IMPLEMENTERS.md). It maps the normative artifacts to concrete implementation tasks and identifies prototype-local choices that the v0.1 core intentionally leaves outside the standard.
 
 **[Read the full specification →](agent-volumes-spec.md)**
