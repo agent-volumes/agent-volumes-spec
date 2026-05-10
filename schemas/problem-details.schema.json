@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/problem-details.schema.json",
+  "title": "Agent Volumes Problem Details",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["type", "title", "status"],
+  "properties": {
+    "type": { "type": "string", "pattern": "^https://agentvolumes\\.org/problems/[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+    "detail": { "type": "string" },
+    "instance": { "type": "string", "format": "uri-reference" }
+  }
+}
