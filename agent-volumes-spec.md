@@ -204,6 +204,27 @@ The v0.1 baseline keeps maximum practical symmetry across scope, volume, and com
 
 For trust and supply chain workflows, `pkg:volume/...@version` is the release's **logical identity**. It is paired with the **immutable content identity** from [Section 7](#7-content-integrity).
 
+### 2.5.1 Canonical purl Serialization
+
+Portable v0.1 payloads that carry package-facing logical identities MUST use the canonical Package URL serialization defined by this section.
+
+For scoped volumes, the purl namespace segment uses the URL-encoded scope marker `%40`:
+
+```text
+pkg:volume/%40<scope>/<name>@<version>
+```
+
+The decoded form `@scope/name` remains the canonical user-facing volume name in manifests, route-derived release metadata, search results, and display contexts. Clients and bibliothecas MUST NOT treat decoded user-facing names and encoded purl strings as byte-for-byte interchangeable. When comparing release subjects, implementations compare the canonical purl string after parsing and validating the purl fields against the v0.1 identity grammar.
+
+Component purls use the purl subpath field:
+
+```text
+pkg:volume/<name>@<version>#<type>/<componentName>
+pkg:volume/%40<scope>/<name>@<version>#<type>/<componentName>
+```
+
+Component dependency references MAY omit the version in authoring contexts where the parent volume dependency constraint determines the resolved version, but resolved component references used for trust, lock-like reproducibility inputs, or exact component identity SHOULD include the resolved version.
+
 ### 2.6 Identifier Resolution Order
 
 The minimal interoperability contract for dependency interpretation is:
@@ -971,14 +992,16 @@ At minimum, implementations MUST:
 
 The v0.1 practical interoperability rule set further requires:
 
-- include/exclude rules are derived from the release subject selected by the publisher and bibliotheca, excluding archive/container metadata, VCS administrative directories, and implementation-local transient files
+- for hosted archive releases, the release subject is the set of valid regular-file entries in the submitted `.tar.gz` archive after applying the hosted archive transport profile in [Section 9.2.1](#921-publish)
+- for Git-backed releases, the release subject is the set of valid regular files materialized from the concrete Git reference identified by exact release metadata, excluding VCS administrative directories and implementation-local transient files
+- archive/container metadata, VCS administrative directories, and implementation-local transient files are never part of the normalized file tree
 - normalized paths use forward slashes, are relative to the volume root, MUST NOT be absolute, and MUST NOT contain `.` or `..` path segments after normalization
 - duplicate normalized paths are invalid
 - file entries are sorted lexicographically by normalized path before hashing
 - line endings are hashed exactly as present in the normalized release file content; implementations MUST NOT rewrite line endings as part of digest construction
 - Unicode path strings are interpreted as UTF-8 and MUST NOT be silently normalized between Unicode normalization forms during digest construction
 - executable-bit state is part of the normalized file metadata for conformance vectors, while other platform-specific mode bits, ownership, timestamps, extended attributes, and archive header metadata are excluded
-- symlinks, hardlinks, Git submodules, device nodes, sockets, and other non-regular-file entries are outside the v0.1 portable release subject unless a future profile defines their handling; baseline releases SHOULD avoid them
+- symlinks, hardlinks, Git submodules, device nodes, sockets, and other non-regular-file entries are outside the v0.1 portable release subject unless a future profile defines their handling; baseline digest construction MUST reject non-regular-file entries rather than silently following, dereferencing, or omitting them
 - generated files are included only when they are part of the published release subject; generated local build outputs that are not part of the release subject are excluded
 
 The canonical byte stream for digest construction is the direct concatenation of one record per sorted file entry. Each record is encoded as:
@@ -1196,6 +1219,8 @@ The v0.1 advisory baseline includes:
 - a full event model for affected version semantics
 - optional informational component-impact metadata
 
+The v0.1 core severity vocabulary is `critical`, `high`, `medium`, and `low`. The v0.1 core advisory source ecosystem vocabulary is `cve`, `ghsa`, `osv`, `bibliotheca`, and `other`. Advisory relationships use `supersedes`, `superseded-by`, `related`, and `duplicate-of`.
+
 Advisory targeting remains **volume-level only** in v0.1.
 
 Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. `introduced = "0"` is the beginning-of-time sentinel; other event values use full SemVer strings. When `withdrawn` metadata is present, it MUST include an `at` timestamp. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
@@ -1227,6 +1252,8 @@ Write-capable bibliothecas expose hosted archive publishing through a two-phase 
 3. Finalize the upload so the bibliotheca can validate the archive, manifest identity, authorization, version conflict state, permission model, and normalized-file-tree integrity.
 4. Expose the resulting release metadata and distribution metadata only after the release is accepted.
 
+The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an expired, failed, already-finalized-with-conflicting-input, or otherwise non-finalizable upload intent is an invalid upload state or idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
+
 For hosted archive workflows, the release transport is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
 Hosted archive payloads follow the v0.1 archive transport profile:
@@ -1245,6 +1272,8 @@ Clients publishing artifacts MUST fail before submission when a component declar
 Bibliothecas that discover permission escalation through publish-time validation, operator review, vulnerability reporting, automated inspection, or equivalent local mechanisms MUST block the affected artifact from continued distribution. The v0.1 baseline does not require every bibliotheca to perform mandatory direct permission-escalation validation on every publish attempt.
 
 The bibliotheca MUST NOT make a release available until finalize succeeds. During finalize, the bibliotheca MUST verify that uploaded bytes match any declared digest and size constraints, the archive is valid, manifest identity is consistent, the version is not already lifecycle-marked, the caller remains authorized, and integrity can be computed.
+
+Successful release finalization creates or preserves exactly one lifecycle-marked version identity. A version number that has been published, yanked, tombstoned, blocked, unavailable, or otherwise lifecycle-marked MUST NOT be reused for different release content.
 
 The upload instructions returned by a bibliotheca MAY identify an internal API endpoint, a time-limited object-storage URL, a backend-specific staging area, a direct upload target, or another implementation-local upload target. Direct binary upload remains an implementation strategy behind those instructions, but direct binary `POST` of release bytes is not the portable hosted release publishing boundary.
 
@@ -1285,6 +1314,8 @@ Fetch responses expose release metadata, not a resolver policy. Registry priorit
 #### 9.2.3 Unpublish
 
 A bibliotheca SHOULD allow unpublishing within a grace window if local policy permits it. Unpublished version numbers SHOULD be tombstoned. If a tombstoned version is requested, a bibliotheca SHOULD report the version as unavailable while preserving enough metadata to prevent silent reuse of the same version number.
+
+Yanking, tombstoning, blocking, and unavailability are lifecycle changes to an existing version identity. They do not create a new release subject and do not permit version reuse. Bibliothecas MUST keep exact release metadata, version index rows, and trust/advisory discovery surfaces consistent with the current lifecycle state they expose.
 
 #### 9.2.4 Version Index
 
@@ -1388,6 +1419,7 @@ When trust attachments are present, the detail view MUST preserve enough informa
 - the bound release subject
 - the trust artifact category
 - format identity information for the artifact
+- byte identity for the finalized trust attachment artifact, including at least the artifact digest and declared size when available
 - where the artifact can be retrieved, or an equivalent embedded representation
 - lifecycle/status metadata and revision metadata when applicable
 
@@ -1404,6 +1436,8 @@ The v0.1 baseline trust format profiles use the following format identity conven
 | `signature`  | `sigstore-bundle` | `mediaType` identifies the Sigstore bundle representation; `version` identifies the bundle profile |
 
 Other format families MAY be represented through the same fields, but the table above is the portable v0.1 baseline vocabulary for dispatching common trust artifacts.
+
+The byte identity of a trust attachment is distinct from the release subject identity. A trust attachment's `artifactDigest` identifies the exact uploaded attachment bytes after finalization. Clients that retrieve an attachment through a locator SHOULD verify those bytes against `artifactDigest` before interpreting the attachment's contents. The release subject remains the logical purl plus normalized-file-tree digest defined in [Section 7.5](#75-release-subject-identity).
 
 #### 9.4.3 Trust Attachment Upload
 
@@ -1422,6 +1456,8 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
 The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes.
 
 The finalize request commits the upload attempt. A bibliotheca MUST verify the uploaded bytes against the declared digest, declared size when present, release-subject binding, and attachment metadata before making the attachment available through trust discovery.
+
+Successful finalization MUST preserve the verified uploaded-byte digest in the resulting trust attachment record. If the uploaded-byte digest later cannot be reconciled with the bytes retrievable from the detail locator, clients and bibliothecas MUST treat the attachment as invalid for baseline verification.
 
 The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
@@ -1750,6 +1786,9 @@ The v0.1 core warning categories are:
 - `unknown-field`
 - `deprecated`
 - `migration`
+- `unknown-capability-field`
+- `unknown-capability-value`
+- `yanked-version`
 
 Implementations MAY add extension warning categories, but baseline clients can rely on the core set.
 
@@ -1794,9 +1833,14 @@ The draft companion artifact inventory includes at least:
 - [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json)
 - [`schemas/release-upload-intent.schema.json`](schemas/release-upload-intent.schema.json)
 - [`schemas/release-upload-finalize.schema.json`](schemas/release-upload-finalize.schema.json)
+- [`schemas/release-metadata.schema.json`](schemas/release-metadata.schema.json)
 - [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
 - [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
+- [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json)
+- [`schemas/warning.schema.json`](schemas/warning.schema.json)
+- [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
+- [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
 - [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml)
 - [`conformance/fixtures/`](conformance/fixtures/)
@@ -1822,6 +1866,9 @@ The v0.1 fixture set includes at least:
 - capability metadata fixtures, including unknown field/value tolerance behavior
 - bridge-metadata fixtures
 - resolver accept/reject fixtures
+- purl canonicalization fixtures
+- component dependency semantic-validation fixtures
+- semantic-validation fixtures for schema-adjacent rules that require validator logic
 - permission-escalation rejection fixtures
 - BOM/provenance mapping fixtures
 
