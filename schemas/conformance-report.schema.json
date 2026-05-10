@@ -53,7 +53,11 @@
         "additionalProperties": false,
         "required": ["id", "fixture", "area", "outcome"],
         "properties": {
-          "id": { "type": "string", "minLength": 1 },
+          "id": {
+            "type": "string",
+            "description": "Stable result identifier, derived from the fixture path and case name where applicable.",
+            "pattern": "^[a-z0-9][a-z0-9._/-]*$"
+          },
           "fixture": { "type": "string", "minLength": 1 },
           "case": { "type": "string", "minLength": 1 },
           "area": {

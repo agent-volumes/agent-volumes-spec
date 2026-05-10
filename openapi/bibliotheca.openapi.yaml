@@ -74,6 +74,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -114,6 +115,12 @@ paths:
         - in: path
           name: uploadId
           required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values must match exactly.
           schema:
             type: string
       responses:
@@ -159,6 +166,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -206,6 +214,12 @@ paths:
           required: true
           schema:
             type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values must match exactly.
+          schema:
+            type: string
       responses:
         '201':
           description: Published release metadata
@@ -250,7 +264,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -312,7 +326,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReleaseMetadata'
+                $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -525,6 +539,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -576,6 +591,12 @@ paths:
         - in: path
           name: uploadId
           required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -663,6 +684,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -719,6 +741,12 @@ paths:
         - in: path
           name: uploadId
           required: true
+          schema:
+            type: string
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they must match exactly.
           schema:
             type: string
       requestBody:
@@ -923,71 +951,6 @@ components:
           minimum: 0
         idempotencyKey:
           type: string
-    ReleaseMetadata:
-      type: object
-      required: [name, version, purl, integrity, status]
-      properties:
-        name:
-          $ref: '#/components/schemas/VolumeName'
-        version:
-          $ref: '#/components/schemas/SemVer'
-        purl:
-          $ref: '#/components/schemas/ReleasePurl'
-        integrity:
-          $ref: '#/components/schemas/Digest'
-        status:
-          $ref: '#/components/schemas/VersionStatus'
-        dist:
-          oneOf:
-            - type: object
-              required: [source, mediaType, url]
-              properties:
-                source:
-                  type: string
-                  const: cdn
-                mediaType:
-                  type: string
-                  description: Gzip-compressed tar archive transport for the hosted Agent Volumes archive profile.
-                  const: application/gzip
-                url:
-                  type: string
-                  description: Opaque portable download locator for the hosted .tar.gz archive bytes. Clients verify the normalized-file-tree digest against release integrity after retrieval.
-                  format: uri
-            - type: object
-              required: [source, repository, ref]
-              properties:
-                source:
-                  type: string
-                  const: git
-                repository:
-                  type: string
-                  format: uri
-                ref:
-                  type: string
-      allOf:
-        - if:
-            properties:
-              status:
-                type: object
-                properties:
-                  state:
-                    enum: [available, yanked]
-                required: [state]
-            required: [status]
-          then:
-            required: [dist]
-        - if:
-            properties:
-              status:
-                type: object
-                properties:
-                  state:
-                    enum: [blocked, tombstoned, unavailable]
-                required: [state]
-            required: [status]
-          then:
-            not:
-              required: [dist]
     VersionStatus:
       type: object
       additionalProperties: false

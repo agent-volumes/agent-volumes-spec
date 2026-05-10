@@ -8,54 +8,24 @@
   "properties": {
     "uploadId": { "type": "string", "minLength": 1 },
     "release": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["name", "version", "purl", "integrity", "status", "dist"],
-      "properties": {
-        "name": { "$ref": "#/$defs/volumeName" },
-        "version": { "$ref": "#/$defs/semver" },
-        "purl": { "$ref": "#/$defs/releasePurl" },
-        "integrity": { "$ref": "#/$defs/digest" },
-        "status": {
+      "allOf": [
+        { "$ref": "release-metadata.schema.json" },
+        {
           "type": "object",
-          "additionalProperties": false,
-          "required": ["state"],
+          "required": ["dist"],
           "properties": {
-            "state": { "type": "string", "const": "available" },
-            "reason": { "type": "string" }
-          }
-        },
-        "dist": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["source", "mediaType", "url"],
-          "properties": {
-            "source": { "type": "string", "const": "cdn" },
-            "mediaType": { "type": "string", "const": "application/gzip" },
-            "url": { "type": "string", "format": "uri" }
+            "dist": {},
+            "status": {
+              "type": "object",
+              "required": ["state"],
+              "properties": {
+                "state": { "type": "string", "const": "available" }
+              }
+            }
           }
         }
-      }
+      ]
     },
     "detailUrl": { "type": "string", "format": "uri-reference" }
-  },
-  "$defs": {
-    "volumeName": {
-      "type": "string",
-      "maxLength": 194,
-      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
-    },
-    "semver": {
-      "type": "string",
-      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
-    },
-    "releasePurl": {
-      "type": "string",
-      "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
-    },
-    "digest": {
-      "type": "string",
-      "pattern": "^sha256:[a-f0-9]{64}$"
-    }
   }
 }
