@@ -41,6 +41,8 @@ agent-volumes-spec/
 - `singleQuote: true`, `trailingComma: "es5"`, `printWidth: 120`, `proseWrap: "preserve"`
 - Applies to: `md`, `json`, `yaml`, `yml`, `mjs`
 
+- Date notation: Human-readable documents intentionally use five-digit Human Era / Holocene Era (HE) dates such as `12026`; these are not Gregorian typos and must not be normalized to four-digit years. Machine-readable artifacts use the date and timestamp formats required by their schemas or external standards.
+
 **Markdown lint** — `.markdownlint-cli2.jsonc`
 
 - Dash-only lists (`MD004.style = "dash"`)

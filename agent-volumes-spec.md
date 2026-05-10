@@ -4,7 +4,7 @@
 
 **Version:** 0.1.0-draft.5  
 **Status:** Draft  
-**Date:** 12026-05-09  
+**Date:** 12026-05-11 HE  
 **Authors:** Yunseo Kim
 
 ---
@@ -125,9 +125,11 @@ See [Appendix D: Glossary](#appendix-d-glossary) for the complete list. Key term
 
 ### 1.8 Notational Conventions
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are to be interpreted as described in [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://www.rfc-editor.org/info/bcp14), [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174) when, and only when, they appear in all capitals, as shown here.
 
 TOML examples use [TOML v1.1.0](https://toml.io/en/v1.1.0) syntax.
+
+Human-readable documents in this specification use Human Era / Holocene Era (HE) dates. Machine-readable artifacts use the date and timestamp formats required by their companion schemas or external standards.
 
 ---
 
@@ -426,7 +428,7 @@ The portable grammar excludes:
 - registry-specific selector syntax, channels, tracks, or dist-tags
 - build metadata in range operands, such as `1.2.3+build.1`
 
-Full SemVer operands in dependency range expressions are three-component SemVer versions with optional prerelease identifiers and without build metadata. Build metadata may remain valid where this specification separately allows SemVer version strings, but it is not part of the portable v0.1 range operand grammar.
+Full SemVer operands in dependency range expressions are three-component SemVer versions with optional prerelease identifiers and without build metadata. Build metadata can remain valid where this specification separately allows SemVer version strings, but it is not part of the portable v0.1 range operand grammar.
 
 `=1.2.3` is equivalent to the exact version range `1.2.3`. `^X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than the next breaking boundary according to SemVer-compatible caret semantics. `~X.Y.Z` means versions greater than or equal to `X.Y.Z` and less than `X.(Y + 1).0`. Multiple comparator terms joined by comma and/or whitespace are interpreted as logical AND.
 
@@ -483,7 +485,7 @@ name = "lsp"
 version = ">=3.17"
 ```
 
-The `version` field is a protocol compatibility version expression, not a portable dependency range. Protocol ecosystems may use date-like versions, short numeric versions, SemVer-compatible versions, or future protocol-specific schemes. Baseline clients MUST NOT reject or filter solely because they cannot evaluate a protocol version expression.
+The `version` field is a protocol compatibility version expression, not a portable dependency range. Protocol ecosystems can use date-like versions, short numeric versions, SemVer-compatible versions, or future protocol-specific schemes. Baseline clients MUST NOT reject or filter solely because they cannot evaluate a protocol version expression.
 
 See [Section 6.2](#62-protocol-compatibility) for the current protocol compatibility model.
 
@@ -810,7 +812,7 @@ An **MCP Server** is a service endpoint implementing the [Model Context Protocol
 | Execution model      | Long-running process. Communicates via `stdio`, `sse`, or `streamable-http`. |
 | Distinguishing trait | Protocol-based service. Runs as a separate process.                          |
 
-JSON is the canonical and only v0.1 baseline format for MCP server configuration in Agent Volumes. This should be understood as an interoperability convention rather than a protocol-level requirement inherited from MCP itself.
+JSON is the canonical and only v0.1 baseline format for MCP server configuration in Agent Volumes. This is an interoperability convention rather than a protocol-level requirement inherited from MCP itself.
 
 ### 4.7 LSP Server
 
@@ -925,7 +927,7 @@ Volumes that export exactly one component still use the same manifest model. The
 
 ### 6.1 Runtime Definitions
 
-A runtime identifier describes the agent execution host, client, SDK, or harness that loads and executes Agent Volumes components. It does not identify the underlying AI model selected by that runtime. Model/provider compatibility and observed model usage are intentionally outside the v0.1 core runtime identifier model and may be addressed by future profiles or extension metadata.
+A runtime identifier describes the agent execution host, client, SDK, or harness that loads and executes Agent Volumes components. It does not identify the underlying AI model selected by that runtime. Model/provider compatibility and observed model usage are intentionally outside the v0.1 core runtime identifier model and can be addressed by future profiles or extension metadata.
 
 Runtime compatibility declarations use compatibility version expressions. The v0.1 core does not define one universal runtime-version ordering. Runtime profiles MAY define stronger comparison semantics for identifiers whose version scheme is known. Without such support, clients treat the expression as advisory metadata and MUST NOT claim portable compatibility rejection based on that unknown scheme.
 
@@ -981,7 +983,7 @@ See [Section 3.11](#311-environment-requirements).
 
 ### 6.5 Runtime Compatibility Profiles
 
-The runtime-neutral core may be supplemented by runtime compatibility profiles for ecosystems whose packaging and lifecycle conventions are important enough to warrant structured interoperability guidance.
+The runtime-neutral core can be supplemented by runtime compatibility profiles for ecosystems whose packaging and lifecycle conventions are important enough to warrant structured interoperability guidance.
 
 Profiles do not replace the core model. They document compatibility affordances such as discovery filenames, hook event vocabulary alignment, and expected component packaging surfaces while leaving the underlying semantics defined by Agent Volumes.
 
@@ -995,15 +997,15 @@ At minimum, this profile assumes:
 - LSP server configuration is canonically packaged as `.lsp.json`
 - hook event identifiers align with the canonical runtime-facing vocabulary listed in [Section 4.5](#45-hook)
 - `command`, `hook`, `mcp-server`, and `lsp-server` components can be mapped into familiar Claude Code-style extension surfaces
-- runtime-local tool names should be interpreted through portable capability classes where possible, such as `shell execution`, `file read`, `file write/edit`, `web fetch`, `web search`, and `code intel`
+- runtime-local tool names are interpreted through portable capability classes where possible, such as `shell execution`, `file read`, `file write/edit`, `web fetch`, `web search`, and `code intel`
 
-These identifiers and filenames should be read as interoperability-facing conventions rather than as evidence that Agent Volumes inherits Claude Code semantics wholesale.
+These identifiers and filenames are interoperability-facing conventions rather than evidence that Agent Volumes inherits Claude Code semantics wholesale.
 
 #### 6.5.2 Portable tool capability classes
 
 When discussing tool surfaces across runtimes, Agent Volumes distinguishes between **portable capability classes** and **runtime-specific tool names**.
 
-Portable capability classes are the stable cross-runtime concepts that profiles, permissions guidance, and interoperability notes should prefer when possible. Examples include:
+Portable capability classes are the stable cross-runtime concepts that profiles, permissions guidance, and interoperability notes prefer when possible. Examples include:
 
 - shell execution
 - file read
@@ -1017,7 +1019,7 @@ Portable capability classes are the stable cross-runtime concepts that profiles,
 - planning
 - code intel
 
-These classes are portable semantic categories rather than permission fields. Permission guidance should prefer stable action distinctions such as read versus write where those distinctions remain portable across runtimes.
+These classes are portable semantic categories rather than permission fields. Permission guidance uses stable action distinctions such as read versus write where those distinctions remain portable across runtimes.
 
 Runtime-specific tool names such as `Bash`, `WebFetch`, `run_shell_command`, or `webfetch` remain profile-facing or implementation-facing examples rather than normative core taxonomy terms.
 
@@ -1661,7 +1663,7 @@ The v0.1 registry API uses registry-local resource-scoped bearer token semantics
 | Trust metadata      | No                 | N/A                                                           |
 | Trust upload        | Yes (Bearer token) | Authorized to add trust attachments for the exact release.    |
 
-Ownership is evaluated by the bibliotheca. A token subject may act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
+Ownership is evaluated by the bibliotheca. A token subject can act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
 
 Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the required action or resource authorization is an authorization failure and uses `403 Forbidden`.
 
@@ -1679,7 +1681,7 @@ Conforming bibliothecas SHOULD implement rate limiting. Recommended tiers:
 
 ### 9.10 Machine-Readable API Contract
 
-The normative HTTP contract companion may use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
+The normative HTTP contract companion can use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
 
 The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 7807 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
 
@@ -2098,9 +2100,9 @@ Fixture updates that materially change interoperability expectations are normati
 | **Derived judgment**           | A bibliotheca-produced assessment such as a verification label or policy outcome. Derived judgments are not canonical trust facts.                                                    |
 | **Capability metadata**        | Registry-wide structured metadata describing operational bibliotheca capabilities and policy shape.                                                                                   |
 | **Portable capability class**  | A runtime-neutral category used to describe a tool surface by role rather than by a runtime-specific tool name.                                                                       |
-| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names may map to shared portable capability classes.                                            |
+| **Runtime-specific tool name** | A concrete tool identifier exposed by a particular runtime or host environment. These names can map to shared portable capability classes.                                            |
 | **Extension container**        | Reserved capability metadata field that holds non-core extension data under first-level namespace keys.                                                                               |
-| **Bridge period**              | A compatibility period during which an extension form and its promoted core form may coexist under explicit migration metadata.                                                       |
+| **Bridge period**              | A compatibility period during which an extension form and its promoted core form can coexist under explicit migration metadata.                                                       |
 | **Migration warning**          | Required warning surfaced when tooling accepts an old bridge-period form that remains a compatibility alias.                                                                          |
 
 ---
