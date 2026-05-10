@@ -265,6 +265,19 @@
       }
     },
     {
+      "agentVolumesField": "volume.documentation",
+      "cyclonedx": {
+        "target": "metadata.component.externalReferences[documentation]",
+        "kind": "native"
+      },
+      "spdx": {
+        "target": "Package.externalRefs[documentation]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Encode the Agent Volumes documentation URL as a stable external reference using the agent-volumes extension namespace when the target family lacks a native documentation reference type."
+      }
+    },
+    {
       "agentVolumesField": "volume.homepage",
       "cyclonedx": {
         "target": "metadata.component.externalReferences[website]",

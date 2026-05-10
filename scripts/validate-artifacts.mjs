@@ -35,6 +35,7 @@ const schemas = {
   releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
   releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
   releaseMetadata: readJson('schemas/release-metadata.schema.json'),
+  conformanceReport: readJson('schemas/conformance-report.schema.json'),
   exactReleaseMetadataCase: readJson('schemas/exact-release-metadata-case.schema.json'),
   problemDetails: readJson('schemas/problem-details.schema.json'),
   warning: readJson('schemas/warning.schema.json'),
@@ -100,12 +101,10 @@ const assertReleaseMetadata = (metadata, label) => {
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
   assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
-  if (metadata.purl) {
-    assert(
-      metadata.purl === canonicalReleasePurl(metadata.name, metadata.version),
-      `${label} purl must match canonical release identity`
-    );
-  }
+  assert(
+    metadata.purl === canonicalReleasePurl(metadata.name, metadata.version),
+    `${label} purl must match canonical release identity`
+  );
   assert(metadata.status && typeof metadata.status === 'object', `${label} needs lifecycle status metadata`);
   assert(
     ['available', 'yanked', 'tombstoned', 'blocked', 'unavailable'].includes(metadata.status.state),
@@ -185,6 +184,94 @@ const canonicalReleasePurl = (volume, version) => {
 const canonicalComponentPurl = (volume, version, component) => {
   assert(componentNamePattern.test(component.name), `cannot canonicalize invalid component name: ${component.name}`);
   return `${canonicalReleasePurl(volume, version)}#${component.type}/${component.name}`;
+};
+
+const decodeFixtureArtifact = (artifact, label) => {
+  assert(artifact?.bytesBase64, `${label} needs artifact.bytesBase64`);
+  const bytes = Buffer.from(artifact.bytesBase64, 'base64');
+  assert(bytes.length > 0, `${label} artifact bytes must not be empty`);
+  const digest = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
+  assert(digest === artifact.artifactDigest, `${label} artifactDigest must match bytes`);
+  try {
+    return JSON.parse(bytes.toString('utf8'));
+  } catch (err) {
+    throw new Error(`${label} artifact bytes must parse as JSON: ${err.message}`);
+  }
+};
+
+const assertCycloneDxArtifact = (artifactJson, trustCase) => {
+  const component = artifactJson.metadata?.component;
+  assert(artifactJson.bomFormat === 'CycloneDX', `trust artifact case ${trustCase.name} BOM must declare CycloneDX`);
+  assert(
+    artifactJson.specVersion === trustCase.format.version,
+    `trust artifact case ${trustCase.name} BOM specVersion must match format.version`
+  );
+  assert(
+    component?.purl === trustCase.subject.purl,
+    `trust artifact case ${trustCase.name} BOM purl must bind subject`
+  );
+  assert(
+    component?.hashes?.some(
+      (hash) => hash.alg === 'SHA-256' && `sha256:${hash.content}` === trustCase.subject.integrity
+    ),
+    `trust artifact case ${trustCase.name} BOM hashes must bind immutable identity`
+  );
+};
+
+const assertSlsaArtifact = (artifactJson, trustCase) => {
+  assert(
+    artifactJson.payloadType === 'application/vnd.in-toto+json',
+    `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`
+  );
+  assert(
+    Array.isArray(artifactJson.signatures) && artifactJson.signatures.length > 0,
+    `trust artifact case ${trustCase.name} SLSA envelope needs deterministic signature material`
+  );
+  const statement = JSON.parse(Buffer.from(artifactJson.payload, 'base64').toString('utf8'));
+  assert(
+    statement._type === 'https://in-toto.io/Statement/v1',
+    `trust artifact case ${trustCase.name} needs in-toto Statement v1`
+  );
+  assert(
+    statement.predicateType === 'https://slsa.dev/provenance/v1',
+    `trust artifact case ${trustCase.name} needs SLSA v1 predicateType`
+  );
+  assert(
+    statement.subject?.some(
+      (subject) =>
+        subject.name === trustCase.subject.purl && subject.digest?.sha256 === trustCase.subject.integrity.slice(7)
+    ),
+    `trust artifact case ${trustCase.name} SLSA subject must bind release subject`
+  );
+  assert(statement.predicate?.buildDefinition?.buildType, `trust artifact case ${trustCase.name} needs SLSA buildType`);
+  assert(statement.predicate?.runDetails?.builder?.id, `trust artifact case ${trustCase.name} needs SLSA builder id`);
+};
+
+const assertSigstoreArtifact = (artifactJson, trustCase) => {
+  assert(
+    artifactJson.media_type === 'application/vnd.dev.sigstore.bundle.v0.3+json',
+    `trust artifact case ${trustCase.name} Sigstore bundle must declare v0.3 media_type`
+  );
+  assert(
+    artifactJson.verification_material,
+    `trust artifact case ${trustCase.name} Sigstore bundle needs verification material`
+  );
+  const hasMessageSignature = Boolean(artifactJson.message_signature);
+  const hasDsseEnvelope = Boolean(artifactJson.dsse_envelope);
+  assert(
+    hasMessageSignature !== hasDsseEnvelope,
+    `trust artifact case ${trustCase.name} Sigstore bundle must use exactly one content form`
+  );
+  if (hasMessageSignature) {
+    assert(
+      artifactJson.message_signature.message_digest?.digest === trustCase.subject.integrity.slice(7),
+      `trust artifact case ${trustCase.name} Sigstore message digest must bind release subject`
+    );
+    assert(
+      artifactJson.message_signature.signature,
+      `trust artifact case ${trustCase.name} Sigstore signature is required`
+    );
+  }
 };
 
 const routeIdentityFromPath = (route) => {
@@ -832,6 +919,22 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       `trust artifact case ${trustCase.name} valid artifact must bind logical identity`
     );
   }
+  if (trustCase.artifact) {
+    assert(
+      trustCase.artifact.mediaType === trustCase.format.mediaType,
+      `trust artifact case ${trustCase.name} artifact mediaType must match declared format`
+    );
+    const artifactJson = decodeFixtureArtifact(trustCase.artifact, `trust artifact case ${trustCase.name}`);
+    if (trustCase.category === 'bom') {
+      assertCycloneDxArtifact(artifactJson, trustCase);
+    }
+    if (trustCase.category === 'provenance') {
+      assertSlsaArtifact(artifactJson, trustCase);
+    }
+    if (trustCase.category === 'signature') {
+      assertSigstoreArtifact(artifactJson, trustCase);
+    }
+  }
 }
 
 const digestVectors = readJson('conformance/fixtures/digest-vectors.json');
@@ -1115,6 +1218,7 @@ for (const field of [
   'volume.name',
   'volume.version',
   'volume.description',
+  'volume.documentation',
   'volume.license',
   'volume.homepage',
   'volume.repository',
