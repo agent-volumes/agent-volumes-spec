@@ -17,6 +17,11 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       },
+      "artifact": {
+        "mediaType": "application/vnd.cyclonedx+json",
+        "bytesBase64": "eyJib21Gb3JtYXQiOiJDeWNsb25lRFgiLCJzcGVjVmVyc2lvbiI6IjEuNyIsInNlcmlhbE51bWJlciI6InVybjp1dWlkOjExMTExMTExLTExMTEtNDExMS04MTExLTExMTExMTExMTExMSIsInZlcnNpb24iOjEsIm1ldGFkYXRhIjp7ImNvbXBvbmVudCI6eyJ0eXBlIjoiYXBwbGljYXRpb24iLCJib20tcmVmIjoicGtnOnZvbHVtZS9yZXNlYXJjaC1hZ2VudC1wYWNrQDEuNC4wIiwibmFtZSI6InJlc2VhcmNoLWFnZW50LXBhY2siLCJ2ZXJzaW9uIjoiMS40LjAiLCJwdXJsIjoicGtnOnZvbHVtZS9yZXNlYXJjaC1hZ2VudC1wYWNrQDEuNC4wIiwiaGFzaGVzIjpbeyJhbGciOiJTSEEtMjU2IiwiY29udGVudCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEifV19fX0=",
+        "artifactDigest": "sha256:807f03bc13db967aee1d82e3076a0d41569e9caf38d2486239c71f9b90ed8f9d"
+      },
       "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
     },
@@ -36,6 +41,11 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "artifact": {
+        "mediaType": "application/vnd.in-toto+json",
+        "bytesBase64": "eyJwYXlsb2FkVHlwZSI6ImFwcGxpY2F0aW9uL3ZuZC5pbi10b3RvK2pzb24iLCJwYXlsb2FkIjoiZXlKZmRIbHdaU0k2SW1oMGRIQnpPaTh2YVc0dGRHOTBieTVwYnk5VGRHRjBaVzFsYm5RdmRqRWlMQ0p6ZFdKcVpXTjBJanBiZXlKdVlXMWxJam9pY0d0bk9uWnZiSFZ0WlM5eVpYTmxZWEpqYUMxaFoyVnVkQzF3WVdOclFERXVOQzR3SWl3aVpHbG5aWE4wSWpwN0luTm9ZVEkxTmlJNkltRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRWlmWDFkTENKd2NtVmthV05oZEdWVWVYQmxJam9pYUhSMGNITTZMeTl6YkhOaExtUmxkaTl3Y205MlpXNWhibU5sTDNZeElpd2ljSEpsWkdsallYUmxJanA3SW1KMWFXeGtSR1ZtYVc1cGRHbHZiaUk2ZXlKaWRXbHNaRlI1Y0dVaU9pSm9kSFJ3Y3pvdkwyRm5aVzUwZG05c2RXMWxjeTV2Y21jdlluVnBiR1IwZVhCbGN5OTJiMngxYldVdmRqQXVNU0lzSW1WNGRHVnlibUZzVUdGeVlXMWxkR1Z5Y3lJNmV5SjNiM0pyWm14dmR5STZJbkpsYkdWaGMyVXVlVzFzSW4xOUxDSnlkVzVFWlhSaGFXeHpJanA3SW1KMWFXeGtaWElpT25zaWFXUWlPaUpvZEhSd2N6b3ZMMkoxYVd4a1pYSXVaWGhoYlhCc1pTNTBaWE4wTDJGblpXNTBMWFp2YkhWdFpYTXZiMlptYkdsdVpTSjlmWDE5Iiwic2lnbmF0dXJlcyI6W3sia2V5aWQiOiJhZ2VudC12b2x1bWVzLW9mZmxpbmUtdGVzdC1rZXkiLCJzaWciOiJUVVZWUTBsUlJHOW1abXhwYm1WRVpYUmxjbTFwYm1semRHbGpVMmxuYm1GMGRYSmxSbWw0ZEhWeVpRPT0ifV19",
+        "artifactDigest": "sha256:541eca69c808b1a10906db5796d4bbd7153f416c2781f3120f8d1d6c0657fa37"
       },
       "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
@@ -77,6 +87,11 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "signatureFormat": "sigstore-bundle"
+      },
+      "artifact": {
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "bytesBase64": "eyJtZWRpYV90eXBlIjoiYXBwbGljYXRpb24vdm5kLmRldi5zaWdzdG9yZS5idW5kbGUudjAuMytqc29uIiwidmVyaWZpY2F0aW9uX21hdGVyaWFsIjp7InB1YmxpY19rZXkiOnsiaGludCI6ImFnZW50LXZvbHVtZXMtb2ZmbGluZS10ZXN0LWtleSJ9LCJ0bG9nX2VudHJpZXMiOlt7ImxvZ19pbmRleCI6IjAiLCJsb2dfaWQiOnsia2V5X2lkIjoib2ZmbGluZS10ZXN0LXJla29yLWxvZyJ9fV19LCJtZXNzYWdlX3NpZ25hdHVyZSI6eyJtZXNzYWdlX2RpZ2VzdCI6eyJhbGdvcml0aG0iOiJTSEEyXzI1NiIsImRpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEifSwic2lnbmF0dXJlIjoiVFVWVlEwbFJSRzltWm14cGJtVkVaWFJsY20xcGJtbHpkR2xqVTJsbmJtRjBkWEpsUm1sNGRIVnlaUT09In19",
+        "artifactDigest": "sha256:5b7e14b18a569d39e41b325065612a4d17c741b4639071b8a596918d5652dc42"
       },
       "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
