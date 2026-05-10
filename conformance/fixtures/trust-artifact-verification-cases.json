@@ -17,6 +17,7 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
     },
     {
@@ -36,6 +37,7 @@
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "predicateType": "https://slsa.dev/provenance/v1"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
     },
     {
@@ -55,6 +57,7 @@
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "predicateType": "https://example.test/provenance/custom/v1"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": false, "failureCategory": "unsupported-provenance-predicate" }
     },
     {
@@ -75,6 +78,7 @@
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "signatureFormat": "sigstore-bundle"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
     },
     {
@@ -95,6 +99,7 @@
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "signatureFormat": "raw-signature"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": false, "failureCategory": "unsupported-signature-format" }
     },
     {
@@ -113,7 +118,83 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
       },
+      "lifecycleStatus": { "state": "active" },
       "expected": { "valid": false, "failureCategory": "subject-binding-mismatch" }
+    },
+    {
+      "name": "trust-artifact-rejects-revoked-default",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "lifecycleStatus": { "state": "revoked", "reason": "Publisher revoked the attachment." },
+      "expected": { "valid": false, "failureCategory": "revoked-trust-artifact" }
+    },
+    {
+      "name": "trust-artifact-rejects-invalid-default",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "signatureFormat": "sigstore-bundle",
+        "version": "0.3"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle"
+      },
+      "lifecycleStatus": { "state": "invalid", "reason": "Registry verification failed." },
+      "expected": { "valid": false, "failureCategory": "invalid-trust-artifact" }
+    },
+    {
+      "name": "trust-artifact-rejects-missing-artifact-subject-fact",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {},
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "missing-artifact-subject" }
+    },
+    {
+      "name": "trust-artifact-rejects-unsupported-artifact-format",
+      "category": "bom",
+      "format": {
+        "family": "custom-bom",
+        "mediaType": "application/vnd.example.custom-bom+json",
+        "version": "1.0"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "unsupported-artifact-format" }
     }
   ]
 }

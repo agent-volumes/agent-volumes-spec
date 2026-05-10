@@ -71,7 +71,7 @@ const volumeNamePattern =
 const semverPattern =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 const digestPattern = /^sha256:[a-f0-9]{64}$/;
-const componentNamePattern = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
+const componentNamePattern = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
 const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
 const problemStatusBySlug = new Map([
   ['authentication-required', 401],
@@ -114,6 +114,9 @@ const assertReleaseMetadata = (metadata, label) => {
   if (['available', 'yanked'].includes(metadata.status.state)) {
     assert(metadata.dist && typeof metadata.dist === 'object', `${label} needs dist metadata`);
     assert(['cdn', 'git'].includes(metadata.dist.source), `${label} needs cdn or git dist source`);
+  }
+  if (['blocked', 'tombstoned', 'unavailable'].includes(metadata.status.state)) {
+    assert(!metadata.dist, `${label} must not expose installable dist metadata for ${metadata.status.state}`);
   }
 };
 
@@ -360,9 +363,21 @@ const releaseUploadFailures = new Set(
     .filter((fixture) => fixture.schema === 'problem-details')
     .map((fixture) => fixture.expected.failureCategory)
 );
+const releaseUploadStates = new Set(
+  releaseUploadLifecycle.fixtures
+    .filter((fixture) => fixture.schema === 'release-upload-intent')
+    .map((fixture) => fixture.payload.state)
+);
+for (const requiredState of ['pending-upload', 'uploading', 'uploaded', 'expired', 'failed']) {
+  assert(releaseUploadStates.has(requiredState), `release upload lifecycle missing ${requiredState} state`);
+}
 for (const failureCategory of [
   'version-conflict',
   'invalid-archive',
+  'invalid-manifest',
+  'authorization-failed',
+  'payload-too-large',
+  'unsupported-media-type',
   'identity-mismatch',
   'digest-mismatch',
   'missing-uploaded-bytes',
@@ -379,6 +394,16 @@ for (const fixture of releaseUploadLifecycle.fixtures) {
       fixture.payload.mediaType === 'application/gzip',
       `release upload lifecycle ${fixture.name} must use application/gzip`
     );
+    if (fixture.expected.state) {
+      assert(
+        fixture.payload.state === fixture.expected.state,
+        `release upload lifecycle ${fixture.name} expected state must match payload state`
+      );
+      assert(
+        fixture.expected.finalizable === (fixture.payload.state === 'uploaded'),
+        `release upload lifecycle ${fixture.name} finalizable flag must match uploaded-only finalization rule`
+      );
+    }
   }
   if (fixture.schema === 'release-upload-finalize') {
     validate('releaseUploadFinalize', fixture.payload, `release upload lifecycle ${fixture.name}`);
@@ -627,6 +652,25 @@ for (const exactCase of exactReleaseMetadataCases.cases) {
       `exact release metadata case ${exactCase.name} must use portable lifecycle failure category`
     );
   }
+  if (exactCase.invalidMetadata) {
+    validateExpectedFailure(
+      'releaseMetadata',
+      exactCase.invalidMetadata,
+      `exact release metadata case ${exactCase.name}`
+    );
+    assert(
+      ['blocked', 'tombstoned', 'unavailable'].includes(exactCase.invalidMetadata.status?.state),
+      `exact release metadata case ${exactCase.name} invalid metadata must use non-installable lifecycle state`
+    );
+    assert(
+      exactCase.invalidMetadata.dist,
+      `exact release metadata case ${exactCase.name} invalid metadata must exercise forbidden dist`
+    );
+    assert(
+      exactCase.expected.failureCategory === 'non-installable-dist',
+      `exact release metadata case ${exactCase.name} must classify forbidden dist metadata`
+    );
+  }
 }
 for (const requiredDistSource of ['cdn', 'git']) {
   assert(
@@ -644,10 +688,23 @@ for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registr
 const trustUploadLifecycle = readJson('conformance/fixtures/trust-upload-lifecycle.json');
 assertSpecVersion(trustUploadLifecycle, 'trust upload lifecycle fixture');
 const trustUploadIntentCategories = new Set();
+const trustUploadStates = new Set();
+const trustUploadFailures = new Set();
 for (const fixture of trustUploadLifecycle.fixtures) {
   if (fixture.schema === 'trust-upload-intent') {
     validate('trustUploadIntent', fixture.payload, `trust upload lifecycle ${fixture.name}`);
     trustUploadIntentCategories.add(fixture.payload.attachment.category);
+    trustUploadStates.add(fixture.payload.state);
+    if (fixture.expected.state) {
+      assert(
+        fixture.payload.state === fixture.expected.state,
+        `trust upload lifecycle ${fixture.name} expected state must match payload state`
+      );
+      assert(
+        fixture.expected.finalizable === (fixture.payload.state === 'uploaded'),
+        `trust upload lifecycle ${fixture.name} finalizable flag must match uploaded-only finalization rule`
+      );
+    }
   }
   if (fixture.schema === 'trust-upload-finalize') {
     validate('trustUploadFinalize', fixture.payload, `trust upload lifecycle ${fixture.name}`);
@@ -658,17 +715,34 @@ for (const fixture of trustUploadLifecycle.fixtures) {
   }
   if (fixture.schema === 'problem-details') {
     assertProblemDetails(fixture.payload, `trust upload lifecycle ${fixture.name}`);
+    trustUploadFailures.add(fixture.expected.failureCategory);
     assert(
       fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
       `trust upload lifecycle ${fixture.name} failureCategory must match problem type slug`
     );
   }
 }
+for (const requiredState of ['pending-upload', 'uploading', 'uploaded', 'expired', 'failed']) {
+  assert(trustUploadStates.has(requiredState), `trust upload lifecycle missing ${requiredState} state`);
+}
 for (const requiredTrustUploadCategory of ['bom', 'provenance', 'signature']) {
   assert(
     trustUploadIntentCategories.has(requiredTrustUploadCategory),
     `trust upload lifecycle must include ${requiredTrustUploadCategory} intent`
   );
+}
+for (const failureCategory of [
+  'digest-mismatch',
+  'upload-expired',
+  'subject-binding-mismatch',
+  'missing-uploaded-bytes',
+  'idempotency-conflict',
+  'invalid-upload-state',
+  'payload-too-large',
+  'unsupported-media-type',
+  'authorization-failed',
+]) {
+  assert(trustUploadFailures.has(failureCategory), `trust upload lifecycle missing ${failureCategory}`);
 }
 
 const trustArtifactVerificationCases = readJson('conformance/fixtures/trust-artifact-verification-cases.json');
@@ -685,7 +759,7 @@ for (const trustCategory of ['bom', 'provenance', 'signature']) {
 for (const trustCase of trustArtifactVerificationCases.cases) {
   if (trustCase.category === 'bom') {
     assert(
-      trustCase.format.family === 'cyclonedx',
+      trustCase.format.family === 'cyclonedx' || trustCase.expected.failureCategory === 'unsupported-artifact-format',
       `trust artifact case ${trustCase.name} BOM must use cyclonedx family`
     );
   }
@@ -728,6 +802,24 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       trustCase.artifactSubject?.integrity !== trustCase.subject.integrity ||
         trustCase.artifactSubject?.purl !== trustCase.subject.purl,
       `trust artifact case ${trustCase.name} must exercise subject mismatch`
+    );
+  }
+  if (trustCase.expected.failureCategory === 'missing-artifact-subject') {
+    assert(
+      !trustCase.artifactSubject?.purl || !trustCase.artifactSubject?.integrity,
+      `trust artifact case ${trustCase.name} must omit at least one artifact subject fact`
+    );
+  }
+  if (trustCase.expected.failureCategory === 'revoked-trust-artifact') {
+    assert(
+      trustCase.lifecycleStatus?.state === 'revoked' && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model revoked attachments as default failures`
+    );
+  }
+  if (trustCase.expected.failureCategory === 'invalid-trust-artifact') {
+    assert(
+      trustCase.lifecycleStatus?.state === 'invalid' && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model invalid attachments as default failures`
     );
   }
   if (trustCase.expected.valid) {
@@ -1057,6 +1149,34 @@ for (const entry of mappingMatrix.entries) {
     entry.cyclonedx || entry.spdx || entry.slsa,
     `mapping matrix entry ${entry.agentVolumesField} must map to at least one target`
   );
+}
+const mappingFields = mappingMatrix.entries.map((entry) => entry.agentVolumesField);
+assert(new Set(mappingFields).size === mappingFields.length, 'mapping matrix agentVolumesField entries must be unique');
+assert(
+  mappingFields.join('\n') === [...mappingFields].sort().join('\n'),
+  'mapping matrix entries must be ordered by agentVolumesField for stable serialization'
+);
+for (const entry of mappingMatrix.entries) {
+  for (const family of ['cyclonedx', 'spdx', 'slsa']) {
+    const mapping = entry[family];
+    if (!mapping) continue;
+    if (mapping.kind === 'extension') {
+      assert(
+        mapping.extensionNamespace?.startsWith('agent-volumes'),
+        `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs Agent Volumes namespace`
+      );
+      assert(
+        typeof mapping.serialization === 'string' && mapping.serialization.length > 0,
+        `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs serialization guidance`
+      );
+    }
+    if (mapping.kind === 'lossy') {
+      assert(
+        typeof mapping.lossiness === 'string' && mapping.lossiness.length > 0,
+        `mapping matrix ${entry.agentVolumesField}.${family} lossy mapping needs lossiness explanation`
+      );
+    }
+  }
 }
 
 let openapi;

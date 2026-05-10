@@ -86,7 +86,7 @@ The v0.1 core intentionally leaves several operational choices local. Prototype 
 
 ## Smoke conformance path
 
-Run the repository artifact checks before comparing implementation behavior against the fixtures:
+Run the repository artifact checks before comparing implementation behavior against the artifact-first/offline fixture harness:
 
 ```bash
 npm run validate:artifacts
@@ -107,9 +107,12 @@ Then map implementation tests to fixture families:
 | Trust artifact verification      | `trust-artifact-verification-cases.json`                                             |
 | Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
 | Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
+| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
 | Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
 
 Fixture updates that materially change expected behavior are normative draft changes and should be versioned with the prose release.
+
+Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects should add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract.
 
 ## Implementation order
 

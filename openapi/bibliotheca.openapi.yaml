@@ -817,6 +817,9 @@ components:
     SemVer:
       type: string
       pattern: ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+    ReleasePurl:
+      type: string
+      pattern: ^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
     Digest:
       type: string
       pattern: ^sha256:[a-f0-9]{64}$
@@ -909,6 +912,8 @@ components:
           $ref: '#/components/schemas/VolumeName'
         version:
           $ref: '#/components/schemas/SemVer'
+        purl:
+          $ref: '#/components/schemas/ReleasePurl'
         integrity:
           $ref: '#/components/schemas/Digest'
         status:
@@ -952,6 +957,18 @@ components:
             required: [status]
           then:
             required: [dist]
+        - if:
+            properties:
+              status:
+                type: object
+                properties:
+                  state:
+                    enum: [blocked, tombstoned, unavailable]
+                required: [state]
+            required: [status]
+          then:
+            not:
+              required: [dist]
     VersionStatus:
       type: object
       additionalProperties: false
@@ -973,8 +990,7 @@ components:
           required: [purl, integrity]
           properties:
             purl:
-              type: string
-              pattern: ^pkg:volume/.+@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+              $ref: '#/components/schemas/ReleasePurl'
             integrity:
               $ref: '#/components/schemas/Digest'
         attachment:

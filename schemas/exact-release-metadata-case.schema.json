@@ -22,12 +22,17 @@
           {
             "required": ["problem"],
             "properties": { "problem": true }
+          },
+          {
+            "required": ["invalidMetadata"],
+            "properties": { "invalidMetadata": true }
           }
         ],
         "properties": {
           "name": { "type": "string", "minLength": 1 },
           "requestRoute": { "type": "string" },
           "metadata": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-metadata.schema.json" },
+          "invalidMetadata": { "type": "object" },
           "problem": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/problem-details.schema.json" },
           "expected": {
             "type": "object",

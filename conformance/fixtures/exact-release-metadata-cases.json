@@ -89,6 +89,23 @@
         "detail": "The bibliotheca cannot reconcile release metadata with retrievable artifact bytes."
       },
       "expected": { "outcome": "failure", "installable": false, "failureCategory": "availability-or-registry-state" }
+    },
+    {
+      "name": "blocked-release-metadata-with-dist-is-invalid",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.6",
+      "invalidMetadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.6",
+        "purl": "pkg:volume/research-agent-pack@1.4.6",
+        "integrity": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "status": { "state": "blocked", "reason": "Blocked by registry policy" },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.6.tar.gz"
+        }
+      },
+      "expected": { "outcome": "failure", "installable": false, "failureCategory": "non-installable-dist" }
     }
   ]
 }

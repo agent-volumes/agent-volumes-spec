@@ -28,9 +28,22 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["target", "kind"],
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "extension" } }, "required": ["kind"] },
+          "then": { "properties": { "extensionNamespace": true }, "required": ["extensionNamespace"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "lossy" } }, "required": ["kind"] },
+          "then": { "properties": { "lossiness": true }, "required": ["lossiness"] }
+        }
+      ],
       "properties": {
         "target": { "type": "string", "minLength": 1 },
-        "kind": { "type": "string", "enum": ["native", "extension", "lossy"] }
+        "kind": { "type": "string", "enum": ["native", "extension", "lossy"] },
+        "extensionNamespace": { "type": "string", "pattern": "^agent-volumes(?::[a-z0-9-]+)?$" },
+        "lossiness": { "type": "string", "minLength": 1 },
+        "serialization": { "type": "string", "minLength": 1 }
       }
     }
   }
