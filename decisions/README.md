@@ -8,9 +8,9 @@ current normative release surface.
 ## How to read the records
 
 - Records are numbered chronologically: `0001-...md`, `0002-...md`, and so on.
-- Later records may refine or supersede earlier direction. Read the latest
+- Later records can refine or supersede earlier direction. Read the latest
   records in the affected topic area before drawing conclusions.
-- Deferred topics should not be treated as accidental spec gaps unless the
+- Deferred topics are not accidental spec gaps unless the
   corresponding record says its reconsideration trigger has been met.
 
 ## Current v0.1 baseline anchors
@@ -45,9 +45,9 @@ their records are reopened:
 - AI-specific BOM profile guarantees beyond the generic CycloneDX baseline (`0096-*`)
 - registry-priority policy and lockfile format (`0019-*`, `0097-*`, `0100-*`)
 - universal trust-root policy (`0103-*`)
-- upload profiles beyond required `http-put` (`0106-*`)
+- upload profiles beyond mandatory `http-put` (`0106-*`)
 
-Reviewers should keep these items out of v0.1 readiness blocking lists unless a
+Reviewers keep these items out of v0.1 readiness blocking lists unless a
 record's own trigger conditions have been satisfied.
 
 ## Maintenance checklist

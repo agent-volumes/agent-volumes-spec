@@ -2,7 +2,7 @@
 
 This inventory supports readiness review for Agent Volumes `0.1.0-draft.5`.
 It does not replace the prose specification. The prose remains the final
-normative authority, while this file explains how implementers should read the
+normative authority, while this file explains how implementers are expected to read the
 role-scoped conformance IDs, fixture coverage, and deliberately local policy
 boundaries.
 
@@ -29,7 +29,7 @@ v0.1:
 The machine-readable traceability artifact is
 [`fixtures/conformance-coverage.json`](fixtures/conformance-coverage.json). It
 maps those IDs to fixture families and schemas. That mapping is intentionally
-role-scoped: one `AV-*` ID may correspond to several lower-level BCP 14
+role-scoped: one `AV-*` ID can correspond to several lower-level BCP 14
 sentences in the prose.
 
 ## Fixture-covered behavior
@@ -54,7 +54,7 @@ The v0.1 fixture corpus covers these readiness-critical areas:
 ## Prose-boundary behavior
 
 Some BCP 14 statements are intentionally not represented as standalone offline
-vectors. Implementers and reviewers should evaluate these through prose review,
+vectors. Implementers and reviewers evaluate these through prose review,
 OpenAPI/schema alignment, implementation tests, or local policy documentation:
 
 - **Live registry behavior**: deployed service behavior, storage replication,
@@ -85,11 +85,11 @@ decision records are explicitly reopened:
 - universal prerelease-selection policy (`ADR-0093`)
 - advisory write authority and moderation workflows (`ADR-0092`)
 - scanner-finding interchange and scanner severity normalization (`ADR-0015`)
-- common vocabulary for optional derived judgments (`ADR-0011`)
+- common vocabulary for non-mandatory derived judgments (`ADR-0011`)
 - universal trust-root policy (`ADR-0103`)
 - component-level advisory targeting (`ADR-0021`)
 - transitive closure semantics for `role = "meta"` (`ADR-0094`)
-- upload profiles beyond the required `http-put` portable minimum (`ADR-0106`)
+- upload profiles beyond the mandatory `http-put` portable minimum (`ADR-0106`)
 - AI-specific BOM profile guarantees beyond the generic CycloneDX baseline
   (`ADR-0096`)
 - structured deprecation metadata (`ADR-0054`)
@@ -97,7 +97,7 @@ decision records are explicitly reopened:
 - finer permission granularity beyond the read/write baseline (`ADR-0089`)
 - future strict, enterprise, or other profiles beyond the v0.1 core (`ADR-0028`)
 
-Reviewers should not count those items as v0.1 readiness gaps unless the
+Reviewers do not count those items as v0.1 readiness gaps unless the
 corresponding ADR says its reconsideration trigger has been met.
 
 ## Readiness use

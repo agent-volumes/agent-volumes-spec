@@ -1,6 +1,6 @@
 # CONFORMANCE FIXTURES
 
-Normative offline conformance fixture set for Agent Volumes v0.1. Artifact-first, deterministic, no deployed bibliotheca or network access required.
+Normative offline conformance fixture set for Agent Volumes v0.1. Artifact-first, deterministic, no deployed bibliotheca or network access needed.
 
 ## STRUCTURE
 
@@ -27,7 +27,7 @@ conformance/
 - **Three validation units**: whole-file schema, case payload schema, algorithmic vector.
 - **Fixture names encode scenario/status**: `manifest-valid-*`, `manifest-invalid-*`, `*-cases`, `*-lifecycle`, `*-empty`, `*-matrix`.
 - **Offline vectors**: fake domains (`example.test`), embedded `bytesBase64` blobs, no live services.
-- **Stable IDs**: `results[].id` is a lowercase slug derived from fixture path + case name; must stay stable across runs.
+- **Stable IDs**: `results[].id` is a lowercase slug derived from fixture path + case name; keep it stable across runs.
 
 ## ANTI-PATTERNS
 
