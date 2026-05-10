@@ -81,6 +81,7 @@ diffed and compared by tooling.
 | Area                             | Fixture files                                                                                          |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`                       |
+| Permission validation            | `permission-escalation.json`, `permission-sibling-escalation.json`                                     |
 | Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` |
 | Package identity                 | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`                       |
 | Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                   |
@@ -158,3 +159,8 @@ changes and MUST remain version-aligned with the prose specification.
 and `AV-CLI-*` to fixture families. The coverage artifact is not a product
 certification result; it is a traceability aid that helps runners and reviewers
 distinguish fixture-checked behavior from prose-only or profile-local behavior.
+It maps the role-scoped conformance requirements in the prose specification, not
+every individual BCP 14 sentence in the full document. See
+[`REQUIREMENTS.md`](REQUIREMENTS.md) for the companion inventory that separates
+role-scoped requirements, fixture-covered behavior, prose-boundary behavior, and
+intentionally deferred topics.

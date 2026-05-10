@@ -17,7 +17,11 @@
       "id": "AV-BIB-003",
       "role": "bibliotheca",
       "requirement": "Implement the package operations API.",
-      "coverage": [{ "fixture": "bibliotheca.openapi.yaml", "area": "openapi", "coverageType": "openapi" }]
+      "coverage": [
+        { "fixture": "bibliotheca.openapi.yaml", "area": "openapi", "coverageType": "openapi" },
+        { "fixture": "problem-details-cases.json", "area": "problem-details", "coverageType": "negative" },
+        { "fixture": "problem-registry.json", "area": "problem-details", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-BIB-004",
@@ -36,7 +40,11 @@
       "id": "AV-BIB-005",
       "role": "bibliotheca",
       "requirement": "Compute authoritative normalized-file-tree integrity during finalize.",
-      "coverage": [{ "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" }]
+      "coverage": [
+        { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
+        { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
+        { "fixture": "tar-archive-profile-cases.json", "area": "archive", "coverageType": "algorithmic" }
+      ]
     },
     {
       "id": "AV-BIB-006",
@@ -54,7 +62,10 @@
       "id": "AV-BIB-008",
       "role": "bibliotheca",
       "requirement": "Expose package-scoped version indexes synchronized with release lifecycle changes.",
-      "coverage": [{ "fixture": "version-index.json", "area": "resolver", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "version-index.json", "area": "resolver", "coverageType": "schema" },
+        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-BIB-009",
@@ -81,7 +92,12 @@
       "id": "AV-BIB-011",
       "role": "bibliotheca",
       "requirement": "Expose trust metadata summary and detail views.",
-      "coverage": [{ "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
+        { "fixture": "trust-summary-empty.json", "area": "trust-discovery", "coverageType": "schema" },
+        { "fixture": "trust-detail.json", "area": "trust-discovery", "coverageType": "schema" },
+        { "fixture": "trust-detail-empty.json", "area": "trust-discovery", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-BIB-012",
@@ -96,7 +112,12 @@
       "id": "AV-BIB-013",
       "role": "bibliotheca",
       "requirement": "Expose the advisory API.",
-      "coverage": [{ "fixture": "advisory-list.json", "area": "advisory", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "advisory.json", "area": "advisory", "coverageType": "schema" },
+        { "fixture": "advisory-withdrawn.json", "area": "advisory", "coverageType": "schema" },
+        { "fixture": "advisory-list.json", "area": "advisory", "coverageType": "schema" },
+        { "fixture": "advisory-validation-cases.json", "area": "advisory", "coverageType": "negative" }
+      ]
     },
     {
       "id": "AV-BIB-014",
@@ -104,6 +125,12 @@
       "requirement": "Expose dedicated capability metadata endpoint with version fields, API family, and supported upload profiles.",
       "coverage": [
         { "fixture": "capability-metadata.json", "area": "capability", "coverageType": "schema" },
+        { "fixture": "capability-metadata-unknown-tolerance.json", "area": "capability", "coverageType": "positive" },
+        {
+          "fixture": "capability-metadata-reserved-extension-rejection.json",
+          "area": "capability",
+          "coverageType": "negative"
+        },
         {
           "fixture": "capability-invalid-compatibility-cases.json",
           "area": "capability",
@@ -123,13 +150,26 @@
       "id": "AV-BIB-016",
       "role": "bibliotheca",
       "requirement": "Publish required machine-readable companion artifacts or equivalents.",
-      "coverage": [{ "fixture": "schemas/", "area": "mapping", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "schemas/", "area": "mapping", "coverageType": "schema" },
+        { "fixture": "mapping-matrix.json", "area": "mapping", "coverageType": "schema" },
+        { "fixture": "mapping-sample.json", "area": "mapping", "coverageType": "schema" },
+        { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-CLI-001",
       "role": "client",
       "requirement": "Parse volume.toml and validate canonical parsed-data model rules.",
-      "coverage": [{ "fixture": "manifest-parse-cases.json", "area": "manifest", "coverageType": "algorithmic" }]
+      "coverage": [
+        { "fixture": "manifest-parse-cases.json", "area": "manifest", "coverageType": "algorithmic" },
+        { "fixture": "semantic-validation-cases.json", "area": "manifest", "coverageType": "negative" },
+        {
+          "fixture": "component-dependency-validation-cases.json",
+          "area": "identity",
+          "coverageType": "negative"
+        }
+      ]
     },
     {
       "id": "AV-CLI-002",
@@ -160,7 +200,10 @@
       "id": "AV-CLI-005",
       "role": "client",
       "requirement": "Apply portable version lifecycle semantics during resolution and exact installs.",
-      "coverage": [{ "fixture": "resolver-cases.json", "area": "resolver", "coverageType": "algorithmic" }]
+      "coverage": [
+        { "fixture": "resolver-cases.json", "area": "resolver", "coverageType": "algorithmic" },
+        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-CLI-006",
@@ -174,7 +217,11 @@
       "id": "AV-CLI-007",
       "role": "client",
       "requirement": "Verify normalized-file-tree integrity after download or source resolution.",
-      "coverage": [{ "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" }]
+      "coverage": [
+        { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
+        { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
+        { "fixture": "tar-archive-profile-cases.json", "area": "archive", "coverageType": "algorithmic" }
+      ]
     },
     {
       "id": "AV-CLI-008",
@@ -268,7 +315,10 @@
       "id": "AV-CLI-016",
       "role": "client",
       "requirement": "Surface required migration warnings during bridge periods.",
-      "coverage": [{ "fixture": "bridge-metadata.json", "area": "capability", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "bridge-metadata.json", "area": "capability", "coverageType": "schema" },
+        { "fixture": "bridge-metadata-status-variants.json", "area": "capability", "coverageType": "schema" }
+      ]
     }
   ]
 }
