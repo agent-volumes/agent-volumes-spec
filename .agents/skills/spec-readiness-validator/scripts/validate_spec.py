@@ -13,11 +13,10 @@ Example:
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 
 class SpecValidator:
@@ -320,8 +319,9 @@ class SpecValidator:
                     for schema_name in schema_names:
                         if schema_name in content:
                             test_references.append(f"{test_file.name} -> {schema_name}")
-                except:
-                    pass
+                except (OSError, UnicodeDecodeError) as exc:
+                    self.warnings.append(f"Could not read {test_file}: {exc}")
+                    continue
 
         return {
             "status": "PASS",
