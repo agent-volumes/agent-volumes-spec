@@ -10,11 +10,20 @@
     "release": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version", "integrity", "dist"],
+      "required": ["name", "version", "integrity", "status", "dist"],
       "properties": {
         "name": { "$ref": "#/$defs/volumeName" },
         "version": { "$ref": "#/$defs/semver" },
         "integrity": { "$ref": "#/$defs/digest" },
+        "status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": {
+            "state": { "type": "string", "const": "available" },
+            "reason": { "type": "string" }
+          }
+        },
         "dist": {
           "type": "object",
           "additionalProperties": false,

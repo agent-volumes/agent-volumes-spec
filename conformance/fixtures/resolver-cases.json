@@ -232,6 +232,7 @@
           "name": "github-provider",
           "version": "2.0.0",
           "integrity": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+          "status": { "state": "available" },
           "dist": {
             "source": "cdn",
             "mediaType": "application/gzip",
@@ -252,6 +253,7 @@
           "name": "@acme/github-provider",
           "version": "2.0.0",
           "integrity": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "status": { "state": "available" },
           "dist": {
             "source": "cdn",
             "mediaType": "application/gzip",
@@ -271,6 +273,7 @@
           "name": "@other/github-provider",
           "version": "2.0.0",
           "integrity": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+          "status": { "state": "available" },
           "dist": {
             "source": "cdn",
             "mediaType": "application/gzip",

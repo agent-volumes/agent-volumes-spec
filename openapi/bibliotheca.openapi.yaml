@@ -886,6 +886,7 @@ components:
     ReleaseUploadIntentRequest:
       type: object
       additionalProperties: false
+      description: The target package name is route-derived. This body supplies the target version and upload constraints; it does not override the path identity.
       required: [version, mediaType]
       properties:
         version:
@@ -902,7 +903,7 @@ components:
           type: string
     ReleaseMetadata:
       type: object
-      required: [name, version, integrity, dist]
+      required: [name, version, integrity, status]
       properties:
         name:
           $ref: '#/components/schemas/VolumeName'
@@ -910,6 +911,8 @@ components:
           $ref: '#/components/schemas/SemVer'
         integrity:
           $ref: '#/components/schemas/Digest'
+        status:
+          $ref: '#/components/schemas/VersionStatus'
         dist:
           oneOf:
             - type: object
@@ -924,6 +927,7 @@ components:
                   const: application/gzip
                 url:
                   type: string
+                  description: Opaque portable download locator for the hosted .tar.gz archive bytes. Clients verify the normalized-file-tree digest against release integrity after retrieval.
                   format: uri
             - type: object
               required: [source, repository, ref]
@@ -936,6 +940,28 @@ components:
                   format: uri
                 ref:
                   type: string
+      allOf:
+        - if:
+            properties:
+              status:
+                type: object
+                properties:
+                  state:
+                    enum: [available, yanked]
+                required: [state]
+            required: [status]
+          then:
+            required: [dist]
+    VersionStatus:
+      type: object
+      additionalProperties: false
+      required: [state]
+      properties:
+        state:
+          type: string
+          enum: [available, yanked, tombstoned, blocked, unavailable]
+        reason:
+          type: string
     TrustUploadIntentRequest:
       type: object
       additionalProperties: false

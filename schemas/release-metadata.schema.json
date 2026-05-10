@@ -4,12 +4,31 @@
   "title": "Agent Volumes Release Metadata",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "version", "integrity", "dist"],
+  "required": ["name", "version", "integrity", "status"],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "type": "object",
+            "properties": { "state": { "enum": ["available", "yanked"] } },
+            "required": ["state"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": { "dist": true },
+        "required": ["dist"]
+      }
+    }
+  ],
   "properties": {
     "name": { "$ref": "#/$defs/volumeName" },
     "version": { "$ref": "#/$defs/semver" },
     "purl": { "$ref": "#/$defs/releasePurl" },
     "integrity": { "$ref": "#/$defs/digest" },
+    "status": { "$ref": "#/$defs/versionStatus" },
     "dist": {
       "oneOf": [
         {
@@ -19,7 +38,11 @@
           "properties": {
             "source": { "type": "string", "const": "cdn" },
             "mediaType": { "type": "string", "const": "application/gzip" },
-            "url": { "type": "string", "format": "uri" }
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Opaque portable download locator for hosted .tar.gz archive bytes. Clients verify normalized-file-tree integrity after retrieval."
+            }
           }
         },
         {
@@ -52,6 +75,18 @@
     "digest": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "versionStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["available", "yanked", "tombstoned", "blocked", "unavailable"]
+        },
+        "reason": { "type": "string" }
+      }
     }
   }
 }

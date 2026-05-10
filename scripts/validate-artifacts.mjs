@@ -96,8 +96,15 @@ const assertReleaseMetadata = (metadata, label) => {
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
   assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
-  assert(metadata.dist && typeof metadata.dist === 'object', `${label} needs dist metadata`);
-  assert(['cdn', 'git'].includes(metadata.dist.source), `${label} needs cdn or git dist source`);
+  assert(metadata.status && typeof metadata.status === 'object', `${label} needs lifecycle status metadata`);
+  assert(
+    ['available', 'yanked', 'tombstoned', 'blocked', 'unavailable'].includes(metadata.status.state),
+    `${label} needs a recognized lifecycle status`
+  );
+  if (['available', 'yanked'].includes(metadata.status.state)) {
+    assert(metadata.dist && typeof metadata.dist === 'object', `${label} needs dist metadata`);
+    assert(['cdn', 'git'].includes(metadata.dist.source), `${label} needs cdn or git dist source`);
+  }
 };
 
 const assertProblemDetails = (payload, label) => {

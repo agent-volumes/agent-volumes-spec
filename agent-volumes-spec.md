@@ -1267,6 +1267,8 @@ Write-capable bibliothecas expose hosted archive publishing through a two-phase 
 3. Finalize the upload so the bibliotheca can validate the archive, manifest identity, authorization, version conflict state, permission model, and normalized-file-tree integrity.
 4. Expose the resulting release metadata and distribution metadata only after the release is accepted.
 
+The target volume identity is route-derived. For `POST /api/v1/volumes/{name}`, the target identity is the path `name`; for `POST /api/v1/volumes/@{scope}/{name}`, it is `@scope/name`. The upload intent request body supplies the target `version` and upload constraints, not an alternate package name. A bibliotheca MUST reject an upload intent or finalization when the route-derived target identity, request body version, uploaded `volume.toml` identity, or finalized release metadata cannot be reconciled to the same release subject.
+
 The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an expired, failed, already-finalized-with-conflicting-input, or otherwise non-finalizable upload intent is an invalid upload state or idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
 
 For hosted archive workflows, the release transport is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
@@ -1308,6 +1310,9 @@ The fetch response identifies a release by both package-facing metadata and immu
   "name": "research-agent-pack",
   "version": "1.4.0",
   "integrity": "sha256:a3f2b8c4...",
+  "status": {
+    "state": "available"
+  },
   "dist": {
     "source": "cdn",
     "mediaType": "application/gzip",
@@ -1318,11 +1323,17 @@ The fetch response identifies a release by both package-facing metadata and immu
 
 The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
 
+Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
+
+For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 7807 Problem Details response instead: `blocked` releases use an authorization, policy, validation, or registry-state failure appropriate to the bibliotheca; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
+
 For `dist` metadata in v0.1:
 
 - `source = "cdn"` identifies a hosted archive delivery path and MUST expose a `.tar.gz` URL plus the transport media type
 - `source = "git"` identifies a Git-backed delivery path and MUST expose the source repository URL together with a concrete Git reference suitable for reproducible source resolution
 - delivery metadata remains subordinate to the release's immutable content identity; if the resolved delivery content disagrees with the normalized-file-tree digest, the release MUST be rejected as inconsistent
+
+For `source = "cdn"`, `dist.url` is the portable download locator for the hosted archive bytes. The URL MAY point at a bibliotheca endpoint, CDN, object-storage URL, or signed temporary URL. Clients MUST treat the URL as an opaque retrieval target, MUST require the response bytes to be a gzip-compressed tar archive compatible with the hosted archive transport profile, and MUST verify the normalized-file-tree digest against `integrity` before install or trust evaluation. HTTP redirects, caches, and backend storage choices do not change the release subject, lifecycle status, or digest verification requirement.
 
 Fetch responses expose release metadata, not a resolver policy. Registry priority, source selection across multiple configured bibliothecas, and prerelease-selection behavior remain outside the portable v0.1 API baseline.
 
@@ -1805,6 +1816,7 @@ The v0.1 core warning categories are:
 - `unknown-capability-field`
 - `unknown-capability-value`
 - `yanked-version`
+- `noncanonical-entrypoint`
 
 Implementations MAY add extension warning categories, but baseline clients can rely on the core set.
 

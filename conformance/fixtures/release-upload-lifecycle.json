@@ -35,6 +35,9 @@
           "name": "@acme/research-agent-pack",
           "version": "1.4.0",
           "integrity": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "status": {
+            "state": "available"
+          },
           "dist": {
             "source": "cdn",
             "mediaType": "application/gzip",
