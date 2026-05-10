@@ -109,7 +109,7 @@ Fixture files use one of three validation units:
 
 | Fixture file pattern                                                                      | Validation unit     | Companion schema or evaluator                                                                                                                                                                               |
 | ----------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `manifest-valid-*.json`, `manifest-invalid-*.json`, `manifest-unknown-field-warning.json` | Whole file          | [`../schemas/volume.schema.json`](../schemas/volume.schema.json) plus semantic warning checks                                                                                                               |
+| `manifest-valid-*.json`, `manifest-invalid-*.json`, `manifest-unknown-field-warning.json` | Wrapper + payload   | `canonicalParsedData` is validated against [`../schemas/volume.schema.json`](../schemas/volume.schema.json); wrapper metadata supplies `expected` semantic and warning checks                               |
 | `manifest-parse-cases.json`                                                               | Whole file / cases  | [`../schemas/manifest-parse-case.schema.json`](../schemas/manifest-parse-case.schema.json)                                                                                                                  |
 | `semantic-validation-cases.json`                                                          | Whole file / cases  | [`../schemas/semantic-validation-case.schema.json`](../schemas/semantic-validation-case.schema.json)                                                                                                        |
 | `component-dependency-validation-cases.json`                                              | Whole file / cases  | [`../schemas/component-dependency-validation-case.schema.json`](../schemas/component-dependency-validation-case.schema.json)                                                                                |
@@ -130,8 +130,9 @@ Fixture files use one of three validation units:
 | `advisory-list.json`                                                                      | Whole file          | [`../schemas/advisory-list.schema.json`](../schemas/advisory-list.schema.json)                                                                                                                              |
 | `advisory-validation-cases.json`                                                          | Whole file / cases  | [`../schemas/advisory-validation-case.schema.json`](../schemas/advisory-validation-case.schema.json)                                                                                                        |
 | `capability-metadata*.json`                                                               | Whole file          | [`../schemas/capability-metadata.schema.json`](../schemas/capability-metadata.schema.json), including exact compatible spec versions, API major family, upload profiles, and unknown tolerance behavior     |
-| `capability-invalid-compatibility-cases.json`                                             | Case payload schema | [`../schemas/capability-metadata.schema.json`](../schemas/capability-metadata.schema.json) negative cases for exact version-set and API family validation                                                   |
-| `bridge-metadata*.json`                                                                   | Whole file          | [`../schemas/bridge-metadata.schema.json`](../schemas/bridge-metadata.schema.json)                                                                                                                          |
+| `capability-invalid-compatibility-cases.json`                                             | Wrapper + payload   | Each fixture's `canonicalParsedData` is validated as an expected failure against [`../schemas/capability-metadata.schema.json`](../schemas/capability-metadata.schema.json)                                 |
+| `bridge-metadata.json`                                                                    | Whole file          | [`../schemas/bridge-metadata.schema.json`](../schemas/bridge-metadata.schema.json)                                                                                                                          |
+| `bridge-metadata-status-variants.json`                                                    | Wrapper + payload   | Each fixture's `payload` is validated against [`../schemas/bridge-metadata.schema.json`](../schemas/bridge-metadata.schema.json), with wrapper metadata supplying expected validity                         |
 | `mapping-matrix.json`                                                                     | Whole file          | [`../schemas/mapping-matrix.schema.json`](../schemas/mapping-matrix.schema.json)                                                                                                                            |
 | `mapping-sample.json`                                                                     | Whole file          | [`../schemas/mapping-sample.schema.json`](../schemas/mapping-sample.schema.json)                                                                                                                            |
 | `search-results.json`                                                                     | Whole file          | [`../schemas/search-results.schema.json`](../schemas/search-results.schema.json)                                                                                                                            |
@@ -139,10 +140,13 @@ Fixture files use one of three validation units:
 | `problem-registry.json`                                                                   | Whole file          | [`../schemas/problem-registry.schema.json`](../schemas/problem-registry.schema.json)                                                                                                                        |
 | `conformance-coverage.json`                                                               | Whole file          | [`../schemas/conformance-coverage.schema.json`](../schemas/conformance-coverage.schema.json)                                                                                                                |
 
-When a fixture uses a wrapper object with `cases` or `fixtures`, the wrapper is
-part of the deterministic fixture format. The companion schema named above
-applies to the whole wrapper only when the mapping says “Whole file”; otherwise
-it applies to each case payload selected by the case metadata.
+When a fixture uses a wrapper object with `cases`, `fixtures`, `payload`, or
+`canonicalParsedData`, the wrapper is part of the deterministic fixture format.
+The companion schema named above applies to the whole wrapper only when the
+mapping says “Whole file”; otherwise it applies to each case payload selected by
+the case metadata. Wrapper metadata such as `name`, `expected`, and
+`failureCategory` remains part of the runner contract even when the companion
+schema validates only the selected payload.
 
 Warning payloads use the companion schema
 [`../schemas/warning.schema.json`](../schemas/warning.schema.json).

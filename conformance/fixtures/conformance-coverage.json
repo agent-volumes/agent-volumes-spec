@@ -32,7 +32,7 @@
           "fixture": "release-upload-lifecycle.json",
           "area": "release-upload",
           "coverageType": "negative",
-          "case": "version-conflict"
+          "case": "release-upload-conflict"
         }
       ]
     },
@@ -84,7 +84,7 @@
           "fixture": "resolver-cases.json",
           "area": "resolver",
           "coverageType": "negative",
-          "case": "index-exact-metadata-conflict"
+          "case": "version-index-release-metadata-conflict"
         }
       ]
     },
@@ -192,7 +192,7 @@
           "fixture": "resolver-cases.json",
           "area": "resolver",
           "coverageType": "negative",
-          "case": "irreconcilable-single-version-conflict"
+          "case": "single-version-conflict"
         }
       ]
     },
