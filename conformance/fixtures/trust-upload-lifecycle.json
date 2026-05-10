@@ -21,7 +21,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-1",
           "method": "PUT"
         },
@@ -49,7 +49,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-uploading",
           "method": "PUT"
         },
@@ -74,7 +74,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-uploaded",
           "method": "PUT"
         },
@@ -99,7 +99,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-expired-state",
           "method": "PUT"
         },
@@ -124,7 +124,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-failed-state",
           "method": "PUT"
         },
@@ -175,7 +175,7 @@
         "declaredDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
         "declaredSize": 8192,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-provenance-1",
           "method": "PUT"
         },
@@ -229,7 +229,7 @@
         "declaredDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
         "declaredSize": 2048,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "url": "https://uploads.example.test/upload-signature-1",
           "method": "PUT"
         },

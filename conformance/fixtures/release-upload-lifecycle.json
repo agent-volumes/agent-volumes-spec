@@ -16,7 +16,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "method": "PUT",
           "url": "https://storage.example.test/uploads/upload-123"
         },
@@ -36,7 +36,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "method": "PUT",
           "url": "https://storage.example.test/uploads/upload-uploading"
         },
@@ -55,7 +55,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "method": "PUT",
           "url": "https://storage.example.test/uploads/upload-uploaded"
         },
@@ -74,7 +74,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "method": "PUT",
           "url": "https://storage.example.test/uploads/upload-expired-state"
         },
@@ -93,7 +93,7 @@
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
         "upload": {
-          "instructionType": "opaque-url",
+          "instructionType": "http-put",
           "method": "PUT",
           "url": "https://storage.example.test/uploads/upload-failed-state"
         },
