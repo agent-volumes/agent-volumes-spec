@@ -11,6 +11,7 @@
   "apis": {
     "trustMetadata": true,
     "versionIndex": true,
+    "releaseUploads": true,
     "trustUploads": true,
     "advisories": true
   },

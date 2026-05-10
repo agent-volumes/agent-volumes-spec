@@ -29,10 +29,11 @@
     "apis": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["trustMetadata", "versionIndex", "trustUploads", "advisories"],
+      "required": ["trustMetadata", "versionIndex", "releaseUploads", "trustUploads", "advisories"],
       "properties": {
         "trustMetadata": { "type": "boolean" },
         "versionIndex": { "type": "boolean" },
+        "releaseUploads": { "type": "boolean" },
         "trustUploads": { "type": "boolean" },
         "advisories": { "type": "boolean" }
       }
