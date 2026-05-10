@@ -21,12 +21,13 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 | Prose requirements   | `agent-volumes-spec.md`                                                                    |
 | Manifest model       | `schemas/volume.schema.json`                                                               |
 | Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`                                                         |
-| Release metadata     | `schemas/release-metadata.schema.json`                                                     |
+| Release metadata     | `schemas/release-metadata.schema.json`, `schemas/exact-release-metadata-case.schema.json`  |
 | Version index        | `schemas/version-index-row.schema.json`                                                    |
 | Trust discovery      | `schemas/trust-summary.schema.json`, `schemas/trust-detail.schema.json`                    |
 | Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json` |
 | Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`     |
-| Advisories           | `schemas/advisory.schema.json`                                                             |
+| Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                     |
+| Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`             |
 | Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
 | Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
 | Fixtures and vectors | `conformance/fixtures/`                                                                    |
@@ -101,9 +102,10 @@ Then map implementation tests to fixture families:
 | Purl handling                    | `purl-canonicalization-cases.json`                                                   |
 | Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |
 | Permissions                      | `permission-escalation.json`, `permission-sibling-escalation.json`                   |
-| Release upload                   | `release-upload-lifecycle.json`                                                      |
+| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                 |
 | Trust upload and discovery       | `trust-upload-lifecycle.json`, `trust-summary*.json`, `trust-detail*.json`           |
-| Advisories                       | `advisory.json`, `advisory-withdrawn.json`                                           |
+| Trust artifact verification      | `trust-artifact-verification-cases.json`                                             |
+| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
 | Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
 | Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
 

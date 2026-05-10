@@ -1857,18 +1857,22 @@ The draft companion artifact inventory includes at least:
 - [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json)
 - [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json)
 - [`schemas/advisory.schema.json`](schemas/advisory.schema.json)
+- [`schemas/advisory-validation-case.schema.json`](schemas/advisory-validation-case.schema.json)
 - [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json)
 - [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json)
 - [`schemas/release-upload-intent.schema.json`](schemas/release-upload-intent.schema.json)
 - [`schemas/release-upload-finalize.schema.json`](schemas/release-upload-finalize.schema.json)
 - [`schemas/release-metadata.schema.json`](schemas/release-metadata.schema.json)
+- [`schemas/exact-release-metadata-case.schema.json`](schemas/exact-release-metadata-case.schema.json)
 - [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
 - [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)
+- [`schemas/trust-artifact-verification-case.schema.json`](schemas/trust-artifact-verification-case.schema.json)
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
 - [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json)
 - [`schemas/warning.schema.json`](schemas/warning.schema.json)
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
 - [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
+- [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
 - [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml)
 - [`conformance/fixtures/`](conformance/fixtures/)
@@ -1886,11 +1890,13 @@ The v0.1 fixture set includes at least:
 - hosted archive transport profile cases for `.tar.gz` publish/download workflows
 - trust summary/detail payload fixtures
 - version index row fixtures, including yanked, tombstoned, blocked, and unavailable states
+- exact release metadata lifecycle fixtures, including CDN, Git, yanked warning, and non-installable blocked, tombstoned, and unavailable states
 - SemVer range grammar fixtures
 - release upload lifecycle fixtures
 - trust attachment upload lifecycle fixtures
+- layered trust artifact verification fixtures for BOM, SLSA provenance, and Sigstore-family signature facts
 - problem details taxonomy fixtures
-- advisory payload fixtures
+- advisory payload and advisory validation fixtures
 - capability metadata fixtures, including unknown field/value tolerance behavior
 - bridge-metadata fixtures
 - resolver accept/reject fixtures
