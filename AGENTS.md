@@ -1,28 +1,101 @@
-# The Agent Volumes Organization Context
+# PROJECT KNOWLEDGE BASE
 
-When working in this repository, always consult the organization template repository [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for authoritative guidelines and policies that may not be reflected in this repo's own files.
+**Generated:** 2026-05-10T21:30:13Z
+**Commit:** f52b0ca
+**Branch:** docs/draft-5-readiness-cleanup
 
-## Mandatory External References
+## OVERVIEW
 
-Before making changes—especially to CI/CD workflows, security-related configurations, or contribution processes—check the following documents in [`agent-volumes/.github`](https://github.com/agent-volumes/.github):
+Agent Volumes specification repository — a **standards/spec repo**, not an application codebase. Prose specification (`agent-volumes-spec.md`) is the normative authority, accompanied by machine-readable JSON schemas, OpenAPI contract, conformance fixtures, and architecture decision records (ADRs).
 
-- **README.md**: Organization-wide reusable workflows, their interfaces, and consumer usage patterns.
-- **SECURITY.md**: Supply chain integrity requirements, vulnerability reporting procedures, and security policy.
-- **CONTRIBUTING.md**: Contribution boundaries, development expectations, and CI/CD requirements (e.g., SHA-pinned actions, harden-runner, job-level permissions).
-- **CODE_OF_CONDUCT.md**: Behavioral expectations for community participation.
+## STRUCTURE
 
-## Key Policy Notes
+```text
+agent-volumes-spec/
+├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-draft.5)
+├── IMPLEMENTERS.md            # Implementation guide for prototype builders
+├── schemas/                   # Normative JSON Schema artifacts
+├── conformance/               # Offline conformance fixtures + runner contract
+├── openapi/                   # Bibliotheca API contract + prose drift audit
+├── decisions/                 # 110 ADRs (architecture decision records)
+├── .agents/skills/            # Contributor dev tooling (NOT distributable)
+└── scripts/                   # Artifact validation script
+```
 
-- **Reusable workflows**: The organization provides centralized reusable workflows for Scorecard, Dependency Review, and OSV Scanner. Prefer using these over inline implementations.
-- **SHA pinning exception**: Reusable workflows from `agent-volumes/.github` are the sole exception to the organization's SHA-pinning requirement; they may be referenced via branch name (e.g., `@main`) rather than commit SHA.
-- **Permissions**: Follow the principle of least privilege. Use job-level `permissions` over top-level `permissions: read-all` unless the template repo explicitly specifies otherwise.
+## WHERE TO LOOK
 
-## PR Template
+| Task                      | Location                                | Notes                               |
+| ------------------------- | --------------------------------------- | ----------------------------------- |
+| Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
+| Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
+| Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
+| Check ADR history         | `decisions/`                            | Sequential numbering, 0001–0108     |
+| Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
+| Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
+| Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
 
-When creating pull requests in this repository, use the organization's centralized PR template from [`agent-volumes/.github`](https://github.com/agent-volumes/.github/blob/main/.github/PULL_REQUEST_TEMPLATE.md):
+## CONVENTIONS
 
-- **URL**: `https://raw.githubusercontent.com/agent-volumes/.github/refs/heads/main/.github/PULL_REQUEST_TEMPLATE.md`
-- Always fetch the latest template from this URL when creating PRs.
-- The template includes sections for Summary, Related Issues, Change Type, Checklist, Testing, Documentation, and Rollout/Risk.
+**Formatting (Prettier)** — `.prettierrc`
 
-These documents contain critical context that cannot be inferred from this repository's contents alone.
+- `singleQuote: true`, `trailingComma: "es5"`, `printWidth: 120`, `proseWrap: "preserve"`
+- Applies to: `md`, `json`, `yaml`, `yml`, `mjs`
+
+**Markdown lint** — `.markdownlint-cli2.jsonc`
+
+- Dash-only lists (`MD004.style = "dash"`)
+- Duplicate headings blocked among siblings only (`MD024.siblings_only = true`)
+- Horizontal rules must be `---` (`MD035.style = "---"`)
+- 20+ rules disabled; ignores `node_modules/**` and `.agents/skills/**`
+
+**OpenAPI lint** — `redocly.yaml`
+
+- Extends `recommended` + `spec`
+- Downgrades to warnings: `no-ambiguous-paths`, `no-enum-type-mismatch`, `no-invalid-media-type-examples`, `spec-strict-refs`
+
+**Git hooks** — `lefthook.yml`
+
+- Pre-commit: auto-fix staged `md/json/yaml/yml/mjs` with Prettier
+- Commit-msg: enforces `Signed-off-by:` (DCO sign-off)
+
+**CI** — `.github/workflows/`
+
+- `spec-lint-and-format.yml`: path-filtered, installs Bun, runs lint/format/validate
+- Security workflows delegate to org reusable workflows (`agent-volumes/.github` @main) — the **sole SHA-pinning exception**
+- Uses `harden-runner` and pinned action SHAs for non-reusable workflows
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+- **Never** standardize implementation-local topics: lockfiles, registry priority, prerelease selection, token issuance, advisory writes, scanner interchange, multipart upload, universal trust roots.
+- **Never** report unsupported artifact formats as "verified".
+- **Never** treat conformance labels as certification badges or live-interoperability claims.
+- **Never** count deferred topics as v0.1 readiness gaps unless the corresponding ADR trigger is met.
+- Do **not** add catalog-specific frontmatter (`domain`, `subdomain`, `tags`, `frameworks`) to dev skills in `.agents/skills/`.
+- Do **not** create README.md, CHANGELOG.md, or auxiliary docs inside skills — only `SKILL.md` + resources.
+- Do **not** duplicate skill content between `.agents/skills/` and `catalog/skills/`.
+
+## COMMANDS
+
+```bash
+# Install git hooks (auto-runs on bun install)
+bunx lefthook install
+
+# Lint and format
+bun run lint:md
+bun run lint:md:fix
+bun run lint:openapi
+bun run format
+bun run format:check
+
+# Validate all artifacts (schemas, fixtures, OpenAPI)
+bun run validate:artifacts
+```
+
+## NOTES
+
+- **No `src/`, `app/`, or `lib/` tree** — this is a spec repo, not an app.
+- **No standard test runner** — validation is via `scripts/validate-artifacts.mjs` (AJV + bespoke logic), not Jest/Vitest/Pytest.
+- **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
+- **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
+- **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
+- **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.
