@@ -1423,6 +1423,8 @@ Bibliothecas are expected to update the version index promptly when publish, unp
 
 The v0.1 core MUST NOT require Cargo's physical index layout, path sharding algorithm, Git-backed index storage, sparse-index URL layout, append-only file format, or replication protocol. Bibliothecas MAY implement the version index using database queries, generated JSON documents, static files, CDN-backed sparse indexes, Git-backed indexes, or other local storage mechanisms as long as the normative API contract and conformance behavior are preserved.
 
+The row contract is published as [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json). The package-scoped collection envelope is published as [`schemas/version-index.schema.json`](schemas/version-index.schema.json).
+
 ### 9.3 Search API
 
 The v0.1 core includes a query-based catalog search surface for discovering matching volumes by metadata and compatibility-oriented filters.
@@ -1447,7 +1449,7 @@ Runtime and protocol compatibility filters are discovery aids. A bibliotheca MAY
 
 Search result ordering, ranking, and text relevance are bibliotheca-local. `limit` and `offset` are zero-based catalog pagination controls in the baseline API contract, not resolver inputs or freshness guarantees. Clients MUST NOT infer a stable global ordering across bibliothecas unless a specific bibliotheca documents one locally. Search responses MAY be cached under ordinary HTTP semantics, but clients MUST NOT use search results as a substitute for package-scoped version indexes or exact release metadata during resolution, installation, or trust evaluation.
 
-The machine-readable API contract for this surface is part of [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml).
+The machine-readable API contract for this surface is part of [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml). The search response payload contract is also published as [`schemas/search-results.schema.json`](schemas/search-results.schema.json) so catalog pagination and result item shape are available as first-class companion artifacts.
 
 ### 9.4 Trust Metadata API
 
@@ -1498,6 +1500,8 @@ The companion payload schemas for these views are [`schemas/trust-summary.schema
 
 The v0.1 baseline trust format profiles use the following format identity conventions:
 
+The portable v0.1 trust artifact category vocabulary is `bom`, `provenance`, `signature`, and `other`. The `bom`, `provenance`, and `signature` categories identify the baseline portable trust artifact classes. The `other` category is reserved for explicitly represented non-baseline artifacts and MUST NOT be interpreted as one of the baseline classes unless a future profile defines stronger semantics.
+
 | Category     | `format.family`   | Key format fields                                                                                  |
 | ------------ | ----------------- | -------------------------------------------------------------------------------------------------- |
 | `bom`        | `cyclonedx`       | `mediaType = "application/vnd.cyclonedx+json"`; `version` identifies the CycloneDX schema version  |
@@ -1542,6 +1546,8 @@ GET /api/v1/advisories/{advisoryId}
 ```
 
 The machine-readable advisory contract MUST be JSON-based and follow the companion schema.
+
+Advisory list responses use an `items` collection envelope whose item payloads follow [`schemas/advisory.schema.json`](schemas/advisory.schema.json). The collection envelope contract is published as [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json).
 
 Advisory read/discovery behavior is part of the v0.1 core interoperability contract. Advisory write operations such as create, update, withdrawal, moderation, and related authority workflows remain bibliotheca-local in v0.1.
 
@@ -1683,6 +1689,8 @@ Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.or
 | `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
 | `rate-limited`                | `429`          | The request was rate limited.                                           |
 
+The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 7807 examples.
+
 Representative endpoint failure mappings include:
 
 | Endpoint family                                       | Representative problem type slugs                                                                       |
@@ -1715,6 +1723,8 @@ surface.
 
 `role = "component"` — one primary component.
 
+In the v0.1 core baseline, a component package MUST declare exactly one exported component in `[[components]]`. Packages that export multiple components use `role = "plugin"`, `role = "provider"`, or another applicable role rather than `role = "component"`.
+
 ### 10.2 Plugin Package
 
 `role = "plugin"` — multiple components extending a runtime in a specific domain.
@@ -1722,6 +1732,8 @@ surface.
 ### 10.3 Provider Package
 
 `role = "provider"` — integrations with external services.
+
+Provider packages SHOULD declare provider metadata at the volume level, component level, or both. The provider role does not create a separate dependency or advisory targeting model in v0.1; provider declarations remain discovery and compatibility metadata as defined in [Section 3.9](#39-provider-declarations).
 
 ### 10.4 Meta Package
 
@@ -1826,9 +1838,12 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - SemVer range grammar accept/reject fixtures
 - trust attachment upload lifecycle fixtures
 - problem details taxonomy fixtures
+- problem registry fixtures that close the portable problem type/status set
 - advisory payload fixtures
+- search, version-index collection, and advisory-list payload fixtures
 - capability metadata payload fixtures
 - BOM/provenance mapping sample fixtures
+- conformance coverage fixtures mapping `AV-BIB-*` and `AV-CLI-*` requirements to fixture families
 - dependency-resolution accept/reject cases
 - permission-escalation rejection cases
 
@@ -1944,19 +1959,24 @@ The draft companion artifact inventory includes at least:
 - [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json)
 - [`schemas/trust-detail.schema.json`](schemas/trust-detail.schema.json)
 - [`schemas/advisory.schema.json`](schemas/advisory.schema.json)
+- [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json)
 - [`schemas/advisory-validation-case.schema.json`](schemas/advisory-validation-case.schema.json)
 - [`schemas/capability-metadata.schema.json`](schemas/capability-metadata.schema.json)
 - [`schemas/version-index-row.schema.json`](schemas/version-index-row.schema.json)
+- [`schemas/version-index.schema.json`](schemas/version-index.schema.json)
+- [`schemas/search-results.schema.json`](schemas/search-results.schema.json)
 - [`schemas/release-upload-intent.schema.json`](schemas/release-upload-intent.schema.json)
 - [`schemas/release-upload-finalize.schema.json`](schemas/release-upload-finalize.schema.json)
 - [`schemas/release-metadata.schema.json`](schemas/release-metadata.schema.json)
 - [`schemas/conformance-report.schema.json`](schemas/conformance-report.schema.json)
+- [`schemas/conformance-coverage.schema.json`](schemas/conformance-coverage.schema.json)
 - [`schemas/exact-release-metadata-case.schema.json`](schemas/exact-release-metadata-case.schema.json)
 - [`schemas/trust-upload-intent.schema.json`](schemas/trust-upload-intent.schema.json)
 - [`schemas/trust-upload-finalize.schema.json`](schemas/trust-upload-finalize.schema.json)
 - [`schemas/trust-artifact-verification-case.schema.json`](schemas/trust-artifact-verification-case.schema.json)
 - [`schemas/bridge-metadata.schema.json`](schemas/bridge-metadata.schema.json)
 - [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json)
+- [`schemas/problem-registry.schema.json`](schemas/problem-registry.schema.json)
 - [`schemas/warning.schema.json`](schemas/warning.schema.json)
 - [`schemas/manifest-parse-case.schema.json`](schemas/manifest-parse-case.schema.json)
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)

@@ -76,19 +76,21 @@ diffed and compared by tooling.
 
 ## Fixture families
 
-| Area                             | Fixture files                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------------------ |
-| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`     |
-| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`     |
-| Package identity                 | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`     |
-| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |
-| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                 |
-| Trust discovery and upload       | `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json`           |
-| Trust verification               | `trust-artifact-verification-cases.json`                                             |
-| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
-| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
-| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
-| Errors and warnings              | `problem-details-cases.json`                                                         |
+| Area                             | Fixture files                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`                       |
+| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` |
+| Package identity                 | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`                       |
+| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                   |
+| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                   |
+| Trust discovery and upload       | `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json`                             |
+| Trust verification               | `trust-artifact-verification-cases.json`                                                               |
+| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-validation-cases.json`     |
+| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                                   |
+| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                                           |
+| Errors and warnings              | `problem-details-cases.json`, `problem-registry.json`                                                  |
+| Search and catalog               | `search-results.json`                                                                                  |
+| Requirement traceability         | `conformance-coverage.json`                                                                            |
 
 ## Fixture schema mapping
 
@@ -110,6 +112,7 @@ Fixture files use one of three validation units:
 | `component-dependency-validation-cases.json`                                              | Whole file / cases  | [`../schemas/component-dependency-validation-case.schema.json`](../schemas/component-dependency-validation-case.schema.json)                          |
 | `semver-range-cases.json`                                                                 | Algorithmic vector  | v0.1 SemVer range grammar evaluator                                                                                                                   |
 | `resolver-cases.json`                                                                     | Algorithmic vector  | v0.1 resolver and lifecycle evaluator                                                                                                                 |
+| `version-index.json`                                                                      | Whole file          | [`../schemas/version-index.schema.json`](../schemas/version-index.schema.json)                                                                        |
 | `version-index-row-cases.json`                                                            | Case payload schema | [`../schemas/version-index-row.schema.json`](../schemas/version-index-row.schema.json)                                                                |
 | `purl-canonicalization-cases.json`                                                        | Algorithmic vector  | v0.1 purl parser and canonical serializer                                                                                                             |
 | `digest-vectors.json`, `digest-invalid-cases.json`                                        | Algorithmic vector  | normalized-file-tree digest evaluator                                                                                                                 |
@@ -121,12 +124,16 @@ Fixture files use one of three validation units:
 | `trust-upload-lifecycle.json`                                                             | Case payload schema | trust upload schemas or Problem Details schema selected by each case's `schema` field                                                                 |
 | `trust-artifact-verification-cases.json`                                                  | Whole file / cases  | [`../schemas/trust-artifact-verification-case.schema.json`](../schemas/trust-artifact-verification-case.schema.json) plus artifact verification logic |
 | `advisory.json`, `advisory-withdrawn.json`                                                | Whole file          | [`../schemas/advisory.schema.json`](../schemas/advisory.schema.json)                                                                                  |
+| `advisory-list.json`                                                                      | Whole file          | [`../schemas/advisory-list.schema.json`](../schemas/advisory-list.schema.json)                                                                        |
 | `advisory-validation-cases.json`                                                          | Whole file / cases  | [`../schemas/advisory-validation-case.schema.json`](../schemas/advisory-validation-case.schema.json)                                                  |
 | `capability-metadata*.json`                                                               | Whole file          | [`../schemas/capability-metadata.schema.json`](../schemas/capability-metadata.schema.json)                                                            |
 | `bridge-metadata*.json`                                                                   | Whole file          | [`../schemas/bridge-metadata.schema.json`](../schemas/bridge-metadata.schema.json)                                                                    |
 | `mapping-matrix.json`                                                                     | Whole file          | [`../schemas/mapping-matrix.schema.json`](../schemas/mapping-matrix.schema.json)                                                                      |
 | `mapping-sample.json`                                                                     | Whole file          | [`../schemas/mapping-sample.schema.json`](../schemas/mapping-sample.schema.json)                                                                      |
+| `search-results.json`                                                                     | Whole file          | [`../schemas/search-results.schema.json`](../schemas/search-results.schema.json)                                                                      |
 | `problem-details-cases.json`                                                              | Case payload schema | [`../schemas/problem-details.schema.json`](../schemas/problem-details.schema.json)                                                                    |
+| `problem-registry.json`                                                                   | Whole file          | [`../schemas/problem-registry.schema.json`](../schemas/problem-registry.schema.json)                                                                  |
+| `conformance-coverage.json`                                                               | Whole file          | [`../schemas/conformance-coverage.schema.json`](../schemas/conformance-coverage.schema.json)                                                          |
 
 When a fixture uses a wrapper object with `cases` or `fixtures`, the wrapper is
 part of the deterministic fixture format. The companion schema named above
@@ -143,3 +150,8 @@ from intentionally lossy mappings.
 
 Fixture updates that materially change expected behavior are normative draft
 changes and MUST remain version-aligned with the prose specification.
+
+`conformance-coverage.json` maps stable prose requirement IDs such as `AV-BIB-*`
+and `AV-CLI-*` to fixture families. The coverage artifact is not a product
+certification result; it is a traceability aid that helps runners and reviewers
+distinguish fixture-checked behavior from prose-only or profile-local behavior.
