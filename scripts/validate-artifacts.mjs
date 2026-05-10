@@ -1447,6 +1447,21 @@ for (const purlCase of purlCanonicalizationCases.cases) {
   }
 }
 
+const componentPurlPattern =
+  /^pkg:volume\/(?:%40((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/)?((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?)(?:@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?)?#(agent|skill|command|tool|hook|mcp-server|lsp-server)\/(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
+
+function parseComponentDependencyPurl(componentPurl) {
+  const match = componentPurl.match(componentPurlPattern);
+  if (!match) {
+    return undefined;
+  }
+  const [, scope, name] = match;
+  return {
+    parentName: scope === undefined ? name : `@${scope}/${name}`,
+    hasVersion: match[3] !== undefined,
+  };
+}
+
 const componentDependencyCases = readJson('conformance/fixtures/component-dependency-validation-cases.json');
 validate(
   'componentDependencyValidationCase',
@@ -1454,19 +1469,77 @@ validate(
   'component dependency validation cases fixture'
 );
 for (const dependencyCase of componentDependencyCases.cases) {
+  const declaredComponents = new Set(dependencyCase.declaredComponents);
+  const parentDependencies = new Set(Object.keys(dependencyCase['volume-dependencies']));
   const resolvedComponents = new Set(dependencyCase.resolvedComponents);
   const requestedDependencies = Object.values(dependencyCase['component-dependencies']).flat();
-  const missingDependencies = requestedDependencies.filter((dependency) => !resolvedComponents.has(dependency));
+  const invalidComponentPurls = requestedDependencies.filter((dependency) => !componentPurlPattern.test(dependency));
+  const validRequestedDependencies = requestedDependencies.filter((dependency) =>
+    componentPurlPattern.test(dependency)
+  );
+  const missingDependencies = validRequestedDependencies.filter((dependency) => !resolvedComponents.has(dependency));
+  const unknownLocalComponents = Object.keys(dependencyCase['component-dependencies']).filter(
+    (componentName) => !declaredComponents.has(componentName)
+  );
+  const missingParentDependencies = validRequestedDependencies.filter((dependency) => {
+    const parsedDependency = parseComponentDependencyPurl(dependency);
+    if (parsedDependency === undefined || parsedDependency.hasVersion) {
+      return false;
+    }
+    return !parentDependencies.has(parsedDependency.parentName);
+  });
+  if (dependencyCase.expected.failureCategory !== undefined) {
+    assert(
+      dependencyCase.expected.valid === false,
+      `component dependency case ${dependencyCase.name} with a failureCategory must be invalid`
+    );
+  }
+  if (dependencyCase.expected.valid === false) {
+    assert(
+      typeof dependencyCase.expected.failureCategory === 'string',
+      `component dependency case ${dependencyCase.name} must declare a failureCategory when invalid`
+    );
+  }
   if (dependencyCase.expected.failureCategory === 'missing-component-dependency') {
     assert(
       missingDependencies.length > 0,
       `component dependency case ${dependencyCase.name} must contain a missing dependency`
     );
   }
+  if (dependencyCase.expected.failureCategory === 'unknown-local-component') {
+    assert(
+      unknownLocalComponents.length > 0,
+      `component dependency case ${dependencyCase.name} must contain a component-dependencies key absent from declaredComponents`
+    );
+  }
+  if (dependencyCase.expected.failureCategory === 'invalid-component-purl') {
+    assert(
+      invalidComponentPurls.length > 0,
+      `component dependency case ${dependencyCase.name} must contain an invalid component purl candidate`
+    );
+  }
+  if (dependencyCase.expected.failureCategory === 'missing-parent-volume-dependency') {
+    assert(
+      missingParentDependencies.length > 0,
+      `component dependency case ${dependencyCase.name} must contain a versionless component dependency without a parent volume dependency`
+    );
+  }
   if (dependencyCase.expected.valid === true) {
     assert(
       missingDependencies.length === 0,
       `component dependency case ${dependencyCase.name} must be semantically valid`
+    );
+    assert(
+      unknownLocalComponents.length === 0,
+      `component dependency case ${dependencyCase.name} must only use declared component-dependencies keys`
+    );
+    assert(
+      invalidComponentPurls.length === 0,
+      `component dependency case ${dependencyCase.name} must only use valid component purls`
+    );
+    assert(
+      missingParentDependencies.length === 0,
+      `component dependency case ${dependencyCase.name} must only use versionless references backed by parent volume dependencies`
     );
   }
 }

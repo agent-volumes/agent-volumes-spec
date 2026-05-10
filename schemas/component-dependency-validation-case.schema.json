@@ -13,15 +13,32 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "component-dependencies", "resolvedComponents", "expected"],
+        "required": [
+          "name",
+          "declaredComponents",
+          "volume-dependencies",
+          "component-dependencies",
+          "resolvedComponents",
+          "expected"
+        ],
         "properties": {
           "name": { "type": "string", "minLength": 1 },
+          "declaredComponents": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/componentName" },
+            "uniqueItems": true
+          },
+          "volume-dependencies": {
+            "type": "object",
+            "propertyNames": { "$ref": "#/$defs/volumeDependencyName" },
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          },
           "component-dependencies": {
             "type": "object",
             "propertyNames": { "$ref": "#/$defs/componentName" },
             "additionalProperties": {
               "type": "array",
-              "items": { "$ref": "#/$defs/componentPurl" }
+              "items": { "$ref": "#/$defs/componentPurlCandidate" }
             }
           },
           "resolvedComponents": {
@@ -37,7 +54,12 @@
               "valid": { "type": "boolean" },
               "failureCategory": {
                 "type": "string",
-                "enum": ["missing-component-dependency"]
+                "enum": [
+                  "missing-component-dependency",
+                  "unknown-local-component",
+                  "invalid-component-purl",
+                  "missing-parent-volume-dependency"
+                ]
               }
             }
           }
@@ -50,6 +72,14 @@
       "type": "string",
       "maxLength": 128,
       "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "volumeDependencyName": {
+      "type": "string",
+      "pattern": "^(?:@(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "componentPurlCandidate": {
+      "type": "string",
+      "pattern": "^pkg:volume/"
     },
     "componentPurl": {
       "type": "string",
