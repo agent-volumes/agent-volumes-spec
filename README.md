@@ -156,7 +156,7 @@ Specification development is guided by a Technical Steering Committee (TSC) that
 | Security policy    | [SECURITY.md](https://github.com/agent-volumes/.github/blob/main/SECURITY.md)               |
 | Code of Conduct    | [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md) |
 
-Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development should open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
+Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development are encouraged to open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
 
 ## Get Involved
 

@@ -37,7 +37,7 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 
 ## Minimum viable conforming client
 
-A baseline client implementation should support the following before claiming v0.1 draft compatibility:
+A baseline client implementation is expected to support the following before claiming v0.1 draft compatibility:
 
 1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
 2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
@@ -48,7 +48,7 @@ A baseline client implementation should support the following before claiming v0
 7. Reject digest mismatch, subject-binding mismatch, inconsistent registry state, and component permission escalation.
 8. Validate entrypoint existence and type-specific portable load boundaries before handing components to runtime adapters.
 9. Preserve and expose runtime/protocol compatibility version expressions, compare them only for known schemes, and avoid rejecting solely because an expression uses an unknown runtime or protocol scheme.
-10. Consume trust summary/detail metadata and distinguish objective trust facts from optional derived judgments.
+10. Consume trust summary/detail metadata and distinguish objective trust facts from non-mandatory derived judgments.
 11. Treat revoked or invalid trust attachments as failures by default, and treat superseded trust attachments as stale evidence that does not satisfy current-state trust requirements.
 12. Validate objective trust artifact facts for formats the implementation claims to support, and never report unsupported artifact formats as verified.
 13. Consume capability metadata without failing solely on unknown capability fields or values, while interpreting `compatibleSpecVersions` as exact version sets and `apiVersion` as the HTTP API major family.
@@ -56,16 +56,16 @@ A baseline client implementation should support the following before claiming v0
 
 ## Minimum viable conforming bibliotheca
 
-A baseline bibliotheca implementation should support the following before claiming v0.1 draft compatibility:
+A baseline bibliotheca implementation is expected to support the following before claiming v0.1 draft compatibility:
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
 3. Create release upload intents, support the `http-put` portable upload profile for release uploads, and finalize uploaded `.tar.gz` release bytes.
 4. Verify uploaded-byte digest and size when declared, validate archive profile rules, validate manifest identity against the route identity, compute normalized-file-tree `integrity`, and publish only after finalize succeeds.
-5. Preserve version immutability: a lifecycle-marked version number must not be reused for different content.
+5. Preserve version immutability: a lifecycle-marked version number is never reused for different content.
 6. Serve exact release metadata with lifecycle status and distribution metadata only when the release state permits portable exact fetch semantics.
 7. Serve package-scoped version index rows synchronized with publish, yank, tombstone, block, and unavailable state changes.
-8. Expose catalog search as discovery only; search results must not substitute for version indexes or exact metadata during resolution.
+8. Expose catalog search as discovery only; search results never substitute for version indexes or exact metadata during resolution.
 9. Expose trust summary/detail views and preserve append-only trust attachment status/revision semantics.
 10. Support trust attachment upload intent/finalize and the `http-put` portable upload profile when the bibliotheca is write-capable for trust artifacts.
 11. Expose advisory read/discovery endpoints for the v0.1 advisory schema.
@@ -74,20 +74,20 @@ A baseline bibliotheca implementation should support the following before claimi
 
 ## Prototype-local choices
 
-The v0.1 core intentionally leaves several operational choices local. Prototype projects should document their choices explicitly rather than treating them as standard behavior.
+The v0.1 core intentionally leaves several operational choices local. Prototype projects are expected to document their choices explicitly rather than treating them as standard behavior.
 
-| Choice               | Prototype documentation needed                                                                                                                  |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                               |
-| Upload byte transfer | Which non-core upload instruction shapes are returned beyond the required `http-put` portable baseline and how bytes are staged before finalize |
-| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                     |
-| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                             |
-| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                         |
-| Prerelease selection | Whether prerelease candidates are considered by default                                                                                         |
-| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                           |
-| Advisory authority   | Who can create/update/withdraw advisories in the implementation                                                                                 |
-| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                              |
-| Runtime adapters     | How valid components are mapped into each target runtime's local execution model, including any known-scheme compatibility comparison support   |
+| Choice               | Prototype documentation needed                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                                |
+| Upload byte transfer | Which non-core upload instruction shapes are returned beyond the mandatory `http-put` portable baseline and how bytes are staged before finalize |
+| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                      |
+| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                              |
+| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                          |
+| Prerelease selection | Whether prerelease candidates are considered by default                                                                                          |
+| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                            |
+| Advisory authority   | Who can create/update/withdraw advisories in the implementation                                                                                  |
+| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                               |
+| Runtime adapters     | How valid components are mapped into each target runtime's local execution model, including any known-scheme compatibility comparison support    |
 
 ## Smoke conformance path
 
@@ -118,9 +118,9 @@ Then map implementation tests to fixture families:
 | BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
 | Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
 
-Fixture updates that materially change expected behavior are normative draft changes and should be versioned with the prose release.
+Fixture updates that materially change expected behavior are normative draft changes and are versioned with the prose release.
 
-Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects should add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract. Unsupported trust artifact formats remain unverified rather than successfully verified.
+Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects can add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract. Unsupported trust artifact formats remain unverified rather than successfully verified.
 
 ## Implementation order
 

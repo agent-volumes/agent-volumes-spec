@@ -28,7 +28,7 @@ bibliothecas, validators, exporters, and conformance runners.
 
 - Schema `$id` values include the Agent Volumes spec release.
 - Schema artifacts are version-aligned with `agent-volumes-spec.md`.
-- A material schema change is a normative draft change and should be reviewed
+- A material schema change is a normative draft change and is reviewed
   together with the prose and conformance fixtures it affects.
 
 ## Validation
