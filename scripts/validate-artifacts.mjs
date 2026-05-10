@@ -43,6 +43,7 @@ const schemas = {
   semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
   trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
   mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
+  mappingSample: readJson('schemas/mapping-sample.schema.json'),
 };
 
 for (const schema of Object.values(schemas)) {
@@ -186,6 +187,63 @@ const canonicalComponentPurl = (volume, version, component) => {
   return `${canonicalReleasePurl(volume, version)}#${component.type}/${component.name}`;
 };
 
+const stableJsonStringify = (value) => {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJsonStringify(item)).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableJsonStringify(value[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+};
+
+const assertDeepEqual = (actual, expected, label) => {
+  assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
+};
+
+const findProperty = (properties, name, label) => {
+  const property = properties?.find((candidate) => candidate.name === name);
+  assert(property, `${label} needs ${name} property`);
+  return property;
+};
+
+const parseStablePropertyJson = (properties, name, label) => {
+  const property = findProperty(properties, name, label);
+  let parsed;
+  try {
+    parsed = JSON.parse(property.value);
+  } catch (err) {
+    throw new Error(`${label} ${name} property must contain JSON: ${err.message}`);
+  }
+  assert(
+    property.value === stableJsonStringify(parsed),
+    `${label} ${name} property must use stable JSON serialization`
+  );
+  return parsed;
+};
+
+const findExternalReference = (references, type, url, label) => {
+  assert(
+    references?.some((reference) => reference.type === type && reference.url === url),
+    `${label} needs ${type} external reference ${url}`
+  );
+};
+
+const findSpdxExternalRef = (externalRefs, referenceCategory, referenceType, referenceLocator, label) => {
+  assert(
+    externalRefs?.some(
+      (reference) =>
+        reference.referenceCategory === referenceCategory &&
+        reference.referenceType === referenceType &&
+        reference.referenceLocator === referenceLocator
+    ),
+    `${label} needs SPDX externalRef ${referenceCategory}/${referenceType}/${referenceLocator}`
+  );
+};
+
 const decodeFixtureArtifact = (artifact, label) => {
   assert(artifact?.bytesBase64, `${label} needs artifact.bytesBase64`);
   const bytes = Buffer.from(artifact.bytesBase64, 'base64');
@@ -207,6 +265,12 @@ const assertCycloneDxArtifact = (artifactJson, trustCase) => {
     `trust artifact case ${trustCase.name} BOM specVersion must match format.version`
   );
   assert(
+    artifactJson.serialNumber?.startsWith('urn:uuid:'),
+    `trust artifact case ${trustCase.name} BOM must declare a deterministic CycloneDX serialNumber`
+  );
+  assert(artifactJson.version === 1, `trust artifact case ${trustCase.name} BOM must declare document version 1`);
+  assert(component?.type, `trust artifact case ${trustCase.name} BOM metadata component needs a type`);
+  assert(
     component?.purl === trustCase.subject.purl,
     `trust artifact case ${trustCase.name} BOM purl must bind subject`
   );
@@ -227,6 +291,9 @@ const assertSlsaArtifact = (artifactJson, trustCase) => {
     Array.isArray(artifactJson.signatures) && artifactJson.signatures.length > 0,
     `trust artifact case ${trustCase.name} SLSA envelope needs deterministic signature material`
   );
+  for (const signature of artifactJson.signatures) {
+    assert(signature.sig, `trust artifact case ${trustCase.name} SLSA envelope signature bytes are required`);
+  }
   const statement = JSON.parse(Buffer.from(artifactJson.payload, 'base64').toString('utf8'));
   assert(
     statement._type === 'https://in-toto.io/Statement/v1',
@@ -235,6 +302,10 @@ const assertSlsaArtifact = (artifactJson, trustCase) => {
   assert(
     statement.predicateType === 'https://slsa.dev/provenance/v1',
     `trust artifact case ${trustCase.name} needs SLSA v1 predicateType`
+  );
+  assert(
+    Array.isArray(statement.subject) && statement.subject.length > 0,
+    `trust artifact case ${trustCase.name} SLSA statement needs at least one subject`
   );
   assert(
     statement.subject?.some(
@@ -256,6 +327,15 @@ const assertSigstoreArtifact = (artifactJson, trustCase) => {
     artifactJson.verification_material,
     `trust artifact case ${trustCase.name} Sigstore bundle needs verification material`
   );
+  assert(
+    artifactJson.verification_material.public_key || artifactJson.verification_material.x509_certificate_chain,
+    `trust artifact case ${trustCase.name} Sigstore bundle needs public key or certificate material`
+  );
+  assert(
+    Array.isArray(artifactJson.verification_material.tlog_entries) &&
+      artifactJson.verification_material.tlog_entries.length > 0,
+    `trust artifact case ${trustCase.name} Sigstore bundle needs bundled transparency evidence`
+  );
   const hasMessageSignature = Boolean(artifactJson.message_signature);
   const hasDsseEnvelope = Boolean(artifactJson.dsse_envelope);
   assert(
@@ -270,6 +350,12 @@ const assertSigstoreArtifact = (artifactJson, trustCase) => {
     assert(
       artifactJson.message_signature.signature,
       `trust artifact case ${trustCase.name} Sigstore signature is required`
+    );
+  }
+  if (hasDsseEnvelope) {
+    assert(
+      artifactJson.dsse_envelope.signatures?.length > 0,
+      `trust artifact case ${trustCase.name} DSSE signatures are required`
     );
   }
 };
@@ -905,8 +991,8 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
   }
   if (trustCase.expected.failureCategory === 'invalid-trust-artifact') {
     assert(
-      trustCase.lifecycleStatus?.state === 'invalid' && trustCase.expected.valid === false,
-      `trust artifact case ${trustCase.name} must model invalid attachments as default failures`
+      (trustCase.lifecycleStatus?.state === 'invalid' || trustCase.artifact) && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model invalid lifecycle or malformed artifact failures`
     );
   }
   if (trustCase.expected.valid) {
@@ -924,15 +1010,30 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       trustCase.artifact.mediaType === trustCase.format.mediaType,
       `trust artifact case ${trustCase.name} artifact mediaType must match declared format`
     );
-    const artifactJson = decodeFixtureArtifact(trustCase.artifact, `trust artifact case ${trustCase.name}`);
-    if (trustCase.category === 'bom') {
-      assertCycloneDxArtifact(artifactJson, trustCase);
+    let artifactError = null;
+    try {
+      const artifactJson = decodeFixtureArtifact(trustCase.artifact, `trust artifact case ${trustCase.name}`);
+      if (trustCase.category === 'bom') {
+        assertCycloneDxArtifact(artifactJson, trustCase);
+      }
+      if (trustCase.category === 'provenance') {
+        assertSlsaArtifact(artifactJson, trustCase);
+      }
+      if (trustCase.category === 'signature') {
+        assertSigstoreArtifact(artifactJson, trustCase);
+      }
+    } catch (err) {
+      artifactError = err;
     }
-    if (trustCase.category === 'provenance') {
-      assertSlsaArtifact(artifactJson, trustCase);
-    }
-    if (trustCase.category === 'signature') {
-      assertSigstoreArtifact(artifactJson, trustCase);
+    if (trustCase.expected.valid) {
+      assert(!artifactError, artifactError?.message ?? `trust artifact case ${trustCase.name} must validate`);
+    } else if (trustCase.expected.failureCategory === 'invalid-trust-artifact') {
+      assert(artifactError, `trust artifact case ${trustCase.name} must fail artifact validation`);
+    } else {
+      assert(
+        !artifactError,
+        artifactError?.message ?? `trust artifact case ${trustCase.name} artifact validation failed`
+      );
     }
   }
 }
@@ -1282,6 +1383,279 @@ for (const entry of mappingMatrix.entries) {
     }
   }
 }
+
+const mappingSample = readJson('conformance/fixtures/mapping-sample.json');
+validate('mappingSample', mappingSample, 'mapping sample fixture');
+assertSpecVersion(mappingSample, 'mapping sample fixture');
+validate('volume', mappingSample.sourceManifest, 'mapping sample source manifest');
+
+const sampleManifest = mappingSample.sourceManifest;
+const sampleVolume = sampleManifest.volume;
+const sampleRelease = mappingSample.releaseSubject;
+const sampleDigest = sampleRelease.integrity.slice(7);
+const sampleCycloneDx = mappingSample.exports.cyclonedx;
+const sampleSpdx = mappingSample.exports.spdx;
+const sampleSlsa = mappingSample.exports.slsa;
+const sampleComponentPurls = new Map(
+  sampleManifest.components.map((component) => [
+    component.name,
+    canonicalComponentPurl(sampleVolume.name, sampleVolume.version, component),
+  ])
+);
+
+assert(
+  sampleRelease.purl === canonicalReleasePurl(sampleVolume.name, sampleVolume.version),
+  'mapping sample release purl must be canonical'
+);
+assert(sampleCycloneDx.bomFormat === 'CycloneDX', 'mapping sample CycloneDX export must declare bomFormat');
+assert(sampleCycloneDx.specVersion === '1.7', 'mapping sample CycloneDX export must declare specVersion 1.7');
+assertCycloneDxArtifact(sampleCycloneDx, {
+  name: 'mapping-sample-cyclonedx-export',
+  format: { version: '1.7' },
+  subject: sampleRelease,
+});
+
+const cyclonedxRoot = sampleCycloneDx.metadata.component;
+assert(cyclonedxRoot.name === sampleVolume.name, 'mapping sample CycloneDX root component name must map volume.name');
+assert(
+  cyclonedxRoot.version === sampleVolume.version,
+  'mapping sample CycloneDX root component version must map volume.version'
+);
+assert(
+  cyclonedxRoot.description === sampleVolume.description,
+  'mapping sample CycloneDX description must map volume.description'
+);
+assert(
+  cyclonedxRoot.publisher === sampleManifest.publisher.id,
+  'mapping sample CycloneDX publisher must map publisher.id'
+);
+assert(
+  cyclonedxRoot.licenses?.some((licenseChoice) => licenseChoice.license?.id === sampleVolume.license),
+  'mapping sample CycloneDX license id must map volume.license'
+);
+findExternalReference(
+  cyclonedxRoot.externalReferences,
+  'website',
+  sampleVolume.homepage,
+  'mapping sample CycloneDX root'
+);
+findExternalReference(
+  cyclonedxRoot.externalReferences,
+  'vcs',
+  sampleVolume.repository,
+  'mapping sample CycloneDX root'
+);
+findExternalReference(
+  cyclonedxRoot.externalReferences,
+  'documentation',
+  sampleVolume.documentation,
+  'mapping sample CycloneDX root'
+);
+assertDeepEqual(
+  parseStablePropertyJson(
+    cyclonedxRoot.properties,
+    'agent-volumes:component-dependencies',
+    'mapping sample CycloneDX root'
+  ),
+  sampleManifest['component-dependencies'],
+  'mapping sample CycloneDX component-dependencies property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:environment', 'mapping sample CycloneDX root'),
+  sampleManifest.environment,
+  'mapping sample CycloneDX environment property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:keywords', 'mapping sample CycloneDX root'),
+  sampleVolume.keywords,
+  'mapping sample CycloneDX keywords property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:permissions', 'mapping sample CycloneDX root'),
+  sampleManifest.permissions,
+  'mapping sample CycloneDX permissions property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:protocols', 'mapping sample CycloneDX root'),
+  sampleManifest.protocols,
+  'mapping sample CycloneDX protocols property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:providers', 'mapping sample CycloneDX root'),
+  sampleVolume.providers,
+  'mapping sample CycloneDX providers property'
+);
+assert(
+  findProperty(cyclonedxRoot.properties, 'agent-volumes:role', 'mapping sample CycloneDX root').value ===
+    sampleVolume.role,
+  'mapping sample CycloneDX role property must map volume.role'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:runtimes', 'mapping sample CycloneDX root'),
+  sampleManifest.runtimes,
+  'mapping sample CycloneDX runtimes property'
+);
+assertDeepEqual(
+  parseStablePropertyJson(cyclonedxRoot.properties, 'agent-volumes:secondary-roles', 'mapping sample CycloneDX root'),
+  sampleVolume['secondary-roles'],
+  'mapping sample CycloneDX secondary-roles property'
+);
+assert(
+  findProperty(sampleCycloneDx.metadata.properties, 'agent-volumes:build-system', 'mapping sample CycloneDX metadata')
+    .value === sampleManifest.provenance.build.system,
+  'mapping sample CycloneDX build-system property must map provenance.build.system'
+);
+assert(
+  findProperty(sampleCycloneDx.metadata.properties, 'agent-volumes:build-workflow', 'mapping sample CycloneDX metadata')
+    .value === sampleManifest.provenance.build.workflow,
+  'mapping sample CycloneDX build-workflow property must map provenance.build.workflow'
+);
+
+for (const component of sampleManifest.components) {
+  const componentPurl = sampleComponentPurls.get(component.name);
+  const cyclonedxComponent = sampleCycloneDx.components.find((candidate) => candidate.purl === componentPurl);
+  assert(cyclonedxComponent, `mapping sample CycloneDX export needs component ${component.name}`);
+  assert(
+    cyclonedxComponent.name === component.name,
+    `mapping sample CycloneDX component ${component.name} must map name`
+  );
+  assert(
+    findProperty(
+      cyclonedxComponent.properties,
+      'agent-volumes:type',
+      `mapping sample CycloneDX component ${component.name}`
+    ).value === component.type,
+    `mapping sample CycloneDX component ${component.name} must map type`
+  );
+  assert(
+    findProperty(
+      cyclonedxComponent.properties,
+      'agent-volumes:entrypoint',
+      `mapping sample CycloneDX component ${component.name}`
+    ).value === component.entrypoint,
+    `mapping sample CycloneDX component ${component.name} must map entrypoint`
+  );
+  assertDeepEqual(
+    parseStablePropertyJson(
+      cyclonedxComponent.properties,
+      'agent-volumes:permissions',
+      `mapping sample CycloneDX component ${component.name}`
+    ),
+    component.permissions,
+    `mapping sample CycloneDX component ${component.name} permissions property`
+  );
+  assertDeepEqual(
+    parseStablePropertyJson(
+      cyclonedxComponent.properties,
+      'agent-volumes:providers',
+      `mapping sample CycloneDX component ${component.name}`
+    ),
+    component.providers,
+    `mapping sample CycloneDX component ${component.name} providers property`
+  );
+}
+assert(
+  sampleCycloneDx.dependencies.some(
+    (dependency) =>
+      dependency.ref === sampleRelease.purl && dependency.dependsOn.includes('pkg:volume/github-provider@2.1.0')
+  ),
+  'mapping sample CycloneDX dependencies graph must map volume dependencies'
+);
+assert(
+  sampleCycloneDx.dependencies.some(
+    (dependency) =>
+      dependency.ref === sampleComponentPurls.get('summarize-paper') &&
+      dependency.dependsOn.includes('pkg:volume/github-provider@2.1.0#tool/read-pr')
+  ),
+  'mapping sample CycloneDX dependencies graph must map component dependencies'
+);
+
+assert(sampleSpdx.spdxVersion === 'SPDX-2.3', 'mapping sample SPDX export must declare SPDX-2.3');
+const spdxPackage = sampleSpdx.packages.find((spdxPackageCandidate) => spdxPackageCandidate.name === sampleVolume.name);
+assert(spdxPackage, 'mapping sample SPDX export needs root package');
+assert(spdxPackage.versionInfo === sampleVolume.version, 'mapping sample SPDX versionInfo must map volume.version');
+assert(spdxPackage.summary === sampleVolume.description, 'mapping sample SPDX summary must map volume.description');
+assert(
+  spdxPackage.packageHomePage === sampleVolume.homepage,
+  'mapping sample SPDX packageHomePage must map volume.homepage'
+);
+assert(
+  spdxPackage.licenseConcluded === sampleVolume.license,
+  'mapping sample SPDX licenseConcluded must map volume.license'
+);
+assert(
+  spdxPackage.checksums?.some((checksum) => checksum.algorithm === 'SHA256' && checksum.checksumValue === sampleDigest),
+  'mapping sample SPDX checksum must bind immutable release identity'
+);
+findSpdxExternalRef(
+  spdxPackage.externalRefs,
+  'PACKAGE-MANAGER',
+  'purl',
+  sampleRelease.purl,
+  'mapping sample SPDX root package'
+);
+findSpdxExternalRef(
+  spdxPackage.externalRefs,
+  'OTHER',
+  'agent-volumes:documentation',
+  sampleVolume.documentation,
+  'mapping sample SPDX root package'
+);
+findSpdxExternalRef(
+  spdxPackage.externalRefs,
+  'OTHER',
+  'agent-volumes:vcs',
+  sampleVolume.repository,
+  'mapping sample SPDX root package'
+);
+assertDeepEqual(
+  JSON.parse(spdxPackage.comment),
+  {
+    'agent-volumes:keywords': sampleVolume.keywords,
+    'agent-volumes:providers': sampleVolume.providers,
+    'agent-volumes:role': sampleVolume.role,
+  },
+  'mapping sample SPDX lossy comment payload'
+);
+assert(
+  sampleSpdx.relationships.some(
+    (relationship) =>
+      relationship.spdxElementId === 'SPDXRef-Package-research-agent-pack' &&
+      relationship.relationshipType === 'DEPENDS_ON' &&
+      relationship.relatedSpdxElement === 'SPDXRef-Package-github-provider'
+  ),
+  'mapping sample SPDX relationships must map volume dependencies'
+);
+
+assert(
+  sampleSlsa._type === 'https://in-toto.io/Statement/v1',
+  'mapping sample SLSA export must be in-toto Statement v1'
+);
+assert(
+  sampleSlsa.predicateType === 'https://slsa.dev/provenance/v1',
+  'mapping sample SLSA export must use SLSA v1 predicate'
+);
+assert(
+  sampleSlsa.subject.some((subject) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest),
+  'mapping sample SLSA subject must bind release subject'
+);
+assert(sampleSlsa.predicate.buildDefinition.buildType, 'mapping sample SLSA export must declare buildType');
+assert(
+  sampleSlsa.predicate.runDetails.builder.id === sampleManifest.provenance.build.system,
+  'mapping sample SLSA builder id must map provenance.build.system'
+);
+assert(
+  sampleSlsa.predicate.buildDefinition.externalParameters.workflow === sampleManifest.provenance.build.workflow,
+  'mapping sample SLSA workflow parameter must map provenance.build.workflow'
+);
+assert(
+  sampleSlsa.predicate.buildDefinition.externalParameters.sourceRepo === sampleManifest.provenance['source-repo'],
+  'mapping sample SLSA sourceRepo parameter must map provenance.source-repo'
+);
+assert(
+  sampleSlsa.predicate.materials.some((material) => material.uri === sampleManifest.provenance['source-repo']),
+  'mapping sample SLSA materials must include provenance.source-repo'
+);
 
 let openapi;
 try {

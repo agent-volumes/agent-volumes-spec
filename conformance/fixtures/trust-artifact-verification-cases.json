@@ -26,6 +26,30 @@
       "expected": { "valid": true }
     },
     {
+      "name": "cyclonedx-bom-rejects-version-profile-mismatch",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifact": {
+        "mediaType": "application/vnd.cyclonedx+json",
+        "bytesBase64": "eyJib21Gb3JtYXQiOiJDeWNsb25lRFgiLCJzcGVjVmVyc2lvbiI6IjEuNiIsInNlcmlhbE51bWJlciI6InVybjp1dWlkOjExMTExMTExLTExMTEtNDExMS04MTExLTExMTExMTExMTExMSIsInZlcnNpb24iOjEsIm1ldGFkYXRhIjp7ImNvbXBvbmVudCI6eyJ0eXBlIjoiYXBwbGljYXRpb24iLCJwdXJsIjoicGtnOnZvbHVtZS9yZXNlYXJjaC1hZ2VudC1wYWNrQDEuNC4wIiwiaGFzaGVzIjpbeyJhbGciOiJTSEEtMjU2IiwiY29udGVudCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEifV19fX0=",
+        "artifactDigest": "sha256:d8b5fbd6b8129a6c80a01cd8872cd45d304cf1b867586104c49ab99dc6e5f696"
+      },
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "invalid-trust-artifact" }
+    },
+    {
       "name": "slsa-provenance-binds-to-release-subject",
       "category": "provenance",
       "format": {
@@ -49,6 +73,31 @@
       },
       "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
+    },
+    {
+      "name": "slsa-provenance-rejects-missing-signature-bytes",
+      "category": "provenance",
+      "format": {
+        "family": "slsa-provenance",
+        "mediaType": "application/vnd.in-toto+json",
+        "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "artifact": {
+        "mediaType": "application/vnd.in-toto+json",
+        "bytesBase64": "eyJwYXlsb2FkVHlwZSI6ImFwcGxpY2F0aW9uL3ZuZC5pbi10b3RvK2pzb24iLCJwYXlsb2FkIjoiZXlKZmRIbHdaU0k2SW1oMGRIQnpPaTh2YVc0dGRHOTBieTVwYnk5VGRHRjBaVzFsYm5RdmRqRWlMQ0p6ZFdKcVpXTjBJanBiZXlKdVlXMWxJam9pY0d0bk9uWnZiSFZ0WlM5eVpYTmxZWEpqYUMxaFoyVnVkQzF3WVdOclFERXVOQzR3SWl3aVpHbG5aWE4wSWpwN0luTm9ZVEkxTmlJNkltRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRmhZV0ZoWVdGaFlXRWlmWDFkTENKd2NtVmthV05oZEdWVWVYQmxJam9pYUhSMGNITTZMeTl6YkhOaExtUmxkaTl3Y205MlpXNWhibU5sTDNZeElpd2ljSEpsWkdsallYUmxJanA3SW1KMWFXeGtSR1ZtYVc1cGRHbHZiaUk2ZXlKaWRXbHNaRlI1Y0dVaU9pSm9kSFJ3Y3pvdkwyRm5aVzUwZG05c2RXMWxjeTV2Y21jdlluVnBiR1IwZVhCbGN5OTJiMngxYldVdmRqQXVNU0lzSW1WNGRHVnlibUZzVUdGeVlXMWxkR1Z5Y3lJNmV5SjNiM0pyWm14dmR5STZJbkpsYkdWaGMyVXVlVzFzSW4xOUxDSnlkVzVFWlhSaGFXeHpJanA3SW1KMWFXeGtaWElpT25zaWFXUWlPaUpvZEhSd2N6b3ZMMkoxYVd4a1pYSXVaWGhoYlhCc1pTNTBaWE4wTDJGblpXNTBMWFp2YkhWdFpYTXZiMlptYkdsdVpTSjlmWDE5Iiwic2lnbmF0dXJlcyI6W3sia2V5aWQiOiJhZ2VudC12b2x1bWVzLW9mZmxpbmUtdGVzdC1rZXkifV19",
+        "artifactDigest": "sha256:5f6bdedfd1099efa65c32c750c4fd7e55e63252a656775925c229fc6f2ba28f2"
+      },
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "invalid-trust-artifact" }
     },
     {
       "name": "slsa-provenance-rejects-wrong-predicate-type",
@@ -95,6 +144,32 @@
       },
       "lifecycleStatus": { "state": "active" },
       "expected": { "valid": true }
+    },
+    {
+      "name": "sigstore-bundle-rejects-missing-verification-material",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "signatureFormat": "sigstore-bundle",
+        "version": "0.3"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle"
+      },
+      "artifact": {
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "bytesBase64": "eyJtZWRpYV90eXBlIjoiYXBwbGljYXRpb24vdm5kLmRldi5zaWdzdG9yZS5idW5kbGUudjAuMytqc29uIiwibWVzc2FnZV9zaWduYXR1cmUiOnsibWVzc2FnZV9kaWdlc3QiOnsiYWxnb3JpdGhtIjoiU0hBMl8yNTYiLCJkaWdlc3QiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEifSwic2lnbmF0dXJlIjoiVFVWVlEwbFJSRzltWm14cGJtVkVaWFJsY20xcGJtbHpkR2xqVTJsbmJtRjBkWEpsUm1sNGRIVnlaUT09In19",
+        "artifactDigest": "sha256:b285ca9030ef9d1e799fc7de73f70f5ef7447c34b72ddfe1c0b7c52614f4526a"
+      },
+      "lifecycleStatus": { "state": "active" },
+      "expected": { "valid": false, "failureCategory": "invalid-trust-artifact" }
     },
     {
       "name": "sigstore-bundle-rejects-format-mismatch",
