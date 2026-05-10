@@ -77,6 +77,7 @@ name = "research-agent-pack"
 version = "1.4.0"
 description = "Research assistant with literature analysis tools"
 license = "Apache-2.0"
+role = "plugin"
 
 [publisher]
 id = "acme"

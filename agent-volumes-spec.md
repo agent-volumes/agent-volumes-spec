@@ -373,7 +373,7 @@ description = "LSP server configuration for research-oriented code intelligence"
 | `name`       | string | Component name. Lowercase alphanumeric + hyphens. Unique within the volume.      |
 | `entrypoint` | string | Relative path from volume root to the component's entry file.                    |
 
-The manifest schema validates the structural path shape of `entrypoint`. Entrypoint existence and type-specific content validation require validator logic beyond JSON Schema and are summarized in [Section 5.3](#53-entrypoint-resolution).
+The manifest schema validates the structural path shape of `entrypoint`. Entrypoint existence and type-specific content validation require validator logic beyond JSON Schema and are summarized in [Section 5.3](#53-entrypoint-resolution-and-load-boundary).
 
 **Optional fields per component:**
 
@@ -842,7 +842,7 @@ volume-root/
 └── scripts/
 ```
 
-### 5.3 Entrypoint Resolution
+### 5.3 Entrypoint Resolution and Load Boundary
 
 | Field source                         | Precedence                                                  |
 | ------------------------------------ | ----------------------------------------------------------- |
@@ -850,19 +850,34 @@ volume-root/
 | Entrypoint frontmatter               | Second — authoritative for component-level content metadata |
 | Inferred defaults                    | Lowest                                                      |
 
-Baseline entrypoint contracts are type-specific:
+Baseline entrypoint contracts are type-specific. They define the minimum information a portable validator can check before handing a component to a runtime adapter. They do not define every runtime-local execution policy.
 
-| Type         | Baseline entrypoint contract                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `agent`      | Markdown (`.md`) or YAML (`.yaml`) agent definition.                                                                |
-| `skill`      | Markdown skill definition with Agent Skills-compatible frontmatter.                                                 |
-| `command`    | Markdown command definition with `trigger` frontmatter matching `^/[a-z0-9-]+$`.                                    |
-| `tool`       | JSON/YAML function description or executable script as declared by the package.                                     |
-| `hook`       | Markdown/YAML/script hook definition that declares or implies one of the canonical lifecycle events and hook types. |
-| `mcp-server` | JSON MCP server configuration, canonically discoverable as `.mcp.json` for the Claude Code compatibility profile.   |
-| `lsp-server` | JSON LSP server configuration, canonically discoverable as `.lsp.json` for the Claude Code compatibility profile.   |
+| Type         | Baseline entrypoint contract                                                                                                     | Portable validation minimum                                                                                                                                                |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agent`      | Markdown (`.md`) or YAML (`.yaml`) agent definition.                                                                             | Entrypoint file exists and has a supported extension. YAML entrypoints MUST parse as YAML.                                                                                 |
+| `skill`      | Markdown skill definition with Agent Skills-compatible frontmatter.                                                              | Entrypoint file exists, is Markdown, and exposes Agent Skills-compatible frontmatter sufficient for discovery.                                                             |
+| `command`    | Markdown command definition with `trigger` frontmatter matching `^/[a-z0-9-]+$`.                                                 | Entrypoint file exists, is Markdown, and declares a valid `trigger`.                                                                                                       |
+| `tool`       | JSON/YAML function description or executable script as declared by the package.                                                  | JSON and YAML descriptor entrypoints MUST parse. Script entrypoints MUST be regular files; host executability and local policy are load-time checks.                       |
+| `hook`       | Markdown/YAML/script hook definition that declares or implies one of the canonical lifecycle events and hook types.              | Entrypoint file exists and declares or implies a canonical lifecycle event from [Section 4.5](#45-hook) and one of the baseline hook types: `command`, `script`, `module`. |
+| `mcp-server` | JSON MCP server configuration, canonically discoverable as `.mcp.json`; JSON is the only v0.1 baseline MCP configuration format. | Entrypoint file exists, is JSON, and parses to a JSON object. Runtime-specific server launch, approval, and allow/deny policy are load-time checks.                        |
+| `lsp-server` | JSON LSP server configuration, canonically discoverable as `.lsp.json`; JSON is the only v0.1 baseline LSP configuration format. | Entrypoint file exists, is JSON, and parses to a JSON object. Runtime-specific server launch, approval, and allow/deny policy are load-time checks.                        |
 
-Conforming validators MUST verify that declared entrypoint files exist. They SHOULD surface diagnostics when an entrypoint's type-specific contract is missing required metadata such as command `trigger` frontmatter or unsupported hook event names.
+Conforming validators MUST verify that declared entrypoint files exist and are regular files in the normalized release subject. They MUST reject a component declaration during manifest, publish, install, or pre-load validation when the component fails the portable validation minimum for its declared type.
+
+The following conditions are portable validation failures in the v0.1 baseline:
+
+- the `entrypoint` path is absolute, escapes the volume root, contains a `..` segment, normalizes to an empty path or `.` path, resolves to a non-regular file, or is absent from the release subject
+- the entrypoint's file type is incompatible with the declared component `type`
+- a parseable descriptor is required by the declared component `type`, but the descriptor cannot be parsed
+- a `command` entrypoint omits `trigger` frontmatter or declares a `trigger` that does not match `^/[a-z0-9-]+$`
+- a `hook` entrypoint declares a lifecycle event outside the canonical event vocabulary in [Section 4.5](#45-hook) or a hook type outside `command`, `script`, and `module`
+- an `mcp-server` or `lsp-server` entrypoint is not JSON, or does not parse to a JSON object
+
+Warnings are appropriate when the portable component remains loadable but the package uses a non-canonical or profile-sensitive convention. For example, an MCP server configuration at `./config/research-mcp.json` can be structurally valid while still producing a `noncanonical-entrypoint` warning because `.mcp.json` is the canonical discovery filename. Unknown manifest structure remains governed by [Section 3.13](#313-unknown-fields-and-warning-behavior).
+
+Load-time failure is distinct from portable validation failure. A runtime adapter MAY fail to load an otherwise valid component because local policy denies it, an administrator-managed allowlist blocks it, the host platform lacks an execution environment, a server cannot be launched, or a runtime-specific profile rejects a convention that the v0.1 core only warns about. Such failures MUST NOT be reported as successful loads, but they do not retroactively make the manifest structurally invalid.
+
+This boundary follows established agent-runtime practice: malformed configuration is rejected early, ambiguous but understood compatibility conventions produce visible diagnostics, and host-specific policy gates fail closed at load or execution time.
 
 ### 5.4 Single-Component Volumes
 
@@ -1706,6 +1721,7 @@ A conforming client SHOULD:
 The v0.1 core requires normative conformance fixtures and vectors for at least:
 
 - manifest valid/invalid/warning behavior, including unknown-field warnings
+- component entrypoint semantic validation, including missing files, wrong formats, missing command triggers, unsupported hook events, and non-canonical entrypoint warnings
 - normalized file tree digest golden vectors
 - trust metadata summary/detail payload fixtures
 - version index row fixtures
