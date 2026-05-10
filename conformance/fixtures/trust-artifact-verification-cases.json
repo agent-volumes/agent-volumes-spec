@@ -1,0 +1,119 @@
+{
+  "specVersion": "0.1.0-draft.5",
+  "cases": [
+    {
+      "name": "cyclonedx-bom-binds-to-release-subject",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "slsa-provenance-binds-to-release-subject",
+      "category": "provenance",
+      "format": {
+        "family": "slsa-provenance",
+        "mediaType": "application/vnd.in-toto+json",
+        "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "slsa-provenance-rejects-wrong-predicate-type",
+      "category": "provenance",
+      "format": {
+        "family": "slsa-provenance",
+        "mediaType": "application/vnd.in-toto+json",
+        "predicateType": "https://slsa.dev/provenance/v1"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "predicateType": "https://example.test/provenance/custom/v1"
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-provenance-predicate" }
+    },
+    {
+      "name": "sigstore-bundle-binds-to-release-subject",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "signatureFormat": "sigstore-bundle",
+        "version": "0.3"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "sigstore-bundle"
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "sigstore-bundle-rejects-format-mismatch",
+      "category": "signature",
+      "format": {
+        "family": "sigstore-bundle",
+        "mediaType": "application/vnd.dev.sigstore.bundle+json",
+        "signatureFormat": "sigstore-bundle",
+        "version": "0.3"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signatureFormat": "raw-signature"
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-signature-format" }
+    },
+    {
+      "name": "trust-artifact-rejects-subject-digest-mismatch",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "expected": { "valid": false, "failureCategory": "subject-binding-mismatch" }
+    }
+  ]
+}

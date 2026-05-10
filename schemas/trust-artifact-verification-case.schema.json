@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/trust-artifact-verification-case.schema.json",
+  "title": "Agent Volumes Trust Artifact Verification Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "cases"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "category", "format", "subject", "artifactSubject", "expected"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "enum": ["bom", "provenance", "signature"] },
+          "format": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "mediaType"],
+            "properties": {
+              "family": { "type": "string" },
+              "mediaType": { "type": "string" },
+              "predicateType": { "type": "string", "format": "uri" },
+              "signatureFormat": { "type": "string" },
+              "version": { "type": "string" }
+            }
+          },
+          "subject": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["purl", "integrity"],
+            "properties": {
+              "purl": {
+                "type": "string",
+                "pattern": "^pkg:volume/.+@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+              },
+              "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+            }
+          },
+          "artifactSubject": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "purl": {
+                "type": "string",
+                "pattern": "^pkg:volume/.+@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+              },
+              "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "predicateType": { "type": "string", "format": "uri" },
+              "signatureFormat": { "type": "string" }
+            }
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["valid"],
+            "properties": {
+              "valid": { "type": "boolean" },
+              "failureCategory": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

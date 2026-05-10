@@ -55,6 +55,114 @@
       }
     },
     {
+      "name": "provenance-intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-provenance-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "provenance",
+          "format": {
+            "family": "slsa-provenance",
+            "mediaType": "application/vnd.in-toto+json",
+            "predicateType": "https://slsa.dev/provenance/v1",
+            "version": "1.0"
+          }
+        },
+        "declaredDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "declaredSize": 8192,
+        "upload": {
+          "instructionType": "opaque-url",
+          "url": "https://uploads.example.test/upload-provenance-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-provenance-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "provenance-finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-provenance-1",
+        "attachmentId": "provenance-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "artifactDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "artifactSize": 8192,
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "signature-intent-created",
+      "schema": "trust-upload-intent",
+      "payload": {
+        "uploadId": "upload-signature-1",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "attachment": {
+          "category": "signature",
+          "format": {
+            "family": "sigstore-bundle",
+            "mediaType": "application/vnd.dev.sigstore.bundle+json",
+            "profile": "sigstore-bundle-v0.3",
+            "version": "0.3"
+          }
+        },
+        "declaredDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "declaredSize": 2048,
+        "upload": {
+          "instructionType": "opaque-url",
+          "url": "https://uploads.example.test/upload-signature-1",
+          "method": "PUT"
+        },
+        "expiresAt": "2026-05-09T01:00:00Z",
+        "state": "pending-upload",
+        "idempotencyKey": "intent-key-signature-1"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "signature-finalize-success",
+      "schema": "trust-upload-finalize",
+      "payload": {
+        "uploadId": "upload-signature-1",
+        "attachmentId": "signature-2",
+        "subject": {
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "artifactDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "artifactSize": 2048,
+        "status": {
+          "state": "active"
+        },
+        "detailUrl": "/api/v1/volumes/research-agent-pack/1.4.0/trust/detail"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
       "name": "digest-mismatch-failure",
       "schema": "problem-details",
       "payload": {
