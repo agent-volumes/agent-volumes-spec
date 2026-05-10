@@ -1,13 +1,352 @@
 {
-  "agentVolumesField": "volume.name",
-  "mapsTo": [
-    {
-      "target": "cyclonedx.metadata.component.name",
-      "kind": "native"
+  "specVersion": "0.1.0-draft.5",
+  "sourceManifest": {
+    "volume": {
+      "schema": 1,
+      "name": "research-agent-pack",
+      "version": "1.4.0",
+      "description": "Research assistant with literature analysis tools",
+      "license": "Apache-2.0",
+      "homepage": "https://example.test/research-agent-pack",
+      "repository": "https://git.example.test/acme/research-agent-pack.git",
+      "documentation": "https://docs.example.test/research-agent-pack",
+      "keywords": ["research", "summarization"],
+      "role": "plugin",
+      "secondary-roles": ["component"],
+      "providers": ["github"]
     },
-    {
-      "target": "spdx.Package.name",
-      "kind": "native"
+    "publisher": {
+      "id": "acme"
+    },
+    "components": [
+      {
+        "type": "skill",
+        "name": "summarize-paper",
+        "entrypoint": "./skills/summarize-paper/SKILL.md",
+        "providers": ["github"],
+        "permissions": {
+          "filesystem": "read",
+          "network": "read",
+          "shell": "deny"
+        }
+      },
+      {
+        "type": "tool",
+        "name": "arxiv-search",
+        "entrypoint": "./tools/arxiv-search.json",
+        "providers": ["arxiv"],
+        "permissions": {
+          "filesystem": "deny",
+          "network": "read",
+          "shell": "deny"
+        }
+      }
+    ],
+    "dependencies": {
+      "github-provider": "^2.1.0"
+    },
+    "component-dependencies": {
+      "summarize-paper": ["pkg:volume/github-provider@2.1.0#tool/read-pr"]
+    },
+    "runtimes": [
+      {
+        "name": "claude-code",
+        "compatibility": "^1.0.0"
+      }
+    ],
+    "protocols": [
+      {
+        "name": "mcp",
+        "version": ">=2025.02"
+      }
+    ],
+    "environment": {
+      "runtimes": ["node", "python"],
+      "os": ["linux", "macos"],
+      "arch": ["x64", "arm64"]
+    },
+    "permissions": {
+      "filesystem": "read",
+      "network": "read",
+      "browser": "deny",
+      "shell": "deny"
+    },
+    "provenance": {
+      "source-repo": "https://git.example.test/acme/research-agent-pack.git",
+      "build": {
+        "system": "https://github.com/actions/runner",
+        "workflow": ".github/workflows/release.yml",
+        "signed": true
+      }
     }
-  ]
+  },
+  "releaseSubject": {
+    "purl": "pkg:volume/research-agent-pack@1.4.0",
+    "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "exports": {
+    "cyclonedx": {
+      "bomFormat": "CycloneDX",
+      "specVersion": "1.7",
+      "serialNumber": "urn:uuid:22222222-2222-4222-8222-222222222222",
+      "version": 1,
+      "metadata": {
+        "component": {
+          "type": "application",
+          "bom-ref": "pkg:volume/research-agent-pack@1.4.0",
+          "name": "research-agent-pack",
+          "version": "1.4.0",
+          "description": "Research assistant with literature analysis tools",
+          "publisher": "acme",
+          "purl": "pkg:volume/research-agent-pack@1.4.0",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "licenses": [
+            {
+              "license": {
+                "id": "Apache-2.0"
+              }
+            }
+          ],
+          "externalReferences": [
+            {
+              "type": "website",
+              "url": "https://example.test/research-agent-pack"
+            },
+            {
+              "type": "vcs",
+              "url": "https://git.example.test/acme/research-agent-pack.git"
+            },
+            {
+              "type": "documentation",
+              "url": "https://docs.example.test/research-agent-pack"
+            }
+          ],
+          "properties": [
+            {
+              "name": "agent-volumes:component-dependencies",
+              "value": "{\"summarize-paper\":[\"pkg:volume/github-provider@2.1.0#tool/read-pr\"]}"
+            },
+            {
+              "name": "agent-volumes:environment",
+              "value": "{\"arch\":[\"x64\",\"arm64\"],\"os\":[\"linux\",\"macos\"],\"runtimes\":[\"node\",\"python\"]}"
+            },
+            {
+              "name": "agent-volumes:keywords",
+              "value": "[\"research\",\"summarization\"]"
+            },
+            {
+              "name": "agent-volumes:permissions",
+              "value": "{\"browser\":\"deny\",\"filesystem\":\"read\",\"network\":\"read\",\"shell\":\"deny\"}"
+            },
+            {
+              "name": "agent-volumes:protocols",
+              "value": "[{\"name\":\"mcp\",\"version\":\">=2025.02\"}]"
+            },
+            {
+              "name": "agent-volumes:providers",
+              "value": "[\"github\"]"
+            },
+            {
+              "name": "agent-volumes:role",
+              "value": "plugin"
+            },
+            {
+              "name": "agent-volumes:runtimes",
+              "value": "[{\"compatibility\":\"^1.0.0\",\"name\":\"claude-code\"}]"
+            },
+            {
+              "name": "agent-volumes:secondary-roles",
+              "value": "[\"component\"]"
+            }
+          ]
+        },
+        "properties": [
+          {
+            "name": "agent-volumes:build-system",
+            "value": "https://github.com/actions/runner"
+          },
+          {
+            "name": "agent-volumes:build-workflow",
+            "value": ".github/workflows/release.yml"
+          }
+        ]
+      },
+      "components": [
+        {
+          "type": "data",
+          "bom-ref": "pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper",
+          "name": "summarize-paper",
+          "purl": "pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper",
+          "properties": [
+            {
+              "name": "agent-volumes:entrypoint",
+              "value": "./skills/summarize-paper/SKILL.md"
+            },
+            {
+              "name": "agent-volumes:permissions",
+              "value": "{\"filesystem\":\"read\",\"network\":\"read\",\"shell\":\"deny\"}"
+            },
+            {
+              "name": "agent-volumes:providers",
+              "value": "[\"github\"]"
+            },
+            {
+              "name": "agent-volumes:type",
+              "value": "skill"
+            }
+          ]
+        },
+        {
+          "type": "application",
+          "bom-ref": "pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search",
+          "name": "arxiv-search",
+          "purl": "pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search",
+          "properties": [
+            {
+              "name": "agent-volumes:entrypoint",
+              "value": "./tools/arxiv-search.json"
+            },
+            {
+              "name": "agent-volumes:permissions",
+              "value": "{\"filesystem\":\"deny\",\"network\":\"read\",\"shell\":\"deny\"}"
+            },
+            {
+              "name": "agent-volumes:providers",
+              "value": "[\"arxiv\"]"
+            },
+            {
+              "name": "agent-volumes:type",
+              "value": "tool"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "ref": "pkg:volume/research-agent-pack@1.4.0",
+          "dependsOn": ["pkg:volume/github-provider@2.1.0"]
+        },
+        {
+          "ref": "pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper",
+          "dependsOn": ["pkg:volume/github-provider@2.1.0#tool/read-pr"]
+        }
+      ]
+    },
+    "spdx": {
+      "spdxVersion": "SPDX-2.3",
+      "dataLicense": "CC0-1.0",
+      "SPDXID": "SPDXRef-DOCUMENT",
+      "name": "research-agent-pack-1.4.0",
+      "documentNamespace": "https://agentvolumes.org/spdx/research-agent-pack/1.4.0/22222222-2222-4222-8222-222222222222",
+      "creationInfo": {
+        "created": "2026-05-10T00:00:00Z",
+        "creators": ["Tool: agent-volumes-conformance-fixture"]
+      },
+      "packages": [
+        {
+          "SPDXID": "SPDXRef-Package-research-agent-pack",
+          "name": "research-agent-pack",
+          "versionInfo": "1.4.0",
+          "downloadLocation": "NOASSERTION",
+          "packageHomePage": "https://example.test/research-agent-pack",
+          "summary": "Research assistant with literature analysis tools",
+          "licenseConcluded": "Apache-2.0",
+          "checksums": [
+            {
+              "algorithm": "SHA256",
+              "checksumValue": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "externalRefs": [
+            {
+              "referenceCategory": "PACKAGE-MANAGER",
+              "referenceType": "purl",
+              "referenceLocator": "pkg:volume/research-agent-pack@1.4.0"
+            },
+            {
+              "referenceCategory": "OTHER",
+              "referenceType": "agent-volumes:documentation",
+              "referenceLocator": "https://docs.example.test/research-agent-pack"
+            },
+            {
+              "referenceCategory": "OTHER",
+              "referenceType": "agent-volumes:vcs",
+              "referenceLocator": "https://git.example.test/acme/research-agent-pack.git"
+            }
+          ],
+          "comment": "{\"agent-volumes:keywords\":[\"research\",\"summarization\"],\"agent-volumes:providers\":[\"github\"],\"agent-volumes:role\":\"plugin\"}"
+        },
+        {
+          "SPDXID": "SPDXRef-Package-github-provider",
+          "name": "github-provider",
+          "versionInfo": "2.1.0",
+          "downloadLocation": "NOASSERTION",
+          "externalRefs": [
+            {
+              "referenceCategory": "PACKAGE-MANAGER",
+              "referenceType": "purl",
+              "referenceLocator": "pkg:volume/github-provider@2.1.0"
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "spdxElementId": "SPDXRef-DOCUMENT",
+          "relationshipType": "DESCRIBES",
+          "relatedSpdxElement": "SPDXRef-Package-research-agent-pack"
+        },
+        {
+          "spdxElementId": "SPDXRef-Package-research-agent-pack",
+          "relationshipType": "DEPENDS_ON",
+          "relatedSpdxElement": "SPDXRef-Package-github-provider"
+        }
+      ]
+    },
+    "slsa": {
+      "_type": "https://in-toto.io/Statement/v1",
+      "subject": [
+        {
+          "name": "pkg:volume/research-agent-pack@1.4.0",
+          "digest": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "predicate": {
+        "buildDefinition": {
+          "buildType": "https://agentvolumes.org/build/manual/v0.1",
+          "externalParameters": {
+            "sourceRepo": "https://git.example.test/acme/research-agent-pack.git",
+            "workflow": ".github/workflows/release.yml",
+            "signed": true,
+            "volume": {
+              "name": "research-agent-pack",
+              "version": "1.4.0",
+              "role": "plugin"
+            }
+          }
+        },
+        "runDetails": {
+          "builder": {
+            "id": "https://github.com/actions/runner"
+          }
+        },
+        "materials": [
+          {
+            "uri": "https://git.example.test/acme/research-agent-pack.git",
+            "digest": {
+              "sha1": "1111111111111111111111111111111111111111"
+            }
+          }
+        ]
+      }
+    }
+  }
 }

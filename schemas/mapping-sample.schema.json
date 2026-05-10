@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/mapping-sample.schema.json",
+  "title": "Agent Volumes Mapping Sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "sourceManifest", "releaseSubject", "exports"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "sourceManifest": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/volume.schema.json" },
+    "releaseSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "integrity"],
+      "properties": {
+        "purl": { "$ref": "#/$defs/releasePurl" },
+        "integrity": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cyclonedx", "spdx", "slsa"],
+      "properties": {
+        "cyclonedx": { "type": "object" },
+        "spdx": { "type": "object" },
+        "slsa": { "type": "object" }
+      }
+    }
+  },
+  "$defs": {
+    "releasePurl": {
+      "type": "string",
+      "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}
