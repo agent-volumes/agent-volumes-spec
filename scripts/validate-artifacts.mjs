@@ -39,6 +39,7 @@ const schemas = {
   exactReleaseMetadataCase: readJson('schemas/exact-release-metadata-case.schema.json'),
   problemDetails: readJson('schemas/problem-details.schema.json'),
   warning: readJson('schemas/warning.schema.json'),
+  manifestParseCase: readJson('schemas/manifest-parse-case.schema.json'),
   componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
   semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
   trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
@@ -202,6 +203,142 @@ const stableJsonStringify = (value) => {
 
 const assertDeepEqual = (actual, expected, label) => {
   assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
+};
+
+const stripTomlComment = (line) => {
+  let inString = false;
+  let escaped = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (character === '\\' && inString) {
+      escaped = true;
+      continue;
+    }
+    if (character === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (character === '#' && !inString) {
+      return line.slice(0, index);
+    }
+  }
+  return line;
+};
+
+const splitTomlArray = (content) => {
+  const items = [];
+  let token = '';
+  let inString = false;
+  let escaped = false;
+  for (let index = 0; index < content.length; index += 1) {
+    const character = content[index];
+    if (escaped) {
+      token += character;
+      escaped = false;
+      continue;
+    }
+    if (character === '\\' && inString) {
+      token += character;
+      escaped = true;
+      continue;
+    }
+    if (character === '"') {
+      token += character;
+      inString = !inString;
+      continue;
+    }
+    if (character === ',' && !inString) {
+      if (token.trim()) {
+        items.push(token.trim());
+      }
+      token = '';
+      continue;
+    }
+    token += character;
+  }
+  if (token.trim()) {
+    items.push(token.trim());
+  }
+  return items;
+};
+
+const parseTomlKey = (key) => {
+  const trimmed = key.trim();
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return JSON.parse(trimmed);
+  }
+  assert(/^[A-Za-z0-9_-]+$/.test(trimmed), `unsupported TOML key in fixture: ${trimmed}`);
+  return trimmed;
+};
+
+const parseTomlScalar = (value) => {
+  const trimmed = value.trim();
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return JSON.parse(trimmed);
+  }
+  if (trimmed === 'true') return true;
+  if (trimmed === 'false') return false;
+  if (/^-?(?:0|[1-9]\d*)$/.test(trimmed)) return Number(trimmed);
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    const content = trimmed.slice(1, -1).trim();
+    return content ? splitTomlArray(content).map((item) => parseTomlScalar(item)) : [];
+  }
+  throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
+};
+
+const resolveTomlPath = (rootObject, header, arrayTable) => {
+  const pathParts = header.split('.').map((part) => parseTomlKey(part));
+  let parent = rootObject;
+  for (const part of pathParts.slice(0, -1)) {
+    parent[part] ??= {};
+    assert(!Array.isArray(parent[part]), `unsupported nested TOML path below array table: ${header}`);
+    parent = parent[part];
+  }
+  const finalPart = pathParts[pathParts.length - 1];
+  if (arrayTable) {
+    parent[finalPart] ??= [];
+    assert(Array.isArray(parent[finalPart]), `TOML array table conflicts with singleton table: ${header}`);
+    const item = {};
+    parent[finalPart].push(item);
+    return item;
+  }
+  parent[finalPart] ??= {};
+  assert(!Array.isArray(parent[finalPart]), `TOML singleton table conflicts with array table: ${header}`);
+  return parent[finalPart];
+};
+
+// Fixture-scoped TOML subset parser for deterministic authored-source vectors.
+// It intentionally covers only the TOML shapes used by manifest-parse-cases.json;
+// conforming clients still need a real TOML v1.1.0 parser.
+const parseFixtureTomlSubset = (source, label) => {
+  const parsed = {};
+  let current = parsed;
+  const lines = source.split(/\r?\n/);
+  for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
+    const line = stripTomlComment(lines[lineNumber]).trim();
+    if (!line) {
+      continue;
+    }
+    const arrayTableMatch = line.match(/^\[\[([^\]]+)\]\]$/);
+    if (arrayTableMatch) {
+      current = resolveTomlPath(parsed, arrayTableMatch[1], true);
+      continue;
+    }
+    const tableMatch = line.match(/^\[([^\]]+)\]$/);
+    if (tableMatch) {
+      current = resolveTomlPath(parsed, tableMatch[1], false);
+      continue;
+    }
+    const assignmentIndex = line.indexOf('=');
+    assert(assignmentIndex > 0, `${label} has unsupported TOML line ${lineNumber + 1}: ${line}`);
+    const key = parseTomlKey(line.slice(0, assignmentIndex));
+    current[key] = parseTomlScalar(line.slice(assignmentIndex + 1));
+  }
+  return parsed;
 };
 
 const findProperty = (properties, name, label) => {
@@ -611,6 +748,45 @@ assert(
 for (const warning of unknownFieldFixture.expected.warnings) {
   assertWarning(warning, 'unknown-field manifest warning');
 }
+
+const manifestParseCases = readJson('conformance/fixtures/manifest-parse-cases.json');
+validate('manifestParseCase', manifestParseCases, 'manifest parse cases fixture');
+assertSpecVersion(manifestParseCases, 'manifest parse cases');
+for (const manifestParseCase of manifestParseCases.cases) {
+  const parsed = parseFixtureTomlSubset(
+    manifestParseCase.authoredToml,
+    `manifest parse case ${manifestParseCase.name}`
+  );
+  assertDeepEqual(
+    parsed,
+    manifestParseCase.expected.canonicalParsedData,
+    `manifest parse case ${manifestParseCase.name}`
+  );
+  for (const warning of manifestParseCase.expected.warnings ?? []) {
+    assertWarning(warning, `manifest parse case ${manifestParseCase.name} warning`);
+  }
+  if (manifestParseCase.expected.valid) {
+    validate('volume', parsed, `manifest parse case ${manifestParseCase.name}`);
+  } else {
+    validateExpectedFailure('volume', parsed, `manifest parse case ${manifestParseCase.name}`);
+  }
+  if (manifestParseCase.name === 'no-default-materialization') {
+    assert(
+      !Object.hasOwn(parsed, 'permissions') && !Object.hasOwn(parsed.components[0], 'permissions'),
+      'manifest parse case no-default-materialization must not inject permission defaults'
+    );
+  }
+  if (manifestParseCase.expected.failureCategory === 'invalid-manifest-shape') {
+    assert(
+      manifestParseCase.expected.path === 'components' && !Array.isArray(parsed.components),
+      `manifest parse case ${manifestParseCase.name} must fail because components is not an array table`
+    );
+  }
+}
+assert(
+  manifestParseCases.cases.some((manifestParseCase) => manifestParseCase.name === 'invalid-singleton-component-shape'),
+  'manifest parse cases must include singleton component shape rejection'
+);
 
 for (const [fixturePath, label] of [
   ['conformance/fixtures/manifest-invalid-name.json', 'invalid-name manifest fixture'],
@@ -1301,6 +1477,19 @@ assert(
   ),
   'semantic validation cases must include load-time policy blocking boundary'
 );
+for (const compatibilityCaseName of [
+  'compatibility-preserves-semver-looking-runtime-expression',
+  'compatibility-preserves-date-like-protocol-expression',
+  'compatibility-preserves-short-numeric-protocol-expression',
+  'unknown-compatibility-scheme-is-advisory-not-rejection',
+]) {
+  assert(
+    semanticValidationCases.cases.some(
+      (semanticCase) => semanticCase.name === compatibilityCaseName && semanticCase.expected.valid === true
+    ),
+    `semantic validation cases must include positive compatibility expression case ${compatibilityCaseName}`
+  );
+}
 assert(
   semanticValidationCases.cases.some(
     (semanticCase) => semanticCase.expected.failureCategory === 'non-regular-archive-entry'
@@ -1704,12 +1893,75 @@ assert(
   openapi.paths['/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads'],
   'OpenAPI document must define scoped trust upload intent path'
 );
+for (const pathName of [
+  '/api/v1/index/volumes/{name}',
+  '/api/v1/index/volumes/@{scope}/{name}',
+  '/api/v1/volumes/{name}/{version}',
+  '/api/v1/volumes/@{scope}/{name}/{version}',
+  '/api/v1/volumes/{name}/{version}/trust/summary',
+  '/api/v1/volumes/@{scope}/{name}/{version}/trust/summary',
+  '/api/v1/volumes/{name}/{version}/trust/detail',
+  '/api/v1/volumes/@{scope}/{name}/{version}/trust/detail',
+]) {
+  assert(
+    openapi.paths[pathName]?.get?.responses?.['409']?.$ref === '#/components/responses/Conflict',
+    `OpenAPI GET ${pathName} must expose 409 Conflict for inconsistent registry state`
+  );
+}
 assert(openapi.components?.schemas?.ProblemDetails, 'OpenAPI document must define ProblemDetails schema');
+for (const [openapiName, schemaDefName] of [
+  ['NameSegment', 'nameSegment'],
+  ['ScopeName', 'scopeName'],
+  ['VolumeName', 'volumeName'],
+  ['SemVer', 'semver'],
+]) {
+  const openapiSchema = openapi.components?.schemas?.[openapiName];
+  const jsonSchema = schemas.volume.$defs[schemaDefName];
+  assert(openapiSchema, `OpenAPI document must define ${openapiName} schema`);
+  assert(openapiSchema.type === jsonSchema.type, `OpenAPI ${openapiName}.type must match volume schema`);
+  assert(openapiSchema.pattern === jsonSchema.pattern, `OpenAPI ${openapiName}.pattern must match volume schema`);
+  if (jsonSchema.maxLength !== undefined) {
+    assert(
+      openapiSchema.maxLength === jsonSchema.maxLength,
+      `OpenAPI ${openapiName}.maxLength must match volume schema`
+    );
+  }
+}
 assert(
   openapi.components.schemas.ProblemDetails.properties.type.pattern ===
     '^https://agentvolumes\\.org/problems/[a-z0-9-]+$',
   'OpenAPI ProblemDetails.type must use Agent Volumes problem URI pattern'
 );
+assert(
+  openapi.components.schemas.ProblemDetails.required.join(',') === schemas.problemDetails.required.join(','),
+  'OpenAPI ProblemDetails.required must match standalone schema'
+);
+assert(
+  openapi.components.schemas.ProblemDetails.additionalProperties === schemas.problemDetails.additionalProperties,
+  'OpenAPI ProblemDetails.additionalProperties must match standalone schema'
+);
+assert(
+  openapi.components.schemas.ProblemDetails.properties.title.minLength ===
+    schemas.problemDetails.properties.title.minLength,
+  'OpenAPI ProblemDetails.title.minLength must match standalone schema'
+);
+assert(
+  openapi.components.schemas.ProblemDetails.properties.status.minimum ===
+    schemas.problemDetails.properties.status.minimum &&
+    openapi.components.schemas.ProblemDetails.properties.status.maximum ===
+      schemas.problemDetails.properties.status.maximum,
+  'OpenAPI ProblemDetails.status bounds must match standalone schema'
+);
+for (const [responseName, response] of Object.entries(openapi.components.responses)) {
+  const problemContent = response.content?.['application/problem+json'];
+  if (!problemContent) {
+    continue;
+  }
+  assert(problemContent.examples, `OpenAPI ${responseName} problem response must include representative examples`);
+  for (const [exampleName, example] of Object.entries(problemContent.examples)) {
+    assertProblemDetails(example.value, `OpenAPI ${responseName} problem example ${exampleName}`);
+  }
+}
 for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
   for (const [method, operation] of Object.entries(pathItem)) {
     if (!['get', 'post', 'put', 'patch', 'delete'].includes(method)) {
