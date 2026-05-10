@@ -63,6 +63,114 @@
       "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
     },
     {
+      "name": "invalid-spdx-license-expression",
+      "area": "manifest",
+      "payload": {
+        "license": "Apache-2.0 OR"
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-spdx-expression" }
+    },
+    {
+      "name": "agent-entrypoint-portable-markdown-frontmatter",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "agent", "name": "review-agent", "entrypoint": "./agents/review/AGENT.md" },
+        "releaseFiles": ["volume.toml", "agents/review/AGENT.md"],
+        "frontmatter": { "description": "Reviews pull requests", "tools": ["tool/read-pr"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "skill-entrypoint-portable-skill-markdown",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"],
+        "frontmatter": { "description": "Summarize academic papers" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "skill-entrypoint-missing-description-frontmatter",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "frontmatter": {}
+      },
+      "expected": { "valid": false, "failureCategory": "missing-skill-description" }
+    },
+    {
+      "name": "command-entrypoint-valid-trigger",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes", "trigger": "/review" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "command-entrypoint-invalid-trigger-format",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "command", "name": "review", "entrypoint": "./commands/review.md" },
+        "frontmatter": { "description": "Review the current changes", "trigger": "review" }
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-command-trigger" }
+    },
+    {
+      "name": "tool-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.json" },
+        "descriptor": { "name": "read-pr", "inputSchema": { "type": "object" } }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "tool-entrypoint-portable-yaml-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.yaml" },
+        "descriptor": { "name": "read-pr", "inputSchema": { "type": "object" } }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "tool-entrypoint-rejects-unsupported-descriptor-format",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "tool", "name": "read-pr", "entrypoint": "./tools/read-pr.toml" }
+      },
+      "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
+    },
+    {
+      "name": "hook-entrypoint-portable-yaml-event",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "hook", "name": "before-tool", "entrypoint": "./hooks/before-tool.yaml" },
+        "hook": { "event": "PreToolUse", "type": "command" }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "lsp-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "descriptor": { "command": "typescript-language-server", "args": ["--stdio"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "lsp-entrypoint-must-be-json-object",
+      "area": "manifest",
+      "payload": {
+        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "descriptor": ["typescript-language-server", "--stdio"]
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-lsp-descriptor" }
+    },
+    {
       "name": "mcp-entrypoint-noncanonical-filename-warning",
       "area": "warning",
       "payload": {
@@ -71,6 +179,15 @@
       "expected": {
         "valid": true,
         "warnings": [{ "category": "noncanonical-entrypoint", "path": "./config/research-mcp.json" }]
+      }
+    },
+    {
+      "name": "deprecated-warning-category",
+      "area": "warning",
+      "payload": { "field": "volume.providers" },
+      "expected": {
+        "valid": true,
+        "warnings": [{ "category": "deprecated", "field": "volume.providers" }]
       }
     },
     {

@@ -24,6 +24,7 @@ addFormats(ajv);
 const schemas = {
   volume: readJson('schemas/volume.schema.json'),
   advisory: readJson('schemas/advisory.schema.json'),
+  advisoryValidationCase: readJson('schemas/advisory-validation-case.schema.json'),
   trustSummary: readJson('schemas/trust-summary.schema.json'),
   trustDetail: readJson('schemas/trust-detail.schema.json'),
   capabilityMetadata: readJson('schemas/capability-metadata.schema.json'),
@@ -34,10 +35,13 @@ const schemas = {
   releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
   releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
   releaseMetadata: readJson('schemas/release-metadata.schema.json'),
+  exactReleaseMetadataCase: readJson('schemas/exact-release-metadata-case.schema.json'),
   problemDetails: readJson('schemas/problem-details.schema.json'),
   warning: readJson('schemas/warning.schema.json'),
   componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
   semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
+  trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
+  mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
 };
 
 for (const schema of Object.values(schemas)) {
@@ -96,6 +100,12 @@ const assertReleaseMetadata = (metadata, label) => {
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
   assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
+  if (metadata.purl) {
+    assert(
+      metadata.purl === canonicalReleasePurl(metadata.name, metadata.version),
+      `${label} purl must match canonical release identity`
+    );
+  }
   assert(metadata.status && typeof metadata.status === 'object', `${label} needs lifecycle status metadata`);
   assert(
     ['available', 'yanked', 'tombstoned', 'blocked', 'unavailable'].includes(metadata.status.state),
@@ -119,6 +129,45 @@ const assertProblemDetails = (payload, label) => {
 
 const assertWarning = (warning, label) => {
   validate('warning', warning, label);
+};
+
+const isRecognizedSpdxExpressionShape = (expression) => {
+  const tokenPattern = /\(|\)|\+|\bAND\b|\bOR\b|\bWITH\b|LicenseRef-[A-Za-z0-9.-]+|[A-Za-z0-9][A-Za-z0-9.-]*/g;
+  const tokens = expression.match(tokenPattern) ?? [];
+  if (tokens.join('') !== expression.replace(/\s+/g, '')) {
+    return false;
+  }
+  let expectOperand = true;
+  let depth = 0;
+  for (const token of tokens) {
+    if (token === '(') {
+      if (!expectOperand) return false;
+      depth += 1;
+      continue;
+    }
+    if (token === ')') {
+      if (expectOperand || depth === 0) return false;
+      depth -= 1;
+      continue;
+    }
+    if (token === 'AND' || token === 'OR') {
+      if (expectOperand) return false;
+      expectOperand = true;
+      continue;
+    }
+    if (token === 'WITH') {
+      if (expectOperand) return false;
+      expectOperand = true;
+      continue;
+    }
+    if (token === '+') {
+      if (expectOperand) return false;
+      continue;
+    }
+    if (!expectOperand) return false;
+    expectOperand = false;
+  }
+  return tokens.length > 0 && depth === 0 && !expectOperand;
 };
 
 const canonicalReleasePurl = (volume, version) => {
@@ -165,6 +214,34 @@ assert(
     range.events.some((event) => 'limit' in event)
   ),
   'advisory fixture must exercise limit event semantics'
+);
+const advisoryValidationCases = readJson('conformance/fixtures/advisory-validation-cases.json');
+validate('advisoryValidationCase', advisoryValidationCases, 'advisory validation cases fixture');
+assertSpecVersion(advisoryValidationCases, 'advisory validation cases fixture');
+for (const advisoryCase of advisoryValidationCases.cases) {
+  if (advisoryCase.expected.valid) {
+    validate('advisory', advisoryCase.payload, `advisory validation case ${advisoryCase.name}`);
+  } else {
+    validateExpectedFailure('advisory', advisoryCase.payload, `advisory validation case ${advisoryCase.name}`);
+  }
+}
+const advisoryRelationshipTypes = new Set(
+  advisoryValidationCases.cases.flatMap((advisoryCase) =>
+    (advisoryCase.payload.relationships ?? []).map((relationship) => relationship.type)
+  )
+);
+for (const relationshipType of ['supersedes', 'superseded-by', 'related', 'duplicate-of']) {
+  assert(advisoryRelationshipTypes.has(relationshipType), `advisory validation cases missing ${relationshipType}`);
+}
+assert(
+  advisoryValidationCases.cases.some(
+    (advisoryCase) => advisoryCase.expected.failureCategory === 'invalid-advisory-relationship'
+  ),
+  'advisory validation cases must include invalid relationship failure'
+);
+assert(
+  advisoryValidationCases.cases.some((advisoryCase) => advisoryCase.payload.affected?.componentImpact),
+  'advisory validation cases must exercise informational componentImpact metadata'
 );
 validate('trustSummary', readJson('conformance/fixtures/trust-summary.json'), 'trust summary fixture');
 validate('trustSummary', readJson('conformance/fixtures/trust-summary-empty.json'), 'empty trust summary fixture');
@@ -506,11 +583,71 @@ for (const resolverCase of resolverCases.cases) {
   }
 }
 
+const exactReleaseMetadataCases = readJson('conformance/fixtures/exact-release-metadata-cases.json');
+validate('exactReleaseMetadataCase', exactReleaseMetadataCases, 'exact release metadata cases fixture');
+assertSpecVersion(exactReleaseMetadataCases, 'exact release metadata cases');
+for (const exactCase of exactReleaseMetadataCases.cases) {
+  for (const warning of exactCase.expected.warnings ?? []) {
+    assertWarning(warning, `exact release metadata case ${exactCase.name} warning`);
+  }
+  if (exactCase.metadata) {
+    assertReleaseMetadata(exactCase.metadata, `exact release metadata case ${exactCase.name}`);
+    assertRouteMetadataIdentity(
+      exactCase.requestRoute,
+      exactCase.metadata,
+      `exact release metadata case ${exactCase.name}`
+    );
+    assert(
+      exactCase.expected.outcome === 'success',
+      `exact release metadata case ${exactCase.name} with metadata must be successful`
+    );
+    assert(
+      exactCase.expected.installable === true,
+      `exact release metadata case ${exactCase.name} with metadata must be installable`
+    );
+    assert(
+      exactCase.metadata.dist?.source === exactCase.expected.distSource,
+      `exact release metadata case ${exactCase.name} distSource must match metadata`
+    );
+    if (exactCase.metadata.status.state === 'yanked') {
+      assert(
+        exactCase.expected.warnings?.some((warning) => warning.category === 'yanked-version'),
+        `exact release metadata case ${exactCase.name} must warn for yanked exact install`
+      );
+    }
+  }
+  if (exactCase.problem) {
+    assertProblemDetails(exactCase.problem, `exact release metadata case ${exactCase.name}`);
+    assert(
+      exactCase.expected.outcome === 'failure' && exactCase.expected.installable === false,
+      `exact release metadata case ${exactCase.name} problem must be a non-installable failure`
+    );
+    assert(
+      ['blocked', 'tombstoned', 'availability-or-registry-state'].includes(exactCase.expected.failureCategory),
+      `exact release metadata case ${exactCase.name} must use portable lifecycle failure category`
+    );
+  }
+}
+for (const requiredDistSource of ['cdn', 'git']) {
+  assert(
+    exactReleaseMetadataCases.cases.some((exactCase) => exactCase.expected.distSource === requiredDistSource),
+    `exact release metadata cases missing ${requiredDistSource} success`
+  );
+}
+for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registry-state']) {
+  assert(
+    exactReleaseMetadataCases.cases.some((exactCase) => exactCase.expected.failureCategory === requiredFailure),
+    `exact release metadata cases missing ${requiredFailure} failure`
+  );
+}
+
 const trustUploadLifecycle = readJson('conformance/fixtures/trust-upload-lifecycle.json');
 assertSpecVersion(trustUploadLifecycle, 'trust upload lifecycle fixture');
+const trustUploadIntentCategories = new Set();
 for (const fixture of trustUploadLifecycle.fixtures) {
   if (fixture.schema === 'trust-upload-intent') {
     validate('trustUploadIntent', fixture.payload, `trust upload lifecycle ${fixture.name}`);
+    trustUploadIntentCategories.add(fixture.payload.attachment.category);
   }
   if (fixture.schema === 'trust-upload-finalize') {
     validate('trustUploadFinalize', fixture.payload, `trust upload lifecycle ${fixture.name}`);
@@ -524,6 +661,83 @@ for (const fixture of trustUploadLifecycle.fixtures) {
     assert(
       fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
       `trust upload lifecycle ${fixture.name} failureCategory must match problem type slug`
+    );
+  }
+}
+for (const requiredTrustUploadCategory of ['bom', 'provenance', 'signature']) {
+  assert(
+    trustUploadIntentCategories.has(requiredTrustUploadCategory),
+    `trust upload lifecycle must include ${requiredTrustUploadCategory} intent`
+  );
+}
+
+const trustArtifactVerificationCases = readJson('conformance/fixtures/trust-artifact-verification-cases.json');
+validate('trustArtifactVerificationCase', trustArtifactVerificationCases, 'trust artifact verification cases fixture');
+assertSpecVersion(trustArtifactVerificationCases, 'trust artifact verification cases');
+for (const trustCategory of ['bom', 'provenance', 'signature']) {
+  assert(
+    trustArtifactVerificationCases.cases.some(
+      (trustCase) => trustCase.category === trustCategory && trustCase.expected.valid === true
+    ),
+    `trust artifact verification cases must include valid ${trustCategory} binding`
+  );
+}
+for (const trustCase of trustArtifactVerificationCases.cases) {
+  if (trustCase.category === 'bom') {
+    assert(
+      trustCase.format.family === 'cyclonedx',
+      `trust artifact case ${trustCase.name} BOM must use cyclonedx family`
+    );
+  }
+  if (trustCase.category === 'provenance') {
+    assert(
+      trustCase.format.family === 'slsa-provenance',
+      `trust artifact case ${trustCase.name} provenance must use slsa-provenance family`
+    );
+    if (trustCase.expected.valid) {
+      assert(
+        trustCase.artifactSubject?.predicateType === 'https://slsa.dev/provenance/v1',
+        `trust artifact case ${trustCase.name} valid provenance must use SLSA v1 predicate`
+      );
+    } else if (trustCase.expected.failureCategory === 'unsupported-provenance-predicate') {
+      assert(
+        trustCase.artifactSubject?.predicateType !== 'https://slsa.dev/provenance/v1',
+        `trust artifact case ${trustCase.name} must exercise wrong SLSA predicate`
+      );
+    }
+  }
+  if (trustCase.category === 'signature') {
+    assert(
+      trustCase.format.family === 'sigstore-bundle',
+      `trust artifact case ${trustCase.name} signature must use sigstore-bundle family`
+    );
+    if (trustCase.expected.valid) {
+      assert(
+        trustCase.artifactSubject?.signatureFormat === 'sigstore-bundle',
+        `trust artifact case ${trustCase.name} valid signature must use sigstore-bundle format`
+      );
+    } else if (trustCase.expected.failureCategory === 'unsupported-signature-format') {
+      assert(
+        trustCase.artifactSubject?.signatureFormat !== 'sigstore-bundle',
+        `trust artifact case ${trustCase.name} must exercise signature format mismatch`
+      );
+    }
+  }
+  if (trustCase.expected.failureCategory === 'subject-binding-mismatch') {
+    assert(
+      trustCase.artifactSubject?.integrity !== trustCase.subject.integrity ||
+        trustCase.artifactSubject?.purl !== trustCase.subject.purl,
+      `trust artifact case ${trustCase.name} must exercise subject mismatch`
+    );
+  }
+  if (trustCase.expected.valid) {
+    assert(
+      trustCase.artifactSubject?.integrity === trustCase.subject.integrity,
+      `trust artifact case ${trustCase.name} valid artifact must bind immutable identity`
+    );
+    assert(
+      trustCase.artifactSubject?.purl === trustCase.subject.purl,
+      `trust artifact case ${trustCase.name} valid artifact must bind logical identity`
     );
   }
 }
@@ -665,16 +879,84 @@ for (const dependencyCase of componentDependencyCases.cases) {
 
 const semanticValidationCases = readJson('conformance/fixtures/semantic-validation-cases.json');
 validate('semanticValidationCase', semanticValidationCases, 'semantic validation cases fixture');
+const canonicalHookEvents = new Set([
+  'SessionStart',
+  'SessionEnd',
+  'Setup',
+  'UserPromptSubmit',
+  'Stop',
+  'StopFailure',
+  'PreToolUse',
+  'PostToolUse',
+  'PostToolUseFailure',
+  'PostToolBatch',
+  'SubagentStart',
+  'SubagentStop',
+  'TaskCreated',
+  'TaskCompleted',
+  'InstructionsLoaded',
+  'ConfigChange',
+  'CwdChanged',
+  'FileChanged',
+  'PreCompact',
+  'PostCompact',
+]);
+const supportedEntrypointExtensionsByType = {
+  agent: new Set(['.md', '.yaml']),
+  skill: new Set(['.md']),
+  command: new Set(['.md']),
+  tool: new Set(['.json', '.yaml', '.js', '.mjs', '.sh', '.py']),
+  hook: new Set(['.md', '.yaml', '.js', '.mjs', '.sh', '.py']),
+  'mcp-server': new Set(['.json']),
+  'lsp-server': new Set(['.json']),
+};
 for (const semanticCase of semanticValidationCases.cases) {
   for (const warning of semanticCase.expected.warnings ?? []) {
     assertWarning(warning, `semantic validation case ${semanticCase.name} warning`);
+  }
+  const component = semanticCase.payload.component;
+  if (component) {
+    const extension = path.posix.extname(component.entrypoint);
+    const supportedExtensions = supportedEntrypointExtensionsByType[component.type];
+    if (semanticCase.expected.valid === true && supportedExtensions) {
+      assert(
+        supportedExtensions.has(extension),
+        `semantic validation case ${semanticCase.name} valid ${component.type} must use supported entrypoint extension`
+      );
+    }
+    if (component.type === 'hook' && semanticCase.expected.valid === true) {
+      assert(
+        canonicalHookEvents.has(semanticCase.payload.hook?.event),
+        `semantic validation case ${semanticCase.name} valid hook must use canonical event vocabulary`
+      );
+      assert(
+        ['command', 'script', 'module'].includes(semanticCase.payload.hook?.type),
+        `semantic validation case ${semanticCase.name} valid hook must use baseline hook type`
+      );
+    }
+    if (component.type === 'tool' && semanticCase.expected.failureCategory === 'unsupported-entrypoint-format') {
+      assert(
+        !supportedEntrypointExtensionsByType.tool.has(extension),
+        `semantic validation case ${semanticCase.name} unsupported tool format must not reject JSON/YAML/script baseline formats`
+      );
+    }
+  }
+  if (semanticCase.expected.failureCategory === 'invalid-spdx-expression') {
+    assert(
+      !isRecognizedSpdxExpressionShape(semanticCase.payload.license),
+      `semantic validation case ${semanticCase.name} must exercise invalid SPDX expression shape`
+    );
   }
 }
 for (const requiredComponentFailure of [
   'missing-entrypoint',
   'missing-command-trigger',
+  'invalid-command-trigger',
+  'missing-skill-description',
   'unsupported-hook-event',
   'unsupported-entrypoint-format',
+  'invalid-lsp-descriptor',
+  'invalid-spdx-expression',
 ]) {
   assert(
     semanticValidationCases.cases.some(
@@ -684,6 +966,23 @@ for (const requiredComponentFailure of [
     `semantic validation cases must include component entrypoint failure ${requiredComponentFailure}`
   );
 }
+for (const componentType of ['agent', 'skill', 'command', 'tool', 'hook', 'mcp-server', 'lsp-server']) {
+  assert(
+    semanticValidationCases.cases.some(
+      (semanticCase) =>
+        semanticCase.area === 'manifest' &&
+        semanticCase.expected.valid === true &&
+        semanticCase.payload.component?.type === componentType
+    ) ||
+      semanticValidationCases.cases.some(
+        (semanticCase) =>
+          semanticCase.area === 'warning' &&
+          semanticCase.expected.valid === true &&
+          semanticCase.payload.component?.type === componentType
+      ),
+    `semantic validation cases must include positive ${componentType} component case`
+  );
+}
 assert(
   semanticValidationCases.cases.some(
     (semanticCase) =>
@@ -691,6 +990,14 @@ assert(
       semanticCase.expected.warnings?.some((warning) => warning.category === 'noncanonical-entrypoint')
   ),
   'semantic validation cases must include noncanonical-entrypoint warning'
+);
+assert(
+  semanticValidationCases.cases.some(
+    (semanticCase) =>
+      semanticCase.area === 'warning' &&
+      semanticCase.expected.warnings?.some((warning) => warning.category === 'deprecated')
+  ),
+  'semantic validation cases must include deprecated warning category'
 );
 assert(
   semanticValidationCases.cases.some(
@@ -710,17 +1017,45 @@ assert(
 );
 
 const mappingMatrix = readJson('conformance/fixtures/mapping-matrix.json');
+validate('mappingMatrix', mappingMatrix, 'mapping matrix fixture');
 assertSpecVersion(mappingMatrix, 'mapping matrix fixture');
 for (const field of [
   'volume.name',
   'volume.version',
+  'volume.description',
+  'volume.license',
+  'volume.homepage',
+  'volume.repository',
+  'publisher.id',
+  'components[].type',
+  'components[].name',
+  'components[].entrypoint',
+  'dependencies',
   'release.logicalIdentity',
   'release.immutableContentIdentity',
+  'provenance.source-repo',
+  'provenance.build.system',
+  'provenance.build.workflow',
+  'provenance.build.signed',
+  'volume.role',
+  'volume.secondary-roles',
+  'volume.keywords',
+  'volume.providers / components[].providers',
+  'runtimes[]',
+  'protocols[]',
+  'environment',
   'permissions / components[].permissions',
+  'component-dependencies',
 ]) {
   assert(
     mappingMatrix.entries.some((entry) => entry.agentVolumesField === field),
     `mapping matrix missing ${field}`
+  );
+}
+for (const entry of mappingMatrix.entries) {
+  assert(
+    entry.cyclonedx || entry.spdx || entry.slsa,
+    `mapping matrix entry ${entry.agentVolumesField} must map to at least one target`
   );
 }
 
