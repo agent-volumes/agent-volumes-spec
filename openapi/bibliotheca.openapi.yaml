@@ -74,7 +74,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -120,7 +120,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values must match exactly.
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values MUST match exactly.
           schema:
             type: string
       responses:
@@ -166,7 +166,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -217,7 +217,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values must match exactly.
+          description: Preferred portable idempotency key for finalize. If an operation also accepts a body idempotencyKey, the two values MUST match exactly.
           schema:
             type: string
       responses:
@@ -527,7 +527,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -584,7 +584,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -672,7 +672,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -734,7 +734,7 @@ paths:
         - in: header
           name: Idempotency-Key
           required: false
-          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they must match exactly.
+          description: Preferred portable idempotency key for finalize. If this header and a body idempotencyKey are both present, they MUST match exactly.
           schema:
             type: string
       requestBody:
@@ -1206,7 +1206,7 @@ components:
                 title: Missing uploaded bytes
                 status: 400
     Unauthorized:
-      description: Authentication required or invalid bearer token
+      description: Authentication needed or invalid bearer token
       content:
         application/problem+json:
           schema:
