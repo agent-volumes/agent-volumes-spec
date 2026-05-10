@@ -202,6 +202,13 @@ The v0.1 baseline keeps maximum practical symmetry across scope, volume, and com
 | `qualifiers` | Reserved for future use (e.g., `?repository_url=...`) |
 | `subpath`    | `<type>/<componentName>` for component references     |
 
+The `volume` purl type is the Agent Volumes v0.1 ecosystem token. Until the
+Package URL project accepts a formal `volume` type registration, implementations
+MUST treat `pkg:volume/...` as the provisional Agent Volumes canonical
+serialization defined by this specification and MUST NOT silently rewrite it to
+another purl type. Once registration is complete, the registered definition and
+this specification are expected to remain aligned.
+
 For trust and supply chain workflows, `pkg:volume/...@version` is the release's **logical identity**. It is paired with the **immutable content identity** from [Section 7](#7-content-integrity).
 
 ### 2.5.1 Canonical purl Serialization
@@ -322,6 +329,11 @@ providers = ["github", "arxiv"]
 
 ### 3.4 Publisher Information
 
+The top-level `[publisher]` table is REQUIRED for every `volume.toml` manifest,
+including scoped volumes and `role = "meta"` volumes. It identifies the publisher
+entity associated with the package identity; it does not carry verification
+status or authorization state.
+
 ```toml
 [publisher]
 id = "acme"
@@ -432,6 +444,14 @@ Prerelease operands MAY be parsed as valid full SemVer operands, but prerelease 
 ```
 
 Component-level dependencies imply the parent volume dependency. After volume resolution, the client verifies that all referenced components exist in the resolved volume version.
+
+The key in `[component-dependencies]` MUST be the name of a component declared in
+the same manifest's `[[components]]` array. Each referenced value MUST be a
+component purl whose subpath has the form `<type>/<componentName>`. Authoring
+forms MAY omit the referenced release version when the parent volume dependency
+constraint determines the resolved version; resolved component references used
+for trust, lock-like reproducibility inputs, or exact component identity SHOULD
+include that resolved version.
 
 #### 3.6.3 Single-Version Enforcement
 
@@ -866,6 +886,18 @@ Baseline entrypoint contracts are type-specific. They define the minimum informa
 | `mcp-server` | JSON MCP server configuration, canonically discoverable as `.mcp.json`; JSON is the only v0.1 baseline MCP configuration format. | Entrypoint file exists, is JSON, and parses to a JSON object. Runtime-specific server launch, approval, and allow/deny policy are load-time checks.                        |
 | `lsp-server` | JSON LSP server configuration, canonically discoverable as `.lsp.json`; JSON is the only v0.1 baseline LSP configuration format. | Entrypoint file exists, is JSON, and parses to a JSON object. Runtime-specific server launch, approval, and allow/deny policy are load-time checks.                        |
 
+Portable semantic validation uses the following field names when a parseable
+entrypoint descriptor or frontmatter is available:
+
+| Component type | Portable descriptor/frontmatter fields                                                                                                                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `skill`        | Agent Skills-compatible Markdown frontmatter sufficient for discovery, including a `description` field.                                                                                               |
+| `command`      | Markdown frontmatter field `trigger`, matching `^/[a-z0-9-]+$`.                                                                                                                                       |
+| `tool`         | JSON or YAML descriptors are portable when they parse to an object. If present, `name` and `inputSchema` are interpreted as function-description metadata; v0.1 does not standardize a full tool ABI. |
+| `hook`         | Descriptor/frontmatter fields `event` and `type`, where `event` is one canonical lifecycle event from [Section 4.5](#45-hook) and `type` is `command`, `script`, or `module`.                         |
+| `mcp-server`   | JSON object. Runtime-specific launch fields remain profile or implementation-local.                                                                                                                   |
+| `lsp-server`   | JSON object. Runtime-specific launch fields remain profile or implementation-local.                                                                                                                   |
+
 Conforming validators MUST verify that declared entrypoint files exist and are regular files in the normalized release subject. They MUST reject a component declaration during manifest, publish, install, or pre-load validation when the component fails the portable validation minimum for its declared type.
 
 The following conditions are portable validation failures in the v0.1 baseline:
@@ -1290,7 +1322,7 @@ Hosted archive payloads follow the v0.1 archive transport profile:
 - archive timestamps, ownership, extended attributes, platform-specific mode bits, and container metadata are not part of the release subject
 - the executable bit is the only archive mode-derived metadata preserved into normalized file tree digest construction
 
-Publisher must own the target namespace. Version numbers are immutable once published. The bibliotheca MUST compute the authoritative normalized-file-tree `integrity` value during finalize before the release becomes available.
+Publisher MUST own the target namespace. Version numbers are immutable once published. The bibliotheca MUST compute the authoritative normalized-file-tree `integrity` value during finalize before the release becomes available.
 
 Clients publishing artifacts MUST fail before submission when a component declares permissions broader than its parent volume permits.
 
@@ -1660,11 +1692,20 @@ Representative endpoint failure mappings include:
 | `GET /api/v1/volumes/...`                             | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
 | `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
 | `POST /api/v1/volumes/.../finalize`                   | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
-| `GET /api/v1/volumes/.../trust`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
 | `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
 | `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
 | `GET /api/v1/advisories...`                           | `not-found`, `rate-limited`                                                                             |
 | `GET /api/v1/capabilities`                            | `rate-limited`                                                                                          |
+
+For upload intent creation and finalize operations, idempotency can be supplied
+with the `Idempotency-Key` HTTP header. Some request bodies also carry an
+`idempotencyKey` field for transports or clients that cannot reliably set custom
+headers. When both are present, they MUST match exactly; otherwise the request is
+an `idempotency-conflict`. If only one form is present, that value is the
+idempotency key for the operation. The header form is the preferred portable API
+surface.
 
 ---
 
@@ -1698,26 +1739,43 @@ This specification distinguishes between the **v0.1 core baseline** and future p
 
 The v0.1 core is the minimum interoperable contract. Profiles MAY add stricter or richer behavior later, but they do not weaken the core.
 
+Conformance claims are role-scoped. Passing the offline fixture suite is an
+**artifact conformance** claim, not a product certification badge. Implementations
+SHOULD describe claims using one or more of these labels:
+
+| Claim label                      | Meaning                                                                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artifact-fixture-pass`          | The implementation or harness evaluated the v0.1 fixture corpus and produced a conforming report.                                            |
+| `client-role`                    | The implementation satisfies the client requirements in [Section 11.3](#113-conforming-client).                                              |
+| `bibliotheca-read-role`          | The implementation satisfies read/discovery bibliotheca behavior for search, fetch, version index, trust, advisory, and capability metadata. |
+| `bibliotheca-write-capable-role` | The implementation satisfies read behavior plus protected release upload and trust attachment upload behavior.                               |
+| `validator-exporter-role`        | The implementation validates manifests, fixtures, mapping exports, or trust artifacts without claiming live registry behavior.               |
+
+Claims MAY include multiple labels when all corresponding requirements are met.
+They MUST NOT imply live cross-registry interoperability, hosted service
+certification, or one universal trust-root policy unless a future certification
+program defines those meanings.
+
 ### 11.2 Conforming Bibliotheca
 
 A conforming bibliotheca MUST:
 
-1. Accept and serve volumes with valid `volume.toml` manifests ([Section 3](#3-volume-manifest)).
-2. Block continued distribution of artifacts with discovered permission escalation, even though the v0.1 baseline does not require mandatory direct escalation validation on every publish attempt ([Section 3.10](#310-permissions)).
-3. Implement the package operations API ([Section 9.2](#92-package-operations)).
-4. Enforce version immutability: once published, a version number MUST NOT be reused after it has been published, yanked, tombstoned, blocked, or otherwise lifecycle-marked ([Section 9.2.1](#921-publish)).
-5. Compute the authoritative normalized-file-tree `integrity` value during finalize before a release becomes available ([Section 9.2.1](#921-publish)).
-6. Support the package identity scheme ([Section 2](#2-package-identity-scheme)).
-7. Expose the query-based catalog search API ([Section 9.3](#93-search-api)).
-8. Expose the package-scoped version index API and keep version index rows synchronized with release lifecycle changes ([Section 9.2.4](#924-version-index)).
-9. Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
-10. Reject inconsistent release metadata, version index metadata, or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
-11. Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
-12. For write-capable bibliothecas, expose the two-phase release upload API and the two-phase trust attachment upload API, verifying digest, size, subject binding, and metadata consistency before activation ([Section 9.2.1](#921-publish), [Section 9.4.3](#943-trust-attachment-upload)).
-13. Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
-14. Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-15. Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
-16. Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
+1. **AV-BIB-001** — Accept and serve volumes with valid `volume.toml` manifests ([Section 3](#3-volume-manifest)).
+2. **AV-BIB-002** — Block continued distribution of artifacts with discovered permission escalation, even though the v0.1 baseline does not require mandatory direct escalation validation on every publish attempt ([Section 3.10](#310-permissions)).
+3. **AV-BIB-003** — Implement the package operations API ([Section 9.2](#92-package-operations)).
+4. **AV-BIB-004** — Enforce version immutability: once published, a version number MUST NOT be reused after it has been published, yanked, tombstoned, blocked, or otherwise lifecycle-marked ([Section 9.2.1](#921-publish)).
+5. **AV-BIB-005** — Compute the authoritative normalized-file-tree `integrity` value during finalize before a release becomes available ([Section 9.2.1](#921-publish)).
+6. **AV-BIB-006** — Support the package identity scheme ([Section 2](#2-package-identity-scheme)).
+7. **AV-BIB-007** — Expose the query-based catalog search API ([Section 9.3](#93-search-api)).
+8. **AV-BIB-008** — Expose the package-scoped version index API and keep version index rows synchronized with release lifecycle changes ([Section 9.2.4](#924-version-index)).
+9. **AV-BIB-009** — Treat `pkg:volume/...@version` as logical identity and the resolved `sha256:...` value as immutable content identity ([Section 7.5](#75-release-subject-identity)).
+10. **AV-BIB-010** — Reject inconsistent release metadata, version index metadata, or trust metadata when logical identity and immutable content identity cannot be losslessly reconciled ([Section 8.3](#83-trust-attachment-subject-binding)).
+11. **AV-BIB-011** — Expose the trust metadata API with summary and detail views ([Section 9.4](#94-trust-metadata-api)).
+12. **AV-BIB-012** — For write-capable bibliothecas, expose the two-phase release upload API and the two-phase trust attachment upload API, verifying digest, size, subject binding, and metadata consistency before activation ([Section 9.2.1](#921-publish), [Section 9.4.3](#943-trust-attachment-upload)).
+13. **AV-BIB-013** — Expose the advisory API ([Section 9.5](#95-security-advisory-api)).
+14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+15. **AV-BIB-015** — Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
+16. **AV-BIB-016** — Publish the required machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
 
 A conforming bibliotheca SHOULD:
 
@@ -1730,22 +1788,22 @@ A conforming bibliotheca SHOULD:
 
 A conforming client MUST:
 
-1. Parse `volume.toml` and validate against the canonical parsed-data model rules ([Section 3](#3-volume-manifest)).
-2. Parse portable dependency range expressions using the constrained v0.1 SemVer range grammar ([Section 3.6.1](#361-volume-level-dependencies)).
-3. Fail on permission escalation during publish, consume, install, or load workflows when a component declares broader permissions than its parent volume permits ([Section 3.10](#310-permissions)).
-4. Enforce single-version resolution — reject dependency graphs requiring multiple versions of the same volume ([Section 3.6.3](#363-single-version-enforcement)).
-5. Apply version lifecycle semantics during ordinary resolution, exact pinned fetches, and lock-based installs: ordinary resolution selects only `available` versions, exact pinned `yanked` installs warn, and `blocked`, `tombstoned`, or `unavailable` versions fail in the portable baseline ([Section 2.6](#26-identifier-resolution-order), [Section 9.2.4](#924-version-index)).
-6. Fetch exact release metadata before installation or trust evaluation, even when version index rows are used for candidate pruning ([Section 9.2.4](#924-version-index)).
-7. Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
-8. Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
-9. Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
-10. Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
-11. Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
-12. Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
-13. Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local. Clients MUST validate objective artifact facts for formats they claim to support and MUST NOT report unsupported trust artifact formats as verified ([Section 8.1](#81-core-trust-baseline)).
-14. Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
-15. Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
-16. Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+1. **AV-CLI-001** — Parse `volume.toml` and validate against the canonical parsed-data model rules ([Section 3](#3-volume-manifest)).
+2. **AV-CLI-002** — Parse portable dependency range expressions using the constrained v0.1 SemVer range grammar ([Section 3.6.1](#361-volume-level-dependencies)).
+3. **AV-CLI-003** — Fail on permission escalation during publish, consume, install, or load workflows when a component declares broader permissions than its parent volume permits ([Section 3.10](#310-permissions)).
+4. **AV-CLI-004** — Enforce single-version resolution — reject dependency graphs requiring multiple versions of the same volume ([Section 3.6.3](#363-single-version-enforcement)).
+5. **AV-CLI-005** — Apply version lifecycle semantics during ordinary resolution, exact pinned fetches, and lock-based installs: ordinary resolution selects only `available` versions, exact pinned `yanked` installs warn, and `blocked`, `tombstoned`, or `unavailable` versions fail in the portable baseline ([Section 2.6](#26-identifier-resolution-order), [Section 9.2.4](#924-version-index)).
+6. **AV-CLI-006** — Fetch exact release metadata before installation or trust evaluation, even when version index rows are used for candidate pruning ([Section 9.2.4](#924-version-index)).
+7. **AV-CLI-007** — Verify normalized-file-tree integrity after download or source resolution ([Section 7](#7-content-integrity)).
+8. **AV-CLI-008** — Support both scoped and scopeless volume identifiers ([Section 2](#2-package-identity-scheme)).
+9. **AV-CLI-009** — Treat `pkg:volume/...@version` as the logical identity of a release and the resolved digest as its immutable content identity when validating trust metadata ([Section 7.5](#75-release-subject-identity)).
+10. **AV-CLI-010** — Reject subject-binding, version-index/exact-metadata, or digest mismatches ([Section 8.6](#86-client-trust-consumption-baseline)).
+11. **AV-CLI-011** — Distinguish canonical trust facts from optional derived judgments when consuming trust metadata ([Section 9.4.1](#941-summary-view)).
+12. **AV-CLI-012** — Treat explicit trust invalidation or revocation as failure by default ([Section 8.6](#86-client-trust-consumption-baseline)).
+13. **AV-CLI-013** — Implement layered artifact verification for available trust artifacts, standardizing objective trust-artifact validity while leaving broader trust policy local. Clients MUST validate objective artifact facts for formats they claim to support and MUST NOT report unsupported trust artifact formats as verified ([Section 8.1](#81-core-trust-baseline)).
+14. **AV-CLI-014** — Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
+15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
+16. **AV-CLI-016** — Surface required migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
 
 A conforming client SHOULD:
 
@@ -1826,7 +1884,7 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 5. `volume.role` MUST be one of: `component`, `plugin`, `provider`, `meta`.
 6. `components[].type` MUST be one of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
 7. `components[].name` MUST be unique across all components in the volume.
-8. `components[].entrypoint` MUST reference an existing file.
+8. `components[].entrypoint` MUST reference an existing regular file and satisfy the type-specific portable validation minimum in [Section 5.3](#53-entrypoint-resolution-and-load-boundary).
 9. `permissions.filesystem`, `permissions.network`, and `permissions.browser` MUST be one of `deny`, `read`, `write`, or `read-write`.
 10. `permissions.shell` MUST be `deny` or `allow`.
 11. Component permissions MUST NOT exceed volume-level permissions.
@@ -1904,6 +1962,7 @@ The draft companion artifact inventory includes at least:
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
 - [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
+- [`schemas/mapping-sample.schema.json`](schemas/mapping-sample.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
 - [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml)
 - [`conformance/fixtures/`](conformance/fixtures/)
@@ -1946,7 +2005,7 @@ Layered trust artifact verification fixtures define deterministic checks over ob
 
 The v0.1 core MUST include a normative field-by-field mapping matrix or equivalent artifact for BOM and provenance exports.
 
-At minimum, that mapping material must identify:
+At minimum, that mapping material MUST identify:
 
 - which Agent Volumes fields map natively to CycloneDX or SPDX
 - which mappings require controlled extensions

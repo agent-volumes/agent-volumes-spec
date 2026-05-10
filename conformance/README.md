@@ -14,7 +14,8 @@ by a client, bibliotheca, validator, exporter, or a standalone test harness.
 
 At minimum, a runner MUST:
 
-1. validate every structured fixture against its companion JSON Schema;
+1. validate every structured fixture, fixture case, or fixture payload against
+   the companion JSON Schema identified by this document;
 2. evaluate deterministic `expected` outcomes, including `valid`,
    `failureCategory`, warning categories, lifecycle states, and exact digest
    vectors;
@@ -41,6 +42,23 @@ That command validates the specification artifacts themselves. Independent
 implementations can use the same fixture families to produce their own
 conformance reports.
 
+## Conformance claim labels
+
+Conformance reports describe the offline artifact/vector surface only. Use
+precise claim labels rather than broad product claims:
+
+| Claim label                      | Use when                                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `artifact-fixture-pass`          | A runner evaluates the v0.1 fixture corpus and produces a report using the report schema.                                   |
+| `client-role`                    | An implementation satisfies the client requirements in the prose specification.                                             |
+| `bibliotheca-read-role`          | A bibliotheca satisfies read/discovery behavior for search, fetch, version index, trust, advisory, and capability metadata. |
+| `bibliotheca-write-capable-role` | A bibliotheca satisfies read behavior plus release upload and trust attachment upload behavior.                             |
+| `validator-exporter-role`        | A tool validates manifests, fixtures, mapping exports, or trust artifacts without claiming live registry behavior.          |
+
+These labels are additive. They are not a certification badge and do not imply
+live registry interoperability, hosted service approval, or one universal
+trust-root policy.
+
 ## Report schema
 
 Portable runner output SHOULD use
@@ -49,6 +67,12 @@ The report schema records the runner identity, implementation roles, aggregate
 pass/fail counts, and one result per fixture case. A report is a statement about
 the artifact/vector surface only; it is not a product certification badge and
 does not imply live registry interoperability.
+
+Each `results[].id` value is a stable lowercase slug derived from the fixture
+path and case name where applicable, for example
+`semantic-validation-cases/command-entrypoint-missing-trigger`. Runners MUST keep
+IDs stable across repeated runs of the same fixture corpus so reports can be
+diffed and compared by tooling.
 
 ## Fixture families
 
@@ -65,6 +89,49 @@ does not imply live registry interoperability.
 | Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
 | BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
 | Errors and warnings              | `problem-details-cases.json`                                                         |
+
+## Fixture schema mapping
+
+Fixture files use one of three validation units:
+
+1. **Whole-file schema** — the entire fixture file is validated against a case or
+   sample schema.
+2. **Case payload schema** — each element under `cases` or `fixtures` carries a
+   payload that is validated against the named companion schema.
+3. **Algorithmic vector** — the file shape is checked by the artifact runner and
+   the expected result is evaluated by deterministic algorithmic logic, such as
+   digest construction or resolver selection.
+
+| Fixture file pattern                                                                      | Validation unit     | Companion schema or evaluator                                                                                                                         |
+| ----------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `manifest-valid-*.json`, `manifest-invalid-*.json`, `manifest-unknown-field-warning.json` | Whole file          | [`../schemas/volume.schema.json`](../schemas/volume.schema.json) plus semantic warning checks                                                         |
+| `manifest-parse-cases.json`                                                               | Whole file / cases  | [`../schemas/manifest-parse-case.schema.json`](../schemas/manifest-parse-case.schema.json)                                                            |
+| `semantic-validation-cases.json`                                                          | Whole file / cases  | [`../schemas/semantic-validation-case.schema.json`](../schemas/semantic-validation-case.schema.json)                                                  |
+| `component-dependency-validation-cases.json`                                              | Whole file / cases  | [`../schemas/component-dependency-validation-case.schema.json`](../schemas/component-dependency-validation-case.schema.json)                          |
+| `semver-range-cases.json`                                                                 | Algorithmic vector  | v0.1 SemVer range grammar evaluator                                                                                                                   |
+| `resolver-cases.json`                                                                     | Algorithmic vector  | v0.1 resolver and lifecycle evaluator                                                                                                                 |
+| `version-index-row-cases.json`                                                            | Case payload schema | [`../schemas/version-index-row.schema.json`](../schemas/version-index-row.schema.json)                                                                |
+| `purl-canonicalization-cases.json`                                                        | Algorithmic vector  | v0.1 purl parser and canonical serializer                                                                                                             |
+| `digest-vectors.json`, `digest-invalid-cases.json`                                        | Algorithmic vector  | normalized-file-tree digest evaluator                                                                                                                 |
+| `tar-archive-profile-cases.json`                                                          | Algorithmic vector  | hosted archive transport profile evaluator                                                                                                            |
+| `exact-release-metadata-cases.json`                                                       | Whole file / cases  | [`../schemas/exact-release-metadata-case.schema.json`](../schemas/exact-release-metadata-case.schema.json)                                            |
+| `release-upload-lifecycle.json`                                                           | Case payload schema | release upload schemas or Problem Details schema selected by each case's `schema` field                                                               |
+| `trust-summary*.json`                                                                     | Whole file          | [`../schemas/trust-summary.schema.json`](../schemas/trust-summary.schema.json)                                                                        |
+| `trust-detail*.json`                                                                      | Whole file          | [`../schemas/trust-detail.schema.json`](../schemas/trust-detail.schema.json)                                                                          |
+| `trust-upload-lifecycle.json`                                                             | Case payload schema | trust upload schemas or Problem Details schema selected by each case's `schema` field                                                                 |
+| `trust-artifact-verification-cases.json`                                                  | Whole file / cases  | [`../schemas/trust-artifact-verification-case.schema.json`](../schemas/trust-artifact-verification-case.schema.json) plus artifact verification logic |
+| `advisory.json`, `advisory-withdrawn.json`                                                | Whole file          | [`../schemas/advisory.schema.json`](../schemas/advisory.schema.json)                                                                                  |
+| `advisory-validation-cases.json`                                                          | Whole file / cases  | [`../schemas/advisory-validation-case.schema.json`](../schemas/advisory-validation-case.schema.json)                                                  |
+| `capability-metadata*.json`                                                               | Whole file          | [`../schemas/capability-metadata.schema.json`](../schemas/capability-metadata.schema.json)                                                            |
+| `bridge-metadata*.json`                                                                   | Whole file          | [`../schemas/bridge-metadata.schema.json`](../schemas/bridge-metadata.schema.json)                                                                    |
+| `mapping-matrix.json`                                                                     | Whole file          | [`../schemas/mapping-matrix.schema.json`](../schemas/mapping-matrix.schema.json)                                                                      |
+| `mapping-sample.json`                                                                     | Whole file          | [`../schemas/mapping-sample.schema.json`](../schemas/mapping-sample.schema.json)                                                                      |
+| `problem-details-cases.json`                                                              | Case payload schema | [`../schemas/problem-details.schema.json`](../schemas/problem-details.schema.json)                                                                    |
+
+When a fixture uses a wrapper object with `cases` or `fixtures`, the wrapper is
+part of the deterministic fixture format. The companion schema named above
+applies to the whole wrapper only when the mapping says “Whole file”; otherwise
+it applies to each case payload selected by the case metadata.
 
 Warning payloads use the companion schema
 [`../schemas/warning.schema.json`](../schemas/warning.schema.json).
