@@ -271,6 +271,25 @@
       "expected": { "valid": false, "failureCategory": "invalid-trust-artifact" }
     },
     {
+      "name": "trust-artifact-rejects-superseded-current-evidence",
+      "category": "bom",
+      "format": {
+        "family": "cyclonedx",
+        "mediaType": "application/vnd.cyclonedx+json",
+        "version": "1.7"
+      },
+      "subject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "artifactSubject": {
+        "purl": "pkg:volume/research-agent-pack@1.4.0",
+        "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "lifecycleStatus": { "state": "superseded", "reason": "A newer BOM attachment supersedes this evidence." },
+      "expected": { "valid": false, "failureCategory": "stale-trust-evidence-only" }
+    },
+    {
       "name": "trust-artifact-rejects-missing-artifact-subject-fact",
       "category": "bom",
       "format": {
