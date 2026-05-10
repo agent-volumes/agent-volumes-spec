@@ -33,9 +33,20 @@ const schemas = {
   bridgeMetadata: readJson('schemas/bridge-metadata.schema.json'),
   releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
   releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
+  releaseMetadata: readJson('schemas/release-metadata.schema.json'),
+  problemDetails: readJson('schemas/problem-details.schema.json'),
+  warning: readJson('schemas/warning.schema.json'),
+  componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
+  semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
 };
 
-const validators = Object.fromEntries(Object.entries(schemas).map(([name, schema]) => [name, ajv.compile(schema)]));
+for (const schema of Object.values(schemas)) {
+  ajv.addSchema(schema);
+}
+
+const validators = Object.fromEntries(
+  Object.entries(schemas).map(([name, schema]) => [name, ajv.getSchema(schema.$id) ?? ajv.compile(schema)])
+);
 
 const validate = (name, value, label) => {
   const ok = validators[name](value);
@@ -56,6 +67,7 @@ const volumeNamePattern =
 const semverPattern =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 const digestPattern = /^sha256:[a-f0-9]{64}$/;
+const componentNamePattern = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
 const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
 const problemStatusBySlug = new Map([
   ['authentication-required', 401],
@@ -80,6 +92,7 @@ const problemStatusBySlug = new Map([
 ]);
 
 const assertReleaseMetadata = (metadata, label) => {
+  validate('releaseMetadata', metadata, label);
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
   assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
@@ -88,12 +101,31 @@ const assertReleaseMetadata = (metadata, label) => {
 };
 
 const assertProblemDetails = (payload, label) => {
+  validate('problemDetails', payload, label);
   assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
   const slug = payload.type.replace('https://agentvolumes.org/problems/', '');
   assert(problemStatusBySlug.has(slug), `${label} uses unknown problem type: ${slug}`);
   assert(typeof payload.title === 'string', `${label} needs problem title`);
   assert(typeof payload.status === 'number', `${label} needs numeric problem status`);
   assert(payload.status === problemStatusBySlug.get(slug), `${label} status must match problem type ${slug}`);
+};
+
+const assertWarning = (warning, label) => {
+  validate('warning', warning, label);
+};
+
+const canonicalReleasePurl = (volume, version) => {
+  assert(volumeNamePattern.test(volume), `cannot canonicalize invalid volume name: ${volume}`);
+  if (volume.startsWith('@')) {
+    const [scope, name] = volume.slice(1).split('/');
+    return `pkg:volume/%40${scope}/${name}@${version}`;
+  }
+  return `pkg:volume/${volume}@${version}`;
+};
+
+const canonicalComponentPurl = (volume, version, component) => {
+  assert(componentNamePattern.test(component.name), `cannot canonicalize invalid component name: ${component.name}`);
+  return `${canonicalReleasePurl(volume, version)}#${component.type}/${component.name}`;
 };
 
 const routeIdentityFromPath = (route) => {
@@ -195,6 +227,9 @@ assert(
   ),
   'capability metadata unknown tolerance fixture must expect an unknown capability value warning'
 );
+for (const warning of capabilityUnknownToleranceFixture.expected.warnings) {
+  assertWarning(warning, 'capability metadata unknown tolerance warning');
+}
 const capabilityReservedExtensionFixture = readJson(
   'conformance/fixtures/capability-metadata-reserved-extension-rejection.json'
 );
@@ -291,6 +326,9 @@ assert(
   unknownFieldFixture.expected.warnings.some((warning) => warning.category === 'unknown-field'),
   'unknown-field manifest fixture must expect an unknown-field warning'
 );
+for (const warning of unknownFieldFixture.expected.warnings) {
+  assertWarning(warning, 'unknown-field manifest warning');
+}
 
 for (const [fixturePath, label] of [
   ['conformance/fixtures/manifest-invalid-name.json', 'invalid-name manifest fixture'],
@@ -395,6 +433,11 @@ assert(
   ),
   'resolver cases must include exact-pinned yanked warning success'
 );
+for (const resolverCase of resolverCases.cases) {
+  for (const warning of resolverCase.expected.warnings ?? []) {
+    assertWarning(warning, `resolver case ${resolverCase.name} warning`);
+  }
+}
 for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registry-state']) {
   assert(
     resolverCases.cases.some(
@@ -464,6 +507,10 @@ for (const fixture of trustUploadLifecycle.fixtures) {
   }
   if (fixture.schema === 'trust-upload-finalize') {
     validate('trustUploadFinalize', fixture.payload, `trust upload lifecycle ${fixture.name}`);
+    assert(
+      digestPattern.test(fixture.payload.artifactDigest),
+      `trust upload lifecycle ${fixture.name} must preserve finalized artifact digest`
+    );
   }
   if (fixture.schema === 'problem-details') {
     assertProblemDetails(fixture.payload, `trust upload lifecycle ${fixture.name}`);
@@ -565,6 +612,67 @@ for (const archiveCase of tarArchiveProfileCases.cases) {
     );
   }
 }
+
+const purlCanonicalizationCases = readJson('conformance/fixtures/purl-canonicalization-cases.json');
+assertSpecVersion(purlCanonicalizationCases, 'purl canonicalization cases');
+for (const purlCase of purlCanonicalizationCases.cases) {
+  const expected = purlCase.component
+    ? canonicalComponentPurl(purlCase.volume, purlCase.version, purlCase.component)
+    : canonicalReleasePurl(purlCase.volume, purlCase.version);
+  assert(expected === purlCase.expectedPurl, `purl case ${purlCase.name} expectedPurl must be canonical`);
+  if (purlCase.expected.valid === false) {
+    assert(
+      purlCase.candidatePurl !== purlCase.expectedPurl,
+      `purl case ${purlCase.name} must exercise a non-canonical candidate`
+    );
+    assert(
+      purlCase.expected.failureCategory === 'non-canonical-purl',
+      `purl case ${purlCase.name} must classify non-canonical purl failure`
+    );
+  }
+}
+
+const componentDependencyCases = readJson('conformance/fixtures/component-dependency-validation-cases.json');
+validate(
+  'componentDependencyValidationCase',
+  componentDependencyCases,
+  'component dependency validation cases fixture'
+);
+for (const dependencyCase of componentDependencyCases.cases) {
+  const resolvedComponents = new Set(dependencyCase.resolvedComponents);
+  const requestedDependencies = Object.values(dependencyCase['component-dependencies']).flat();
+  const missingDependencies = requestedDependencies.filter((dependency) => !resolvedComponents.has(dependency));
+  if (dependencyCase.expected.failureCategory === 'missing-component-dependency') {
+    assert(
+      missingDependencies.length > 0,
+      `component dependency case ${dependencyCase.name} must contain a missing dependency`
+    );
+  }
+  if (dependencyCase.expected.valid === true) {
+    assert(
+      missingDependencies.length === 0,
+      `component dependency case ${dependencyCase.name} must be semantically valid`
+    );
+  }
+}
+
+const semanticValidationCases = readJson('conformance/fixtures/semantic-validation-cases.json');
+validate('semanticValidationCase', semanticValidationCases, 'semantic validation cases fixture');
+for (const semanticCase of semanticValidationCases.cases) {
+  for (const warning of semanticCase.expected.warnings ?? []) {
+    assertWarning(warning, `semantic validation case ${semanticCase.name} warning`);
+  }
+}
+assert(
+  semanticValidationCases.cases.some(
+    (semanticCase) => semanticCase.expected.failureCategory === 'non-regular-archive-entry'
+  ),
+  'semantic validation cases must include release file-selection non-regular entry failure'
+);
+assert(
+  semanticValidationCases.cases.some((semanticCase) => semanticCase.expected.failureCategory === 'digest-mismatch'),
+  'semantic validation cases must include trust attachment byte identity mismatch'
+);
 
 const mappingMatrix = readJson('conformance/fixtures/mapping-matrix.json');
 assertSpecVersion(mappingMatrix, 'mapping matrix fixture');
