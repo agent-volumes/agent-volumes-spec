@@ -33,7 +33,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "category", "format", "locator", "status"],
+        "required": ["id", "category", "format", "artifactDigest", "locator", "status"],
         "properties": {
           "id": { "type": "string" },
           "category": {
@@ -63,6 +63,8 @@
               "version": { "type": "string" }
             }
           },
+          "artifactDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "artifactSize": { "type": "integer", "minimum": 0 },
           "locator": {
             "type": "object",
             "additionalProperties": false,

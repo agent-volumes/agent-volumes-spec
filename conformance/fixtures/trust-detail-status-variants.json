@@ -16,6 +16,8 @@
         "mediaType": "application/vnd.dev.sigstore.bundle+json",
         "version": "0.3"
       },
+      "artifactDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "artifactSize": 1024,
       "locator": {
         "embedded": {
           "mediaType": "application/vnd.dev.sigstore.bundle+json",
@@ -39,6 +41,8 @@
         "mediaType": "application/vnd.cyclonedx+json",
         "version": "1.7"
       },
+      "artifactDigest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "artifactSize": 2048,
       "locator": {
         "url": "https://example.test/bom-v1.json"
       },
@@ -56,6 +60,8 @@
         "predicateType": "https://slsa.dev/provenance/v1",
         "version": "1.0"
       },
+      "artifactDigest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "artifactSize": 4096,
       "locator": {
         "url": "https://example.test/provenance-invalid.intoto.jsonl"
       },

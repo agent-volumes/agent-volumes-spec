@@ -43,6 +43,8 @@
           "purl": "pkg:volume/research-agent-pack@1.4.0",
           "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
+        "artifactDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "artifactSize": 4096,
         "status": {
           "state": "active"
         },
