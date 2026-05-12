@@ -14,6 +14,7 @@ with machine-readable companion artifacts under [`../schemas/`](../schemas/),
 | Topic                                  | Document                                                                                 |
 | -------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Roadmap                                | [`../ROADMAP.md`](../ROADMAP.md)                                                         |
+| Changelog and release notes            | [`../CHANGELOG.md`](../CHANGELOG.md)                                                     |
 | Artifact architecture                  | [`architecture.md`](architecture.md)                                                     |
 | Validation and conformance workflow    | [`development/validation-and-conformance.md`](development/validation-and-conformance.md) |
 | Starter contribution paths             | [`development/good-first-issues.md`](development/good-first-issues.md)                   |

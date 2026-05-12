@@ -38,6 +38,7 @@ These documents contain critical context that cannot be inferred from this repos
 ```text
 agent-volumes-spec/
 ├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-draft.5)
+├── CHANGELOG.md               # Curated Keep a Changelog release history
 ├── IMPLEMENTERS.md            # Implementation guide for prototype builders
 ├── schemas/                   # Normative JSON Schema artifacts
 ├── conformance/               # Offline conformance fixtures + runner contract
@@ -56,6 +57,7 @@ agent-volumes-spec/
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
 | Check ADR history         | `decisions/`                            | Sequential numbering, 0001–0108     |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
+| Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
 | Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
 
@@ -83,6 +85,7 @@ agent-volumes-spec/
 **Git hooks** — `lefthook.yml`
 
 - Pre-commit: auto-fix staged `md/json/yaml/yml/mjs` with Prettier
+- Pre-commit: validate changelog structure for release-related changes
 - Commit-msg: enforces `Signed-off-by:` (DCO sign-off)
 
 **CI** — `.github/workflows/`
@@ -121,6 +124,7 @@ bun run lint:md:fix
 bun run lint:openapi
 bun run format
 bun run format:check
+bun run changelog:check
 
 # Validate all artifacts (schemas, fixtures, OpenAPI)
 bun run validate:artifacts
@@ -132,5 +136,6 @@ bun run validate:artifacts
 - **No standard test runner** — validation is via `scripts/validate-artifacts.mjs` (AJV + bespoke logic), not Jest/Vitest/Pytest.
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
+- **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
 - **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.
