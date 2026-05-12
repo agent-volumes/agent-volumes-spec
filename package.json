@@ -6,6 +6,7 @@
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
     "format": "prettier --write \"**/*.{md,json,yaml,yml,mjs}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
+    "release:tag": "scripts/create-release-tag.sh",
     "validate:artifacts": "node scripts/validate-artifacts.mjs"
   },
   "dependencies": {},
