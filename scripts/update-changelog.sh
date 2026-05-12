@@ -129,6 +129,13 @@ for tag in tags:
 
 if re.search(r'git log|raw git history|raw commit', text, re.IGNORECASE):
     raise SystemExit('CHANGELOG.md appears to contain raw-history placeholder wording')
+
+for heading in re.findall(r'^## \[[^\]]+\] - .+$', text, re.MULTILINE):
+    if not re.fullmatch(r'## \[[^\]]+\] - 1\d{4}-\d{2}-\d{2} HE', heading):
+        raise SystemExit(
+            'CHANGELOG.md release headings must use Human Era dates, '
+            f'for example 12026-05-12 HE: {heading}'
+        )
 PY
   info "CHANGELOG.md structure is valid for tracked release tags."
   exit 0

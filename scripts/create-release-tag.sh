@@ -27,6 +27,14 @@ git_cmd() {
   GIT_MASTER=1 git "$@"
 }
 
+human_era_date_utc() {
+  local gregorian_year month_day human_era_year
+  gregorian_year="$(date -u +%Y)"
+  month_day="$(date -u +%m-%d)"
+  human_era_year=$((10#${gregorian_year} + 10000))
+  printf '%s-%s HE' "${human_era_year}" "${month_day}"
+}
+
 usage() {
   cat <<'USAGE'
 Usage: scripts/create-release-tag.sh <version> [options]
@@ -221,7 +229,7 @@ TAG_MESSAGE="Agent Volumes Specification ${TAG_NAME}
 Spec Version: ${SPEC_VERSION}
 Release Type: Draft release
 Status: Working Draft; suitable for coordinated prototype implementations
-Date: $(date -u +%Y-%m-%d)
+Date: $(human_era_date_utc)
 Target Commit: ${TARGET_COMMIT}
 Target Subject: ${TARGET_SUBJECT}
 Verification: ${CHECK_SUMMARY}
