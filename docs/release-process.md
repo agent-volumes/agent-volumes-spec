@@ -53,7 +53,7 @@ result before tagging.
 
 Release notes summarize major changes for implementers. They include:
 
-- release version and date;
+- release version and Human Era / Holocene Era (HE) date;
 - major normative changes;
 - schema, OpenAPI, and conformance fixture changes;
 - compatibility or migration notes;

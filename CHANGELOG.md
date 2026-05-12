@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0-draft.5] - 2026-05-12
+## [0.1.0-draft.5] - 12026-05-12 HE
 
 ### Added
 
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Documented security requirements, vulnerability response expectations, and supply-chain validation evidence for the specification repository.
 
-## [0.1.0-draft.4] - 2026-05-08
+## [0.1.0-draft.4] - 12026-05-08 HE
 
 ### Added
 
@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated specification references and OpenAPI metadata to make the draft easier to validate and review.
 - Cleaned up bundled development skills and dependency metadata used by repository-local contributor tooling.
 
-## [0.1.0-draft.3] - 2026-03-25
+## [0.1.0-draft.3] - 12026-03-25 HE
 
 ### Added
 
