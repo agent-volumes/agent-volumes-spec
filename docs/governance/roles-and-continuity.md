@@ -15,7 +15,7 @@ document records how those responsibilities are applied in this repository.
 | Schema steward       | Review JSON Schema changes and ensure schema/prose/fixture alignment.                         |
 | Conformance steward  | Review fixture coverage, conformance reports, and requirement mappings.                       |
 | Security responder   | Coordinate private vulnerability reports under the organization security policy.              |
-| Release coordinator  | Run release-freeze checks, prepare tags and release notes, and coordinate announcements.      |
+| Release coordinator  | Run release-freeze checks, curate `CHANGELOG.md`, prepare tags, and coordinate announcements. |
 
 One person can hold multiple roles while the project is small. Role concentration
 is tracked as an operational risk.
@@ -30,7 +30,7 @@ goal is bus factor 2 for these capabilities:
 - update protected-branch settings;
 - cut draft and stable releases;
 - respond to private vulnerability reports;
-- publish or update release notes and advisories.
+- publish or update changelog entries, release notes, and advisories.
 
 Until two maintainers can perform each capability, release and security work is
 treated as higher risk and is documented in PRs and release notes.

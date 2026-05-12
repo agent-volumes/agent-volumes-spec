@@ -38,13 +38,22 @@ Before tagging a draft, release candidate, or stable release:
    role-scoped requirements.
 9. Confirm deferred and local-policy topics remain documented in
    [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
-10. Prepare human-readable release notes.
+10. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
+    to generate a `CHANGELOG.md` draft.
+11. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
+    raw git history dump.
 
 ## Release notes
 
+Release notes are maintained in [`../CHANGELOG.md`](../CHANGELOG.md), using the
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) structure. The
+`git-cliff` configuration in [`../cliff.toml`](../cliff.toml) provides a draft
+from commit history and tags, but maintainers are responsible for curating the
+result before tagging.
+
 Release notes summarize major changes for implementers. They include:
 
-- release version and date;
+- release version and Human Era / Holocene Era (HE) date;
 - major normative changes;
 - schema, OpenAPI, and conformance fixture changes;
 - compatibility or migration notes;
@@ -52,7 +61,8 @@ Release notes summarize major changes for implementers. They include:
 - publicly known vulnerabilities fixed in the release, when any exist;
 - verification evidence or CI links.
 
-Release notes are not raw git history.
+Release notes are not raw git history. Generated entries MUST be reviewed and
+edited for implementer-facing clarity before a release tag is created.
 
 ## Vulnerability fixes
 

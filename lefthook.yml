@@ -39,6 +39,13 @@ pre-commit:
         echo "🔍 Running Redocly lint..."
         bunx redocly lint openapi/bibliotheca.openapi.yaml
         echo "✅ OpenAPI lint passed!"
+    - name: Validate changelog structure
+      glob: '{CHANGELOG.md,cliff.toml,package.json,scripts/*.sh}'
+      run: |
+        set -e
+        echo "🔍 Validating changelog structure..."
+        bun run changelog:check
+        echo "✅ Changelog validation passed!"
     - name: Validate specification artifacts
       glob: '{schemas,conformance}/**'
       run: |

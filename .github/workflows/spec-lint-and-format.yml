@@ -12,6 +12,7 @@ on:
       - '**/*.yaml'
       - '**/*.yml'
       - 'scripts/**'
+      - 'cliff.toml'
       - 'package.json'
       - 'bun.lock'
       - '.github/workflows/spec-lint-and-format.yml'
@@ -31,6 +32,7 @@ on:
       - '**/*.yaml'
       - '**/*.yml'
       - 'scripts/**'
+      - 'cliff.toml'
       - 'package.json'
       - 'bun.lock'
       - '.github/workflows/spec-lint-and-format.yml'
@@ -63,6 +65,9 @@ jobs:
 
       - name: Check formatting with Prettier
         run: bun run format:check
+
+      - name: Validate changelog structure
+        run: bun run changelog:check
 
       - name: Lint Markdown with markdownlint
         run: bun run lint:md
