@@ -12,6 +12,7 @@
 [![OSV Scanner Full](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/osv-scanner-full.yml)
 [![Dependency Review](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/agent-volumes/agent-volumes-spec/badge)](https://scorecard.dev/viewer/?uri=github.com/agent-volumes/agent-volumes-spec)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12816/badge)](https://www.bestpractices.dev/projects/12816)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
