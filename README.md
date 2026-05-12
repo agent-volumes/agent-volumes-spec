@@ -141,6 +141,9 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 | v0.x.y                       | Q4 2026    | Stabilization before release                                                         |
 | v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                                            |
 
+See [`ROADMAP.md`](ROADMAP.md) for the one-year roadmap, explicit out-of-scope
+items, and review cadence.
+
 Feedback is welcome via [GitHub Issues](https://github.com/agent-volumes/agent-volumes-spec/issues) and [Discussions](https://github.com/agent-volumes/agent-volumes-spec/discussions).
 
 ## Governance
@@ -155,8 +158,11 @@ Specification development is guided by a Technical Steering Committee (TSC) that
 | Governance process | [GOVERNANCE.md](https://github.com/agent-volumes/.github/blob/main/GOVERNANCE.md)           |
 | Security policy    | [SECURITY.md](https://github.com/agent-volumes/.github/blob/main/SECURITY.md)               |
 | Code of Conduct    | [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md) |
+| Project docs       | [`docs/README.md`](docs/README.md)                                                          |
 
 Governance participation is open to all contributors. Organizations interested in joining the TSC or supporting the standard's development are encouraged to open an issue or reach out via [governance@agentvolumes.org](mailto:governance@agentvolumes.org).
+
+Repository-specific process documents cover the [release process](docs/release-process.md), [review policy](docs/review-policy.md), [artifact architecture](docs/architecture.md), [validation and conformance policy](docs/development/validation-and-conformance.md), [roles and continuity](docs/governance/roles-and-continuity.md), [security requirements](docs/security/security-requirements.md), [vulnerability response](docs/security/vulnerability-response.md), and [starter contribution paths](docs/development/good-first-issues.md). See [`docs/README.md`](docs/README.md) for the full documentation map.
 
 ## Get Involved
 
@@ -185,7 +191,7 @@ Agent Volumes is developed in the open. There are several ways to participate:
 - Join the Technical Steering Committee — see the [governance policy](https://github.com/agent-volumes/.github/blob/main/GOVERNANCE.md)
 - Provide financial support for specification development and infrastructure
 
-See the organization-wide [CONTRIBUTING.md](https://github.com/agent-volumes/.github/blob/main/CONTRIBUTING.md) for contribution guidelines and the [Code of Conduct](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md).
+See the organization-wide [CONTRIBUTING.md](https://github.com/agent-volumes/.github/blob/main/CONTRIBUTING.md) for contribution guidelines and the [Code of Conduct](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md). Those organization-wide policies apply to this repository. In particular, commits are expected to use DCO sign-off, and pull requests are expected to satisfy the repository linting, formatting, OpenAPI, and artifact validation checks documented in [`docs/development/validation-and-conformance.md`](docs/development/validation-and-conformance.md).
 
 ## Adopters
 
