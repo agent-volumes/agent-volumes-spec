@@ -35,7 +35,7 @@ agent-volumes-spec.md
 | Change type                           | Expected companion updates                                                                               |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Editorial clarification               | Prose only, unless examples or anchors move.                                                             |
-| Normative requirement change          | Prose, affected schemas, fixtures, coverage metadata, and release notes.                                 |
+| Normative requirement change          | Prose, affected schemas, fixtures, coverage metadata, and changelog / release notes.                     |
 | Schema shape change                   | Prose, schema `$id` alignment, fixtures, validator expectations, and OpenAPI references when applicable. |
 | API endpoint change                   | Prose §9, OpenAPI operation, problem details, fixtures, and prose drift audit.                           |
 | Conformance behavior change           | Prose requirement, fixture family, coverage map, and `conformance/REQUIREMENTS.md`.                      |

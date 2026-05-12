@@ -9,6 +9,7 @@ Run these commands from the repository root:
 
 ```bash
 bun run format:check
+bun run changelog:check
 bun run lint:md
 bun run lint:openapi
 bun run validate:artifacts
@@ -19,13 +20,14 @@ scripts from [`package.json`](../../package.json).
 
 ## Required checks by change type
 
-| Change type                   | Required local checks                                                        |
-| ----------------------------- | ---------------------------------------------------------------------------- |
-| Markdown-only process docs    | `bun run format:check`, `bun run lint:md`                                    |
-| Specification prose           | `bun run format:check`, `bun run lint:md`, `bun run validate:artifacts`      |
-| JSON Schema or fixture        | `bun run format:check`, `bun run validate:artifacts`                         |
-| OpenAPI contract              | `bun run format:check`, `bun run lint:openapi`, `bun run validate:artifacts` |
-| Workflow or dependency config | `bun run format:check`, plus relevant CI checks after PR creation            |
+| Change type                   | Required local checks                                                                        |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| Markdown-only process docs    | `bun run format:check`, `bun run lint:md`                                                    |
+| Specification prose           | `bun run format:check`, `bun run lint:md`, `bun run validate:artifacts`                      |
+| JSON Schema or fixture        | `bun run format:check`, `bun run validate:artifacts`                                         |
+| OpenAPI contract              | `bun run format:check`, `bun run lint:openapi`, `bun run validate:artifacts`                 |
+| Changelog or release process  | `bun run changelog:check`, `bun run format:check`, `bun run lint:md`                         |
+| Workflow or dependency config | `bun run format:check`, `bun run changelog:check`, plus relevant CI checks after PR creation |
 
 ## Coverage expectations
 
@@ -58,6 +60,11 @@ Pull requests that touch Markdown, JSON, YAML, scripts, schemas, OpenAPI, or
 conformance fixtures run the repository lint and artifact validation workflow.
 Dependency Review, OSV Scanner, and OpenSSF Scorecard run through organization
 reusable workflows.
+
+Changelog changes are validated for Keep a Changelog structure and release-tag
+coverage with `bun run changelog:check`. The check confirms that tracked release
+tags have corresponding `CHANGELOG.md` sections; maintainers still curate the
+generated text for clarity before tagging.
 
 Maintainers treat failing required checks as blockers unless the failure is
 confirmed to be unrelated infrastructure flakiness and is documented in the PR.
