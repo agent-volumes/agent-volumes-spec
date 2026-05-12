@@ -184,6 +184,7 @@ fi
 CHECK_SUMMARY="not run (--skip-checks)"
 if [[ "${RUN_CHECKS}" == "true" ]]; then
   info "Running release-freeze validation commands."
+  bun run changelog:check
   bun run format:check
   bun run lint:md
   bun run lint:openapi
@@ -191,18 +192,29 @@ if [[ "${RUN_CHECKS}" == "true" ]]; then
   CHECK_SUMMARY="format:check, lint:md, lint:openapi, validate:artifacts passed"
 fi
 
-LAST_TAG="$(git_cmd describe --tags --abbrev=0 "${TARGET_COMMIT}^" 2>/dev/null || true)"
-if [[ -n "${LAST_TAG}" ]]; then
-  CHANGES="$(git_cmd log --oneline --no-decorate "${LAST_TAG}..${TARGET_COMMIT}" -- . || true)"
-  CHANGES_HEADING="Changes since ${LAST_TAG}"
-else
-  CHANGES="$(git_cmd log --oneline --no-decorate "${TARGET_COMMIT}" -- . | sed -n '1,30p' || true)"
-  CHANGES_HEADING="Initial tagged snapshot"
-fi
+CHANGELOG_SECTION="$(python3 - "${SPEC_VERSION}" <<'PY'
+import re
+import sys
+from pathlib import Path
 
-if [[ -z "${CHANGES}" ]]; then
-  CHANGES="(No commits in selected range.)"
-fi
+version = sys.argv[1]
+path = Path('CHANGELOG.md')
+if not path.exists():
+    raise SystemExit('CHANGELOG.md does not exist')
+
+text = path.read_text(encoding='utf-8')
+pattern = re.compile(rf"^## \[{re.escape(version)}\].*?(?=^## \[|\Z)", re.MULTILINE | re.DOTALL)
+match = pattern.search(text)
+if not match:
+    raise SystemExit(f'CHANGELOG.md does not contain a [{version}] section')
+
+section = match.group(0).strip()
+if 'raw git' in section.lower():
+    raise SystemExit(f'CHANGELOG.md [{version}] section still appears uncurated')
+
+print(section)
+PY
+)" || error "CHANGELOG.md must contain a curated [${SPEC_VERSION}] release entry before tagging."
 
 TAG_MESSAGE="Agent Volumes Specification ${TAG_NAME}
 
@@ -214,8 +226,8 @@ Target Commit: ${TARGET_COMMIT}
 Target Subject: ${TARGET_SUBJECT}
 Verification: ${CHECK_SUMMARY}
 
-${CHANGES_HEADING}
-${CHANGES}
+CHANGELOG.md entry
+${CHANGELOG_SECTION}
 
 Notes:
 - This tag fixes the ${TAG_NAME} specification snapshot.
