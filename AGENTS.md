@@ -43,7 +43,7 @@ agent-volumes-spec/
 ├── schemas/                   # Normative JSON Schema artifacts
 ├── conformance/               # Offline conformance fixtures + runner contract
 ├── openapi/                   # Bibliotheca API contract + prose drift audit
-├── decisions/                 # 110 ADRs (architecture decision records)
+├── docs/decisions/            # 142 ADRs (architecture decision records)
 ├── .agents/skills/            # Contributor dev tooling (NOT distributable)
 └── scripts/                   # Artifact validation script
 ```
@@ -55,7 +55,7 @@ agent-volumes-spec/
 | Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
-| Check ADR history         | `decisions/`                            | Sequential numbering, 0001–0108     |
+| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0142     |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
@@ -110,7 +110,7 @@ When editing normative prose — primarily `agent-volumes-spec.md` and machine-r
 
 - **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** are reserved for normative requirements and carry the meanings defined in [BCP 14](https://www.rfc-editor.org/info/bcp14), [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174).
 - In **non-normative** sentences (explanations, examples, rationales, ADRs), prefer alternative phrasing and avoid lowercase variants of these terms to prevent ambiguity.
-- Decision records under `decisions/` are non-normative context and are not subject to BCP 14 lowercase warnings.
+- Decision records under `docs/decisions/` are non-normative context and are not subject to BCP 14 lowercase warnings.
 
 ## COMMANDS
 

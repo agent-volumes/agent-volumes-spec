@@ -234,7 +234,7 @@ For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Im
 
 ## Architecture Decision Records
 
-The project's architecture decisions are recorded under [`decisions/`](decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
+The project's architecture decisions are recorded under [`docs/decisions/`](docs/decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
 
 ## Related Standards
 
