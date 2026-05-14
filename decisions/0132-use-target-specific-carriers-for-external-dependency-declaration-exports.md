@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, partially superseded by ADR-0139; refined by ADR-0140 and ADR-0142
 date: 12026-05-14
 decision-makers: Yunseo Kim
 ---
