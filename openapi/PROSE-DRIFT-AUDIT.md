@@ -14,7 +14,7 @@ For each endpoint family:
 3. Confirm request and response schemas reference the same companion artifacts
    named by the prose.
 4. Confirm protected operations declare bearer authentication.
-5. Confirm documented errors use the closed RFC 7807 problem type set.
+5. Confirm documented errors use the closed RFC 9457 problem type set.
 6. Confirm conformance fixtures exercise the happy path and at least one relevant
    failure path when behavior is deterministic offline.
 

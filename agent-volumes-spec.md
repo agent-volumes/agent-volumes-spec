@@ -1429,7 +1429,7 @@ Exact release metadata is the portable API exposure boundary for manifest-derive
 
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
-For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 7807 Problem Details response instead: `blocked` releases use an authorization, policy, validation, or registry-state failure appropriate to the bibliotheca; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
+For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 9457 Problem Details response instead: `blocked` releases use an authorization, policy, validation, or registry-state failure appropriate to the bibliotheca; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
 
 For `dist` metadata in v0.1:
 
@@ -1601,7 +1601,7 @@ The finalize request commits the upload attempt. A bibliotheca MUST verify the u
 
 Successful finalization MUST preserve the verified uploaded-byte digest in the resulting trust attachment record. If the uploaded-byte digest later cannot be reconciled with the bytes retrievable from the detail locator, clients and bibliothecas MUST treat the attachment as invalid for baseline verification.
 
-The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
+The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 9457 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
 Successful finalization results in a trust attachment record whose lifecycle state is represented through the same `active`, `revoked`, `superseded`, and `invalid` status model used by the trust detail view. Revocation and supersession remain status changes, not deletion or replacement.
 
@@ -1725,7 +1725,7 @@ Ownership is evaluated by the bibliotheca. A token subject can act on behalf of 
 
 Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`.
 
-Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
+Error payloads for the HTTP API use RFC 9457 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
 ### 9.9 Rate Limiting
 
@@ -1741,7 +1741,7 @@ Conforming bibliothecas SHOULD implement rate limiting. Recommended tiers:
 
 The normative HTTP contract companion can use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
 
-The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 7807 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
+The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 9457 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
 
 Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.org/problems/<slug>`. The following core problem types are reserved for portable clients:
 
@@ -1767,7 +1767,7 @@ Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.or
 | `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
 | `rate-limited`                | `429`          | The request was rate limited.                                           |
 
-The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 7807 examples.
+The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 9457 examples.
 
 Representative endpoint failure mappings include:
 
@@ -1866,6 +1866,8 @@ A conforming bibliotheca MUST:
 14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint, including capability document version fields, HTTP API major family, exact compatible spec version sets when claimed, and supported upload profiles for advertised upload surfaces ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 15. **AV-BIB-015** — Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
 16. **AV-BIB-016** — Publish the mandatory machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
+17. **AV-BIB-017** — Expose declaration-only external dependency metadata through exact release metadata without claiming resolved dependency evidence ([Section 9.2.2](#922-fetch)).
+18. **AV-BIB-018** — Keep external dependency search, filtering, and registry-side potential-exposure diagnostics outside the required portable registry API while preserving structured warning fixtures for portable diagnostics ([Section 8.7](#87-security-advisories), [Section 9.2.4](#924-version-index)).
 
 A conforming bibliotheca SHOULD:
 
@@ -1894,6 +1896,8 @@ A conforming client MUST:
 14. **AV-CLI-014** — Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
 15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values, while preserving the exact-array semantics of `compatibleSpecVersions` and the HTTP API-family semantics of `apiVersion` ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 16. **AV-CLI-016** — Surface mandatory migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+17. **AV-CLI-017** — Parse and semantically validate external dependency declarations, including PURL/VERS compatibility, scoped semantic keys, duplicates, conflicts, and declaration keys ([Section 3.6.4](#364-external-dependency-declarations), [Appendix A](#a3-validation-rules)).
+18. **AV-CLI-018** — Surface external-dependency potential-exposure warnings only for intersecting declaration/advisory ranges and deduplicate them by declaration/advisory/range identity ([Section 8.7](#87-security-advisories), [Appendix A](#a4-warning-model)).
 
 A conforming client SHOULD:
 
@@ -1924,6 +1928,8 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - BOM/provenance mapping sample fixtures
 - conformance coverage fixtures mapping `AV-BIB-*` and `AV-CLI-*` requirements to fixture families
 - dependency-resolution accept/reject cases
+- external dependency declaration validation fixtures, including normalized-equivalent VERS duplicate/conflict cases and schema-level malformed item cases
+- external dependency potential-exposure warning fixtures, including malformed warning-context rejection cases
 - permission-escalation rejection cases
 
 These fixtures are part of the interoperability contract. They are not merely illustrative examples.
