@@ -971,6 +971,10 @@ assert(
 for (const [fixturePath, label] of [
   ['conformance/fixtures/manifest-invalid-name.json', 'invalid-name manifest fixture'],
   ['conformance/fixtures/manifest-invalid-version.json', 'invalid-version manifest fixture'],
+  [
+    'conformance/fixtures/manifest-invalid-external-dependency-unknown-field.json',
+    'invalid external dependency unknown field manifest fixture',
+  ],
 ]) {
   const fixture = readJson(fixturePath);
   assertSpecVersion(fixture, label);
@@ -1737,7 +1741,21 @@ for (const externalDependencyCase of externalDependencyCases.cases) {
         externalDependencyCase.expected.semanticKeys.length === externalDependencyCase['external-dependencies'].length,
       `external dependency case ${externalDependencyCase.name} successful cases need semanticKeys`
     );
-    for (const semanticKey of externalDependencyCase.expected.semanticKeys) {
+    for (const [index, semanticKey] of externalDependencyCase.expected.semanticKeys.entries()) {
+      const dependency = externalDependencyCase['external-dependencies'][index];
+      assert(
+        semanticKey.purl === dependency.purl,
+        `external dependency case ${externalDependencyCase.name} semantic key purl must match dependency`
+      );
+      assert(
+        semanticKey.purpose === dependency.purpose,
+        `external dependency case ${externalDependencyCase.name} semantic key purpose must match dependency`
+      );
+      assertDeepEqual(
+        semanticKey.scope,
+        externalDependencyScope(dependency),
+        `external dependency case ${externalDependencyCase.name} semantic key scope must match dependency scope`
+      );
       assert(
         !Object.hasOwn(semanticKey, 'constraint'),
         `external dependency case ${externalDependencyCase.name} semantic key excludes constraint`
