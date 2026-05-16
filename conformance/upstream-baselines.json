@@ -1,0 +1,39 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "baselines": [
+    {
+      "name": "package-url-spec",
+      "upstream": "https://github.com/package-url/purl-spec",
+      "revision": "1f8c6f2461cfe8dd3eda85eb6afa30d99b3cc6d0",
+      "purpose": "Pinned reference for PURL syntax, canonicalization, qualifier, version, and subpath semantics used by external dependency validation fixtures.",
+      "lastReviewed": "2026-05-16",
+      "artifacts": [
+        {
+          "name": "purl-standard-specification",
+          "path": "docs/standard/specification.md"
+        },
+        {
+          "name": "purl-common-qualifiers",
+          "path": "docs/common-qualifiers.md"
+        }
+      ]
+    },
+    {
+      "name": "vers-spec",
+      "upstream": "https://github.com/package-url/vers-spec",
+      "revision": "ee7d8b44f22f1517c75f7229b57b79374c8d34e5",
+      "purpose": "Pinned reference for VERS syntax, canonical constraints, and scheme-specific comparison semantics used by external dependency validation fixtures.",
+      "lastReviewed": "2026-05-16",
+      "artifacts": [
+        {
+          "name": "vers-standard-specification",
+          "path": "docs/standard/specification.md"
+        },
+        {
+          "name": "vers-version-schemes",
+          "path": "docs/version-schemes.md"
+        }
+      ]
+    }
+  ]
+}

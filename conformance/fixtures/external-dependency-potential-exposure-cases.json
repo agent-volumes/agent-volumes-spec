@@ -1,0 +1,165 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "cases": [
+    {
+      "name": "npm-range-intersection-emits-potential-exposure-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0001",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=1.8.0|<1.8.3",
+        "sourceKind": "ghsa",
+        "sourceId": "GHSA-EXAMPLE-0001",
+        "aliases": ["CVE-2026-0001"]
+      },
+      "expected": {
+        "intersection": "intersects",
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "message": "External dependency declaration may intersect a known affected package range.",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=1.7.0|<2.0.0"
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0001",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=1.8.0|<1.8.3",
+                "sourceKind": "ghsa",
+                "sourceId": "GHSA-EXAMPLE-0001",
+                "aliases": ["CVE-2026-0001"]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "non-intersection-does-not-emit-potential-exposure-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0002",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=3.0.0|<3.1.0"
+      },
+      "expected": { "intersection": "does-not-intersect", "warnings": [] }
+    },
+    {
+      "name": "pub-dart-exception-carries-compatibility-context",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:81515b5392be9fef865fae7d28946fc8a7e0da865869321b103d28ca0a8b2879",
+        "purl": "pkg:pub/shelf",
+        "constraint": "vers:dart/>=1.4.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "PUBSEC-2026-0001",
+        "affectedPurl": "pkg:pub/shelf",
+        "affectedRange": "vers:dart/>=1.4.0|<1.4.2",
+        "sourceKind": "other",
+        "sourceId": "PUBSEC-2026-0001"
+      },
+      "expected": {
+        "intersection": "intersects",
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:81515b5392be9fef865fae7d28946fc8a7e0da865869321b103d28ca0a8b2879",
+                "purl": "pkg:pub/shelf",
+                "constraint": "vers:dart/>=1.4.0|<2.0.0"
+              },
+              "advisoryMatch": {
+                "canonicalId": "PUBSEC-2026-0001",
+                "affectedPurl": "pkg:pub/shelf",
+                "affectedRange": "vers:dart/>=1.4.0|<1.4.2",
+                "sourceKind": "other",
+                "sourceId": "PUBSEC-2026-0001"
+              },
+              "compatibility": {
+                "purlType": "pub",
+                "versScheme": "dart",
+                "exceptionId": "pub-dart"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "indeterminate-prerelease-does-not-emit-potential-exposure-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=2.0.0-alpha|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0003",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=2.0.0-beta|<2.0.0"
+      },
+      "expected": { "intersection": "indeterminate", "warnings": [] }
+    },
+    {
+      "name": "deduplicate-alias-equivalent-warning-identity",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0001",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=1.8.0|<1.8.3",
+        "sourceIds": ["CVE-2026-0001", "GHSA-EXAMPLE-0001"],
+        "aliases": ["CVE-2026-0001"]
+      },
+      "duplicateInputs": 2,
+      "expected": {
+        "intersection": "intersects",
+        "dedupIdentity": [
+          "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+          "GHSA-EXAMPLE-0001",
+          "pkg:npm/%40modelcontextprotocol/sdk",
+          "vers:npm/>=1.8.0|<1.8.3"
+        ],
+        "warningCount": 1,
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=1.7.0|<2.0.0"
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0001",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=1.8.0|<1.8.3",
+                "sourceIds": ["CVE-2026-0001", "GHSA-EXAMPLE-0001"],
+                "aliases": ["CVE-2026-0001"]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

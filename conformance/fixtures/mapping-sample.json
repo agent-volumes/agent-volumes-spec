@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-draft.6",
   "sourceManifest": {
     "volume": {
       "schema": 1,
@@ -45,6 +45,19 @@
     "dependencies": {
       "github-provider": "^2.1.0"
     },
+    "external-dependencies": [
+      {
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      {
+        "purl": "pkg:pypi/requests?extra=socks",
+        "constraint": "vers:pypi/>=2.31.0|<3.0.0",
+        "purpose": "runtime",
+        "components": ["arxiv-search"]
+      }
+    ],
     "component-dependencies": {
       "summarize-paper": ["pkg:volume/github-provider@2.1.0#tool/read-pr"]
     },
@@ -178,6 +191,46 @@
       },
       "components": [
         {
+          "type": "library",
+          "isExternal": true,
+          "bom-ref": "agent-volumes:external-dependency:av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+          "name": "@modelcontextprotocol/sdk",
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "versionRange": "vers:npm/>=1.7.0|<2.0.0",
+          "properties": [
+            { "name": "agent-volumes:external-dependency", "value": "true" },
+            {
+              "name": "agent-volumes:declaration-key",
+              "value": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc"
+            },
+            { "name": "agent-volumes:declaration-only", "value": "true" },
+            { "name": "agent-volumes:constraint", "value": "vers:npm/>=1.7.0|<2.0.0" },
+            { "name": "agent-volumes:purpose", "value": "runtime" },
+            { "name": "agent-volumes:scope", "value": "[]" },
+            { "name": "agent-volumes:resolved-evidence", "value": "false" }
+          ]
+        },
+        {
+          "type": "library",
+          "isExternal": true,
+          "bom-ref": "agent-volumes:external-dependency:av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c",
+          "name": "requests",
+          "purl": "pkg:pypi/requests?extra=socks",
+          "versionRange": "vers:pypi/>=2.31.0|<3.0.0",
+          "properties": [
+            { "name": "agent-volumes:external-dependency", "value": "true" },
+            {
+              "name": "agent-volumes:declaration-key",
+              "value": "av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c"
+            },
+            { "name": "agent-volumes:declaration-only", "value": "true" },
+            { "name": "agent-volumes:constraint", "value": "vers:pypi/>=2.31.0|<3.0.0" },
+            { "name": "agent-volumes:purpose", "value": "runtime" },
+            { "name": "agent-volumes:scope", "value": "[\"arxiv-search\"]" },
+            { "name": "agent-volumes:resolved-evidence", "value": "false" }
+          ]
+        },
+        {
           "type": "data",
           "bom-ref": "pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper",
           "name": "summarize-paper",
@@ -305,6 +358,38 @@
           "spdxElementId": "SPDXRef-Package-research-agent-pack",
           "relationshipType": "DEPENDS_ON",
           "relatedSpdxElement": "SPDXRef-Package-github-provider"
+        }
+      ]
+    },
+    "spdxExternalDependencies": {
+      "spdxVersion": "SPDX-3.0.1",
+      "profile": "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#",
+      "elements": [
+        {
+          "@context": {
+            "av": "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#"
+          },
+          "@type": "av:ExternalDependencyDeclaration",
+          "av:declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+          "av:purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "av:constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "av:purpose": "runtime",
+          "av:scope": [],
+          "av:declarationOnly": true,
+          "av:resolvedEvidence": false
+        },
+        {
+          "@context": {
+            "av": "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#"
+          },
+          "@type": "av:ExternalDependencyDeclaration",
+          "av:declarationKey": "av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c",
+          "av:purl": "pkg:pypi/requests?extra=socks",
+          "av:constraint": "vers:pypi/>=2.31.0|<3.0.0",
+          "av:purpose": "runtime",
+          "av:scope": ["arxiv-search"],
+          "av:declarationOnly": true,
+          "av:resolvedEvidence": false
         }
       ]
     },

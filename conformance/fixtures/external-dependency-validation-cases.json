@@ -1,0 +1,179 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "cases": [
+    {
+      "name": "volume-scoped-npm-runtime-dependency",
+      "declaredComponents": ["arxiv-search", "summarize-paper"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "purpose": "runtime",
+            "scope": [],
+            "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc"
+          }
+        ]
+      }
+    },
+    {
+      "name": "component-scoped-pypi-dependency-with-qualifier",
+      "declaredComponents": ["arxiv-search", "summarize-paper"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:pypi/requests?extra=socks",
+          "constraint": "vers:pypi/>=2.31.0|<3.0.0",
+          "purpose": "runtime",
+          "components": ["arxiv-search"]
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:pypi/requests?extra=socks",
+            "purpose": "runtime",
+            "scope": ["arxiv-search"],
+            "declarationKey": "av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pub-purl-dart-vers-compatibility-exception",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:pub/shelf",
+          "constraint": "vers:dart/>=1.4.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:pub/shelf",
+            "purpose": "runtime",
+            "scope": [],
+            "declarationKey": "av-extdep-v1:sha256:81515b5392be9fef865fae7d28946fc8a7e0da865869321b103d28ca0a8b2879"
+          }
+        ]
+      }
+    },
+    {
+      "name": "reject-versioned-external-purl",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk@1.7.0",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "invalid-external-dependency-purl" }
+    },
+    {
+      "name": "reject-volume-purl-as-external-dependency",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:volume/search-toolkit",
+          "constraint": "vers:volume/>=1.0.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "external-dependency-volume-purl" }
+    },
+    {
+      "name": "reject-invalid-vers-constraint",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": ">=1.7.0 <2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "invalid-external-dependency-constraint" }
+    },
+    {
+      "name": "reject-purl-vers-type-mismatch",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:pypi/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "external-dependency-constraint-type-mismatch" }
+    },
+    {
+      "name": "reject-invalid-purpose-extension",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "python:lint"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "invalid-external-dependency-purpose" }
+    },
+    {
+      "name": "reject-unknown-component-scope",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:pypi/requests",
+          "constraint": "vers:pypi/>=2.31.0|<3.0.0",
+          "purpose": "runtime",
+          "components": ["missing-tool"]
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "unknown-external-dependency-component" }
+    },
+    {
+      "name": "reject-duplicate-external-dependency",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        },
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "duplicate-external-dependency" }
+    },
+    {
+      "name": "reject-conflicting-external-dependency",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        },
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=2.0.0|<3.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "conflicting-external-dependency" }
+    }
+  ]
+}

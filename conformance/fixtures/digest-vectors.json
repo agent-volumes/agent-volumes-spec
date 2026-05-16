@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-draft.6",
   "canonicalInputFormat": "Each normalized file record is encoded as: file <path> <executable-flag> <byte-length>\\n<content>. Records are sorted lexicographically by normalized path and concatenated directly; byte-length determines where each content payload ends. executable-flag is 1 for executable files and 0 otherwise.",
   "fixtures": [
     {

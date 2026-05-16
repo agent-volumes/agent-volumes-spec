@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-draft.6",
   "requirements": [
     {
       "id": "AV-BIB-001",
@@ -155,6 +155,32 @@
         { "fixture": "mapping-matrix.json", "area": "mapping", "coverageType": "schema" },
         { "fixture": "mapping-sample.json", "area": "mapping", "coverageType": "schema" },
         { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" }
+      ]
+    },
+    {
+      "id": "AV-BIB-017",
+      "role": "bibliotheca",
+      "requirement": "Expose declaration-only external dependency metadata through exact release metadata without claiming resolved dependency evidence.",
+      "coverage": [
+        { "fixture": "exact-release-metadata-cases.json", "area": "release-metadata", "coverageType": "positive" },
+        {
+          "fixture": "exact-release-metadata-cases.json",
+          "area": "release-metadata",
+          "coverageType": "negative",
+          "case": "release-metadata-rejects-resolved-external-dependency-evidence"
+        }
+      ]
+    },
+    {
+      "id": "AV-BIB-018",
+      "role": "bibliotheca",
+      "requirement": "Keep external dependency search, filtering, and potential-exposure diagnostics outside the required portable registry API while preserving structured warning fixtures.",
+      "coverage": [
+        {
+          "fixture": "external-dependency-potential-exposure-cases.json",
+          "area": "external-dependency",
+          "coverageType": "algorithmic"
+        }
       ]
     },
     {
@@ -318,6 +344,36 @@
       "coverage": [
         { "fixture": "bridge-metadata.json", "area": "capability", "coverageType": "schema" },
         { "fixture": "bridge-metadata-status-variants.json", "area": "capability", "coverageType": "schema" }
+      ]
+    },
+    {
+      "id": "AV-CLI-017",
+      "role": "client",
+      "requirement": "Parse and semantically validate external dependency declarations, including PURL/VERS compatibility, scoped semantic keys, duplicates, conflicts, and declaration keys.",
+      "coverage": [
+        {
+          "fixture": "external-dependency-validation-cases.json",
+          "area": "external-dependency",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "purl-vers-compatibility-exceptions.json",
+          "area": "external-dependency",
+          "coverageType": "schema"
+        },
+        { "fixture": "upstream-baselines.json", "area": "external-dependency", "coverageType": "schema" }
+      ]
+    },
+    {
+      "id": "AV-CLI-018",
+      "role": "client",
+      "requirement": "Surface external-dependency potential exposure warnings only for intersecting declaration/advisory ranges and deduplicate by declaration/advisory/range identity.",
+      "coverage": [
+        {
+          "fixture": "external-dependency-potential-exposure-cases.json",
+          "area": "external-dependency",
+          "coverageType": "algorithmic"
+        }
       ]
     }
   ]

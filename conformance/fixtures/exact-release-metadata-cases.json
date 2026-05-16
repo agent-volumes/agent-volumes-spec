@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-draft.6",
   "cases": [
     {
       "name": "available-cdn-release-metadata-is-installable",
@@ -10,6 +10,21 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "status": { "state": "available" },
+        "externalDependencies": [
+          {
+            "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "constraint": "vers:npm/>=1.7.0|<2.0.0",
+            "purpose": "runtime"
+          },
+          {
+            "declarationKey": "av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c",
+            "purl": "pkg:pypi/requests?extra=socks",
+            "constraint": "vers:pypi/>=2.31.0|<3.0.0",
+            "purpose": "runtime",
+            "components": ["arxiv-search"]
+          }
+        ],
         "dist": {
           "source": "cdn",
           "mediaType": "application/gzip",
@@ -89,6 +104,36 @@
         "detail": "The bibliotheca cannot reconcile release metadata with retrievable artifact bytes."
       },
       "expected": { "outcome": "failure", "installable": false, "failureCategory": "availability-or-registry-state" }
+    },
+    {
+      "name": "release-metadata-rejects-resolved-external-dependency-evidence",
+      "requestRoute": "/api/v1/volumes/research-agent-pack/1.4.7",
+      "invalidMetadata": {
+        "name": "research-agent-pack",
+        "version": "1.4.7",
+        "purl": "pkg:volume/research-agent-pack@1.4.7",
+        "integrity": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "status": { "state": "available" },
+        "externalDependencies": [
+          {
+            "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "constraint": "vers:npm/>=1.7.0|<2.0.0",
+            "purpose": "runtime",
+            "resolvedVersion": "1.8.1"
+          }
+        ],
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.7.tar.gz"
+        }
+      },
+      "expected": {
+        "outcome": "failure",
+        "installable": false,
+        "failureCategory": "resolved-external-dependency-evidence"
+      }
     },
     {
       "name": "blocked-release-metadata-with-dist-is-invalid",

@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-draft.6",
   "description": "Baseline RFC 7807 Problem Details taxonomy cases for portable Agent Volumes clients.",
   "cases": [
     {
