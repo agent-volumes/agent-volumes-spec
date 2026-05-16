@@ -246,6 +246,17 @@ const parseExternalDependencyPurl = (purl) => {
 
 const parseVersScheme = (constraint) => constraint.match(shallowVersPattern)?.[1].toLowerCase();
 
+const normalizeVersConstraintForComparison = (constraint) => {
+  const match = constraint.match(shallowVersPattern);
+  if (!match) return constraint;
+  const [, rawScheme, expression] = match;
+  return `vers:${rawScheme.toLowerCase()}/${expression
+    .split('|')
+    .map((term) => term.trim())
+    .sort()
+    .join('|')}`;
+};
+
 const isExternalDependencyPurpose = (purpose) =>
   coreExternalDependencyPurposes.has(purpose) || externalDependencyPurposeExtensionPattern.test(purpose);
 
@@ -975,6 +986,14 @@ for (const [fixturePath, label] of [
     'conformance/fixtures/manifest-invalid-external-dependency-unknown-field.json',
     'invalid external dependency unknown field manifest fixture',
   ],
+  [
+    'conformance/fixtures/manifest-invalid-external-dependency-empty-components.json',
+    'invalid external dependency empty components manifest fixture',
+  ],
+  [
+    'conformance/fixtures/manifest-invalid-external-dependency-duplicate-components.json',
+    'invalid external dependency duplicate components manifest fixture',
+  ],
 ]) {
   const fixture = readJson(fixturePath);
   assertSpecVersion(fixture, label);
@@ -1536,6 +1555,19 @@ for (const purlCase of purlCanonicalizationCases.cases) {
 const upstreamBaselines = readJson('conformance/upstream-baselines.json');
 validate('upstreamBaseline', upstreamBaselines, 'upstream PURL/VERS baselines');
 assertSpecVersion(upstreamBaselines, 'upstream PURL/VERS baselines');
+const invalidUpstreamBaselines = readJson('conformance/fixtures/upstream-baselines-invalid.json');
+assertSpecVersion(invalidUpstreamBaselines, 'invalid upstream PURL/VERS baseline cases');
+for (const invalidBaselineCase of invalidUpstreamBaselines.cases) {
+  validateExpectedFailure(
+    'upstreamBaseline',
+    invalidBaselineCase.payload,
+    `invalid upstream PURL/VERS baseline case ${invalidBaselineCase.name}`
+  );
+  assert(
+    invalidBaselineCase.expected.valid === false,
+    `invalid upstream baseline case ${invalidBaselineCase.name} must fail`
+  );
+}
 assert(
   upstreamBaselines.baselines.some((baseline) => baseline.name === 'package-url-spec'),
   'upstream baselines must include Package URL spec'
@@ -1551,6 +1583,21 @@ for (const baseline of upstreamBaselines.baselines) {
 const purlVersCompatibilityExceptions = readJson('conformance/purl-vers-compatibility-exceptions.json');
 validate('purlVersCompatibilityExceptions', purlVersCompatibilityExceptions, 'PURL/VERS compatibility exceptions');
 assertSpecVersion(purlVersCompatibilityExceptions, 'PURL/VERS compatibility exceptions');
+const invalidPurlVersCompatibilityExceptions = readJson(
+  'conformance/fixtures/purl-vers-compatibility-exceptions-invalid.json'
+);
+assertSpecVersion(invalidPurlVersCompatibilityExceptions, 'invalid PURL/VERS compatibility exception cases');
+for (const invalidExceptionCase of invalidPurlVersCompatibilityExceptions.cases) {
+  validateExpectedFailure(
+    'purlVersCompatibilityExceptions',
+    invalidExceptionCase.payload,
+    `invalid PURL/VERS compatibility exception case ${invalidExceptionCase.name}`
+  );
+  assert(
+    invalidExceptionCase.expected.valid === false,
+    `invalid PURL/VERS compatibility exception case ${invalidExceptionCase.name} must fail`
+  );
+}
 assert(
   purlVersCompatibilityExceptions.exceptions.some(
     (exception) => exception.id === 'pub-dart' && exception.purlType === 'pub' && exception.versScheme === 'dart'
@@ -1718,8 +1765,10 @@ for (const externalDependencyCase of externalDependencyCases.cases) {
     const key = externalDependencySemanticKey(dependency);
     if (seenSemanticKeys.has(key)) {
       const previousConstraint = seenSemanticKeys.get(key);
+      const normalizedPreviousConstraint = normalizeVersConstraintForComparison(previousConstraint);
+      const normalizedCurrentConstraint = normalizeVersConstraintForComparison(dependency.constraint);
       const expectedCategory =
-        previousConstraint === dependency.constraint
+        normalizedPreviousConstraint === normalizedCurrentConstraint
           ? 'duplicate-external-dependency'
           : 'conflicting-external-dependency';
       assert(
@@ -1775,6 +1824,18 @@ for (const externalDependencyCase of externalDependencyCases.cases) {
     }
   }
 }
+assert(
+  externalDependencyCases.cases.some(
+    (externalDependencyCase) => externalDependencyCase.name === 'normalized-equivalent-vers-constraints-are-duplicate'
+  ),
+  'external dependency validation cases must include normalized-equivalent VERS duplicate coverage'
+);
+assert(
+  externalDependencyCases.cases.some(
+    (externalDependencyCase) => externalDependencyCase.name === 'normalized-distinct-vers-constraints-are-conflict'
+  ),
+  'external dependency validation cases must include normalized VERS conflict coverage'
+);
 for (const requiredFailure of [
   'invalid-external-dependency-purl',
   'external-dependency-volume-purl',
@@ -1949,10 +2010,30 @@ const externalDependencyPotentialExposureCases = readJson(
   'conformance/fixtures/external-dependency-potential-exposure-cases.json'
 );
 assertSpecVersion(externalDependencyPotentialExposureCases, 'external dependency potential exposure cases');
+const invalidPotentialExposureWarningContexts = readJson(
+  'conformance/fixtures/external-dependency-potential-exposure-warning-context-invalid.json'
+);
+assertSpecVersion(invalidPotentialExposureWarningContexts, 'invalid external dependency warning context cases');
+for (const invalidWarningContextCase of invalidPotentialExposureWarningContexts.cases) {
+  validateExpectedFailure(
+    'externalDependencyPotentialExposureWarningContext',
+    invalidWarningContextCase.context,
+    `invalid external dependency warning context case ${invalidWarningContextCase.name}`
+  );
+  assert(
+    invalidWarningContextCase.expected.valid === false,
+    `invalid external dependency warning context case ${invalidWarningContextCase.name} must fail`
+  );
+}
 for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
+  const advisoryMatches = exposureCase.advisoryMatches ?? [exposureCase.advisoryMatch];
   assert(
     externalDependencyDeclarationKeyPattern.test(exposureCase.declaration.declarationKey),
     `potential exposure case ${exposureCase.name} needs a declaration key`
+  );
+  assert(
+    advisoryMatches.every((advisoryMatch) => advisoryMatch !== undefined),
+    `potential exposure case ${exposureCase.name} needs advisory match input`
   );
   assert(
     ['intersects', 'does-not-intersect', 'indeterminate'].includes(exposureCase.expected.intersection),
@@ -1965,8 +2046,13 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
       `potential exposure case ${exposureCase.name} warning declaration key must match declaration`
     );
     assert(
-      warning.context.advisoryMatch.canonicalId === exposureCase.advisoryMatch.canonicalId,
-      `potential exposure case ${exposureCase.name} warning canonical advisory id must match input`
+      advisoryMatches.some(
+        (advisoryMatch) =>
+          warning.context.advisoryMatch.canonicalId === advisoryMatch.canonicalId &&
+          warning.context.advisoryMatch.affectedPurl === advisoryMatch.affectedPurl &&
+          warning.context.advisoryMatch.affectedRange === advisoryMatch.affectedRange
+      ),
+      `potential exposure case ${exposureCase.name} warning advisory match identity must match input`
     );
   }
   if (exposureCase.expected.intersection === 'intersects') {
@@ -1999,7 +2085,42 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
       `potential exposure case ${exposureCase.name} warningCount must match emitted warnings`
     );
   }
+  if (exposureCase.expected.dedupIdentities) {
+    const expectedIdentities = (exposureCase.expected.warnings ?? []).map((warning) => [
+      exposureCase.declaration.declarationKey,
+      warning.context.advisoryMatch.canonicalId,
+      warning.context.advisoryMatch.affectedPurl,
+      warning.context.advisoryMatch.affectedRange,
+    ]);
+    assert(
+      exposureCase.expected.dedupIdentities.length === expectedIdentities.length,
+      `potential exposure case ${exposureCase.name} dedupIdentities must match emitted warning identities`
+    );
+    assert(
+      new Set(exposureCase.expected.dedupIdentities.map((identity) => identity.join('\u0000'))).size ===
+        exposureCase.expected.dedupIdentities.length,
+      `potential exposure case ${exposureCase.name} dedupIdentities must be distinct`
+    );
+    for (const expectedIdentity of expectedIdentities) {
+      assert(
+        exposureCase.expected.dedupIdentities.some(
+          (dedupIdentity) => dedupIdentity.join('\u0000') === expectedIdentity.join('\u0000')
+        ),
+        `potential exposure case ${exposureCase.name} dedupIdentities must use declaration/advisory/range tuples`
+      );
+    }
+    assert(
+      exposureCase.expected.warningCount === (exposureCase.expected.warnings ?? []).length,
+      `potential exposure case ${exposureCase.name} warningCount must match emitted warnings`
+    );
+  }
 }
+assert(
+  externalDependencyPotentialExposureCases.cases.some(
+    (exposureCase) => exposureCase.name === 'same-advisory-distinct-affected-ranges-emit-distinct-warnings'
+  ),
+  'potential exposure cases must include same-advisory distinct affected range warning coverage'
+);
 for (const requiredIntersection of ['intersects', 'does-not-intersect', 'indeterminate']) {
   assert(
     externalDependencyPotentialExposureCases.cases.some(
@@ -2014,8 +2135,8 @@ validate('conformanceCoverage', conformanceCoverage, 'conformance coverage fixtu
 assertSpecVersion(conformanceCoverage, 'conformance coverage fixture');
 const coverageRequirementIds = new Set(conformanceCoverage.requirements.map((requirement) => requirement.id));
 for (const id of [
-  ...Array.from({ length: 16 }, (_, index) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
-  ...Array.from({ length: 16 }, (_, index) => `AV-CLI-${String(index + 1).padStart(3, '0')}`),
+  ...Array.from({ length: 18 }, (_, index) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
+  ...Array.from({ length: 18 }, (_, index) => `AV-CLI-${String(index + 1).padStart(3, '0')}`),
 ]) {
   assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
 }
