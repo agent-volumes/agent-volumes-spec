@@ -1,0 +1,37 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "name": "invalid-external-dependency-unknown-field",
+  "canonicalParsedData": {
+    "volume": {
+      "schema": 1,
+      "name": "research-agent-pack",
+      "version": "1.0.0",
+      "description": "Invalid external dependency unknown field fixture",
+      "license": "Apache-2.0",
+      "role": "plugin"
+    },
+    "publisher": {
+      "id": "example"
+    },
+    "components": [
+      {
+        "type": "tool",
+        "name": "arxiv-search",
+        "entrypoint": "./tools/arxiv-search.json"
+      }
+    ],
+    "external-dependencies": [
+      {
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime",
+        "resolvedVersion": "1.8.1"
+      }
+    ]
+  },
+  "expected": {
+    "valid": false,
+    "failureCategory": "unknown-external-dependency-field",
+    "path": "external-dependencies[0].resolvedVersion"
+  }
+}

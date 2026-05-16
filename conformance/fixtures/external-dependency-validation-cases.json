@@ -69,11 +69,102 @@
       }
     },
     {
+      "name": "volume-scoped-valid-reverse-dns-purpose-extension",
+      "declaredComponents": ["arxiv-search", "summarize-paper"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "org.example:codegen"
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "purpose": "org.example:codegen",
+            "scope": [],
+            "declarationKey": "av-extdep-v1:sha256:3ae45f3afb8ac91b5be56daa7052facd4d743986b23346dd535efe54677f65c1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi-component-scope-normalizes-semantic-key-order",
+      "declaredComponents": ["arxiv-search", "summarize-paper"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime",
+          "components": ["summarize-paper", "arxiv-search"]
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "purpose": "runtime",
+            "scope": ["arxiv-search", "summarize-paper"],
+            "declarationKey": "av-extdep-v1:sha256:cc34bbd5208a88dc37287e266a242c19b3bd3007e3741fef71e224811c71c924"
+          }
+        ]
+      }
+    },
+    {
+      "name": "distinct-purpose-and-component-scope-do-not-conflict",
+      "declaredComponents": ["arxiv-search", "summarize-paper"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "build"
+        },
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime",
+          "components": ["summarize-paper"]
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "semanticKeys": [
+          {
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "purpose": "build",
+            "scope": [],
+            "declarationKey": "av-extdep-v1:sha256:2bbc711a50e9fada3f3ed8c2ca783744df0173c73374c79d60bf379dc03543ee"
+          },
+          {
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "purpose": "runtime",
+            "scope": ["summarize-paper"],
+            "declarationKey": "av-extdep-v1:sha256:fa7b045c9d698299da529707ee845ffa0fdf4a97791eac66d1d142c65d06f956"
+          }
+        ]
+      }
+    },
+    {
       "name": "reject-versioned-external-purl",
       "declaredComponents": ["arxiv-search"],
       "external-dependencies": [
         {
           "purl": "pkg:npm/%40modelcontextprotocol/sdk@1.7.0",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "invalid-external-dependency-purl" }
+    },
+    {
+      "name": "reject-external-purl-subpath",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk#lib/client",
           "constraint": "vers:npm/>=1.7.0|<2.0.0",
           "purpose": "runtime"
         }

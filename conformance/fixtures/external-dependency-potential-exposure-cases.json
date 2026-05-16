@@ -116,6 +116,106 @@
       "expected": { "intersection": "indeterminate", "warnings": [] }
     },
     {
+      "name": "matching-prerelease-ranges-emit-potential-exposure-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=2.0.0-alpha.1|<2.0.0-alpha.5",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0004",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=2.0.0-alpha.2|<2.0.0-alpha.4"
+      },
+      "expected": {
+        "intersection": "intersects",
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=2.0.0-alpha.1|<2.0.0-alpha.5"
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0004",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=2.0.0-alpha.2|<2.0.0-alpha.4"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "non-overlapping-prerelease-ranges-do-not-emit-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=2.0.0-alpha.1|<2.0.0-alpha.5",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0005",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=2.0.0-beta.1|<2.0.0-beta.3"
+      },
+      "expected": { "intersection": "does-not-intersect", "warnings": [] }
+    },
+    {
+      "name": "non-matching-advisory-purl-does-not-emit-warning",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0006",
+        "affectedPurl": "pkg:npm/other-package",
+        "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+      },
+      "expected": { "intersection": "does-not-intersect", "warnings": [] }
+    },
+    {
+      "name": "component-scoped-warning-carries-component-context",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:fa7b045c9d698299da529707ee845ffa0fdf4a97791eac66d1d142c65d06f956",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime",
+        "components": ["summarize-paper"]
+      },
+      "advisoryMatch": {
+        "canonicalId": "GHSA-EXAMPLE-0007",
+        "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+      },
+      "expected": {
+        "intersection": "intersects",
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:fa7b045c9d698299da529707ee845ffa0fdf4a97791eac66d1d142c65d06f956",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=1.7.0|<2.0.0",
+                "components": ["summarize-paper"]
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0007",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "deduplicate-alias-equivalent-warning-identity",
       "declaration": {
         "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
