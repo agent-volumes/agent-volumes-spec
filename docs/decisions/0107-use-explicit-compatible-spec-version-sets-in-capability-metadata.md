@@ -92,8 +92,8 @@ Example:
 ```json
 {
   "schemaVersion": "1",
-  "specVersion": "0.1.0-draft.5",
-  "compatibleSpecVersions": ["0.1.0-draft.5"],
+  "specVersion": "0.1.0-draft.6",
+  "compatibleSpecVersions": ["0.1.0-draft.6"],
   "apiVersion": "v1",
   "scopePolicy": {
     "scopesSupported": true,

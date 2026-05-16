@@ -8,7 +8,7 @@ with schemas, OpenAPI, and conformance artifacts version-aligned to each draft.
 ## Current status
 
 Agent Volumes is a working-draft specification. No stable release has been
-published. The current draft line is `v0.1.0-draft.5`.
+published. The current draft line is `v0.1.0-draft.6`.
 
 ## Planning horizon
 

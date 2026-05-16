@@ -2,7 +2,7 @@
 
 # Agent Volumes Specification
 
-**Version:** 0.1.0-draft.5  
+**Version:** 0.1.0-draft.6  
 **Status:** Draft  
 **Date:** 12026-05-11 HE  
 **Authors:** Yunseo Kim
@@ -459,6 +459,37 @@ include that resolved version.
 
 A dependency graph MUST NOT contain multiple versions of the same volume. Conforming clients MUST reject irreconcilable version constraints rather than allowing version duplication.
 
+#### 3.6.4 External Dependency Declarations
+
+External dependency declarations describe package dependencies outside the Agent Volumes `pkg:volume` ecosystem. They are declaration-plane audit metadata for review, policy, BOM export, and potential-exposure diagnostics. They are not dependency resolver inputs, lockfile entries, resolved package inventory, provenance materials, installed package evidence, scanner findings, VEX status, or confirmed vulnerability evidence.
+
+External dependencies are authored as an array of tables:
+
+```toml
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+```
+
+Each `[[external-dependencies]]` record MUST contain `purl`, `constraint`, and `purpose`. The optional `components` array scopes the declaration to one or more declared component names. If `components` is absent, the declaration applies to the volume as a whole. If `components` is present, it MUST be non-empty, duplicate-free, and contain only component names declared in the same manifest.
+
+The `purl` field MUST be a valid Package URL for an external package ecosystem. It MUST NOT use the `volume` purl type. It MUST NOT include a Package URL `version` component or subpath. Qualifiers are allowed and remain part of the canonical external package identity; version or range intent belongs in `constraint`, not in the PURL `version` component.
+
+The `constraint` field MUST be a VERS expression. It is not the Agent Volumes SemVer range grammar from [Section 3.6.1](#361-volume-level-dependencies) and MUST NOT be interpreted as native package-manager range text unless it is also valid VERS.
+
+The `purpose` field identifies dependency use context. Core purpose values are `runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`, `documentation`, and `other`. Extension purpose values MUST use reverse-DNS namespace syntax followed by a colon and purpose token, such as `org.example:codegen`. Short ecosystem-looking prefixes such as `python:lint` are not valid extension namespaces.
+
+The external dependency semantic key is `(canonical purl, purpose, scope)`, where `scope` is the sorted component-name array or the volume scope. `constraint` is deliberately excluded from the semantic key. Two declarations with the same semantic key and equivalent normalized VERS constraints are duplicate declarations. Two declarations with the same semantic key and different normalized VERS constraints are conflicting declarations. Both conditions are semantic validation failures.
+
+Implementations that expose a stable declaration identifier MUST use the `av-extdep-v1:sha256:<lowercase-hex>` form. The `av-extdep-v1` digest input is the JCS canonical UTF-8 JSON object with exactly `purl`, `purpose`, and `scope`; volume scope is encoded as `{ "kind": "volume" }`, component scope as `{ "components": [...] }` with sorted component names. The declaration key input MUST NOT include `constraint`, warning payloads, advisory matches, resolved evidence, carrier wrapper fields, array positions, comments, or whitespace.
+
 ### 3.7 Runtime Compatibility
 
 ```toml
@@ -676,6 +707,17 @@ version = ">=3.17"
 
 [dependencies]
 "search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
 
 [component-dependencies]
 "literature-reviewer" = [
@@ -1285,6 +1327,10 @@ Advisory targeting remains **volume-level only** in v0.1.
 
 Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. `introduced = "0"` is the beginning-of-time sentinel; other event values use full SemVer strings. When `withdrawn` metadata is present, it MUST include an `at` timestamp. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
 
+External package advisory inputs are not Agent Volumes advisories. A client, bibliotheca, or validator MAY normalize external advisory feed data into local advisory-match inputs and compare them to `[[external-dependencies]]` declarations. A match whose PURL identities are compatible and whose VERS ranges intersect produces at most an `external-dependency-potential-exposure` warning. Such a warning means only that a declaration may overlap an affected external package range. It MUST NOT be represented as an Agent Volumes advisory target, scanner finding, resolved dependency, installed package, reachable vulnerability, VEX status, or policy outcome.
+
+Potential-exposure matching uses three outcomes: `intersects`, `does-not-intersect`, and `indeterminate`. Implementations MUST emit `external-dependency-potential-exposure` only for `intersects`. A `does-not-intersect` result emits no potential-exposure warning. An `indeterminate` result MAY be reported separately, but it is not itself a potential-exposure warning. Duplicate warning inputs are deduplicated by `(dependency.declarationKey, advisoryMatch.canonicalId, advisoryMatch.affectedPurl, advisoryMatch.affectedRange)`.
+
 Scanner findings are not advisory records by themselves in v0.1. A bibliotheca MAY create or update an advisory based on scanner information under local policy, but the portable contract is the advisory read/discovery model, not scanner-result interchange.
 
 The normative machine-readable advisory contract is published in [`schemas/advisory.schema.json`](schemas/advisory.schema.json), with a corresponding example fixture in [`conformance/fixtures/advisory.json`](conformance/fixtures/advisory.json).
@@ -1361,6 +1407,14 @@ The fetch response identifies a release by both package-facing metadata and immu
   "status": {
     "state": "available"
   },
+  "externalDependencies": [
+    {
+      "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+      "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+      "constraint": "vers:npm/>=1.7.0|<2.0.0",
+      "purpose": "runtime"
+    }
+  ],
   "dist": {
     "source": "cdn",
     "mediaType": "application/gzip",
@@ -1370,6 +1424,8 @@ The fetch response identifies a release by both package-facing metadata and immu
 ```
 
 The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The `purl` field is the mandatory canonical package-facing logical identity for that exact release and MUST equal the canonical purl derived from `name` and `version`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"` and `"purl": "pkg:volume/%40acme/research-agent-pack@<version>"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
+
+Exact release metadata is the portable API exposure boundary for manifest-derived external dependency declarations. When a release manifest contains valid `[[external-dependencies]]` records, exact release metadata MUST expose those declarations or an equivalent manifest-derived summary using declaration-only semantics. Exact release metadata MUST NOT add resolved external package versions, dependency digests, lockfile observations, scanner findings, installed-package evidence, provenance materials, VEX status, or confirmed vulnerability claims to external dependency declaration records.
 
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
@@ -1413,6 +1469,8 @@ Each version index entry represents one published version row. A row SHOULD incl
 - a pointer to the authoritative exact release metadata endpoint
 
 Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Among eligible stable candidates that satisfy the applicable constraints and are not excluded by lifecycle/status metadata, clients SHOULD prefer the candidate with the highest SemVer precedence. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
+
+Version index rows MUST NOT carry `[[external-dependencies]]` declarations as portable core fields. External dependency search, filtering, and registry-side potential-exposure diagnostics are bibliotheca-local discovery features in v0.1 and MUST NOT be treated as complete resolver inputs or portable evidence.
 
 Version index lifecycle states carry the following portable client behavior:
 
@@ -1890,18 +1948,19 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 
 ### A.1 Top-Level Tables
 
-| Table                      | Required          | Description                                                           |
-| -------------------------- | ----------------- | --------------------------------------------------------------------- |
-| `[volume]`                 | Yes               | Package metadata and identity.                                        |
-| `[publisher]`              | Yes               | Publisher identity.                                                   |
-| `[[components]]`           | Yes (except meta) | Exported components.                                                  |
-| `[dependencies]`           | No                | Volume-level dependencies.                                            |
-| `[component-dependencies]` | No                | Component-level dependencies.                                         |
-| `[[runtimes]]`             | No                | Runtime compatibility version expressions.                            |
-| `[[protocols]]`            | No                | Protocol compatibility version expressions.                           |
-| `[permissions]`            | No                | Required permissions.                                                 |
-| `[environment]`            | No                | Environment requirements.                                             |
-| `[provenance]`             | No                | Declarative source and build context metadata for release provenance. |
+| Table                       | Required          | Description                                                           |
+| --------------------------- | ----------------- | --------------------------------------------------------------------- |
+| `[volume]`                  | Yes               | Package metadata and identity.                                        |
+| `[publisher]`               | Yes               | Publisher identity.                                                   |
+| `[[components]]`            | Yes (except meta) | Exported components.                                                  |
+| `[dependencies]`            | No                | Volume-level dependencies.                                            |
+| `[[external-dependencies]]` | No                | Declaration-only external package dependency audit metadata.          |
+| `[component-dependencies]`  | No                | Component-level dependencies.                                         |
+| `[[runtimes]]`              | No                | Runtime compatibility version expressions.                            |
+| `[[protocols]]`             | No                | Protocol compatibility version expressions.                           |
+| `[permissions]`             | No                | Required permissions.                                                 |
+| `[environment]`             | No                | Environment requirements.                                             |
+| `[provenance]`              | No                | Declarative source and build context metadata for release provenance. |
 
 ### A.2 Canonical Parsed-Data Model Rules
 
@@ -1924,6 +1983,10 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 9. `permissions.filesystem`, `permissions.network`, and `permissions.browser` MUST be one of `deny`, `read`, `write`, or `read-write`.
 10. `permissions.shell` MUST be `deny` or `allow`.
 11. Component permissions MUST NOT exceed volume-level permissions.
+12. `external-dependencies[]` records MUST contain `purl`, `constraint`, and `purpose`; item objects MUST NOT contain unknown fields.
+13. External dependency `purl` values MUST be valid non-`volume` Package URLs without a PURL version component or subpath; qualifiers remain part of canonical identity.
+14. External dependency `constraint` values MUST be valid VERS expressions, and PURL type / VERS scheme mismatches are invalid unless listed in the pinned compatibility exceptions artifact.
+15. External dependency duplicate and conflict checks use `(canonical purl, purpose, scope)` and compare normalized VERS constraints outside JSON Schema.
 
 `[provenance]` metadata describes package-declared source and build context. It does not replace external trust artifacts such as provenance attestations, BOMs, or signatures associated with the published release subject.
 
@@ -1942,6 +2005,7 @@ The v0.1 core warning categories are:
 - `stale-trust-evidence-only`
 - `insufficient-current-trust-evidence`
 - `noncanonical-entrypoint`
+- `external-dependency-potential-exposure`
 
 Implementations MAY add extension warning categories, but baseline clients can rely on the core set.
 
@@ -1953,14 +2017,15 @@ Implementations MAY add extension warning categories, but baseline clients can r
 
 The v0.1 draft publishes or normatively references the following artifact families:
 
-| Family                  | Purpose                                               | Format family |
-| ----------------------- | ----------------------------------------------------- | ------------- |
-| Manifest schema         | Canonical parsed-data validation contract             | JSON Schema   |
-| Trust/advisory schemas  | Structured payload contracts                          | JSON Schema   |
-| Capability metadata     | Registry-wide capability discovery contract           | JSON Schema   |
-| HTTP API contract       | Endpoint topology and request/response contract       | OpenAPI       |
-| Conformance fixtures    | Executable interoperability vectors and test payloads | JSON          |
-| Reserved-name artifacts | Machine-readable reserved extension namespace list    | JSON          |
+| Family                  | Purpose                                                                                             | Format family      |
+| ----------------------- | --------------------------------------------------------------------------------------------------- | ------------------ |
+| Manifest schema         | Canonical parsed-data validation contract                                                           | JSON Schema        |
+| Trust/advisory schemas  | Structured payload contracts                                                                        | JSON Schema        |
+| Capability metadata     | Registry-wide capability discovery contract                                                         | JSON Schema        |
+| External dependencies   | Declaration validation, upstream baselines, compatibility exceptions, and warning context contracts | JSON Schema / JSON |
+| HTTP API contract       | Endpoint topology and request/response contract                                                     | OpenAPI            |
+| Conformance fixtures    | Executable interoperability vectors and test payloads                                               | JSON               |
+| Reserved-name artifacts | Machine-readable reserved extension namespace list                                                  | JSON               |
 
 ### B.2 Repository Locations
 
@@ -1969,10 +2034,12 @@ The draft companion artifacts are organized as follows:
 - `schemas/`
 - `openapi/`
 - `conformance/fixtures/`
+- `conformance/upstream-baselines.json`
+- `conformance/purl-vers-compatibility-exceptions.json`
 
 ### B.3 Lockstep Versioning
 
-Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.5` is part of the same draft release surface as this specification.
+Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.6` is part of the same draft release surface as this specification.
 
 ### B.4 Artifact Inventory
 
@@ -2004,6 +2071,10 @@ The draft companion artifact inventory includes at least:
 - [`schemas/manifest-parse-case.schema.json`](schemas/manifest-parse-case.schema.json)
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
 - [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
+- [`schemas/external-dependency-validation-case.schema.json`](schemas/external-dependency-validation-case.schema.json)
+- [`schemas/upstream-baseline.schema.json`](schemas/upstream-baseline.schema.json)
+- [`schemas/purl-vers-compatibility-exceptions.schema.json`](schemas/purl-vers-compatibility-exceptions.schema.json)
+- [`schemas/external-dependency-potential-exposure-warning-context.schema.json`](schemas/external-dependency-potential-exposure-warning-context.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
 - [`schemas/mapping-sample.schema.json`](schemas/mapping-sample.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
@@ -2038,6 +2109,7 @@ The v0.1 fixture set includes at least:
 - resolver accept/reject fixtures
 - purl canonicalization fixtures
 - component dependency semantic-validation fixtures
+- external dependency declaration validation fixtures, PURL/VERS compatibility exception fixtures, upstream baseline manifests, declaration-key vectors, and potential-exposure warning fixtures
 - semantic-validation fixtures for schema-adjacent rules that require validator logic
 - permission-escalation rejection fixtures
 - BOM/provenance mapping matrix and sample fixtures
@@ -2054,12 +2126,15 @@ At minimum, that mapping material MUST identify:
 - which mappings require controlled extensions
 - which mappings are intentionally lossy
 - how provenance-related fields map into the baseline provenance model
+- how declaration-only external dependency records map without becoming resolved package inventory, scanner evidence, or provenance materials
 
 The mapping matrix fixture MUST be serialized as a canonical JSON fixture object with `specVersion` and `entries` fields. `entries` MUST be ordered lexicographically by `agentVolumesField` for stable review diffs and deterministic conformance checks. Each entry MUST use stable target-family keys (`cyclonedx`, `spdx`, and `slsa`) when a mapping exists for that family, and each family mapping MUST classify its `kind` as exactly one of `native`, `extension`, or `lossy`.
 
 Mappings with `kind = "extension"` MUST name the controlled Agent Volumes extension namespace used for serialization. Mappings with `kind = "lossy"` MUST explain the lost semantics so implementations do not treat the target as round-trip-safe. Mapping targets MAY use family-native path notation, but extension property names and lossiness explanations MUST remain stable across fixture updates unless the prose release intentionally changes the interoperability contract.
 
 The mapping sample fixture MUST provide at least one concrete offline export example that binds a source Agent Volumes manifest and release subject to CycloneDX, SPDX, and SLSA output objects. The sample fixture is a deterministic conformance vector: native and controlled-extension mappings that are represented in the target output MUST round-trip to the source values, intentionally lossy mappings MUST remain identified as lossy by the matrix, and release-subject purl plus SHA-256 identity MUST be recoverable from the applicable CycloneDX, SPDX, and SLSA output fields.
+
+For external dependency declarations, CycloneDX mappings use declaration-only external components with required `agent-volumes:*` properties. SPDX mappings use the Agent Volumes SPDX extension namespace `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. SLSA provenance MUST omit declaration-only external dependencies from `subject`, `materials`, `resolvedDependencies`, `byproducts`, and `internalParameters`; an optional in-toto predicate with type `https://agentvolumes.org/predicates/external-dependency-declarations/v0.1` MAY carry declaration-only records separately.
 
 The v0.1 core does not require one narrower AI-specific BOM profile commitment beyond the generic CycloneDX baseline. Where AI-specific semantics need richer exchange treatment, the mapping material MAY identify profile-oriented or extension-oriented paths without implying that the core already guarantees a complete canonical AI-BOM crosswalk.
 
@@ -2107,4 +2182,4 @@ Fixture updates that materially change interoperability expectations are normati
 
 ---
 
-End of Agent Volumes Specification v0.1.0-draft.5
+End of Agent Volumes Specification v0.1.0-draft.6

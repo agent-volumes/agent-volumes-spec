@@ -130,7 +130,7 @@ This repository contains the **working draft** of the Agent Volumes specificatio
 
 | Document                                             | Version        | Status        |
 | ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.5 | Working Draft |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.6 | Working Draft |
 
 See [`CHANGELOG.md`](CHANGELOG.md) for curated release notes and historical
 draft snapshots.

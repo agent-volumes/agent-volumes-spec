@@ -1,6 +1,6 @@
 # Agent Volumes v0.1 Requirement Inventory
 
-This inventory supports readiness review for Agent Volumes `0.1.0-draft.5`.
+This inventory supports readiness review for Agent Volumes `0.1.0-draft.6`.
 It does not replace the prose specification. The prose remains the final
 normative authority, while this file explains how implementers are expected to read the
 role-scoped conformance IDs, fixture coverage, and deliberately local policy
@@ -23,8 +23,8 @@ The inventory has four categories:
 The stable role-scoped requirement IDs are the primary conformance anchors for
 v0.1:
 
-- `AV-BIB-001` through `AV-BIB-016` define conforming bibliotheca behavior.
-- `AV-CLI-001` through `AV-CLI-016` define conforming client behavior.
+- `AV-BIB-001` through `AV-BIB-018` define conforming bibliotheca behavior.
+- `AV-CLI-001` through `AV-CLI-018` define conforming client behavior.
 
 The machine-readable traceability artifact is
 [`fixtures/conformance-coverage.json`](fixtures/conformance-coverage.json). It
@@ -36,20 +36,21 @@ sentences in the prose.
 
 The v0.1 fixture corpus covers these readiness-critical areas:
 
-| Area                                       | Representative coverage                                                                                |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| Manifest parsing and semantic validation   | `manifest-parse-cases.json`, `semantic-validation-cases.json`, `volume.schema.json`                    |
-| Permission narrowing and escalation        | `permission-escalation.json`, `permission-sibling-escalation.json`                                     |
-| Package identity and component references  | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`                       |
-| Dependency resolution and lifecycle states | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` |
-| Archive and integrity behavior             | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                   |
-| Release metadata and upload                | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                   |
-| Trust discovery and upload                 | `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json`                             |
-| Trust artifact verification                | `trust-artifact-verification-cases.json`                                                               |
-| Advisory read/discovery payloads           | `advisory*.json`, `advisory-validation-cases.json`                                                     |
-| Capability metadata and bridge behavior    | `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json`    |
-| Problem details and warning behavior       | `problem-details-cases.json`, `problem-registry.json`, `warning.schema.json`                           |
-| Mapping exports                            | `mapping-matrix.json`, `mapping-sample.json`                                                           |
+| Area                                       | Representative coverage                                                                                                                                                |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest parsing and semantic validation   | `manifest-parse-cases.json`, `semantic-validation-cases.json`, `volume.schema.json`                                                                                    |
+| Permission narrowing and escalation        | `permission-escalation.json`, `permission-sibling-escalation.json`                                                                                                     |
+| Package identity and component references  | `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json`                                                                                       |
+| Dependency resolution and lifecycle states | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json`                                                                 |
+| External dependency declarations           | `external-dependency-validation-cases.json`, `external-dependency-potential-exposure-cases.json`, `upstream-baselines.json`, `purl-vers-compatibility-exceptions.json` |
+| Archive and integrity behavior             | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                                                                                   |
+| Release metadata and upload                | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                                                                                   |
+| Trust discovery and upload                 | `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json`                                                                                             |
+| Trust artifact verification                | `trust-artifact-verification-cases.json`                                                                                                                               |
+| Advisory read/discovery payloads           | `advisory*.json`, `advisory-validation-cases.json`                                                                                                                     |
+| Capability metadata and bridge behavior    | `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json`                                                                    |
+| Problem details and warning behavior       | `problem-details-cases.json`, `problem-registry.json`, `warning.schema.json`                                                                                           |
+| Mapping exports                            | `mapping-matrix.json`, `mapping-sample.json`                                                                                                                           |
 
 ## Prose-boundary behavior
 
@@ -71,6 +72,10 @@ OpenAPI/schema alignment, implementation tests, or local policy documentation:
   organization-specific acceptance policy remain local.
 - **Search ranking and catalog ordering**: pagination shape is portable, but
   relevance ranking and global ordering are bibliotheca-local.
+- **External dependency discovery surfaces**: exact release metadata exposes
+  declaration-only external dependency records, but external dependency search,
+  filtering, registry-side potential-exposure APIs, package-manager resolution,
+  and scanner/VEX interchange remain local unless a future profile defines them.
 
 These boundaries are not readiness gaps by themselves. They are explicit limits
 on what a v0.1 conformance claim can mean.
