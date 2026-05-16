@@ -260,6 +260,77 @@
           }
         ]
       }
+    },
+    {
+      "name": "same-advisory-distinct-affected-ranges-emit-distinct-warnings",
+      "declaration": {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime"
+      },
+      "advisoryMatches": [
+        {
+          "canonicalId": "GHSA-EXAMPLE-0008",
+          "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "affectedRange": "vers:npm/>=1.7.5|<1.7.9"
+        },
+        {
+          "canonicalId": "GHSA-EXAMPLE-0008",
+          "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+        }
+      ],
+      "expected": {
+        "intersection": "intersects",
+        "dedupIdentities": [
+          [
+            "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+            "GHSA-EXAMPLE-0008",
+            "pkg:npm/%40modelcontextprotocol/sdk",
+            "vers:npm/>=1.7.5|<1.7.9"
+          ],
+          [
+            "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+            "GHSA-EXAMPLE-0008",
+            "pkg:npm/%40modelcontextprotocol/sdk",
+            "vers:npm/>=1.8.0|<1.8.3"
+          ]
+        ],
+        "warningCount": 2,
+        "warnings": [
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=1.7.0|<2.0.0"
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0008",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=1.7.5|<1.7.9"
+              }
+            }
+          },
+          {
+            "category": "external-dependency-potential-exposure",
+            "context": {
+              "dependency": {
+                "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+                "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "constraint": "vers:npm/>=1.7.0|<2.0.0"
+              },
+              "advisoryMatch": {
+                "canonicalId": "GHSA-EXAMPLE-0008",
+                "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+                "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

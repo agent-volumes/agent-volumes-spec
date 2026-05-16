@@ -357,9 +357,34 @@
           "coverageType": "algorithmic"
         },
         {
+          "fixture": "manifest-invalid-external-dependency-unknown-field.json",
+          "area": "external-dependency",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "manifest-invalid-external-dependency-empty-components.json",
+          "area": "external-dependency",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "manifest-invalid-external-dependency-duplicate-components.json",
+          "area": "external-dependency",
+          "coverageType": "negative"
+        },
+        {
           "fixture": "purl-vers-compatibility-exceptions.json",
           "area": "external-dependency",
           "coverageType": "schema"
+        },
+        {
+          "fixture": "purl-vers-compatibility-exceptions-invalid.json",
+          "area": "external-dependency",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "upstream-baselines-invalid.json",
+          "area": "external-dependency",
+          "coverageType": "negative"
         },
         { "fixture": "upstream-baselines.json", "area": "external-dependency", "coverageType": "schema" }
       ]
@@ -373,6 +398,11 @@
           "fixture": "external-dependency-potential-exposure-cases.json",
           "area": "external-dependency",
           "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "external-dependency-potential-exposure-warning-context-invalid.json",
+          "area": "warning",
+          "coverageType": "negative"
         }
       ]
     }

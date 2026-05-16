@@ -1,0 +1,36 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "cases": [
+    {
+      "name": "reject-missing-rationale",
+      "payload": {
+        "specVersion": "0.1.0-draft.6",
+        "exceptions": [
+          {
+            "id": "pub-dart",
+            "purlType": "pub",
+            "versScheme": "dart",
+            "source": "Missing rationale fixture."
+          }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "missing-compatibility-exception-rationale" }
+    },
+    {
+      "name": "reject-invalid-purl-type",
+      "payload": {
+        "specVersion": "0.1.0-draft.6",
+        "exceptions": [
+          {
+            "id": "invalid-type",
+            "purlType": "Pub",
+            "versScheme": "dart",
+            "source": "Invalid purlType fixture.",
+            "rationale": "Uppercase PURL type tokens are not valid exception keys."
+          }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-compatibility-exception-purl-type" }
+    }
+  ]
+}

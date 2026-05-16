@@ -250,6 +250,23 @@
       "expected": { "valid": false, "failureCategory": "duplicate-external-dependency" }
     },
     {
+      "name": "normalized-equivalent-vers-constraints-are-duplicate",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0",
+          "purpose": "runtime"
+        },
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/<2.0.0|>=1.7.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "duplicate-external-dependency" }
+    },
+    {
       "name": "reject-conflicting-external-dependency",
       "declaredComponents": ["arxiv-search"],
       "external-dependencies": [
@@ -261,6 +278,23 @@
         {
           "purl": "pkg:npm/%40modelcontextprotocol/sdk",
           "constraint": "vers:npm/>=2.0.0|<3.0.0",
+          "purpose": "runtime"
+        }
+      ],
+      "expected": { "valid": false, "failureCategory": "conflicting-external-dependency" }
+    },
+    {
+      "name": "normalized-distinct-vers-constraints-are-conflict",
+      "declaredComponents": ["arxiv-search"],
+      "external-dependencies": [
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/<2.0.0|>=1.7.0",
+          "purpose": "runtime"
+        },
+        {
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/<2.0.0|>=1.8.0",
           "purpose": "runtime"
         }
       ],

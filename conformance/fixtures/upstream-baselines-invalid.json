@@ -1,0 +1,45 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "cases": [
+    {
+      "name": "reject-unpinned-upstream-revision",
+      "payload": {
+        "specVersion": "0.1.0-draft.6",
+        "baselines": [
+          {
+            "name": "package-url-spec",
+            "upstream": "https://github.com/package-url/purl-spec",
+            "revision": "main",
+            "purpose": "Invalid unpinned upstream reference fixture.",
+            "lastReviewed": "2026-05-16",
+            "artifacts": [{ "name": "purl-standard-specification", "path": "docs/standard/specification.md" }]
+          }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-upstream-revision" }
+    },
+    {
+      "name": "reject-artifact-with-both-path-and-url",
+      "payload": {
+        "specVersion": "0.1.0-draft.6",
+        "baselines": [
+          {
+            "name": "vers-spec",
+            "upstream": "https://github.com/package-url/vers-spec",
+            "revision": "ee7d8b44f22f1517c75f7229b57b79374c8d34e5",
+            "purpose": "Invalid upstream artifact locator fixture.",
+            "lastReviewed": "2026-05-16",
+            "artifacts": [
+              {
+                "name": "vers-standard-specification",
+                "path": "docs/standard/specification.md",
+                "url": "https://example.test/vers/specification.md"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "ambiguous-upstream-artifact-locator" }
+    }
+  ]
+}
