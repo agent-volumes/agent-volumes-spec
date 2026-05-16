@@ -15,13 +15,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@redocly/cli": "^2.30.4",
+    "@redocly/cli": "^2.30.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "git-cliff": "^2.13.1",
     "lefthook": "^2.1.6",
     "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
-    "yaml": "^2.8.1"
+    "yaml": "^2.9.0"
   }
 }
