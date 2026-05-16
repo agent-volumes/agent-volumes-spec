@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-metadata.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/release-metadata.schema.json",
   "title": "Agent Volumes Release Metadata",
   "type": "object",
   "additionalProperties": false,
@@ -44,6 +44,12 @@
     "purl": { "$ref": "#/$defs/releasePurl" },
     "integrity": { "$ref": "#/$defs/digest" },
     "status": { "$ref": "#/$defs/versionStatus" },
+    "externalDependencies": {
+      "type": "array",
+      "description": "Declaration-only external package dependency metadata derived from the release manifest. These records are not resolved dependency inventory, lockfile content, provenance material, scanner findings, or vulnerability evidence.",
+      "items": { "$ref": "#/$defs/externalDependencyDeclaration" },
+      "uniqueItems": true
+    },
     "dist": {
       "oneOf": [
         {
@@ -102,6 +108,45 @@
         },
         "reason": { "type": "string" }
       }
+    },
+    "externalDependencyDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarationKey", "purl", "constraint", "purpose"],
+      "properties": {
+        "declarationKey": { "$ref": "#/$defs/externalDependencyDeclarationKey" },
+        "purl": { "type": "string", "pattern": "^pkg:(?!volume(?:/|$))[A-Za-z][A-Za-z0-9.+-]*/[^@#]+(?:\\?[^#]+)?$" },
+        "constraint": { "type": "string", "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$" },
+        "purpose": {
+          "type": "string",
+          "anyOf": [
+            {
+              "enum": [
+                "runtime",
+                "build",
+                "development",
+                "test",
+                "optional",
+                "peer",
+                "source",
+                "documentation",
+                "other"
+              ]
+            },
+            { "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$" }
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "externalDependencyDeclarationKey": {
+      "type": "string",
+      "pattern": "^av-extdep-v1:sha256:[a-f0-9]{64}$"
     }
   }
 }

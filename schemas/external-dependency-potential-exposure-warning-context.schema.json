@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/external-dependency-potential-exposure-warning-context.schema.json",
+  "title": "Agent Volumes External Dependency Potential Exposure Warning Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dependency", "advisoryMatch"],
+  "properties": {
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarationKey", "purl", "constraint"],
+      "properties": {
+        "declarationKey": { "$ref": "#/$defs/declarationKey" },
+        "purl": { "type": "string", "pattern": "^pkg:" },
+        "constraint": { "type": "string", "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$" },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentName" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "advisoryMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonicalId", "affectedPurl", "affectedRange"],
+      "properties": {
+        "canonicalId": { "type": "string", "minLength": 1 },
+        "affectedPurl": { "type": "string", "pattern": "^pkg:" },
+        "affectedRange": { "type": "string", "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$" },
+        "sourceKind": { "type": "string", "minLength": 1 },
+        "sourceId": { "type": "string", "minLength": 1 },
+        "sourceIds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "volume": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "purl": { "type": "string", "pattern": "^pkg:volume/" },
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "purlType": { "type": "string", "pattern": "^[a-z][a-z0-9.+-]*$" },
+        "versScheme": { "type": "string", "pattern": "^[a-z][a-z0-9.-]*$" },
+        "exceptionId": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "declarationKey": { "type": "string", "pattern": "^av-extdep-v1:sha256:[a-f0-9]{64}$" },
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    }
+  }
+}

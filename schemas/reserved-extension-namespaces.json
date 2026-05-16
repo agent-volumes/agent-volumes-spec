@@ -1,5 +1,5 @@
 {
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/reserved-extension-namespaces.json",
-  "specVersion": "0.1.0-draft.5",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/reserved-extension-namespaces.json",
+  "specVersion": "0.1.0-draft.6",
   "reserved": ["agent-volumes", "core", "spec"]
 }

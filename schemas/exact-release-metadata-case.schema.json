@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/exact-release-metadata-case.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/exact-release-metadata-case.schema.json",
   "title": "Agent Volumes Exact Release Metadata Case",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "cases"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
     "cases": {
       "type": "array",
       "minItems": 1,
@@ -31,9 +31,9 @@
         "properties": {
           "name": { "type": "string", "minLength": 1 },
           "requestRoute": { "type": "string" },
-          "metadata": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/release-metadata.schema.json" },
+          "metadata": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/release-metadata.schema.json" },
           "invalidMetadata": { "type": "object" },
-          "problem": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/problem-details.schema.json" },
+          "problem": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/problem-details.schema.json" },
           "expected": {
             "type": "object",
             "additionalProperties": false,
@@ -45,7 +45,7 @@
               "failureCategory": { "type": "string" },
               "warnings": {
                 "type": "array",
-                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/warning.schema.json" }
+                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/warning.schema.json" }
               }
             }
           }

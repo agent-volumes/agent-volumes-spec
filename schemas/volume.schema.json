@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/volume.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/volume.schema.json",
   "title": "Agent Volumes Manifest Canonical Parsed Data Model",
   "type": "object",
   "additionalProperties": true,
@@ -88,6 +88,11 @@
       "type": "object",
       "propertyNames": { "$ref": "#/$defs/volumeName" },
       "additionalProperties": { "$ref": "#/$defs/semverRange" }
+    },
+    "external-dependencies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/externalDependency" },
+      "uniqueItems": true
     },
     "component-dependencies": {
       "type": "object",
@@ -240,6 +245,51 @@
           "type": "string",
           "enum": ["deny", "allow"],
           "default": "deny"
+        }
+      }
+    },
+    "externalDependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "constraint", "purpose"],
+      "properties": {
+        "purl": {
+          "type": "string",
+          "$comment": "Structural check only. Semantic validation parses Package URL, rejects pkg:volume, rejects version/subpath, and canonicalizes qualifiers.",
+          "pattern": "^pkg:(?!volume(?:/|$))[A-Za-z][A-Za-z0-9.+-]*/[^@#]+(?:\\?[^#]+)?$"
+        },
+        "constraint": {
+          "type": "string",
+          "$comment": "Structural check only. Semantic validation parses VERS and checks PURL type / VERS scheme compatibility.",
+          "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$"
+        },
+        "purpose": {
+          "type": "string",
+          "anyOf": [
+            {
+              "enum": [
+                "runtime",
+                "build",
+                "development",
+                "test",
+                "optional",
+                "peer",
+                "source",
+                "documentation",
+                "other"
+              ]
+            },
+            {
+              "$comment": "Reverse-DNS extension purpose, e.g. org.example:codegen.",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$"
+            }
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentName" },
+          "minItems": 1,
+          "uniqueItems": true
         }
       }
     },

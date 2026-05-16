@@ -1,28 +1,29 @@
 # Agent Volumes v0.1 Schema Artifacts
 
 This directory contains normative machine-readable companion artifacts for Agent
-Volumes `0.1.0-draft.5`. The prose specification remains the final normative
+Volumes `0.1.0-draft.6`. The prose specification remains the final normative
 authority, but these schemas define the structured contracts used by clients,
 bibliothecas, validators, exporters, and conformance runners.
 
 ## Primary schemas
 
-| Area                        | Schemas                                                                                                                       |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Manifest model              | `volume.schema.json`                                                                                                          |
-| Release metadata            | `release-metadata.schema.json`, `exact-release-metadata-case.schema.json`                                                     |
-| Version index               | `version-index.schema.json`, `version-index-row.schema.json`                                                                  |
-| Release upload              | `release-upload-intent.schema.json`, `release-upload-finalize.schema.json`                                                    |
-| Trust discovery             | `trust-summary.schema.json`, `trust-detail.schema.json`                                                                       |
-| Trust upload                | `trust-upload-intent.schema.json`, `trust-upload-finalize.schema.json`                                                        |
-| Trust verification fixtures | `trust-artifact-verification-case.schema.json`                                                                                |
-| Advisories                  | `advisory.schema.json`, `advisory-list.schema.json`, `advisory-validation-case.schema.json`                                   |
-| Capability metadata         | `capability-metadata.schema.json`, `bridge-metadata.schema.json`, `reserved-extension-namespaces.json`                        |
-| Errors and warnings         | `problem-details.schema.json`, `problem-registry.schema.json`, `warning.schema.json`                                          |
-| Conformance                 | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                          |
-| Manifest and semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json` |
-| BOM/provenance mapping      | `mapping-matrix.schema.json`, `mapping-sample.schema.json`                                                                    |
-| Search                      | `search-results.schema.json`                                                                                                  |
+| Area                        | Schemas                                                                                                                                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest model              | `volume.schema.json`                                                                                                                                                                                       |
+| Release metadata            | `release-metadata.schema.json`, `exact-release-metadata-case.schema.json`                                                                                                                                  |
+| Version index               | `version-index.schema.json`, `version-index-row.schema.json`                                                                                                                                               |
+| Release upload              | `release-upload-intent.schema.json`, `release-upload-finalize.schema.json`                                                                                                                                 |
+| Trust discovery             | `trust-summary.schema.json`, `trust-detail.schema.json`                                                                                                                                                    |
+| Trust upload                | `trust-upload-intent.schema.json`, `trust-upload-finalize.schema.json`                                                                                                                                     |
+| Trust verification fixtures | `trust-artifact-verification-case.schema.json`                                                                                                                                                             |
+| Advisories                  | `advisory.schema.json`, `advisory-list.schema.json`, `advisory-validation-case.schema.json`                                                                                                                |
+| Capability metadata         | `capability-metadata.schema.json`, `bridge-metadata.schema.json`, `reserved-extension-namespaces.json`                                                                                                     |
+| Errors and warnings         | `problem-details.schema.json`, `problem-registry.schema.json`, `warning.schema.json`                                                                                                                       |
+| Conformance                 | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                                                                                                       |
+| Manifest and semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json`                                                                              |
+| External dependencies       | `external-dependency-validation-case.schema.json`, `upstream-baseline.schema.json`, `purl-vers-compatibility-exceptions.schema.json`, `external-dependency-potential-exposure-warning-context.schema.json` |
+| BOM/provenance mapping      | `mapping-matrix.schema.json`, `mapping-sample.schema.json`                                                                                                                                                 |
+| Search                      | `search-results.schema.json`                                                                                                                                                                               |
 
 ## Versioning rules
 
@@ -54,5 +55,10 @@ When adding or changing a schema:
 2. Update or add conformance fixtures under `conformance/fixtures/`.
 3. Update `conformance/fixtures/conformance-coverage.json` when the schema
    affects a role-scoped `AV-*` requirement.
-4. Update this README if the artifact belongs to a new schema family.
-5. Re-run `npm run validate:artifacts` and `npm run lint:openapi` when relevant.
+4. For external dependency schema changes, keep `volume.schema.json`,
+   `release-metadata.schema.json`, `warning.schema.json`,
+   `conformance/upstream-baselines.json`,
+   `conformance/purl-vers-compatibility-exceptions.json`, and related fixtures
+   aligned.
+5. Update this README if the artifact belongs to a new schema family.
+6. Re-run `npm run validate:artifacts` and `npm run lint:openapi` when relevant.

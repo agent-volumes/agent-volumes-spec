@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/mapping-matrix.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/mapping-matrix.schema.json",
   "title": "Agent Volumes Mapping Matrix",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "entries"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
     "entries": {
       "type": "array",
       "minItems": 1,
@@ -41,7 +41,7 @@
       "properties": {
         "target": { "type": "string", "minLength": 1 },
         "kind": { "type": "string", "enum": ["native", "extension", "lossy"] },
-        "extensionNamespace": { "type": "string", "pattern": "^agent-volumes(?::[a-z0-9-]+)?$" },
+        "extensionNamespace": { "type": "string", "minLength": 1 },
         "lossiness": { "type": "string", "minLength": 1 },
         "serialization": { "type": "string", "minLength": 1 }
       }

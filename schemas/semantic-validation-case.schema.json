@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/semantic-validation-case.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/semantic-validation-case.schema.json",
   "title": "Agent Volumes Semantic Validation Case",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "cases"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.5" },
+    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
     "cases": {
       "type": "array",
       "minItems": 1,
@@ -27,7 +27,7 @@
               "failureCategory": { "type": "string" },
               "warnings": {
                 "type": "array",
-                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/warning.schema.json" }
+                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/warning.schema.json" }
               }
             }
           }

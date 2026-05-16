@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.5/schemas/warning.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/warning.schema.json",
   "title": "Agent Volumes Warning",
   "type": "object",
   "additionalProperties": true,
@@ -9,11 +9,15 @@
     "category": {
       "type": "string",
       "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
-      "description": "Core v0.1 categories are unknown-field, deprecated, migration, unknown-capability-field, unknown-capability-value, yanked-version, stale-trust-evidence-only, insufficient-current-trust-evidence, and noncanonical-entrypoint. Extension categories use the same slug-like syntax."
+      "description": "Core v0.1 categories are unknown-field, deprecated, migration, unknown-capability-field, unknown-capability-value, yanked-version, stale-trust-evidence-only, insufficient-current-trust-evidence, noncanonical-entrypoint, and external-dependency-potential-exposure. Extension categories use the same slug-like syntax."
     },
     "message": { "type": "string" },
     "path": { "type": "string" },
     "field": { "type": "string" },
-    "value": { "type": "string" }
+    "value": { "type": "string" },
+    "context": {
+      "type": "object",
+      "description": "Category-specific structured context. The base warning schema does not assign semantics to this object."
+    }
   }
 }
