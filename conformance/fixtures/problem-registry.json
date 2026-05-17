@@ -111,7 +111,7 @@
       "type": "https://agentvolumes.org/problems/payload-too-large",
       "status": 413,
       "title": "Payload too large",
-      "meaning": "The submitted payload exceeds the bibliotheca's accepted limit."
+      "meaning": "The submitted payload or declared upload size exceeds the bibliotheca's accepted limit."
     },
     {
       "slug": "unsupported-media-type",
