@@ -5,8 +5,8 @@
       "name": "compatible-spec-versions-must-be-array",
       "canonicalParsedData": {
         "schemaVersion": "1",
-        "specVersion": "0.1.0-draft.6",
-        "compatibleSpecVersions": ">=0.1.0-draft.6 <0.2.0",
+        "specVersion": "0.1.0-rc.1",
+        "compatibleSpecVersions": ">=0.1.0-rc.1 <0.2.0",
         "apiVersion": "v1",
         "scopePolicy": {
           "scopesSupported": true,
@@ -35,8 +35,8 @@
       "name": "compatible-spec-version-items-must-be-exact-versions",
       "canonicalParsedData": {
         "schemaVersion": "1",
-        "specVersion": "0.1.0-draft.6",
-        "compatibleSpecVersions": [">=0.1.0-draft.6 <0.2.0"],
+        "specVersion": "0.1.0-rc.1",
+        "compatibleSpecVersions": [">=0.1.0-rc.1 <0.2.0"],
         "apiVersion": "v1",
         "scopePolicy": {
           "scopesSupported": true,
@@ -65,8 +65,8 @@
       "name": "compatible-spec-versions-must-be-unique",
       "canonicalParsedData": {
         "schemaVersion": "1",
-        "specVersion": "0.1.0-draft.6",
-        "compatibleSpecVersions": ["0.1.0-draft.6", "0.1.0-draft.6"],
+        "specVersion": "0.1.0-rc.1",
+        "compatibleSpecVersions": ["0.1.0-rc.1", "0.1.0-rc.1"],
         "apiVersion": "v1",
         "scopePolicy": {
           "scopesSupported": true,
@@ -95,8 +95,8 @@
       "name": "api-version-must-be-major-family-token",
       "canonicalParsedData": {
         "schemaVersion": "1",
-        "specVersion": "0.1.0-draft.6",
-        "compatibleSpecVersions": ["0.1.0-draft.6"],
+        "specVersion": "0.1.0-rc.1",
+        "compatibleSpecVersions": ["0.1.0-rc.1"],
         "apiVersion": "1",
         "scopePolicy": {
           "scopesSupported": true,

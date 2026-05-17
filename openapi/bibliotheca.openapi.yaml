@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: Agent Volumes Bibliotheca API
-  version: 0.1.0-draft.6
+  version: 0.1.0-rc.1
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 security: []
 paths:

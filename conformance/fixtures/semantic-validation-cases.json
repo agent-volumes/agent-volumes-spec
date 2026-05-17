@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.6",
+  "specVersion": "0.1.0-rc.1",
   "cases": [
     {
       "name": "release-file-selection-rejects-non-regular-entry",

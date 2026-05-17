@@ -92,7 +92,7 @@ const validateExpectedFailure = (name, value, label) => {
 };
 
 const assertSpecVersion = (fixture, label) => {
-  assert(fixture.specVersion === '0.1.0-draft.6', `${label} must declare specVersion 0.1.0-draft.6`);
+  assert(fixture.specVersion === '0.1.0-rc.1', `${label} must declare specVersion 0.1.0-rc.1`);
 };
 
 const volumeNamePattern =
@@ -434,8 +434,8 @@ const assertNoUnvalidatedConformanceFixtures = () => {
 const assertReservedExtensionNamespaceDrift = () => {
   assert(
     reservedExtensionNamespaces.$id ===
-      'https://agentvolumes.org/spec/0.1.0-draft.6/schemas/reserved-extension-namespaces.json',
-    'reserved extension namespace artifact must use the draft.6 schema ID'
+      'https://agentvolumes.org/spec/0.1.0-rc.1/schemas/reserved-extension-namespaces.json',
+    'reserved extension namespace artifact must use the rc.1 schema ID'
   );
   assertSpecVersion(reservedExtensionNamespaces, 'reserved extension namespace artifact');
   assert(
@@ -863,16 +863,16 @@ validate(
 );
 const capabilityMetadata = readJson('conformance/fixtures/capability-metadata.json');
 assert(
-  capabilityMetadata.specVersion === '0.1.0-draft.6',
-  'capability metadata fixture must declare specVersion 0.1.0-draft.6'
+  capabilityMetadata.specVersion === '0.1.0-rc.1',
+  'capability metadata fixture must declare specVersion 0.1.0-rc.1'
 );
 assert(capabilityMetadata.schemaVersion === '1', 'capability metadata fixture must declare schemaVersion 1');
 assert(capabilityMetadata.apiVersion === 'v1', 'capability metadata fixture must declare apiVersion v1');
 assert(
   Array.isArray(capabilityMetadata.compatibleSpecVersions) &&
-    capabilityMetadata.compatibleSpecVersions.includes('0.1.0-draft.6') &&
+    capabilityMetadata.compatibleSpecVersions.includes('0.1.0-rc.1') &&
     new Set(capabilityMetadata.compatibleSpecVersions).size === capabilityMetadata.compatibleSpecVersions.length,
-  'capability metadata fixture must declare unique exact compatibleSpecVersions including 0.1.0-draft.6'
+  'capability metadata fixture must declare unique exact compatibleSpecVersions including 0.1.0-rc.1'
 );
 for (const apiField of ['trustMetadata', 'versionIndex', 'releaseUploads', 'trustUploads', 'advisories']) {
   assert(
@@ -896,8 +896,8 @@ for (const [surface, enabled] of Object.entries({
 }
 const capabilityUnknownToleranceFixture = readJson('conformance/fixtures/capability-metadata-unknown-tolerance.json');
 assert(
-  capabilityUnknownToleranceFixture.canonicalParsedData.specVersion === '0.1.0-draft.6',
-  'capability metadata unknown tolerance fixture must declare specVersion 0.1.0-draft.6'
+  capabilityUnknownToleranceFixture.canonicalParsedData.specVersion === '0.1.0-rc.1',
+  'capability metadata unknown tolerance fixture must declare specVersion 0.1.0-rc.1'
 );
 validate(
   'capabilityMetadata',

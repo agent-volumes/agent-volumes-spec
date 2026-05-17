@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/conformance-report.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/conformance-report.schema.json",
   "title": "Agent Volumes Conformance Report",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "runner", "implementation", "summary", "results"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
     "runner": {
       "type": "object",
       "additionalProperties": false,
@@ -86,7 +86,7 @@
           "message": { "type": "string" },
           "warnings": {
             "type": "array",
-            "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/warning.schema.json" }
+            "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json" }
           }
         }
       }

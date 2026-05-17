@@ -1,7 +1,7 @@
 # Agent Volumes v0.1 Conformance Fixtures
 
 This directory contains the normative offline conformance fixture set for
-Agent Volumes `0.1.0-draft.6`. The fixture suite implements ADR-0020 and
+Agent Volumes `0.1.0-rc.1`. The fixture suite implements ADR-0020 and
 ADR-0104: it is artifact-first, deterministic, and does not require a deployed
 bibliotheca, a reference client, network access, live Sigstore/Rekor services,
 or one universal trust-root policy.

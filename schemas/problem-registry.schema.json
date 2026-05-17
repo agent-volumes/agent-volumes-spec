@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/problem-registry.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/problem-registry.schema.json",
   "title": "Agent Volumes Problem Type Registry",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "problems"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
     "problems": {
       "type": "array",
       "minItems": 1,

@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/mapping-sample.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/mapping-sample.schema.json",
   "title": "Agent Volumes Mapping Sample",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "sourceManifest", "releaseSubject", "exports"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
-    "sourceManifest": { "$ref": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/volume.schema.json" },
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
+    "sourceManifest": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/volume.schema.json" },
     "releaseSubject": {
       "type": "object",
       "additionalProperties": false,

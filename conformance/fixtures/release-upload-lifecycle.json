@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.6",
+  "specVersion": "0.1.0-rc.1",
   "description": "Hosted release upload intent and finalize lifecycle conformance cases.",
   "fixtures": [
     {

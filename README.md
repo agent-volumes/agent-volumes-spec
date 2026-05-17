@@ -126,14 +126,14 @@ See [§8 Trust and Supply Chain Model](agent-volumes-spec.md#8-trust-and-supply-
 
 ## Status
 
-This repository contains the **working draft** of the Agent Volumes specification. No stable version has been released.
+This repository contains the **release candidate** of the Agent Volumes specification. No stable version has been released.
 
-| Document                                             | Version        | Status        |
-| ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.6 | Working Draft |
+| Document                                             | Version     | Status            |
+| ---------------------------------------------------- | ----------- | ----------------- |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-rc.1 | Release Candidate |
 
 See [`CHANGELOG.md`](CHANGELOG.md) for curated release notes and historical
-draft snapshots.
+release snapshots.
 
 ### Roadmap
 

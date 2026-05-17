@@ -1,7 +1,7 @@
 # Agent Volumes v0.1 Schema Artifacts
 
 This directory contains normative machine-readable companion artifacts for Agent
-Volumes `0.1.0-draft.6`. The prose specification remains the final normative
+Volumes `0.1.0-rc.1`. The prose specification remains the final normative
 authority, but these schemas define the structured contracts used by clients,
 bibliothecas, validators, exporters, and conformance runners.
 

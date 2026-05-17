@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/external-dependency-potential-exposure-warning-context.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/external-dependency-potential-exposure-warning-context.schema.json",
   "title": "Agent Volumes External Dependency Potential Exposure Warning Context",
   "type": "object",
   "additionalProperties": false,

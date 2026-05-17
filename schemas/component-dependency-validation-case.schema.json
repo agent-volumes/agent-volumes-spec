@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/component-dependency-validation-case.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/component-dependency-validation-case.schema.json",
   "title": "Agent Volumes Component Dependency Validation Case",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "cases"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
     "cases": {
       "type": "array",
       "minItems": 1,

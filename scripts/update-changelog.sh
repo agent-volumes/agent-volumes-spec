@@ -27,14 +27,14 @@ maintainers must review and curate entries before a release tag is created.
 
 Options:
   --tag <version>      Render unreleased changes as a specific version heading
-                       (example: v0.1.0-draft.6)
+                       (example: v0.1.0-rc.1)
   --check              Fail if generated output differs from CHANGELOG.md
   --print              Print generated output instead of writing CHANGELOG.md
   -h, --help           Show this help
 
 Examples:
   scripts/update-changelog.sh
-  scripts/update-changelog.sh --tag v0.1.0-draft.6
+  scripts/update-changelog.sh --tag v0.1.0-rc.1
   scripts/update-changelog.sh --check
 USAGE
 }

@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.6",
+  "specVersion": "0.1.0-rc.1",
   "notes": [
     "Prerelease-selection behavior is intentionally client-local in the v0.1 core and is therefore not fixed by these normative resolver cases.",
     "Meta packages remain lightweight dependency bundles in the v0.1 core and do not introduce closure-level bundle semantics beyond ordinary dependency resolution behavior.",

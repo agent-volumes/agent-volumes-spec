@@ -1,6 +1,6 @@
 # Bibliotheca OpenAPI / Prose Drift Audit
 
-This checklist is for Agent Volumes `0.1.0-draft.6` release-freeze review. It
+This checklist is for Agent Volumes `0.1.0-rc.1` release-freeze review. It
 keeps `openapi/bibliotheca.openapi.yaml` aligned with the normative Registry API
 prose in `agent-volumes-spec.md` §9 and the conformance requirements in §11.
 
@@ -49,7 +49,7 @@ These invariants apply before an endpoint-family row can be treated as reviewed:
   and token issuance, revocation, ownership proof, and authorization policy stay
   registry-local.
 - **Version lockstep**: OpenAPI `info.version`, `/api/v1` route family,
-  `agent-volumes-spec.md` draft version, schema `$id` draft versions, capability
+  `agent-volumes-spec.md` release version, schema `$id` release versions, capability
   `schemaVersion`, `specVersion`, `compatibleSpecVersions`, and `apiVersion`
   remain mutually consistent.
 - **Fixture parity**: deterministic behavior is covered by a named fixture or a
@@ -186,7 +186,7 @@ Remaining drift: none | <explicit checked exception>
 
 ## Release-freeze signoff
 
-Before freezing a draft release, record the following checks in the release
+Before freezing a release candidate, record the following checks in the release
 evidence issue and mirror the compact status here. Release notes may link to the
 same issue rather than duplicating the full evidence ledger.
 

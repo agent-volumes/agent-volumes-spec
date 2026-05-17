@@ -2,9 +2,9 @@
 
 # Agent Volumes Specification
 
-**Version:** 0.1.0-draft.6  
-**Status:** Draft  
-**Date:** 12026-05-11 HE  
+**Version:** 0.1.0-rc.1  
+**Status:** Release Candidate  
+**Date:** 12026-05-18 HE  
 **Authors:** Yunseo Kim
 
 ---
@@ -2021,7 +2021,7 @@ Implementations MAY add extension warning categories, but baseline clients can r
 
 ### B.1 Artifact Families
 
-The v0.1 draft publishes or normatively references the following artifact families:
+The v0.1 release candidate publishes or normatively references the following artifact families:
 
 | Family                  | Purpose                                                                                             | Format family      |
 | ----------------------- | --------------------------------------------------------------------------------------------------- | ------------------ |
@@ -2035,7 +2035,7 @@ The v0.1 draft publishes or normatively references the following artifact famili
 
 ### B.2 Repository Locations
 
-The draft companion artifacts are organized as follows:
+The release-candidate companion artifacts are organized as follows:
 
 - `schemas/`
 - `openapi/`
@@ -2045,11 +2045,11 @@ The draft companion artifacts are organized as follows:
 
 ### B.3 Lockstep Versioning
 
-Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.6` is part of the same draft release surface as this specification.
+Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-rc.1` is part of the same release-candidate surface as this specification.
 
 ### B.4 Artifact Inventory
 
-The draft companion artifact inventory includes at least:
+The release-candidate companion artifact inventory includes at least:
 
 - [`schemas/volume.schema.json`](schemas/volume.schema.json)
 - [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json)
@@ -2188,4 +2188,4 @@ Fixture updates that materially change interoperability expectations are normati
 
 ---
 
-End of Agent Volumes Specification v0.1.0-draft.6
+End of Agent Volumes Specification v0.1.0-rc.1

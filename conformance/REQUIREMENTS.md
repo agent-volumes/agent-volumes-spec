@@ -1,6 +1,6 @@
 # Agent Volumes v0.1 Requirement Inventory
 
-This inventory supports readiness review for Agent Volumes `0.1.0-draft.6`.
+This inventory supports readiness review for Agent Volumes `0.1.0-rc.1`.
 It does not replace the prose specification. The prose remains the final
 normative authority, while this file explains how implementers are expected to read the
 role-scoped conformance IDs, fixture coverage, and deliberately local policy

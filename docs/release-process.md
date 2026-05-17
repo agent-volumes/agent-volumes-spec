@@ -8,7 +8,7 @@ reviewed, tagged, and announced.
 | Release type      | Meaning                                                              |
 | ----------------- | -------------------------------------------------------------------- |
 | Working draft     | Active development state on `main`; breaking changes are expected.   |
-| Draft release     | Versioned snapshot such as `v0.1.0-draft.6` for implementer review.  |
+| Draft release     | Versioned snapshot such as `v0.1.0-draft.5` for implementer review.  |
 | Release candidate | Feature-complete candidate for a stable line, such as `v1.0.0-rc.1`. |
 | Stable release    | Compatibility target for independent implementations.                |
 | Patch release     | Backwards-compatible correction to a stable line.                    |
@@ -18,7 +18,7 @@ reviewed, tagged, and announced.
 Agent Volumes uses SemVer-style identifiers for published specification
 versions. Draft and release-candidate identifiers use SemVer prerelease syntax.
 
-Release tags use the version string, for example `v0.1.0-draft.6` or `v1.0.0`.
+Release tags use the version string, for example `v0.1.0-rc.1` or `v1.0.0`.
 Important release tags are expected to be signed once signed-release operations
 are available for the project.
 

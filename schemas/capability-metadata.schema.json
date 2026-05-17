@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/capability-metadata.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/capability-metadata.schema.json",
   "title": "Agent Volumes Bibliotheca Capability Metadata",
   "$comment": "Unknown peer fields are tolerated for forward compatibility, but portable non-core capability fields are canonically placed under extensions.",
   "type": "object",

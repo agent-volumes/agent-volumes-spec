@@ -1,10 +1,10 @@
 # Agent Volumes v0.1 Implementers Guide
 
-This guide maps the v0.1.0-draft.6 specification artifacts to concrete work for experimental clients and bibliothecas. The prose specification remains the final normative authority; this document is a practical entry point for implementers.
+This guide maps the v0.1.0-rc.1 specification artifacts to concrete work for experimental clients and bibliothecas. The prose specification remains the final normative authority; this document is a practical entry point for implementers.
 
 ## Status and scope
 
-Agent Volumes v0.1.0-draft.6 is suitable for coordinated experimental implementations. It is not yet a stable certification target, and the repository does not define a product certification program.
+Agent Volumes v0.1.0-rc.1 is suitable for coordinated experimental implementations. It is not yet a stable certification target, and the repository does not define a product certification program.
 
 Use this guide to build:
 

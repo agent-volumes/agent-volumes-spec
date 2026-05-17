@@ -2,8 +2,8 @@
   "description": "Capability metadata with unknown fields and values that baseline clients must ignore rather than fail on.",
   "canonicalParsedData": {
     "schemaVersion": "1",
-    "specVersion": "0.1.0-draft.6",
-    "compatibleSpecVersions": ["0.1.0-draft.6"],
+    "specVersion": "0.1.0-rc.1",
+    "compatibleSpecVersions": ["0.1.0-rc.1"],
     "apiVersion": "v1",
     "scopePolicy": {
       "scopesSupported": true,

@@ -37,7 +37,7 @@ These documents contain critical context that cannot be inferred from this repos
 
 ```text
 agent-volumes-spec/
-├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-draft.6)
+├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-rc.1)
 ├── CHANGELOG.md               # Curated Keep a Changelog release history
 ├── IMPLEMENTERS.md            # Implementation guide for prototype builders
 ├── schemas/                   # Normative JSON Schema artifacts

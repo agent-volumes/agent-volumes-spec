@@ -1,10 +1,10 @@
 {
-  "specVersion": "0.1.0-draft.6",
+  "specVersion": "0.1.0-rc.1",
   "cases": [
     {
       "name": "reject-unpinned-upstream-revision",
       "payload": {
-        "specVersion": "0.1.0-draft.6",
+        "specVersion": "0.1.0-rc.1",
         "baselines": [
           {
             "name": "package-url-spec",
@@ -21,7 +21,7 @@
     {
       "name": "reject-artifact-with-both-path-and-url",
       "payload": {
-        "specVersion": "0.1.0-draft.6",
+        "specVersion": "0.1.0-rc.1",
         "baselines": [
           {
             "name": "vers-spec",

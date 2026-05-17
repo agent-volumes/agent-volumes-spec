@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/release-upload-intent.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/release-upload-intent.schema.json",
   "title": "Agent Volumes Release Upload Intent",
   "description": "Created for a route-derived target package identity and request-body target version. The target name in this response echoes the reconciled release identity.",
   "type": "object",

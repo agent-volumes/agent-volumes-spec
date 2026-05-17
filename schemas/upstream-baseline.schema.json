@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentvolumes.org/spec/0.1.0-draft.6/schemas/upstream-baseline.schema.json",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/upstream-baseline.schema.json",
   "title": "Agent Volumes Upstream Validation Baselines",
   "type": "object",
   "additionalProperties": false,
   "required": ["specVersion", "baselines"],
   "properties": {
-    "specVersion": { "type": "string", "const": "0.1.0-draft.6" },
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
     "baselines": {
       "type": "array",
       "minItems": 1,
