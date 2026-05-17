@@ -8,9 +8,22 @@ import YAML from 'yaml';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
+const normalizeRelativePath = (relativePath) => relativePath.split(path.sep).join('/');
+
+const readJsonPaths = new Set();
+
+const readJsonFile = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
+
+const readJson = (relativePath) => {
+  readJsonPaths.add(normalizeRelativePath(relativePath));
+  return readJsonFile(relativePath);
+};
 
 const readText = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
+
+const pathExists = (relativePath) => fs.existsSync(path.join(root, relativePath));
+
+const isDirectory = (relativePath) => fs.statSync(path.join(root, relativePath)).isDirectory();
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -57,6 +70,8 @@ const schemas = {
     'schemas/external-dependency-potential-exposure-warning-context.schema.json'
   ),
 };
+
+const reservedExtensionNamespaces = readJson('schemas/reserved-extension-namespaces.json');
 
 for (const schema of Object.values(schemas)) {
   ajv.addSchema(schema);
@@ -329,6 +344,140 @@ const stableJsonStringify = (value) => {
 
 const assertDeepEqual = (actual, expected, label) => {
   assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
+};
+
+const assertUniqueStrings = (values, label) => {
+  assert(new Set(values).size === values.length, `${label} must be unique`);
+};
+
+const caseNamesFromFixture = (fixture) => {
+  const names = [];
+  for (const collectionName of ['cases', 'fixtures']) {
+    const collection = fixture[collectionName];
+    if (!Array.isArray(collection)) {
+      continue;
+    }
+    for (const item of collection) {
+      if (typeof item.name === 'string') {
+        names.push(item.name);
+      }
+    }
+  }
+  return names;
+};
+
+const resolveCoverageReference = (fixtureName) => {
+  const candidates = [`conformance/fixtures/${fixtureName}`, `conformance/${fixtureName}`, `openapi/${fixtureName}`];
+  if (fixtureName.startsWith('schemas/')) {
+    candidates.push(fixtureName);
+  }
+  return candidates.find((candidate) => pathExists(candidate));
+};
+
+const assertConformanceCoverageReferences = (conformanceCoverage) => {
+  const requirementIds = conformanceCoverage.requirements.map((requirement) => requirement.id);
+  assertUniqueStrings(requirementIds, 'conformance coverage requirement IDs');
+  const seenCoverageTuples = new Set();
+
+  for (const requirement of conformanceCoverage.requirements) {
+    for (const coverage of requirement.coverage) {
+      const tuple = `${requirement.id}:${coverage.fixture}:${coverage.case ?? ''}:${coverage.area}:${
+        coverage.coverageType ?? ''
+      }`;
+      assert(!seenCoverageTuples.has(tuple), `conformance coverage duplicate tuple ${tuple}`);
+      seenCoverageTuples.add(tuple);
+
+      const resolvedPath = resolveCoverageReference(coverage.fixture);
+      assert(resolvedPath, `conformance coverage ${requirement.id} references missing fixture ${coverage.fixture}`);
+      if (isDirectory(resolvedPath)) {
+        assert(
+          !coverage.case,
+          `conformance coverage ${requirement.id} cannot name a case for directory ${coverage.fixture}`
+        );
+        continue;
+      }
+      if (!coverage.case) {
+        continue;
+      }
+
+      assert(
+        resolvedPath.startsWith('conformance/fixtures/') && resolvedPath.endsWith('.json'),
+        `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`
+      );
+      const fixture = readJsonFile(resolvedPath);
+      const caseNames = caseNamesFromFixture(fixture);
+      assert(
+        caseNames.length > 0,
+        `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`
+      );
+      assertUniqueStrings(caseNames, `${coverage.fixture} case names`);
+      assert(
+        caseNames.includes(coverage.case),
+        `conformance coverage ${requirement.id} references missing case ${coverage.case} in ${coverage.fixture}`
+      );
+    }
+  }
+};
+
+const assertNoUnvalidatedConformanceFixtures = () => {
+  const fixtureDirectory = path.join(root, 'conformance/fixtures');
+  const fixturePaths = fs
+    .readdirSync(fixtureDirectory)
+    .filter((entry) => entry.endsWith('.json'))
+    .map((entry) => `conformance/fixtures/${entry}`)
+    .sort();
+  for (const fixturePath of fixturePaths) {
+    assert(readJsonPaths.has(fixturePath), `${fixturePath} is not connected to scripts/validate-artifacts.mjs`);
+  }
+};
+
+const assertReservedExtensionNamespaceDrift = () => {
+  assert(
+    reservedExtensionNamespaces.$id ===
+      'https://agentvolumes.org/spec/0.1.0-draft.6/schemas/reserved-extension-namespaces.json',
+    'reserved extension namespace artifact must use the draft.6 schema ID'
+  );
+  assertSpecVersion(reservedExtensionNamespaces, 'reserved extension namespace artifact');
+  assert(
+    Array.isArray(reservedExtensionNamespaces.reserved) && reservedExtensionNamespaces.reserved.length > 0,
+    'reserved extension namespace artifact must list reserved namespaces'
+  );
+  assertUniqueStrings(reservedExtensionNamespaces.reserved, 'reserved extension namespaces');
+
+  const extensionPropertyNames = schemas.capabilityMetadata.properties.extensions.propertyNames;
+  const namespacePattern = extensionPropertyNames.allOf.find(
+    (subschema) => typeof subschema.pattern === 'string'
+  )?.pattern;
+  assert(namespacePattern, 'capability metadata schema must define an extension namespace pattern');
+  const validateNamespaceShape = new RegExp(namespacePattern);
+  for (const namespace of reservedExtensionNamespaces.reserved) {
+    assert(
+      validateNamespaceShape.test(namespace),
+      `reserved extension namespace ${namespace} must match schema pattern`
+    );
+  }
+
+  const reservedEnum = extensionPropertyNames.allOf.find((subschema) => Array.isArray(subschema.not?.enum))?.not.enum;
+  assert(reservedEnum, 'capability metadata schema must deny reserved extension namespaces');
+  assert(
+    stableJsonStringify([...reservedEnum].sort()) ===
+      stableJsonStringify([...reservedExtensionNamespaces.reserved].sort()),
+    'capability metadata schema reserved namespace enum must match reserved-extension-namespaces.json'
+  );
+
+  const reservedFixture = readJsonFile('conformance/fixtures/capability-metadata-reserved-extension-rejection.json');
+  const reservedFixtureNamespaces = Object.keys(reservedFixture.canonicalParsedData.extensions ?? {});
+  assert(
+    reservedFixtureNamespaces.some((namespace) => reservedExtensionNamespaces.reserved.includes(namespace)),
+    'capability metadata reserved extension fixture must exercise a reserved namespace from reserved-extension-namespaces.json'
+  );
+  for (const namespace of reservedExtensionNamespaces.reserved) {
+    const candidate = {
+      ...reservedFixture.canonicalParsedData,
+      extensions: { [namespace]: { enabled: true } },
+    };
+    validateExpectedFailure('capabilityMetadata', candidate, `capability metadata reserved namespace ${namespace}`);
+  }
 };
 
 const stripTomlComment = (line) => {
@@ -816,6 +965,7 @@ assert(
   new Set(bridgeStatusVariants.fixtures.map((fixture) => fixture.payload.status)).size === 2,
   'bridge status variants fixture must cover distinct non-active statuses'
 );
+assertReservedExtensionNamespaceDrift();
 
 const problemDetailsCases = readJson('conformance/fixtures/problem-details-cases.json');
 assertSpecVersion(problemDetailsCases, 'problem details cases');
@@ -2212,6 +2362,7 @@ for (const requiredIntersection of ['intersects', 'does-not-intersect', 'indeter
 const conformanceCoverage = readJson('conformance/fixtures/conformance-coverage.json');
 validate('conformanceCoverage', conformanceCoverage, 'conformance coverage fixture');
 assertSpecVersion(conformanceCoverage, 'conformance coverage fixture');
+assertConformanceCoverageReferences(conformanceCoverage);
 const coverageRequirementIds = new Set(conformanceCoverage.requirements.map((requirement) => requirement.id));
 for (const id of [
   ...Array.from({ length: 18 }, (_, index) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
@@ -2825,5 +2976,7 @@ for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
     }
   }
 }
+
+assertNoUnvalidatedConformanceFixtures();
 
 console.log('Artifact validation passed.');

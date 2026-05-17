@@ -29,6 +29,12 @@ scripts from [`package.json`](../../package.json).
 | Changelog or release process  | `bun run changelog:check`, `bun run format:check`, `bun run lint:md`                         |
 | Workflow or dependency config | `bun run format:check`, `bun run changelog:check`, plus relevant CI checks after PR creation |
 
+`bun run validate:artifacts` includes targeted OpenAPI/schema/fixture alignment
+checks, but it is not a substitute for the endpoint-level prose/OpenAPI drift
+audit. OpenAPI contract changes and release-freeze work still require updating
+[`../../openapi/PROSE-DRIFT-AUDIT.md`](../../openapi/PROSE-DRIFT-AUDIT.md)
+when the checklist status or evidence changes.
+
 ## Coverage expectations
 
 Major new deterministic behavior is expected to add or update conformance
