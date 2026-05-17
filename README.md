@@ -137,13 +137,13 @@ release snapshots.
 
 ### Roadmap
 
-| Milestone                    | Target     | Description                                                                          |
-| ---------------------------- | ---------- | ------------------------------------------------------------------------------------ |
-| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                                             |
-| Experimental implementations | Q2 2026    | Windlass-maintained reference `shelf` client and `Alexandria` bibliotheca prototypes |
-| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                             |
-| v0.x.y                       | Q4 2026    | Stabilization before release                                                         |
-| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                                            |
+| Milestone                    | Target     | Description                                                                                            |
+| ---------------------------- | ---------- | ------------------------------------------------------------------------------------------------------ |
+| v0.1.0-rc.1                  | Q2 2026    | Release candidate for public review, implementation feedback, and core artifact freeze                 |
+| Experimental implementations | Q2 2026    | Windlass-maintained experimental reference prototypes: the `shelf` client and `Alexandria` bibliotheca |
+| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                                               |
+| v0.x.y                       | Q4 2026    | Stabilization before release                                                                           |
+| v1.0.0                       | Q1 2027    | Targeted stable release, pending ecosystem validation and any required governance approval             |
 
 See [`ROADMAP.md`](ROADMAP.md) for the one-year roadmap, explicit out-of-scope
 items, and review cadence.

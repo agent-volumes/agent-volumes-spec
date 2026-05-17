@@ -37,7 +37,7 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 
 ## Minimum viable conforming client
 
-A baseline client implementation is expected to support the following before claiming v0.1 draft compatibility:
+A baseline client implementation is expected to support the following before claiming v0.1.0-rc.1 baseline compatibility:
 
 1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
 2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
@@ -56,7 +56,7 @@ A baseline client implementation is expected to support the following before cla
 
 ## Minimum viable conforming bibliotheca
 
-A baseline bibliotheca implementation is expected to support the following before claiming v0.1 draft compatibility:
+A baseline bibliotheca implementation is expected to support the following before claiming v0.1.0-rc.1 baseline compatibility:
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
@@ -118,7 +118,7 @@ Then map implementation tests to fixture families:
 | BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                                                                             |
 | Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                                                                      |
 
-Fixture updates that materially change expected behavior are normative draft changes and are versioned with the prose release.
+Fixture updates that materially change expected behavior are normative draft or release-candidate changes and are versioned with the prose release.
 
 Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects can add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract. Unsupported trust artifact formats remain unverified rather than successfully verified.
 
