@@ -1114,6 +1114,7 @@ components:
         declaredSize:
           type: integer
           minimum: 0
+          description: Declared trust attachment byte size. A bibliotheca can reject the upload intent with 413 Payload Too Large when this value exceeds its accepted trust attachment size limit before byte transfer begins.
         idempotencyKey:
           type: string
     VersionStatus:
@@ -1302,7 +1303,7 @@ components:
                 title: Upload expired
                 status: 410
     PayloadTooLarge:
-      description: Payload too large
+      description: Submitted payload or declared upload size is too large
       content:
         application/problem+json:
           schema:

@@ -1593,7 +1593,7 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads
 POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
 ```
 
-The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes.
+The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes. A bibliotheca MAY reject a trust upload intent with `payload-too-large` when the request's `declaredSize` exceeds the bibliotheca's accepted trust attachment size limit before byte transfer begins.
 
 Every write-capable v0.1 bibliotheca that exposes trust attachment upload intents MUST support the portable `http-put` upload profile for trust uploads. For an `http-put` trust upload intent, `upload.instructionType` is `"http-put"`, `upload.url` is the opaque byte-transfer target, and the upload method is `PUT` when `upload.method` is omitted or explicitly set. Baseline clients that support trust attachment publishing SHOULD support `http-put` and MUST fail locally with an unsupported-upload-profile diagnostic when an upload intent advertises only unsupported profiles.
 
@@ -1762,7 +1762,7 @@ Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.or
 | `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.                                         |
 | `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.                                             |
 | `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.                                            |
-| `payload-too-large`           | `413`          | The submitted payload exceeds the bibliotheca's accepted limit.                                        |
+| `payload-too-large`           | `413`          | The submitted payload or declared upload size exceeds the bibliotheca's accepted limit.                |
 | `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                                                     |
 | `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.                                    |
 | `rate-limited`                | `429`          | The request was rate limited.                                                                          |
@@ -1780,7 +1780,7 @@ Representative endpoint failure mappings include:
 | `POST /api/v1/volumes/.../finalize`                   | `not-found`, `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `missing-uploaded-bytes`, `invalid-upload-state`, `idempotency-conflict`, `upload-expired` |
 | `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
 | `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
-| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type`                                                                                |
+| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `payload-too-large`, `unsupported-media-type`                                                           |
 | `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`                                                                                            |
 | `GET /api/v1/advisories...`                           | `validation-failed`, `not-found`, `rate-limited`                                                                                                                                       |
 | `GET /api/v1/capabilities`                            | `rate-limited`                                                                                                                                                                         |
