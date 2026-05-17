@@ -13,7 +13,7 @@
       "type": "https://agentvolumes.org/problems/authorization-failed",
       "status": 403,
       "title": "Authorization failed",
-      "meaning": "The authenticated caller is not authorized for the requested operation."
+      "meaning": "The caller, request context, or requested resource is not permitted by authorization or access policy."
     },
     {
       "slug": "not-found",

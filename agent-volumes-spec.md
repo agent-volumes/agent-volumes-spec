@@ -1429,7 +1429,7 @@ Exact release metadata is the portable API exposure boundary for manifest-derive
 
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
-For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 9457 Problem Details response instead: `blocked` releases use an authorization, policy, validation, or registry-state failure appropriate to the bibliotheca; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
+For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 9457 Problem Details response instead: `blocked` releases use `authorization-failed` for authorization or policy blocks, or `inconsistent-registry-state` when the block reflects registry-state inconsistency; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, malformed or non-portable metadata remains a validation failure, but clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
 
 For `dist` metadata in v0.1:
 
@@ -1616,7 +1616,7 @@ GET /api/v1/advisories/{advisoryId}
 
 The machine-readable advisory contract MUST be JSON-based and follow the companion schema.
 
-Advisory list responses use an `items` collection envelope whose item payloads follow [`schemas/advisory.schema.json`](schemas/advisory.schema.json). The collection envelope contract is published as [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json).
+Advisory list responses use an `items` collection envelope whose item payloads follow [`schemas/advisory.schema.json`](schemas/advisory.schema.json). The collection envelope contract is published as [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json). When a valid advisory list request has no matching advisories, the bibliotheca MUST return a successful list response with an empty `items` array rather than a missing-resource error.
 
 Advisory read/discovery behavior is part of the v0.1 core interoperability contract. Advisory write operations such as create, update, withdrawal, moderation, and related authority workflows remain bibliotheca-local in v0.1.
 
@@ -1723,7 +1723,7 @@ The v0.1 registry API uses registry-local resource-scoped bearer token semantics
 
 Ownership is evaluated by the bibliotheca. A token subject can act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
 
-Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`.
+Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`. A public endpoint MAY also use `403 Forbidden` when the bibliotheca refuses to serve a specific resource because of security, governance, authorization, or access policy.
 
 Error payloads for the HTTP API use RFC 9457 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
@@ -1745,27 +1745,27 @@ The baseline machine-readable API contract MUST declare bearer authentication fo
 
 Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.org/problems/<slug>`. The following core problem types are reserved for portable clients:
 
-| Problem type slug             | Typical status | Meaning                                                                 |
-| ----------------------------- | -------------- | ----------------------------------------------------------------------- |
-| `authentication-required`     | `401`          | Bearer authentication is missing or invalid.                            |
-| `authorization-failed`        | `403`          | The authenticated caller is not authorized for the requested operation. |
-| `not-found`                   | `404`          | The requested resource does not exist or is not visible to the caller.  |
-| `validation-failed`           | `400`          | Request payload, parameters, manifest, or metadata failed validation.   |
-| `invalid-manifest`            | `400`          | A submitted `volume.toml` is structurally or semantically invalid.      |
-| `invalid-archive`             | `400`          | A submitted hosted archive violates the v0.1 archive transport profile. |
-| `identity-mismatch`           | `409`          | A package identity disagrees with its route, manifest, or metadata.     |
-| `version-conflict`            | `409`          | The target version already exists or cannot be reused.                  |
-| `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.           |
-| `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.         |
-| `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.          |
-| `upload-expired`              | `410`          | An upload intent expired before finalization.                           |
-| `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.          |
-| `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.              |
-| `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.             |
-| `payload-too-large`           | `413`          | The submitted payload exceeds the bibliotheca's accepted limit.         |
-| `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                      |
-| `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
-| `rate-limited`                | `429`          | The request was rate limited.                                           |
+| Problem type slug             | Typical status | Meaning                                                                                                |
+| ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------ |
+| `authentication-required`     | `401`          | Bearer authentication is missing or invalid.                                                           |
+| `authorization-failed`        | `403`          | The caller, request context, or requested resource is not permitted by authorization or access policy. |
+| `not-found`                   | `404`          | The requested resource does not exist or is not visible to the caller.                                 |
+| `validation-failed`           | `400`          | Request payload, parameters, manifest, or metadata failed validation.                                  |
+| `invalid-manifest`            | `400`          | A submitted `volume.toml` is structurally or semantically invalid.                                     |
+| `invalid-archive`             | `400`          | A submitted hosted archive violates the v0.1 archive transport profile.                                |
+| `identity-mismatch`           | `409`          | A package identity disagrees with its route, manifest, or metadata.                                    |
+| `version-conflict`            | `409`          | The target version already exists or cannot be reused.                                                 |
+| `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.                                          |
+| `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.                                        |
+| `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.                                         |
+| `upload-expired`              | `410`          | An upload intent expired before finalization.                                                          |
+| `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.                                         |
+| `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.                                             |
+| `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.                                            |
+| `payload-too-large`           | `413`          | The submitted payload exceeds the bibliotheca's accepted limit.                                        |
+| `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                                                     |
+| `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.                                    |
+| `rate-limited`                | `429`          | The request was rate limited.                                                                          |
 
 The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 9457 examples.
 
@@ -1775,14 +1775,14 @@ Representative endpoint failure mappings include:
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                     |
 | `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/...`                             | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/...`                             | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                      |
 | `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
 | `POST /api/v1/volumes/.../finalize`                   | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
 | `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
 | `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
 | `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
 | `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
-| `GET /api/v1/advisories...`                           | `not-found`, `rate-limited`                                                                             |
+| `GET /api/v1/advisories...`                           | `validation-failed`, `not-found`, `rate-limited`                                                        |
 | `GET /api/v1/capabilities`                            | `rate-limited`                                                                                          |
 
 For upload intent creation and finalize operations, idempotency can be supplied

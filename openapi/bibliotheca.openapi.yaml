@@ -267,6 +267,8 @@ paths:
                 $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '409':
           $ref: '#/components/responses/Conflict'
         '429':
@@ -329,6 +331,8 @@ paths:
                 $ref: ../schemas/release-metadata.schema.json
         '404':
           $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '409':
           $ref: '#/components/responses/Conflict'
         '429':
@@ -1218,7 +1222,7 @@ components:
                 title: Authentication required
                 status: 401
     Forbidden:
-      description: Authenticated caller lacks permission for this operation
+      description: Request is refused by authorization or access policy
       content:
         application/problem+json:
           schema:
