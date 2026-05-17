@@ -44,13 +44,14 @@ The v0.1 fixture corpus covers these readiness-critical areas:
 | Dependency resolution and lifecycle states | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json`                                                                 |
 | External dependency declarations           | `external-dependency-validation-cases.json`, `external-dependency-potential-exposure-cases.json`, `upstream-baselines.json`, `purl-vers-compatibility-exceptions.json` |
 | Archive and integrity behavior             | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                                                                                   |
-| Release metadata and upload                | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                                                                                   |
-| Trust discovery and upload                 | `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json`                                                                                             |
+| Release metadata and upload                | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`, `lifecycle-mutation-failure-cases.json`                                                          |
+| Trust discovery and upload                 | `trust-summary*.json`, `trust-detail*.json`, `trust-summary-failure-cases.json`, `trust-detail-failure-cases.json`, `trust-upload-lifecycle.json`                      |
 | Trust artifact verification                | `trust-artifact-verification-cases.json`                                                                                                                               |
 | Advisory read/discovery payloads           | `advisory*.json`, `advisory-validation-cases.json`                                                                                                                     |
 | Capability metadata and bridge behavior    | `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json`                                                                    |
 | Problem details and warning behavior       | `problem-details-cases.json`, `problem-registry.json`, `warning.schema.json`                                                                                           |
 | Mapping exports                            | `mapping-matrix.json`, `mapping-sample.json`                                                                                                                           |
+| Search and catalog                         | `search-results.json`, `catalog-search-failure-cases.json`                                                                                                             |
 
 ## Prose-boundary behavior
 

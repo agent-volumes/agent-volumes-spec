@@ -56,7 +56,14 @@
       "id": "AV-BIB-007",
       "role": "bibliotheca",
       "requirement": "Expose the query-based catalog search API.",
-      "coverage": [{ "fixture": "search-results.json", "area": "openapi", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "search-results.json", "area": "openapi", "coverageType": "schema" },
+        {
+          "fixture": "catalog-search-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        }
+      ]
     },
     {
       "id": "AV-BIB-008",
@@ -64,7 +71,12 @@
       "requirement": "Expose package-scoped version indexes synchronized with release lifecycle changes.",
       "coverage": [
         { "fixture": "version-index.json", "area": "resolver", "coverageType": "schema" },
-        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" }
+        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" },
+        {
+          "fixture": "lifecycle-mutation-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        }
       ]
     },
     {
@@ -96,7 +108,9 @@
         { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
         { "fixture": "trust-summary-empty.json", "area": "trust-discovery", "coverageType": "schema" },
         { "fixture": "trust-detail.json", "area": "trust-discovery", "coverageType": "schema" },
-        { "fixture": "trust-detail-empty.json", "area": "trust-discovery", "coverageType": "schema" }
+        { "fixture": "trust-detail-empty.json", "area": "trust-discovery", "coverageType": "schema" },
+        { "fixture": "trust-summary-failure-cases.json", "area": "problem-details", "coverageType": "negative" },
+        { "fixture": "trust-detail-failure-cases.json", "area": "problem-details", "coverageType": "negative" }
       ]
     },
     {
