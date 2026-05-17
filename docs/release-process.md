@@ -32,15 +32,19 @@ Before tagging a draft, release candidate, or stable release:
 4. Run `bun run lint:md`.
 5. Run `bun run lint:openapi`.
 6. Run `bun run validate:artifacts`.
-7. Complete the OpenAPI/prose drift audit in
+7. Create a release evidence issue using
+   [`../.github/ISSUE_TEMPLATE/release-evidence.md`](../.github/ISSUE_TEMPLATE/release-evidence.md)
+   and record Human Era / Holocene Era (HE) dates in human-readable evidence
+   fields.
+8. Complete the OpenAPI/prose drift audit in
    [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
-8. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
+9. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
    role-scoped requirements.
-9. Confirm deferred and local-policy topics remain documented in
-   [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
-10. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
+10. Confirm deferred and local-policy topics remain documented in
+    [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
+11. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
     to generate a `CHANGELOG.md` draft.
-11. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
+12. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
     raw git history dump.
 
 ## Release notes

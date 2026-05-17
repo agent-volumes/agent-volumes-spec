@@ -25,8 +25,10 @@ For each endpoint family:
    expected `application/problem+json` response media type.
 8. Confirm conformance fixtures exercise the happy path and at least one relevant
    failure path when behavior is deterministic offline.
-9. Record evidence for each row: reviewer/date, command output or CI link,
-   related PR, fixture link, or documented prose-boundary exception.
+9. Record evidence for each row by linking the matrix row to the release evidence
+   issue for this version. The issue is the canonical ledger for reviewer/date,
+   command output or CI links, related PRs or commits, fixture links, and any
+   documented prose-boundary exceptions.
 
 ## Common release-freeze invariants
 
@@ -79,8 +81,8 @@ Status values:
 
 - `pending` — not yet reviewed for this release-freeze pass.
 - `checked` — route, schema, error, auth, and deterministic fixture anchors were
-  reviewed and no update is needed. Release-freeze signoff still requires
-  concrete evidence in the evidence column, PR, or release notes.
+  reviewed and no update is needed. Release-freeze signoff still requires a
+  compact Evidence-cell link to the release evidence issue for this version.
 - `needs-update` — prose, OpenAPI, schema, fixture, or evidence alignment work
   remains before release freeze.
 
@@ -152,10 +154,29 @@ For every endpoint family, confirm:
 
 ## Evidence format
 
-Use this evidence shape in the matrix, a PR comment, or release notes:
+For each draft, release-candidate, or stable release, create a release evidence
+issue using `.github/ISSUE_TEMPLATE/release-evidence.md`. Use that issue as the
+canonical evidence ledger for the full review. Human-readable dates in evidence
+records use Human Era / Holocene Era (HE) notation, for example
+`12026-05-18 HE`.
+
+Use the matrix Evidence cell as a compact pointer back to that issue:
 
 ```text
-Reviewer/date: <name or handle>, <YYYY-MM-DD>
+issue=<release evidence issue>; evidence=<endpoint-family-anchor>; fixtures=<fixture paths or prose-boundary>; drift=<none | checked exception | needs-update>
+```
+
+Examples:
+
+```text
+issue=#123; evidence=release-upload-finalize; fixtures=conformance/fixtures/release-upload-lifecycle.json; drift=none
+issue=#123; evidence=trust-summary; fixtures=conformance/fixtures/trust-summary.json, conformance/fixtures/trust-summary-failure-cases.json; drift=needs-update: response parity owner @handle
+```
+
+Use the following full evidence shape inside the release evidence issue:
+
+```text
+Reviewer/date: <name or handle>, <YYYYY-MM-DD HE>
 Commands/CI: bun run lint:openapi <link or output>; bun run validate:artifacts <link or output>
 Rows reviewed: <endpoint families>
 Related changes: <PRs or commits>
@@ -165,8 +186,9 @@ Remaining drift: none | <explicit checked exception>
 
 ## Release-freeze signoff
 
-Before freezing a draft release, record the following checks here, in the PR, or
-in release notes:
+Before freezing a draft release, record the following checks in the release
+evidence issue and mirror the compact status here. Release notes may link to the
+same issue rather than duplicating the full evidence ledger.
 
 - [ ] `bun run lint:openapi` passes.
 - [ ] `bun run validate:artifacts` passes.
