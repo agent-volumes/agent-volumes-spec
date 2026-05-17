@@ -103,20 +103,20 @@ The fixture runner contract and portable report shape are documented in
 
 Then map implementation tests to fixture families:
 
-| Implementation area              | Fixture files                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------------------ |
-| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`     |
-| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`     |
-| Purl handling                    | `purl-canonicalization-cases.json`                                                   |
-| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |
-| Permissions                      | `permission-escalation.json`, `permission-sibling-escalation.json`                   |
-| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                 |
-| Trust upload and discovery       | `trust-upload-lifecycle.json`, `trust-summary*.json`, `trust-detail*.json`           |
-| Trust artifact verification      | `trust-artifact-verification-cases.json`                                             |
-| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
-| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
-| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
-| Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
+| Implementation area              | Fixture files                                                                                                                            |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`                                                         |
+| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`                                                         |
+| Purl handling                    | `purl-canonicalization-cases.json`                                                                                                       |
+| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                                                     |
+| Permissions                      | `permission-escalation.json`, `permission-sibling-escalation.json`                                                                       |
+| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                                                     |
+| Trust upload and discovery       | `trust-upload-lifecycle.json`, `trust-summary*.json`, `trust-detail*.json`                                                               |
+| Trust artifact verification      | `trust-artifact-verification-cases.json`                                                                                                 |
+| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-search-failure-cases.json`, `advisory-validation-cases.json` |
+| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                                                                     |
+| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                                                                             |
+| Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                                                                      |
 
 Fixture updates that materially change expected behavior are normative draft changes and are versioned with the prose release.
 
