@@ -1,0 +1,126 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "description": "Unpublish and release lifecycle mutation Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "unpublish-volume-release-authentication-required",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "A bearer token is required to unpublish a release."
+      }
+    },
+    {
+      "name": "unpublish-volume-release-authorization-failed",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated subject is not authorized to unpublish this release."
+      }
+    },
+    {
+      "name": "unpublish-volume-release-not-found",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "The requested release does not exist or is not visible to the caller."
+      }
+    },
+    {
+      "name": "unpublish-volume-release-inconsistent-state",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "The bibliotheca cannot reconcile the requested lifecycle mutation with its version index state."
+      }
+    },
+    {
+      "name": "unpublish-volume-release-rate-limited",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The unpublish request was rate limited."
+      }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-authentication-required",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "A bearer token is required to unpublish a scoped release."
+      }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-authorization-failed",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated subject is not authorized to unpublish this scoped release."
+      }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-not-found",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "The requested scoped release does not exist or is not visible to the caller."
+      }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-inconsistent-state",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "The bibliotheca cannot reconcile the scoped lifecycle mutation with its version index state."
+      }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-rate-limited",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The scoped unpublish request was rate limited."
+      }
+    }
+  ]
+}

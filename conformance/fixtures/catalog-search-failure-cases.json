@@ -1,0 +1,30 @@
+{
+  "specVersion": "0.1.0-draft.6",
+  "description": "Catalog search Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "catalog-search-invalid-query-parameters",
+      "endpoint": "GET /api/v1/search",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "validation-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/validation-failed",
+        "title": "Validation failed",
+        "status": 400,
+        "detail": "The search request limit must be between 1 and 100."
+      }
+    },
+    {
+      "name": "catalog-search-rate-limited",
+      "endpoint": "GET /api/v1/search",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The catalog search request was rate limited."
+      }
+    }
+  ]
+}
