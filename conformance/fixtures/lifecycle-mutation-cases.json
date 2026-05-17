@@ -1,7 +1,21 @@
 {
   "specVersion": "0.1.0-rc.1",
-  "description": "Unpublish and release lifecycle mutation Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "description": "Unpublish and release lifecycle mutation success and Problem Details failure cases for portable Agent Volumes bibliothecas.",
   "fixtures": [
+    {
+      "name": "unpublish-volume-release-accepted-success",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "empty-response",
+      "expected": { "valid": true, "status": 202, "lifecycleState": "accepted" },
+      "payload": null
+    },
+    {
+      "name": "unpublish-volume-release-tombstoned-success",
+      "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
+      "schema": "empty-response",
+      "expected": { "valid": true, "status": 202, "lifecycleState": "tombstoned" },
+      "payload": null
+    },
     {
       "name": "unpublish-volume-release-authentication-required",
       "endpoint": "DELETE /api/v1/volumes/{name}/{version}",
@@ -61,6 +75,20 @@
         "status": 429,
         "detail": "The unpublish request was rate limited."
       }
+    },
+    {
+      "name": "unpublish-scoped-volume-release-accepted-success",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "empty-response",
+      "expected": { "valid": true, "status": 202, "lifecycleState": "accepted" },
+      "payload": null
+    },
+    {
+      "name": "unpublish-scoped-volume-release-tombstoned-success",
+      "endpoint": "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "empty-response",
+      "expected": { "valid": true, "status": 202, "lifecycleState": "tombstoned" },
+      "payload": null
     },
     {
       "name": "unpublish-scoped-volume-release-authentication-required",

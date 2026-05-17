@@ -217,6 +217,69 @@ const assertEndpointProblemFixtures = (relativePath, label, expectedFailuresByEn
   }
 };
 
+const assertLifecycleMutationFixtures = (relativePath, label, expectedFailuresByEndpoint) => {
+  const fixtureSet = readJson(relativePath);
+  assertSpecVersion(fixtureSet, label);
+  assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
+  const actualFailuresByEndpoint = new Map();
+  const actualSuccessesByEndpoint = new Map();
+
+  for (const fixture of fixtureSet.fixtures) {
+    assert(fixture.endpoint, `${label} ${fixture.name} must declare endpoint`);
+    assert(
+      expectedFailuresByEndpoint.has(fixture.endpoint),
+      `${label} ${fixture.name} uses unexpected endpoint ${fixture.endpoint}`
+    );
+
+    if (fixture.schema === 'problem-details') {
+      assert(
+        expectedFailuresByEndpoint.get(fixture.endpoint).includes(fixture.expected.failureCategory),
+        `${label} ${fixture.name} uses unexpected failureCategory ${fixture.expected.failureCategory} for ${fixture.endpoint}`
+      );
+      assertProblemDetails(fixture.payload, `${label} ${fixture.name}`);
+      assert(
+        fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
+        `${label} ${fixture.name} failureCategory must match problem type slug`
+      );
+      if (!actualFailuresByEndpoint.has(fixture.endpoint)) {
+        actualFailuresByEndpoint.set(fixture.endpoint, new Set());
+      }
+      actualFailuresByEndpoint.get(fixture.endpoint).add(fixture.expected.failureCategory);
+      continue;
+    }
+
+    assert(fixture.expected.valid === true, `${label} ${fixture.name} success case must be expected valid`);
+    assert(fixture.expected.status === 202, `${label} ${fixture.name} success case must expect HTTP 202`);
+    if (!actualSuccessesByEndpoint.has(fixture.endpoint)) {
+      actualSuccessesByEndpoint.set(fixture.endpoint, new Set());
+    }
+
+    if (fixture.schema === 'empty-response') {
+      assert(fixture.payload === null, `${label} ${fixture.name} empty response payload must be null`);
+      assert(
+        ['accepted', 'tombstoned'].includes(fixture.expected.lifecycleState),
+        `${label} ${fixture.name} empty response must model accepted or tombstoned lifecycle state`
+      );
+      actualSuccessesByEndpoint.get(fixture.endpoint).add(fixture.expected.lifecycleState);
+      continue;
+    }
+
+    assert(false, `${label} ${fixture.name} uses unsupported schema ${fixture.schema}`);
+  }
+
+  for (const [endpoint, expectedFailures] of expectedFailuresByEndpoint) {
+    const actualFailures = actualFailuresByEndpoint.get(endpoint) ?? new Set();
+    for (const expectedFailure of expectedFailures) {
+      assert(actualFailures.has(expectedFailure), `${label} missing ${expectedFailure} for ${endpoint}`);
+    }
+
+    const actualSuccesses = actualSuccessesByEndpoint.get(endpoint) ?? new Set();
+    for (const expectedSuccess of ['accepted', 'tombstoned']) {
+      assert(actualSuccesses.has(expectedSuccess), `${label} missing ${expectedSuccess} success for ${endpoint}`);
+    }
+  }
+};
+
 const assertWarning = (warning, label) => {
   validate('warning', warning, label);
   if (warning.category === 'external-dependency-potential-exposure') {
@@ -1002,9 +1065,9 @@ assertEndpointProblemFixtures(
   'catalog search failure cases',
   new Map([['GET /api/v1/search', ['validation-failed', 'rate-limited']]])
 );
-assertEndpointProblemFixtures(
-  'conformance/fixtures/lifecycle-mutation-failure-cases.json',
-  'lifecycle mutation failure cases',
+assertLifecycleMutationFixtures(
+  'conformance/fixtures/lifecycle-mutation-cases.json',
+  'lifecycle mutation cases',
   new Map([
     [
       'DELETE /api/v1/volumes/{name}/{version}',

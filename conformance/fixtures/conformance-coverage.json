@@ -73,7 +73,12 @@
         { "fixture": "version-index.json", "area": "resolver", "coverageType": "schema" },
         { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" },
         {
-          "fixture": "lifecycle-mutation-failure-cases.json",
+          "fixture": "lifecycle-mutation-cases.json",
+          "area": "resolver",
+          "coverageType": "positive"
+        },
+        {
+          "fixture": "lifecycle-mutation-cases.json",
           "area": "problem-details",
           "coverageType": "negative"
         }
