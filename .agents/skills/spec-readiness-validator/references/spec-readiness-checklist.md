@@ -12,6 +12,7 @@ Detailed criteria for evaluating specification implementer-readiness, with examp
 6. [Registry and Catalog Behavior](#6-registry-and-catalog-behavior)
 7. [Conformance Suite](#7-conformance-suite)
 8. [Schema and Conformance Alignment](#8-schema-and-conformance-alignment)
+9. [OpenAPI and Prose Drift Alignment](#9-openapi-and-prose-drift-alignment)
 
 ---
 
@@ -374,6 +375,48 @@ const dialect = 'https://spec.openapis.org/oas/3.1/dialect/base';
 - Tests pass but don't exercise schema constraints
 - Manual test reports, not machine-checkable
 
+## 9. OpenAPI and Prose Drift Alignment
+
+Use this section when a spec publishes an OpenAPI contract or similar HTTP API
+companion artifact. For the detailed endpoint-family workflow, read
+`openapi-prose-drift-audit.md`.
+
+### Requirements
+
+- [ ] Every OpenAPI path/method/operation maps to normative prose
+- [ ] Every normative endpoint family appears in the OpenAPI contract
+- [ ] Request parameters, headers, bodies, media types, defaults, bounds, and
+      enum values match prose
+- [ ] Success response status codes, schemas, examples, and empty collection
+      semantics match prose
+- [ ] Protected operations declare security schemes; public operations remain
+      intentionally public
+- [ ] Error responses use the closed error vocabulary and expected media type
+- [ ] Endpoint-specific error mappings are checked, not only shared response
+      components
+- [ ] OpenAPI version, route family, schema versions, and capability metadata are
+      in lockstep
+- [ ] Deterministic endpoint behavior links to conformance fixtures or explicit
+      prose-boundary notes
+- [ ] Release-freeze signoff records evidence and has no unresolved blocking drift
+
+### Review delegation
+
+Run independent human and agent reviews when possible:
+
+1. One reviewer checks operation coverage and route topology.
+2. One reviewer checks request/response/error/auth semantics.
+3. One reviewer checks fixture evidence, requirement IDs, and policy boundaries.
+4. A final reviewer reconciles disagreements before release-freeze signoff.
+
+### Common Pitfalls
+
+- Matrix rows use broad endpoint families that hide per-operation differences
+- Shared OpenAPI response components are treated as operation-specific evidence
+- Request-side details drift while response schemas stay aligned
+- Status values are marked reviewed but evidence remains missing
+- Local policy choices are accidentally promoted into portable requirements
+
 ---
 
 ## Practical Readiness Bar
@@ -388,6 +431,7 @@ A spec is ready for independent client/server/catalog implementations when:
 6. [ ] Security/trust boundaries are explicit
 7. [ ] A conformance suite covers core flows and failures
 8. [ ] Published versions are immutable
+9. [ ] OpenAPI contracts, prose, schemas, and fixtures do not drift
 
 ## Assessment Report Template
 
@@ -412,6 +456,7 @@ A spec is ready for independent client/server/catalog implementations when:
 | 6   | Registry behavior            | ✅/❌  | ...      |
 | 7   | Conformance suite            | ✅/❌  | ...      |
 | 8   | Schema-conformance alignment | ✅/❌  | ...      |
+| 9   | OpenAPI-prose drift          | ✅/❌  | ...      |
 
 ### Gaps
 
