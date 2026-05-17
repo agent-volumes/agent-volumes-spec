@@ -168,6 +168,40 @@ const assertProblemDetails = (payload, label) => {
   assert(payload.status === problemStatusBySlug.get(slug), `${label} status must match problem type ${slug}`);
 };
 
+const assertEndpointProblemFixtures = (relativePath, label, expectedFailuresByEndpoint) => {
+  const fixtureSet = readJson(relativePath);
+  assertSpecVersion(fixtureSet, label);
+  assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
+  const actualFailuresByEndpoint = new Map();
+  for (const fixture of fixtureSet.fixtures) {
+    assert(fixture.schema === 'problem-details', `${label} ${fixture.name} must use problem-details schema`);
+    assert(fixture.endpoint, `${label} ${fixture.name} must declare endpoint`);
+    assert(
+      expectedFailuresByEndpoint.has(fixture.endpoint),
+      `${label} ${fixture.name} uses unexpected endpoint ${fixture.endpoint}`
+    );
+    assert(
+      expectedFailuresByEndpoint.get(fixture.endpoint).includes(fixture.expected.failureCategory),
+      `${label} ${fixture.name} uses unexpected failureCategory ${fixture.expected.failureCategory} for ${fixture.endpoint}`
+    );
+    assertProblemDetails(fixture.payload, `${label} ${fixture.name}`);
+    assert(
+      fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
+      `${label} ${fixture.name} failureCategory must match problem type slug`
+    );
+    if (!actualFailuresByEndpoint.has(fixture.endpoint)) {
+      actualFailuresByEndpoint.set(fixture.endpoint, new Set());
+    }
+    actualFailuresByEndpoint.get(fixture.endpoint).add(fixture.expected.failureCategory);
+  }
+  for (const [endpoint, expectedFailures] of expectedFailuresByEndpoint) {
+    const actualFailures = actualFailuresByEndpoint.get(endpoint) ?? new Set();
+    for (const expectedFailure of expectedFailures) {
+      assert(actualFailures.has(expectedFailure), `${label} missing ${expectedFailure} for ${endpoint}`);
+    }
+  }
+};
+
 const assertWarning = (warning, label) => {
   validate('warning', warning, label);
   if (warning.category === 'external-dependency-potential-exposure') {
@@ -812,6 +846,51 @@ for (const problem of problemRegistry.problems) {
     `problem registry ${problem.slug} status must match`
   );
 }
+
+assertEndpointProblemFixtures(
+  'conformance/fixtures/catalog-search-failure-cases.json',
+  'catalog search failure cases',
+  new Map([['GET /api/v1/search', ['validation-failed', 'rate-limited']]])
+);
+assertEndpointProblemFixtures(
+  'conformance/fixtures/lifecycle-mutation-failure-cases.json',
+  'lifecycle mutation failure cases',
+  new Map([
+    [
+      'DELETE /api/v1/volumes/{name}/{version}',
+      ['authentication-required', 'authorization-failed', 'not-found', 'inconsistent-registry-state', 'rate-limited'],
+    ],
+    [
+      'DELETE /api/v1/volumes/@{scope}/{name}/{version}',
+      ['authentication-required', 'authorization-failed', 'not-found', 'inconsistent-registry-state', 'rate-limited'],
+    ],
+  ])
+);
+assertEndpointProblemFixtures(
+  'conformance/fixtures/trust-summary-failure-cases.json',
+  'trust summary failure cases',
+  new Map([
+    [
+      'GET /api/v1/volumes/{name}/{version}/trust/summary',
+      ['not-found', 'inconsistent-registry-state', 'rate-limited'],
+    ],
+    [
+      'GET /api/v1/volumes/@{scope}/{name}/{version}/trust/summary',
+      ['not-found', 'inconsistent-registry-state', 'rate-limited'],
+    ],
+  ])
+);
+assertEndpointProblemFixtures(
+  'conformance/fixtures/trust-detail-failure-cases.json',
+  'trust detail failure cases',
+  new Map([
+    ['GET /api/v1/volumes/{name}/{version}/trust/detail', ['not-found', 'inconsistent-registry-state', 'rate-limited']],
+    [
+      'GET /api/v1/volumes/@{scope}/{name}/{version}/trust/detail',
+      ['not-found', 'inconsistent-registry-state', 'rate-limited'],
+    ],
+  ])
+);
 
 const releaseUploadLifecycle = readJson('conformance/fixtures/release-upload-lifecycle.json');
 assertSpecVersion(releaseUploadLifecycle, 'release upload lifecycle fixture');
