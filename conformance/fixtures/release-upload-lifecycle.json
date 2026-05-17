@@ -224,6 +224,17 @@
       }
     },
     {
+      "name": "release-upload-not-found",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Upload intent not found",
+        "status": 404,
+        "detail": "The release upload intent does not exist or is not visible to the caller."
+      }
+    },
+    {
       "name": "release-upload-invalid-state",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-upload-state" },

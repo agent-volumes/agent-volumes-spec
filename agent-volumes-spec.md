@@ -1360,7 +1360,7 @@ Write-capable bibliothecas expose hosted archive publishing through a two-phase 
 
 The target volume identity is route-derived. For `POST /api/v1/volumes/{name}`, the target identity is the path `name`; for `POST /api/v1/volumes/@{scope}/{name}`, it is `@scope/name`. The upload intent request body supplies the target `version` and upload constraints, not an alternate package name. A bibliotheca MUST reject an upload intent or finalization when the route-derived target identity, request body version, uploaded `volume.toml` identity, or finalized release metadata cannot be reconciled to the same release subject.
 
-The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an expired, failed, already-finalized-with-conflicting-input, or otherwise non-finalizable upload intent is an invalid upload state or idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
+The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an unknown or non-visible upload intent is a missing-resource failure; finalizing a known expired upload intent is an upload-expired failure; finalizing a known failed or otherwise non-finalizable upload intent is an invalid upload state; and replaying finalize with conflicting input is an idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
 
 For hosted archive workflows, the release transport is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
@@ -1771,19 +1771,19 @@ The reserved problem set above is closed for the v0.1 portable baseline. [`schem
 
 Representative endpoint failure mappings include:
 
-| Endpoint family                                       | Representative problem type slugs                                                                       |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                     |
-| `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/...`                             | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                      |
-| `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
-| `POST /api/v1/volumes/.../finalize`                   | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
-| `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
-| `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
-| `GET /api/v1/advisories...`                           | `validation-failed`, `not-found`, `rate-limited`                                                        |
-| `GET /api/v1/capabilities`                            | `rate-limited`                                                                                          |
+| Endpoint family                                       | Representative problem type slugs                                                                                                                                                      |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                                                                                                    |
+| `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/...`                             | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                     |
+| `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`                                                                                             |
+| `POST /api/v1/volumes/.../finalize`                   | `not-found`, `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `missing-uploaded-bytes`, `invalid-upload-state`, `idempotency-conflict`, `upload-expired` |
+| `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type`                                                                                |
+| `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`                                                                                            |
+| `GET /api/v1/advisories...`                           | `validation-failed`, `not-found`, `rate-limited`                                                                                                                                       |
+| `GET /api/v1/capabilities`                            | `rate-limited`                                                                                                                                                                         |
 
 For upload intent creation and finalize operations, idempotency can be supplied
 with the `Idempotency-Key` HTTP header. Some request bodies also carry an
