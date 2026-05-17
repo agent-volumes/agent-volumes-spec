@@ -135,6 +135,7 @@
         { "fixture": "advisory.json", "area": "advisory", "coverageType": "schema" },
         { "fixture": "advisory-withdrawn.json", "area": "advisory", "coverageType": "schema" },
         { "fixture": "advisory-list.json", "area": "advisory", "coverageType": "schema" },
+        { "fixture": "advisory-search-failure-cases.json", "area": "problem-details", "coverageType": "negative" },
         { "fixture": "advisory-validation-cases.json", "area": "advisory", "coverageType": "negative" }
       ]
     },

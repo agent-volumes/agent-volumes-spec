@@ -1065,6 +1065,11 @@ assertEndpointProblemFixtures(
   'catalog search failure cases',
   new Map([['GET /api/v1/search', ['validation-failed', 'rate-limited']]])
 );
+assertEndpointProblemFixtures(
+  'conformance/fixtures/advisory-search-failure-cases.json',
+  'advisory search failure cases',
+  new Map([['GET /api/v1/advisories', ['validation-failed', 'rate-limited']]])
+);
 assertLifecycleMutationFixtures(
   'conformance/fixtures/lifecycle-mutation-cases.json',
   'lifecycle mutation cases',
