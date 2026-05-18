@@ -1,0 +1,165 @@
+---
+title: 'Content integrity and SHA-256 digest verification'
+description: 'How Agent Volumes uses normalized file-tree SHA-256 digests to guarantee that release content has not been tampered with between publish and install.'
+---
+
+Content integrity in Agent Volumes is not a hash of a tarball or a transport artifact. It is a hash of the **normalized file tree** — a canonical, deterministic representation of every file in a release, computed the same way regardless of how the release was packaged or delivered. This means that a CDN-hosted archive and a Git-backed release of the same volume version produce identical integrity values, and any modification to any file — even a single byte — produces a different digest.
+
+## The two mandatory identities of every release
+
+Every published release carries two complementary, mandatory identities:
+
+<CardGroup cols={2}>
+  <Card title="Logical identity" icon="tag">
+    `pkg:volume/<name>@<version>`
+
+    The package-facing identity. Used for dependency resolution, search, and supply chain tooling integrations.
+
+  </Card>
+  <Card title="Immutable content identity" icon="fingerprint">
+    `sha256:<hex>`
+
+    The digest of the normalized file tree. Immutable once computed at publish time.
+
+  </Card>
+</CardGroup>
+
+Trust attachments associated with a release must remain losslessly mappable to **both** identities. If a trust artifact claims a subject that disagrees with either identity, the release must be rejected as inconsistent.
+
+## Normalized file tree construction
+
+The digest is computed from the logical file tree of the release, not from any particular archive container. Here is how the normalized file tree is constructed:
+
+<Steps>
+  <Step title="Collect the published release files">
+    Gather all files that are part of the release subject. For hosted archive (`.tar.gz`) releases, this is the set of valid regular-file entries in the submitted archive. For Git-backed releases, this is the set of regular files materialized from the concrete Git reference in the release metadata.
+  </Step>
+  <Step title="Exclude non-release material">
+    Remove archive/container metadata, VCS administrative directories (such as `.git/`), and implementation-local transient files. These are never part of the normalized file tree.
+  </Step>
+  <Step title="Normalize paths">
+    Convert all paths to a stable relative-rooted form: forward slashes only, relative to the volume root, no `.` or `..` segments, no absolute paths. Duplicate normalized paths are invalid and cause digest construction to fail. Unicode path strings are interpreted as UTF-8 and must not be silently normalized between Unicode normalization forms.
+  </Step>
+  <Step title="Sort entries lexicographically">
+    Sort all file entries by their normalized path. The sort order must be stable and deterministic.
+  </Step>
+  <Step title="Encode the canonical byte stream">
+    For each sorted file entry, write one record in the canonical format. Concatenate all records in sorted order without any separator.
+  </Step>
+  <Step title="Compute the SHA-256 digest">
+    Run SHA-256 over the complete concatenated byte stream. Express the result as `sha256:<lowercase-hex>`.
+  </Step>
+</Steps>
+
+## Canonical byte stream encoding
+
+Each file entry in the byte stream uses this exact format:
+
+```text
+file <normalized-path> <executable-flag> <byte-length>\n<raw-content-bytes>
+```
+
+Where:
+
+- `<normalized-path>` is the path as normalized in step 3 above
+- `<executable-flag>` is `1` when the file is executable, `0` otherwise — the executable bit is the only mode-derived metadata included
+- `<byte-length>` is the **decimal byte length** of the raw content (not a character count)
+- `\n` is a single LF byte (0x0A)
+- `<raw-content-bytes>` is the file content exactly as present in the release, including binary bytes and original line endings
+
+<Warning>
+  Do not rewrite line endings during digest construction. The spec requires that line endings be hashed exactly as
+  present in the normalized release file content.
+</Warning>
+
+A complete example for a two-file release:
+
+```text
+file README.md 0 42
+# My Volume
+A short description here.
+file volume.toml 0 87
+[volume]
+schema = 1
+name = "my-volume"
+version = "1.0.0"
+...
+```
+
+## The sha256: hash format
+
+Content hashes are represented as `sha256:` followed by lowercase hexadecimal:
+
+```text
+sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
+```
+
+You will see this value in the `integrity` field of release metadata returned by the bibliotheca API:
+
+```json
+{
+  "name": "research-agent-pack",
+  "version": "1.4.0",
+  "purl": "pkg:volume/research-agent-pack@1.4.0",
+  "integrity": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+  "status": {
+    "state": "available"
+  }
+}
+```
+
+## Verification steps
+
+After downloading a release, verify it before installation or trust evaluation:
+
+<Steps>
+  <Step title="Resolve the release subject">
+    Fetch exact release metadata from the bibliotheca. This gives you the authoritative `integrity` value for the release.
+  </Step>
+  <Step title="Construct the normalized file tree">
+    Extract the downloaded archive or materialize the Git-backed release files. Apply the normalization and sorting rules described above.
+  </Step>
+  <Step title="Compute the digest">
+    Encode the canonical byte stream and compute the SHA-256 digest over it.
+  </Step>
+  <Step title="Compare against the published integrity value">
+    Compare your computed `sha256:<hex>` string against the `integrity` field in the release metadata. The comparison must be exact and byte-for-byte.
+  </Step>
+  <Step title="Reject on mismatch">
+    If the digests do not match, reject the release. Do not install it, do not evaluate trust artifacts against it, and treat the result as an inconsistent registry state.
+  </Step>
+</Steps>
+
+<Note>
+  Bibliothecas compute and store the `integrity` value during the release finalization step, before the release becomes
+  available for download. You should never receive a release from a conforming bibliotheca without an `integrity` value.
+</Note>
+
+## CDN and Git-backed delivery
+
+The delivery mechanism does not change the release subject or the integrity check requirement.
+
+<Tabs>
+  <Tab title="CDN-backed releases">
+    The release metadata includes a `dist.url` pointing to a `.tar.gz` archive. Download the archive, extract the
+    regular files, apply the normalization rules, and verify the computed digest against `integrity`. HTTP redirects,
+    CDN caching, and backend storage choices are all transparent to the integrity check.
+  </Tab>
+  <Tab title="Git-backed releases">
+    The release metadata includes a source repository URL and a concrete Git reference (not a branch name or mutable
+    tag). Materialize the regular files from that reference, exclude VCS administrative directories, apply the same
+    normalization rules, and verify the digest. The immutable content identity must match even though the delivery path
+    is different.
+  </Tab>
+</Tabs>
+
+## What is excluded from the file tree
+
+The following items are **never** part of the normalized file tree and therefore never affect the digest:
+
+- Archive timestamps, ownership metadata, and extended attributes
+- VCS administrative directories (`.git/`, `.hg/`, etc.)
+- Symlinks, hardlinks, Git submodules, device nodes, and sockets — these are invalid entries and cause digest construction to fail rather than being silently skipped
+- Platform-specific mode bits other than the executable bit
+- Implementation-local transient build outputs that are not part of the published release subject
+- Generated files that are not explicitly included in the published release subject
