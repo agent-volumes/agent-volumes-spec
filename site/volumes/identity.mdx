@@ -1,0 +1,181 @@
+---
+title: 'Volume and component identity with pkg:volume'
+description: 'How volumes and components are identified using purl-compatible pkg:volume/... identifiers, including scoped names, versions, and component subpaths.'
+---
+
+Every volume and every component it exports has a globally unique identifier built on the [Package URL (purl) specification](https://github.com/package-url/purl-spec). The Agent Volumes identity scheme uses the `volume` purl type, making identifiers compatible with existing supply chain security tooling while precisely addressing the needs of agent component packaging. Understanding these identifiers helps you reference dependencies, target specific components, and work with trust and provenance tooling correctly.
+
+## Volume identifiers
+
+### Scopeless volumes
+
+When a bibliotheca supports scopeless names, the identifier is simply:
+
+```text
+pkg:volume/<name>
+```
+
+For example:
+
+```text
+pkg:volume/research-agent-pack
+pkg:volume/search-toolkit
+```
+
+### Scoped volumes
+
+When a volume belongs to a publisher scope, the scope is encoded as the purl namespace with `@` URL-encoded as `%40`:
+
+```text
+pkg:volume/%40<scope>/<name>
+```
+
+For example:
+
+```text
+pkg:volume/%40acme/research-agent-pack
+pkg:volume/%40windlass/search-toolkit
+```
+
+The `%40` encoding is required in canonical purl strings per purl encoding rules. In user-facing contexts — manifests, search results, display — the decoded form `@scope/name` is used instead (e.g., `@acme/research-agent-pack`).
+
+<Warning>
+  Do not treat user-facing decoded names (`@acme/research-agent-pack`) and canonical purl strings
+  (`pkg:volume/%40acme/research-agent-pack`) as byte-for-byte interchangeable. When comparing release subjects in trust
+  and supply chain workflows, parse and validate both forms against the v0.1 identity grammar before comparing.
+</Warning>
+
+## Versioned identifiers
+
+Append a SemVer version string after `@` to identify a specific release:
+
+```text
+pkg:volume/<name>@<version>
+pkg:volume/%40<scope>/<name>@<version>
+```
+
+Examples:
+
+```text
+pkg:volume/research-agent-pack@1.4.0
+pkg:volume/%40acme/research-agent-pack@1.4.0
+```
+
+A versioned identifier is the **logical identity** of a published release. For trust and supply chain workflows, the logical identity is always paired with an **immutable content identity** — the `sha256:...` digest of the release's normalized file tree.
+
+## Component identifiers
+
+Components exported from a volume are addressable via the purl subpath field, which takes the form `<type>/<componentName>`:
+
+```text
+pkg:volume/<name>#<type>/<componentName>
+pkg:volume/%40<scope>/<name>#<type>/<componentName>
+```
+
+Examples:
+
+```text
+pkg:volume/research-agent-pack#skill/summarize-paper
+pkg:volume/research-agent-pack#tool/arxiv-search
+pkg:volume/%40acme/research-agent-pack@1.4.0#agent/literature-reviewer
+```
+
+### Component types as purl subpath values
+
+The `<type>` segment in a component purl must be one of these seven values:
+
+| Subpath type | Component kind                                     |
+| ------------ | -------------------------------------------------- |
+| `agent`      | Autonomous runtime actor                           |
+| `skill`      | Reusable task capability loaded into agent context |
+| `command`    | User-invokable slash-command action                |
+| `tool`       | Function or API callable by an agent               |
+| `hook`       | Runtime lifecycle event interceptor                |
+| `mcp-server` | Model Context Protocol server endpoint             |
+| `lsp-server` | Language Server Protocol server endpoint           |
+
+In authoring contexts (such as `[component-dependencies]` in `volume.toml`), you may omit the version when the parent volume's dependency constraint determines the resolved version. For trust, lock-like reproducibility inputs, or exact component identity, include the resolved version.
+
+## Naming rules
+
+The same naming policy applies to scopes, volume names, and component names:
+
+1. Names must consist only of lowercase ASCII letters, digits, and hyphens.
+2. Names must not start or end with a hyphen.
+3. Names must not contain consecutive hyphens.
+4. Scoped names must be unique within their scope.
+5. Component names must be unique within a volume across all component types.
+
+| Field           | Max length     | Scope required         |
+| --------------- | -------------- | ---------------------- |
+| `scope`         | 64 characters  | Per bibliotheca policy |
+| `name` (volume) | 128 characters | Always required        |
+| `componentName` | 128 characters | Always required        |
+
+## purl field mapping
+
+The table below shows how Agent Volumes identity maps onto purl fields:
+
+| purl field   | Agent Volumes mapping                                 |
+| ------------ | ----------------------------------------------------- |
+| `type`       | Always `volume`                                       |
+| `namespace`  | `%40<scope>` for scoped volumes; absent for scopeless |
+| `name`       | Volume name                                           |
+| `version`    | SemVer version string                                 |
+| `qualifiers` | Reserved for future use (e.g., `?repository_url=...`) |
+| `subpath`    | `<type>/<componentName>` for component references     |
+
+## Logical identity vs. immutable content identity
+
+Every published release carries two complementary identities that must both be preserved:
+
+<CardGroup cols={2}>
+  <Card title="Logical identity" icon="tag">
+    `pkg:volume/...@version` — the package-facing release identity. Used for dependency declarations, search, display, and trust attachment subjects.
+  </Card>
+  <Card title="Immutable content identity" icon="lock">
+    `sha256:<hex>` — the digest of the release's normalized file tree. Used for integrity verification, trust binding, and supply chain workflows.
+  </Card>
+</CardGroup>
+
+If you receive trust attachment metadata for a release, verify that it binds to both the logical purl and the `sha256` digest. A mismatch between the two means the release metadata is inconsistent and the release must be rejected.
+
+## Identifier resolution order
+
+When a client needs to resolve a volume identifier to an installable release, it follows this order:
+
+<Steps>
+  <Step title="Check the lockfile">
+    If a lockfile is present, use the pinned versions and resolved source metadata it contains.
+  </Step>
+  <Step title="Interpret the manifest">Read dependency constraints and component references from `volume.toml`.</Step>
+  <Step title="Query configured bibliothecas">
+    Use package-scoped version indexes from configured registries to discover eligible version candidates.
+  </Step>
+  <Step title="Fetch exact release metadata">
+    Retrieve the authoritative release metadata before installation or trust evaluation. Version index rows are resolver
+    inputs, not final release records.
+  </Step>
+</Steps>
+
+<Note>
+  Registry-priority policy across independently configured bibliothecas is not standardized in v0.1. Each client applies
+  its own local policy for source selection across multiple registries.
+</Note>
+
+### Version lifecycle states
+
+During ordinary dependency resolution, a client must only select versions in the `available` state. The other states affect resolution and installation as follows:
+
+| State         | Ordinary resolution | Exact pinned install                |
+| ------------- | ------------------- | ----------------------------------- |
+| `available`   | Allowed             | Allowed                             |
+| `yanked`      | Excluded            | Allowed with warning                |
+| `tombstoned`  | Excluded            | Fails                               |
+| `blocked`     | Excluded            | Fails                               |
+| `unavailable` | Excluded            | Fails or reports availability error |
+
+<Warning>
+  When you install a `yanked` version because it is exactly pinned or already in a lockfile, your tooling must surface a
+  warning before proceeding.
+</Warning>

@@ -1,0 +1,200 @@
+---
+title: 'Package roles: component, plugin, provider, meta'
+description: 'Understand the four volume roles — component, plugin, provider, and meta — and how to choose the right one based on what your package exports.'
+---
+
+Every volume declares a primary role using the `role` field in `[volume]`. The role communicates the package's intended shape to tooling, bibliothecas, and consumers: how many components it exports, whether it integrates with external services, and whether it's primarily a dependency bundle. Choosing the right role also keeps your package discoverable — search filters and compatibility checks use the role as a signal. You can combine roles using the `secondary-roles` field when your volume genuinely spans multiple concerns.
+
+## Overview
+
+<CardGroup cols={2}>
+  <Card title="component" icon="cube">
+    One primary component. The simplest role — use it for focused, single-purpose packages.
+  </Card>
+  <Card title="plugin" icon="plug">
+    Multiple components extending a runtime in a specific domain. Use it when you're bundling related capabilities
+    together.
+  </Card>
+  <Card title="provider" icon="link">
+    Integrations with external services. Use it when your package wraps an API or service (GitHub, Slack, Postgres,
+    etc.).
+  </Card>
+  <Card title="meta" icon="layer-group">
+    A dependency bundle with no mandatory exported components. Use it to group and re-export a curated set of volumes.
+  </Card>
+</CardGroup>
+
+## `component` — single primary component
+
+A `component` package exports exactly one component. This is the strictest role: the spec requires exactly one `[[components]]` entry. If you need to export multiple components, use `plugin`, `provider`, or another applicable role instead.
+
+Use `component` when you are publishing a single focused agent, skill, tool, hook, command, or server and want tooling to enforce that shape.
+
+```toml
+[volume]
+schema = 1
+name = "code-review-hook"
+version = "0.3.1"
+description = "Pre-tool-use hook that enforces code review policy"
+license = "MIT"
+role = "component"
+
+[publisher]
+id = "myorg"
+
+[[components]]
+type = "hook"
+name = "code-review-hook"
+entrypoint = "./hooks/code-review.md"
+description = "Intercepts tool calls to enforce review policy"
+```
+
+<Note>
+  The spec enforces the one-component constraint for `role = "component"` packages. A validator will reject the manifest
+  if you declare more than one `[[components]]` entry under this role.
+</Note>
+
+## `plugin` — multiple components in a specific domain
+
+A `plugin` package exports multiple components that together extend a runtime for a particular domain. Think of it as a coherent feature pack — a research assistant that ships an agent, several skills, and a tool would use `role = "plugin"`.
+
+Use `plugin` when you have two or more related components that belong together in a single distributable unit.
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+keywords = ["research", "literature", "arxiv"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+```
+
+## `provider` — external service integration
+
+A `provider` package integrates with one or more external services. It should declare provider metadata at the volume level, the component level, or both using the `providers` field. Provider declarations are discovery and compatibility metadata — they tell consumers and search indexes which services your package depends on.
+
+Use `provider` when your package is primarily a bridge to an external API, data source, or platform service.
+
+```toml
+[volume]
+schema = 1
+name = "github-provider"
+version = "2.1.0"
+description = "GitHub integration: PRs, issues, and code search"
+license = "Apache-2.0"
+role = "provider"
+providers = ["github"]
+
+[publisher]
+id = "acme"
+
+[[components]]
+type = "tool"
+name = "read-pr"
+entrypoint = "./tools/read-pr.json"
+description = "Read pull request metadata and diffs"
+providers = ["github"]
+
+[[components]]
+type = "tool"
+name = "comment-pr"
+entrypoint = "./tools/comment-pr.json"
+description = "Post a comment on a pull request"
+providers = ["github"]
+
+[[components]]
+type = "tool"
+name = "code-search"
+entrypoint = "./tools/code-search.json"
+description = "Search code in a GitHub repository"
+providers = ["github"]
+
+[permissions]
+network = "read-write"
+```
+
+<Tip>
+  You can combine `provider` as a secondary role when your plugin also integrates with external services. For example,
+  `role = "plugin"` with `secondary-roles = ["provider"]` is valid when the package both bundles multiple components and
+  wraps an external API.
+</Tip>
+
+## `meta` — dependency bundle
+
+A `meta` package is a lightweight dependency bundle. It carries no mandatory exported components — its value is in the `[dependencies]` table, which pulls in a curated set of volumes for consumers. You can think of it like a meta-package in other ecosystems: install this one volume to get a whole toolkit.
+
+Use `meta` when you want to publish a curated collection of volumes as a single installable unit, without shipping new component code yourself.
+
+```toml
+[volume]
+schema = 1
+name = "agent-starter-kit"
+version = "1.0.0"
+description = "Curated starter kit: search, github, and code-review tools"
+license = "Apache-2.0"
+role = "meta"
+
+[publisher]
+id = "acme"
+
+[dependencies]
+"search-toolkit" = "^2.0.0"
+"github-provider" = "^2.1.0"
+"code-review-hook" = "^0.3.0"
+```
+
+<Note>
+  A `meta` package has no mandatory `[[components]]` entries. Ordinary dependency resolution still applies to its
+  `[dependencies]` — the transitive closure follows the same single-version enforcement rules as any other volume.
+</Note>
+
+## Combining roles with `secondary-roles`
+
+When your volume genuinely spans multiple roles, declare the primary role in `role` and additional roles in `secondary-roles`:
+
+```toml
+[volume]
+schema = 1
+name = "slack-research-pack"
+version = "0.9.0"
+description = "Research plugin with Slack notification provider"
+license = "MIT"
+role = "plugin"
+secondary-roles = ["provider"]
+providers = ["slack", "arxiv"]
+```
+
+## Quick decision guide
+
+Use the table below to pick the right role for what you're building:
+
+| What you're building                                               | Role to use                                 |
+| ------------------------------------------------------------------ | ------------------------------------------- |
+| One focused agent, skill, tool, hook, command, or server           | `component`                                 |
+| A suite of related components for a specific domain                | `plugin`                                    |
+| A wrapper around an external API or service                        | `provider`                                  |
+| A multi-component pack that also integrates with external services | `plugin` + `secondary-roles = ["provider"]` |
+| A curated collection of existing volumes                           | `meta`                                      |
