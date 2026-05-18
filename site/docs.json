@@ -64,7 +64,7 @@
           },
           {
             "group": "Conformance",
-            "pages": ["conformance/overview", "conformance/fixtures"]
+            "pages": ["conformance/overview", "conformance/fixtures", "conformance/requirements"]
           }
         ]
       },
