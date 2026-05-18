@@ -31,6 +31,13 @@ The fixture corpus is organized into families, each covering a distinct area of 
     `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` — SemVer
     range grammar accept/reject cases and resolver lifecycle behavior.
   </Card>
+  <Card title="External dependency declarations" icon="link">
+    `external-dependency-validation-cases.json`, `external-dependency-potential-exposure-cases.json`,
+    `external-dependency-potential-exposure-warning-context-invalid.json`,
+    `manifest-invalid-external-dependency-*.json`, `../upstream-baselines.json`, `upstream-baselines-invalid.json`,
+    `../purl-vers-compatibility-exceptions.json`, and `purl-vers-compatibility-exceptions-invalid.json` — PURL/VERS
+    validation, declaration keys, upstream baseline compatibility, and potential-exposure warning contexts.
+  </Card>
   <Card title="Package identity" icon="tag">
     `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json` — purl serialization and canonical
     identity cases.
@@ -40,8 +47,8 @@ The fixture corpus is organized into families, each covering a distinct area of 
     golden vectors and archive profile validation.
   </Card>
   <Card title="Release metadata and upload" icon="upload">
-    `exact-release-metadata-cases.json`, `release-upload-lifecycle.json` — release lifecycle states and the `http-put`
-    portable upload profile.
+    `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`, `lifecycle-mutation-cases.json` — release
+    lifecycle states, unpublish and mutation endpoint behavior, and the `http-put` portable upload profile.
   </Card>
   <Card title="Trust discovery and upload" icon="lock">
     `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json` — trust metadata payloads, append-only
@@ -52,8 +59,8 @@ The fixture corpus is organized into families, each covering a distinct area of 
     stale-evidence cases.
   </Card>
   <Card title="Advisories" icon="triangle-exclamation">
-    `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-validation-cases.json` — advisory
-    payloads and validation cases.
+    `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-search-failure-cases.json`,
+    `advisory-validation-cases.json` — advisory payloads, validation cases, and read/discovery failure mappings.
   </Card>
   <Card title="Capability and extensions" icon="puzzle-piece">
     `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json` — capability
@@ -63,11 +70,12 @@ The fixture corpus is organized into families, each covering a distinct area of 
     `mapping-matrix.json`, `mapping-sample.json` — round-trip-safe CycloneDX, SPDX, and SLSA output mappings.
   </Card>
   <Card title="Errors and warnings" icon="circle-exclamation">
-    `problem-details-cases.json`, `problem-registry.json` — RFC 9457 Problem Details taxonomy and the portable problem
-    type/status set.
+    `problem-details-cases.json`, `problem-registry.json` — RFC 9457 Problem Details taxonomy, the portable problem
+    type/status set, and warning payload compatibility through `schemas/warning.schema.json`.
   </Card>
   <Card title="Search and catalog" icon="magnifying-glass">
-    `search-results.json` — catalog search response payload shape.
+    `search-results.json`, `catalog-search-failure-cases.json` — catalog search response payload shape and search
+    failure mappings.
   </Card>
   <Card title="Requirement traceability" icon="list-check">
     `conformance-coverage.json` — maps `AV-BIB-*` and `AV-CLI-*` requirement IDs to fixture families.

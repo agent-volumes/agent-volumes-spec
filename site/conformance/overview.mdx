@@ -25,7 +25,7 @@ Use precise labels when describing what your implementation has validated. Label
 
 ## Minimum viable conforming client
 
-Before claiming v0.1 draft compatibility as a client, your implementation must support all of the following:
+Before claiming Agent Volumes `0.1.0-rc.1` compatibility as a client, your implementation must support all of the following:
 
 1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
 2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
@@ -40,11 +40,12 @@ Before claiming v0.1 draft compatibility as a client, your implementation must s
 11. Treat revoked or invalid trust attachments as failures by default, and treat superseded trust attachments as stale evidence that does not satisfy current-state trust requirements.
 12. Validate objective trust artifact facts for formats the implementation claims to support, and never report unsupported artifact formats as verified.
 13. Consume capability metadata without failing solely on unknown capability fields or values, while interpreting `compatibleSpecVersions` as exact version sets and `apiVersion` as the HTTP API major family.
-14. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, and non-canonical entrypoint conventions.
+14. Validate external dependency declarations, including PURL/VERS compatibility, component scopes, duplicate or conflicting declaration keys, and potential-exposure warning contexts.
+15. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, potential external dependency exposure, and non-canonical entrypoint conventions.
 
 ## Minimum viable conforming bibliotheca
 
-Before claiming v0.1 draft compatibility as a bibliotheca, your implementation must support all of the following:
+Before claiming Agent Volumes `0.1.0-rc.1` compatibility as a bibliotheca, your implementation must support all of the following:
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
@@ -58,7 +59,8 @@ Before claiming v0.1 draft compatibility as a bibliotheca, your implementation m
 10. Support trust attachment upload intent/finalize and the `http-put` portable upload profile when the bibliotheca is write-capable for trust artifacts.
 11. Expose advisory read/discovery endpoints for the v0.1 advisory schema.
 12. Use RFC 9457 Problem Details for portable API errors.
-13. Block continued distribution of artifacts with discovered permission escalation.
+13. Validate and expose schema-backed external dependency metadata, upstream-baseline and PURL/VERS compatibility artifacts, and potential-exposure warnings where applicable.
+14. Block continued distribution of artifacts with discovered permission escalation.
 
 ## Prototype-local choices
 
