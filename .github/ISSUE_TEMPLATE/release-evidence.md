@@ -1,16 +1,16 @@
 ---
 name: Release evidence
 about: Track per-version release-freeze evidence for OpenAPI/prose drift and artifact validation.
-title: '[release-evidence] v0.1.0-draft.N'
+title: '[release-evidence] <version-or-tag>'
 labels: documentation
 assignees: ''
 ---
 
-## Release evidence for `v0.1.0-draft.N`
+## Release evidence for `<version-or-tag>`
 
 Use this issue as the canonical evidence ledger for one draft, release-candidate,
 or stable release. Human-readable dates in this issue use Human Era / Holocene
-Era (HE) notation, for example `12026-05-18 HE`.
+Era (HE) notation using the `YYYYY-MM-DD HE` shape.
 
 ## Scope
 
@@ -44,9 +44,8 @@ Era (HE) notation, for example `12026-05-18 HE`.
 
 ## Namespace and URI publication evidence
 
-Use this table for Issue #29. Each row should name the public URL, source
-artifact, and evidence that the route is immutable or intentionally redirected
-for this release.
+Each row should name the public URL, source artifact, and evidence that the
+route is immutable or intentionally redirected for this release.
 
 | Checklist item                             | Public URL or identifier | Source artifact | Immutability / check evidence |
 | ------------------------------------------ | ------------------------ | --------------- | ----------------------------- |
