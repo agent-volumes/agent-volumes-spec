@@ -2,6 +2,10 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
   "name": "Agent Volumes",
+  "logo": {
+    "light": "/images/site-logo-light.svg",
+    "dark": "/images/site-logo-dark.svg"
+  },
   "favicon": "favicon.svg",
   "colors": {
     "primary": "#242b2c",
