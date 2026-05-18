@@ -1,0 +1,290 @@
+---
+title: 'Runtime and protocol compatibility declarations'
+description: 'How to declare which runtimes, protocols, providers, and environments your volume supports using [[runtimes]], [[protocols]], providers, and [environment].'
+---
+
+Agent Volumes separates compatibility declarations from dependency constraints. Where dependencies pin version requirements for resolution, compatibility declarations are advisory metadata: they tell discovery systems, tooling, and consumers what execution context your volume was built for. Runtimes, protocols, providers, and environment requirements are all declared this way — they appear in `volume.toml` and are preserved and surfaced as-is by compliant tooling, which evaluates them only when it explicitly understands the corresponding version scheme.
+
+## Runtime compatibility (`[[runtimes]]`)
+
+Declare which agent runtimes your volume supports by adding one `[[runtimes]]` entry per target runtime. If you omit the array entirely, the volume makes no runtime-specific compatibility claim and is treated as potentially compatible with any runtime.
+
+```toml
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[runtimes]]
+name = "opencode"
+compatibility = ">=0.1.0"
+
+[[runtimes]]
+name = "cursor"
+```
+
+The `compatibility` field is a version expression, not a dependency constraint. Tooling preserves it as authored and only evaluates it when the client explicitly understands the version scheme for that runtime. Unknown-scheme expressions are advisory metadata for discovery, display, diagnostics, and adapter selection — a client must not reject a volume solely because it cannot parse the expression.
+
+### Recognized runtime identifiers
+
+The v0.1 specification defines 18 runtime identifiers. Adding a new identifier to this list is an additive, non-breaking spec update.
+
+| Runtime ID        | Description                       |
+| ----------------- | --------------------------------- |
+| `aider`           | Aider CLI coding agent            |
+| `claude-code`     | Anthropic's Claude Code CLI agent |
+| `cline`           | Cline IDE and CLI agent           |
+| `codex`           | OpenAI Codex CLI agent            |
+| `continue`        | Continue IDE and CLI agent        |
+| `cursor`          | Cursor AI editor                  |
+| `crewai`          | CrewAI agent framework            |
+| `gemini`          | Google Gemini CLI agent           |
+| `generic-cli`     | Any CLI-based agent runtime       |
+| `generic-mcp`     | Any MCP-compatible client         |
+| `goose`           | Goose desktop and CLI agent       |
+| `hermes-agent`    | Hermes Agent autonomous runtime   |
+| `langgraph`       | LangGraph agent runtime SDK       |
+| `openai-agents`   | OpenAI Agents SDK                 |
+| `openclaw`        | OpenClaw autonomous agent runtime |
+| `opencode`        | OpenCode CLI agent                |
+| `pi-agent`        | Pi coding agent runtime           |
+| `semantic-kernel` | Microsoft Semantic Kernel SDK     |
+
+<Note>
+  Runtime identifiers describe the **execution host**, not the underlying AI model. `claude-code` identifies Anthropic's
+  CLI agent; it says nothing about which model that agent is configured to use. Model/provider compatibility is outside
+  the v0.1 runtime identifier model.
+</Note>
+
+## Protocol compatibility (`[[protocols]]`)
+
+If your volume exports MCP servers or LSP servers, declare protocol compatibility using the `[[protocols]]` array. The `version` field accepts whatever version scheme the protocol ecosystem uses — MCP uses date-like versions, LSP uses short numeric SemVer-compatible versions.
+
+```toml
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+```
+
+| Protocol ID | Description              |
+| ----------- | ------------------------ |
+| `mcp`       | Model Context Protocol   |
+| `lsp`       | Language Server Protocol |
+
+Like runtime compatibility expressions, protocol version expressions are advisory. Tooling must not reject a manifest solely because it cannot evaluate the expression — different protocols use different version schemes, and the baseline treats unknown schemes as metadata.
+
+## Provider declarations
+
+Providers are external services your volume integrates with. Declare them at the volume level in `[volume]`, at the component level in `[[components]]`, or both. These are discovery and compatibility hints — they are not dependency declarations and do not affect resolution.
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant with arXiv and Semantic Scholar integration"
+license = "Apache-2.0"
+role = "plugin"
+providers = ["arxiv", "semantic-scholar"]
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+providers = ["arxiv"]
+
+[[components]]
+type = "tool"
+name = "scholar-search"
+entrypoint = "./tools/scholar-search.json"
+providers = ["semantic-scholar"]
+```
+
+### Common provider identifiers
+
+The spec lists these as common providers. Provider strings are freeform — you can use identifiers outside this list for niche integrations — but using well-known names ensures your volume is discoverable through standard search filters.
+
+<CardGroup cols={3}>
+  <Card title="Dev platforms">`github`, `gitlab`</Card>
+  <Card title="Communication">`slack`, `discord`</Card>
+  <Card title="Project management">`linear`, `jira`, `notion`</Card>
+  <Card title="Infrastructure">`docker`, `kubernetes`</Card>
+  <Card title="Cloud">`aws`, `gcp`, `azure`</Card>
+  <Card title="Data">`postgres`</Card>
+  <Card title="AI">`openai`, `anthropic`</Card>
+  <Card title="System surfaces">`filesystem`, `browser`</Card>
+</CardGroup>
+
+## Environment requirements (`[environment]`)
+
+Declare execution environment requirements in `[environment]`. Omitting any field means no restriction for that dimension — the volume is assumed to work in any environment for that dimension.
+
+```toml
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+arch = ["x64", "arm64"]
+```
+
+### Valid values
+
+<Tabs>
+  <Tab title="runtimes">
+    Language runtimes required to execute the volume's components:
+
+    `node`, `bun`, `deno`, `python`, `ruby`, `go`, `rust`
+
+  </Tab>
+  <Tab title="os">
+    Target operating systems:
+
+    `linux`, `macos`, `windows`
+
+  </Tab>
+  <Tab title="arch">
+    Target CPU architectures:
+
+    `x64`, `arm64`, `x86`
+
+  </Tab>
+</Tabs>
+
+## Permissions (`[permissions]`)
+
+Permissions declare the maximum capability surface your volume requires. Volume-level permissions apply to all components. Individual components may declare narrower permissions using a `permissions` table in their `[[components]]` entry, but they can never declare broader permissions than the volume permits.
+
+```toml
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
+```
+
+### Permission values
+
+| Permission   | Valid values                          | Default |
+| ------------ | ------------------------------------- | ------- |
+| `filesystem` | `deny`, `read`, `write`, `read-write` | `deny`  |
+| `network`    | `deny`, `read`, `write`, `read-write` | `deny`  |
+| `browser`    | `deny`, `read`, `write`, `read-write` | `deny`  |
+| `shell`      | `deny`, `allow`                       | `deny`  |
+
+For `filesystem`, `network`, and `browser`, the values map to intent:
+
+- `deny` — no access
+- `read` — inspect, list, search, fetch, or observe without side effects
+- `write` — create, modify, delete, submit, or otherwise trigger side effects
+- `read-write` — both read and write behavior permitted
+
+For `shell`, the v0.1 baseline is coarse: `allow` or `deny`.
+
+### Permission narrowing at the component level
+
+A component may omit a permission field to inherit the volume-level default, or it may declare a value that is narrower than the volume's setting. The valid narrowing partial order for `filesystem`, `network`, and `browser` is:
+
+```text
+deny < read < read-write
+deny < write < read-write
+```
+
+`read` and `write` are sibling permissions — neither is narrower than the other. This means:
+
+- A component under a `read-write` volume may declare `read`, `write`, or `deny`.
+- A component under a `read` volume may declare `deny`, but not `write`.
+- A component under a `write` volume may declare `deny`, but not `read`.
+- A component under a `deny` volume may only declare `deny` (or omit the field).
+
+For `shell`: `deny < allow`. A component under a `deny` volume cannot declare `allow`.
+
+<Warning>
+  Permission escalation is a validation failure. If a component declares a permission broader than its parent volume,
+  clients and bibliothecas reject the artifact. Bibliothecas that discover permission escalation must block the affected
+  artifact from continued distribution.
+</Warning>
+
+### Component-level permission example
+
+```toml
+[permissions]
+filesystem = "read-write"
+network = "read"
+shell = "deny"
+browser = "deny"
+
+[[components]]
+type = "tool"
+name = "read-only-scanner"
+entrypoint = "./tools/scanner.json"
+description = "Read-only file scanner — needs only read access"
+
+# This component narrows filesystem from "read-write" to "read"
+[components.permissions]
+filesystem = "read"
+
+[[components]]
+type = "tool"
+name = "file-writer"
+entrypoint = "./tools/writer.json"
+description = "Writes output files — needs write access"
+# Inherits filesystem = "read-write" from volume
+```
+
+## Complete compatibility example
+
+The following manifest shows all compatibility declarations together:
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+secondary-roles = ["provider"]
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+
+# Runtime compatibility
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[runtimes]]
+name = "opencode"
+
+# Protocol compatibility
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+# Permissions
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
+
+# Environment
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+```
