@@ -1,0 +1,155 @@
+---
+title: 'Registry API error codes and responses'
+description: 'RFC 7807 Problem Details error format and the complete list of Agent Volumes API error type slugs with HTTP status codes and meanings.'
+---
+
+All Agent Volumes Registry API error responses use [RFC 7807 Problem Details](https://www.rfc-editor.org/rfc/rfc7807) with the `application/problem+json` content type. Each error has a `type` URI that identifies the problem category, a human-readable `title`, and an HTTP `status` code. An optional `detail` field provides context-specific information about the specific failure. The `type` URI is the stable machine-readable identifier your client should switch on — not the `title`, which may vary.
+
+## Error response format
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Volume '@acme/research-agent-pack' does not exist.",
+  "instance": "/api/v1/volumes/@acme/research-agent-pack/1.4.0"
+}
+```
+
+| Field      | Type                   | Description                                               |
+| ---------- | ---------------------- | --------------------------------------------------------- |
+| `type`     | string (URI)           | Machine-readable problem type identifier. Always present. |
+| `title`    | string                 | Human-readable problem title. Always present.             |
+| `status`   | integer                | HTTP status code repeated in the body. Always present.    |
+| `detail`   | string                 | Context-specific human-readable explanation. Optional.    |
+| `instance` | string (URI reference) | Reference to the specific occurrence. Optional.           |
+
+## Problem type URIs
+
+All Agent Volumes problem type URIs follow the pattern:
+
+```
+https://agentvolumes.org/problems/<slug>
+```
+
+## Complete error table
+
+| Slug                          | Status | Meaning                                                                            |
+| ----------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| `authentication-required`     | 401    | Bearer authentication is missing, malformed, unknown, expired, or revoked          |
+| `authorization-failed`        | 403    | The authenticated caller is not authorized for the requested operation or resource |
+| `not-found`                   | 404    | The requested resource does not exist or is not visible to the caller              |
+| `validation-failed`           | 400    | Request payload, parameters, manifest, or metadata failed validation               |
+| `invalid-manifest`            | 400    | A submitted `volume.toml` is structurally or semantically invalid                  |
+| `invalid-archive`             | 400    | A submitted hosted archive violates the v0.1 archive transport profile             |
+| `identity-mismatch`           | 409    | A package identity disagrees with its route, manifest, or metadata                 |
+| `version-conflict`            | 409    | The target version already exists or cannot be reused                              |
+| `digest-mismatch`             | 400    | Submitted or resolved bytes do not match the declared digest                       |
+| `subject-binding-mismatch`    | 400    | A trust artifact does not bind to the intended release subject                     |
+| `inconsistent-registry-state` | 409    | Index, exact metadata, or trust metadata cannot be reconciled                      |
+| `upload-expired`              | 410    | An upload intent expired before finalization                                       |
+| `missing-uploaded-bytes`      | 400    | Finalization was requested before upload bytes were available                      |
+| `invalid-upload-state`        | 409    | The upload intent is not in a state that can be finalized                          |
+| `idempotency-conflict`        | 409    | A reused idempotency key conflicts with an earlier request                         |
+| `payload-too-large`           | 413    | The submitted payload exceeds the bibliotheca's accepted limit                     |
+| `unsupported-media-type`      | 415    | The submitted payload media type is not supported                                  |
+| `permission-escalation`       | 400    | Component permissions exceed the parent volume permission boundary                 |
+| `rate-limited`                | 429    | The request was rate limited                                                       |
+
+The problem type set above is closed for the v0.1 portable baseline. Bibliothecas must not introduce additional problem types in the `https://agentvolumes.org/problems/` namespace.
+
+## Endpoint-to-error mapping
+
+| Endpoint                                                            | Common problem slugs                                                                                    |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/search`                                                | `validation-failed`, `rate-limited`                                                                     |
+| `GET /api/v1/index/volumes/...`                                     | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/{name}/{version}`                              | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `POST /api/v1/volumes/{name}`                                       | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
+| `POST /api/v1/volumes/{name}/uploads/{id}/finalize`                 | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
+| `GET /api/v1/volumes/{name}/{version}/trust/summary`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `GET /api/v1/volumes/{name}/{version}/trust/detail`                 | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads`               | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads/{id}/finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
+| `GET /api/v1/advisories`                                            | `not-found`, `rate-limited`                                                                             |
+| `GET /api/v1/capabilities`                                          | `rate-limited`                                                                                          |
+
+## Authentication and authorization errors
+
+A `401` always means the token itself is the problem — it is missing, malformed, unknown, expired, or revoked:
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/authentication-required",
+  "title": "Authentication required",
+  "status": 401
+}
+```
+
+A `403` means authentication succeeded but the token lacks permission for the specific operation or resource:
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/authorization-failed",
+  "title": "Authorization failed",
+  "status": 403,
+  "detail": "This token is not authorized to publish to @acme/my-volume."
+}
+```
+
+## Rate limit errors
+
+When you exceed a rate limit tier, you receive:
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/rate-limited",
+  "title": "Rate limited",
+  "status": 429
+}
+```
+
+See [Overview](/api/overview) for the recommended rate limit tiers (anonymous, authenticated, and CI token).
+
+## Idempotency key errors
+
+If you pass both an `Idempotency-Key` header and an `idempotencyKey` body field with different values, or if you reuse a key with conflicting request parameters, you receive:
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/idempotency-conflict",
+  "title": "Idempotency conflict",
+  "status": 409
+}
+```
+
+When only one form is present (header or body field), that value is used as the idempotency key. The header form is the preferred portable API surface.
+
+## Upload lifecycle errors
+
+| Scenario                                           | Problem slug               | Status |
+| -------------------------------------------------- | -------------------------- | ------ |
+| Finalize called before bytes were uploaded         | `missing-uploaded-bytes`   | 400    |
+| Upload intent expired before finalize              | `upload-expired`           | 410    |
+| Intent is in a state that cannot be finalized      | `invalid-upload-state`     | 409    |
+| Uploaded bytes don't match declared digest         | `digest-mismatch`          | 400    |
+| Trust artifact doesn't bind to the release subject | `subject-binding-mismatch` | 400    |
+
+## Permission escalation errors
+
+If a `volume.toml` declares a component with permissions broader than its parent volume permits, the publish finalize step returns:
+
+```json
+{
+  "type": "https://agentvolumes.org/problems/permission-escalation",
+  "title": "Permission escalation",
+  "status": 400,
+  "detail": "Component 'arxiv-search' declares network=read-write but the volume permits only network=read."
+}
+```
+
+<Warning>
+  Your client should also fail before submission when it detects a permission escalation locally. Do not rely solely on
+  the server to catch this — validate your `volume.toml` before calling the publish endpoint.
+</Warning>
