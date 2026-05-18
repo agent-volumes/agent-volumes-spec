@@ -184,9 +184,9 @@ The four categories of trust attachment are:
 | **BOM**        | A CycloneDX Bill of Materials listing the volume's components and their dependencies.       |
 | **Provenance** | A SLSA provenance statement linking the release to its source repository and build process. |
 | **Signature**  | A Sigstore-family cryptographic signature over the release artifact.                        |
-| **Advisory**   | A security advisory associated with a specific version or version range.                    |
+| **Other**      | A release-scoped trust artifact that does not fit the core categories.                      |
 
-Trust attachments are uploaded separately from the volume content, typically as part of a CI/CD publish workflow. They are retrieved through the Registry API's trust endpoints.
+Trust attachments are uploaded separately from the volume content, typically as part of a CI/CD publish workflow. They are retrieved through the Registry API's trust endpoints. Security advisories are a separate advisory discovery surface, not a trust attachment category.
 
 <Info>
   Bibliothecas may compute **derived judgments** — verification labels or policy outcomes — based on the trust
@@ -254,10 +254,12 @@ Bibliotheca
     │   ├── [publisher] identity
     │   ├── [[components]] declarations
     │   ├── [dependencies] + [component-dependencies]
+    │   ├── [[external-dependencies]] audit declarations
     │   ├── [[runtimes]] + [[protocols]] compatibility
     │   └── [permissions] + [environment]
     ├── Component files (entrypoints)
-    └── Trust attachments (BOM, provenance, signature, advisories)
+    ├── Trust attachments (BOM, provenance, signature, other)
+    └── Advisory records (separate discovery surface)
 ```
 
 A **publisher** publishes a **volume** to a **bibliotheca**. The volume contains a `volume.toml` manifest and component entrypoint files. Each **component** within the volume is addressable by its purl subpath. The volume's release is anchored by its **content identity** digest. **Trust attachments** provide cryptographic evidence about the release.

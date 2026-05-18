@@ -6,9 +6,9 @@ description: 'Create a volume.toml manifest, declare components, add compatibili
 This guide walks you through creating and publishing your first volume — a versioned package of agent components that any compatible runtime can install. You'll write a `volume.toml` manifest, declare components, specify compatibility requirements, and publish using the `shelf` CLI.
 
 <Note>
-  The `shelf` CLI and the Alexandria bibliotheca are reference implementations currently in development, targeting
-  availability in Q2 2026. The manifest format and concepts shown here are stable against the current specification
-  draft.
+  The `shelf` CLI and the Alexandria bibliotheca are Windlass-maintained reference implementation projects in
+  development. They are downstream implementation projects, not governance artifacts, and the canonical standard remains
+  the Agent Volumes `0.1.0-rc.1` specification plus its companion schemas and conformance fixtures.
 </Note>
 
 <Steps>
@@ -154,8 +154,8 @@ os = ["linux", "macos", "windows"]
     compatibility = "^1.0.0"
 
     [[runtimes]]
-    name = "gemini-cli"
-    compatibility = ">=0.5.0"
+    name = "opencode"
+    compatibility = ">=0.1.0"
     ```
 
   </Tab>
@@ -243,7 +243,8 @@ shelf verify my-research-pack@0.1.0
 The verification process reconstructs the normalized file tree digest from your local files and compares it against the digest recorded at publish time. Any modification to any file in the volume — including the manifest — changes the digest and fails verification.
 
 <Tip>
-  For higher assurance, attach SLSA provenance and a Sigstore signature at publish time. See [Supply Chain Security](/security/supply-chain) for the full trust model.
+  For higher assurance, attach trust artifacts such as CycloneDX BOMs, SLSA provenance, or Sigstore-family signatures
+  after publishing. See [Supply Chain Security](/security/supply-chain) for the full trust model.
 </Tip>
 </Step>
 
@@ -320,6 +321,17 @@ version = ">=3.17"
 
 [dependencies]
 "search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
 
 [component-dependencies]
 "literature-reviewer" = [
