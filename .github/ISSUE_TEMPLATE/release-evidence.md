@@ -25,16 +25,39 @@ Era (HE) notation, for example `12026-05-18 HE`.
 
 ## Global validation evidence
 
+- [ ] `bun install && (cd site && bun install)`
+  - Evidence:
+- [ ] `bun run build:site:openapi`
+  - Evidence:
 - [ ] `bun run format:check`
   - Evidence:
 - [ ] `bun run lint:md`
   - Evidence:
 - [ ] `bun run lint:openapi`
   - Evidence:
+- [ ] `bun run lint:site`
+  - Evidence:
 - [ ] `bun run validate:artifacts`
   - Evidence:
 - [ ] `bun run changelog:check`
   - Evidence:
+
+## Namespace and URI publication evidence
+
+Use this table for Issue #29. Each row should name the public URL, source
+artifact, and evidence that the route is immutable or intentionally redirected
+for this release.
+
+| Checklist item                             | Public URL or identifier | Source artifact | Immutability / check evidence |
+| ------------------------------------------ | ------------------------ | --------------- | ----------------------------- |
+| SPDX extension namespace                   |                          |                 |                               |
+| in-toto predicate URI                      |                          |                 |                               |
+| Problem Details type URIs                  |                          |                 |                               |
+| JSON Schema `$id` URLs                     |                          |                 |                               |
+| SLSA build type URI                        |                          |                 |                               |
+| Agent Volumes BOM/profile identifiers      |                          |                 |                               |
+| External dependency declaration key syntax |                          |                 |                               |
+| Capability extension reserved namespaces   |                          |                 |                               |
 
 ## Operation coverage matrix links
 

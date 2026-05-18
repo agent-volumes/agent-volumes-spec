@@ -28,23 +28,28 @@ Before tagging a draft, release candidate, or stable release:
 
 1. Confirm `agent-volumes-spec.md` has the intended version and status.
 2. Confirm schema `$id` values match the release version.
-3. Run `bun run format:check`.
-4. Run `bun run lint:md`.
-5. Run `bun run lint:openapi`.
-6. Run `bun run validate:artifacts`.
-7. Create a release evidence issue using
-   [`../.github/ISSUE_TEMPLATE/release-evidence.md`](../.github/ISSUE_TEMPLATE/release-evidence.md)
-   and record Human Era / Holocene Era (HE) dates in human-readable evidence
-   fields.
-8. Complete the OpenAPI/prose drift audit in
-   [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
-9. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
-   role-scoped requirements.
-10. Confirm deferred and local-policy topics remain documented in
+3. Confirm repository dependencies and isolated site dependencies are installed
+   with `bun install` and `(cd site && bun install)`.
+4. Run `bun run build:site:openapi` to refresh the Mintlify publication copy of
+   the Bibliotheca OpenAPI contract.
+5. Run `bun run format:check`.
+6. Run `bun run lint:md`.
+7. Run `bun run lint:openapi`.
+8. Run `bun run lint:site`.
+9. Run `bun run validate:artifacts`.
+10. Create a release evidence issue using
+    [`../.github/ISSUE_TEMPLATE/release-evidence.md`](../.github/ISSUE_TEMPLATE/release-evidence.md)
+    and record Human Era / Holocene Era (HE) dates in human-readable evidence
+    fields.
+11. Complete the OpenAPI/prose drift audit in
+    [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
+12. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
+    role-scoped requirements.
+13. Confirm deferred and local-policy topics remain documented in
     [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
-11. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
+14. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
     to generate a `CHANGELOG.md` draft.
-12. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
+15. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
     raw git history dump.
 
 ## Release notes
