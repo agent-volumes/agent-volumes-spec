@@ -4,7 +4,7 @@ sidebarTitle: 'Overview'
 description: 'Overview of the Agent Volumes bibliotheca HTTP API, covering versioning, base URL, authentication, response formats, and rate limiting tiers.'
 ---
 
-The Agent Volumes Registry API is an HTTP API that bibliothecas expose for package operations, version discovery, trust metadata, advisory discovery, and capability introspection. Every operation maps to a resource under the `/api/v1/` prefix, responses use JSON, and errors follow the RFC 7807 Problem Details format. You call the same API whether you are building a client library, a CI publishing tool, or a resolver.
+The Agent Volumes Registry API is an HTTP API that bibliothecas expose for package operations, version discovery, trust metadata, advisory discovery, and capability introspection. Every operation maps to a resource under the `/api/v1/` prefix, responses use JSON, and errors follow the RFC 9457 Problem Details format. You call the same API whether you are building a client library, a CI publishing tool, or a resolver.
 
 ## Base URL and versioning
 
@@ -26,7 +26,7 @@ See [Authentication](/api/authentication) for the full authorization table and e
 
 ## Response format
 
-All successful responses return `application/json`. Error responses return `application/problem+json` following [RFC 7807 Problem Details](https://www.rfc-editor.org/rfc/rfc7807).
+All successful responses return `application/json`. Error responses return `application/problem+json` following [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457).
 
 ```json
 {

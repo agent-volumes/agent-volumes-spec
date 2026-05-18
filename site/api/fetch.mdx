@@ -108,7 +108,7 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0
 | `blocked`     | Excluded            | Fails                                                           |
 | `unavailable` | Excluded            | Fails with an availability or inconsistent-registry-state error |
 
-For `blocked`, `tombstoned`, or `unavailable` releases, the bibliotheca returns an RFC 7807 Problem Details response rather than a `dist` block. Do not attempt to install releases in these states via the portable baseline.
+For `blocked`, `tombstoned`, or `unavailable` releases, the bibliotheca returns an RFC 9457 Problem Details response rather than a `dist` block. Do not attempt to install releases in these states via the portable baseline.
 
 <Warning>
   Always verify the downloaded archive's normalized-file-tree digest against the `integrity` field before installation

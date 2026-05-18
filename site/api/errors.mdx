@@ -1,9 +1,9 @@
 ---
 title: 'Registry API error codes and responses'
-description: 'RFC 7807 Problem Details error format and the complete list of Agent Volumes API error type slugs with HTTP status codes and meanings.'
+description: 'RFC 9457 Problem Details error format and the complete list of Agent Volumes API error type slugs with HTTP status codes and meanings.'
 ---
 
-All Agent Volumes Registry API error responses use [RFC 7807 Problem Details](https://www.rfc-editor.org/rfc/rfc7807) with the `application/problem+json` content type. Each error has a `type` URI that identifies the problem category, a human-readable `title`, and an HTTP `status` code. An optional `detail` field provides context-specific information about the specific failure. The `type` URI is the stable machine-readable identifier your client should switch on — not the `title`, which may vary.
+All Agent Volumes Registry API error responses use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457) with the `application/problem+json` content type. Each error has a `type` URI that identifies the problem category, a human-readable `title`, and an HTTP `status` code. An optional `detail` field provides context-specific information about the specific failure. The `type` URI is the stable machine-readable identifier your client should switch on — not the `title`, which may vary.
 
 ## Error response format
 
