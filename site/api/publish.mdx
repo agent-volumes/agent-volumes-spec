@@ -162,7 +162,7 @@ Your `.tar.gz` archive must follow the v0.1 hosted archive transport profile:
 
 - The payload is gzip-compressed tar content
 - Archive entries are interpreted relative to one volume root
-- Absolute paths, parent-directory traversal (`..`), duplicate normalized paths, and entries that normalize to `.` are invalid
+- Absolute paths, `.` or `..` path segments, duplicate normalized paths, and entries that normalize to `.` are invalid
 - Only regular files are permitted — symlinks, hardlinks, device nodes, sockets, and other non-regular entries are invalid
 - Archive timestamps, ownership, extended attributes, and platform-specific mode bits (other than the executable bit) are not part of the release subject
 
@@ -177,22 +177,22 @@ During finalize, the bibliotheca:
 5. Checks that the version is not already lifecycle-marked (no version reuse)
 6. Confirms the caller remains authorized
 7. Computes the authoritative normalized-file-tree `integrity` value
-8. Checks for permission escalation (components must not declare broader permissions than the parent volume)
+8. May check for permission escalation; clients must fail before submission when components declare broader permissions than the parent volume, and bibliothecas must block affected artifacts when escalation is discovered
 
 ## Version immutability
 
 Once a version number has been published, yanked, tombstoned, blocked, or otherwise lifecycle-marked, it cannot be reused for different release content. Attempting to publish the same version again returns a `409 Conflict` with the `version-conflict` problem type.
 
-## Yanking a release
+## Unpublishing a release
 
-To yank a published release, use the `DELETE` endpoint. Yanked versions are excluded from ordinary dependency resolution but remain installable when explicitly requested or already pinned. See [Fetch](/api/fetch) for client behavior on yanked releases.
+To unpublish a published release, use the `DELETE` endpoint. Unpublished version numbers should be tombstoned when local policy permits unpublishing. Tombstoned versions preserve the version identity but are not installable in the portable v0.1 baseline.
 
 ```http
 DELETE /api/v1/volumes/@acme/research-agent-pack/1.4.0
 Authorization: Bearer <your-token>
 ```
 
-The bibliotheca returns `202 Accepted`. The version identity is preserved; its lifecycle state changes to `yanked` or `tombstoned` depending on bibliotheca policy.
+The bibliotheca returns `202 Accepted`. The version identity is preserved; its lifecycle state changes according to bibliotheca policy, with tombstoning as the portable unpublish behavior described by the specification.
 
 ## Idempotency
 
