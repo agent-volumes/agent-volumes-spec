@@ -61,19 +61,19 @@ The problem type set above is closed for the v0.1 portable baseline. Bibliotheca
 
 ## Endpoint-to-error mapping
 
-| Endpoint                                                            | Common problem slugs                                                                                    |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `GET /api/v1/search`                                                | `validation-failed`, `rate-limited`                                                                     |
-| `GET /api/v1/index/volumes/...`                                     | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/{name}/{version}`                              | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `POST /api/v1/volumes/{name}`                                       | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
-| `POST /api/v1/volumes/{name}/uploads/{id}/finalize`                 | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
-| `GET /api/v1/volumes/{name}/{version}/trust/summary`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/{name}/{version}/trust/detail`                 | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `POST /api/v1/volumes/{name}/{version}/trust/uploads`               | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
-| `POST /api/v1/volumes/{name}/{version}/trust/uploads/{id}/finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
-| `GET /api/v1/advisories`                                            | `not-found`, `rate-limited`                                                                             |
-| `GET /api/v1/capabilities`                                          | `rate-limited`                                                                                          |
+| Endpoint                                                                  | Common problem slugs                                                                                                                                                                   |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/search`                                                      | `validation-failed`, `rate-limited`                                                                                                                                                    |
+| `GET /api/v1/index/volumes/...`                                           | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/{name}/{version}`                                    | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                     |
+| `POST /api/v1/volumes/{name}`                                             | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`                                                                                             |
+| `POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize`                 | `not-found`, `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `missing-uploaded-bytes`, `invalid-upload-state`, `idempotency-conflict`, `upload-expired` |
+| `GET /api/v1/volumes/{name}/{version}/trust/summary`                      | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/{name}/{version}/trust/detail`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads`                     | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `payload-too-large`, `unsupported-media-type`                                                           |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`                                                                                            |
+| `GET /api/v1/advisories`                                                  | `validation-failed`, `not-found`, `rate-limited`                                                                                                                                       |
+| `GET /api/v1/capabilities`                                                | `rate-limited`                                                                                                                                                                         |
 
 ## Authentication and authorization errors
 
@@ -138,7 +138,7 @@ When only one form is present (header or body field), that value is used as the 
 
 ## Permission escalation errors
 
-If a `volume.toml` declares a component with permissions broader than its parent volume permits, the publish finalize step returns:
+If a `volume.toml` declares a component with permissions broader than its parent volume permits and a bibliotheca detects that escalation during validation, it can return:
 
 ```json
 {
@@ -150,6 +150,6 @@ If a `volume.toml` declares a component with permissions broader than its parent
 ```
 
 <Warning>
-  Your client should also fail before submission when it detects a permission escalation locally. Do not rely solely on
-  the server to catch this — validate your `volume.toml` before calling the publish endpoint.
+  Clients must fail before submission when they detect permission escalation locally. Do not rely solely on the server
+  to catch this — validate your `volume.toml` before calling the publish endpoint.
 </Warning>
