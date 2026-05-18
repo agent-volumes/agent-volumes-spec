@@ -1,8 +1,8 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-10T21:30:13Z
-**Commit:** f52b0ca
-**Branch:** docs/draft-5-readiness-cleanup
+**Generated:** 2026-05-18T00:05:44Z
+**Commit:** d3c2d41
+**Branch:** release/0.1.0-rc1
 
 ## OVERVIEW
 
@@ -43,7 +43,7 @@ agent-volumes-spec/
 ├── schemas/                   # Normative JSON Schema artifacts
 ├── conformance/               # Offline conformance fixtures + runner contract
 ├── openapi/                   # Bibliotheca API contract + prose drift audit
-├── docs/decisions/            # 142 ADRs (architecture decision records)
+├── docs/decisions/            # 152 ADRs (architecture decision records)
 ├── .agents/skills/            # Contributor dev tooling (NOT distributable)
 └── scripts/                   # Artifact validation script
 ```
@@ -55,7 +55,7 @@ agent-volumes-spec/
 | Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
-| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0142     |
+| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0152     |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
