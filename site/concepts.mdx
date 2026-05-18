@@ -1,0 +1,280 @@
+---
+title: 'Agent Volumes core concepts and terminology'
+description: 'The essential vocabulary for working with Agent Volumes: volumes, bibliothecas, manifests, identity, component types, publishers, trust, and package roles.'
+sidebarTitle: 'Core concepts'
+---
+
+Agent Volumes introduces a precise vocabulary to describe how agent components are packaged, identified, distributed, and verified. Understanding these concepts helps you author correct manifests, reason about package identity, and integrate with the trust model. This page defines each term and shows where it appears in practice.
+
+<AccordionGroup>
+
+<Accordion title="Volume" icon="box">
+
+A **volume** is the distribution unit of the Agent Volumes ecosystem. It is a versioned package that exports one or more agent components.
+
+A volume is to agent components what an npm package is to JavaScript modules, or what a Python wheel is to Python code. You publish a volume to a bibliotheca, and users install it into their agent runtime.
+
+Every volume has:
+
+- A **name** — scopeless (`research-agent-pack`) or scoped (`@acme/research-agent-pack`)
+- A **version** — a [SemVer](https://semver.org/) string such as `1.4.0`
+- A **manifest** — the `volume.toml` file at its root
+- One or more **components** — the actual agent capabilities it exports
+
+**Example purl:**
+
+```text
+pkg:volume/research-agent-pack@1.4.0
+```
+
+</Accordion>
+
+<Accordion title="Bibliotheca" icon="building-columns">
+
+A **bibliotheca** is a registry that indexes, hosts, and serves volumes — the Agent Volumes equivalent of npmjs.com, PyPI, or crates.io.
+
+Bibliothecas implement the [Agent Volumes Registry API](/api/overview), which covers:
+
+- Publishing and fetching volumes
+- Version discovery and search
+- Trust metadata upload and retrieval
+- Security advisories
+- Capability metadata
+
+Any compliant server can act as a bibliotheca. The **Alexandria** bibliotheca is the reference implementation maintained by Windlass.
+
+<Note>
+  Bibliothecas define their own policies for scope governance, moderation, and pricing. These policies are local to each
+  registry and are not standardized by the Agent Volumes specification.
+</Note>
+
+</Accordion>
+
+<Accordion title="volume.toml" icon="file-code">
+
+`volume.toml` is the package manifest file for a volume. Every volume must include a `volume.toml` at its root — it is the authoritative source for package metadata, component declarations, dependencies, compatibility requirements, and permissions.
+
+The format is [TOML v1.1.0](https://toml.io/en/v1.1.0). The manifest is analogous to `package.json` for npm or `Cargo.toml` for Rust.
+
+**Minimal manifest:**
+
+```toml
+[volume]
+schema = 1
+name = "my-pack"
+version = "0.1.0"
+description = "A minimal Agent Volumes package"
+license = "MIT"
+role = "component"
+
+[publisher]
+id = "yourname"
+
+[[components]]
+type = "skill"
+name = "my-skill"
+entrypoint = "./skills/my-skill/SKILL.md"
+```
+
+The `schema` field is currently always `1`. Tooling rejects manifests with unrecognized schema versions. See the [Manifest reference](/volumes/manifest) for the full field reference.
+
+</Accordion>
+
+<Accordion title="Package identity and purl" icon="tag">
+
+Every volume and component has a globally unique identifier expressed as a [Package URL (purl)](https://github.com/package-url/purl-spec) using the `volume` type. This identifier is used in dependency declarations, supply chain tooling, BOM generation, and trust workflows.
+
+**Volume identifiers:**
+
+```text
+# Scopeless volume
+pkg:volume/research-agent-pack
+
+# Scopeless volume at a specific version
+pkg:volume/research-agent-pack@1.4.0
+
+# Scoped volume (note %40 is URL-encoded @)
+pkg:volume/%40acme/research-agent-pack@1.4.0
+```
+
+**Component identifiers** use the purl subpath field to address a specific component within a volume:
+
+```text
+# Tool component
+pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search
+
+# Skill component
+pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper
+
+# Agent component
+pkg:volume/%40acme/research-agent-pack@1.4.0#agent/literature-reviewer
+```
+
+The subpath format is `<type>/<componentName>`, where `type` is one of the seven component type identifiers.
+
+<Info>
+  In user-facing contexts such as manifests, search results, and display, the decoded form `@acme/research-agent-pack`
+  is used. In portable payloads such as BOM entries and provenance subjects, the encoded purl form
+  `pkg:volume/%40acme/...` is used. These two forms are not byte-for-byte interchangeable.
+</Info>
+
+</Accordion>
+
+<Accordion title="Component" icon="puzzle-piece">
+
+A **component** is a functional unit exported by a volume and executed by an agent runtime. Every component belongs to one of seven types, each with distinct semantics, an entrypoint format, and an invocation model.
+
+| Type           | Type identifier | Invoked by           | Execution model          |
+| -------------- | --------------- | -------------------- | ------------------------ |
+| **Agent**      | `agent`         | Runtime              | Autonomous, long-running |
+| **Skill**      | `skill`         | Runtime (contextual) | Loaded into context      |
+| **Command**    | `command`       | User (explicit)      | Trigger-based            |
+| **Tool**       | `tool`          | Agent (programmatic) | Stateless function call  |
+| **Hook**       | `hook`          | Runtime (event)      | Event-driven             |
+| **MCP Server** | `mcp-server`    | Runtime or agent     | Long-running service     |
+| **LSP Server** | `lsp-server`    | Runtime or agent     | Long-running service     |
+
+Each component is declared in `volume.toml` under `[[components]]` with a `type`, `name`, and `entrypoint`. Component names must be unique within a volume across all component types.
+
+```toml
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+```
+
+For full semantics and entrypoint format details for each type, see [Component Types](/components/overview).
+
+</Accordion>
+
+<Accordion title="Publisher and scopes" icon="user-check">
+
+A **publisher** is an individual or organization that publishes volumes to a bibliotheca. Every `volume.toml` must include a `[publisher]` table that identifies the publisher:
+
+```toml
+[publisher]
+id = "acme"
+```
+
+A **scope** is a publisher namespace, written as `@scope`. Scoped volume names follow the pattern `@scope/name`, for example `@acme/research-agent-pack`. Scopes let organizations publish groups of related volumes under a single namespace.
+
+```text
+# Scoped volume name in manifest
+name = "@acme/research-agent-pack"
+
+# Corresponding purl
+pkg:volume/%40acme/research-agent-pack@1.4.0
+```
+
+Publisher verification status — whether a publisher's identity has been cryptographically verified — is managed by the bibliotheca, not declared in the manifest. The `publisher.id` field is a package identity claim, not a verification credential.
+
+Scope governance policies (how scopes are created, transferred, and managed) are local to each bibliotheca and are not standardized by this specification.
+
+</Accordion>
+
+<Accordion title="Trust attachments" icon="shield-check">
+
+A **trust attachment** is a release-scoped artifact that provides cryptographic evidence about a published volume. Trust attachments are associated with the volume's release subject — identified by its purl and content digest together.
+
+The four categories of trust attachment are:
+
+| Category       | Description                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| **BOM**        | A CycloneDX Bill of Materials listing the volume's components and their dependencies.       |
+| **Provenance** | A SLSA provenance statement linking the release to its source repository and build process. |
+| **Signature**  | A Sigstore-family cryptographic signature over the release artifact.                        |
+| **Advisory**   | A security advisory associated with a specific version or version range.                    |
+
+Trust attachments are uploaded separately from the volume content, typically as part of a CI/CD publish workflow. They are retrieved through the Registry API's trust endpoints.
+
+<Info>
+  Bibliothecas may compute **derived judgments** — verification labels or policy outcomes — based on the trust
+  attachments they hold. Derived judgments are not canonical trust facts; the raw attachments are the authoritative
+  record.
+</Info>
+
+</Accordion>
+
+<Accordion title="Content integrity and immutable content identity" icon="lock">
+
+Agent Volumes uses **content integrity** to ensure that what you install is exactly what was published. Every published release has two identities that work together:
+
+- **Logical identity**: the `pkg:volume/name@version` purl — the package-facing identifier you use in dependency declarations and tool calls.
+- **Immutable content identity**: a `sha256:...` digest of the normalized file tree — a cryptographic anchor that uniquely and permanently identifies the exact byte content of the release.
+
+The content digest is computed by constructing a normalized file tree from the volume's contents, sorted canonically, and hashing the result with SHA-256. Any modification to any file — including the manifest — produces a different digest.
+
+**Example release subject** (logical identity + content identity together):
+
+```text
+pkg:volume/research-agent-pack@1.4.0
+sha256:a3f8c2d1e9b047f6c5e4d3b2a1f0e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2
+```
+
+This pair is the subject used in provenance attestations, BOM entries, and signature verification. Clients verify the digest after download before loading or executing any component.
+
+</Accordion>
+
+<Accordion title="Package roles" icon="layer-group">
+
+Every volume declares a **role** that describes its purpose at the package level. The role appears in the `[volume]` table and influences how bibliothecas categorize and display the volume.
+
+| Role        | Description                                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `component` | A standalone component package — a single skill, tool, command, hook, or server with no broader integration intent.                  |
+| `plugin`    | An extension package that adds capabilities to an agent runtime. Most volumes that bundle related components together use this role. |
+| `provider`  | A package that integrates with an external service or system (e.g., a GitHub integration, a database connector).                     |
+| `meta`      | A meta-package that declares only dependencies with no directly exported components. Used to distribute curated collections.         |
+
+A volume declares one primary role and may add `secondary-roles`:
+
+```toml
+[volume]
+role = "plugin"
+secondary-roles = ["provider"]
+providers = ["arxiv", "semantic-scholar"]
+```
+
+The `providers` field lists the external services the volume integrates with. These are discovery-oriented identifiers used for search and filtering — for example, `github`, `slack`, `postgres`, `docker`, or `openai`.
+
+</Accordion>
+
+</AccordionGroup>
+
+## How the concepts relate
+
+These concepts form the core data model of Agent Volumes:
+
+```text
+Bibliotheca
+└── Volume (pkg:volume/name@version + sha256:...)
+    ├── volume.toml (manifest)
+    │   ├── [volume] metadata + role
+    │   ├── [publisher] identity
+    │   ├── [[components]] declarations
+    │   ├── [dependencies] + [component-dependencies]
+    │   ├── [[runtimes]] + [[protocols]] compatibility
+    │   └── [permissions] + [environment]
+    ├── Component files (entrypoints)
+    └── Trust attachments (BOM, provenance, signature, advisories)
+```
+
+A **publisher** publishes a **volume** to a **bibliotheca**. The volume contains a `volume.toml` manifest and component entrypoint files. Each **component** within the volume is addressable by its purl subpath. The volume's release is anchored by its **content identity** digest. **Trust attachments** provide cryptographic evidence about the release.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Manifest reference" icon="file-code" href="/volumes/manifest">
+    Every field in volume.toml, with types, constraints, and examples.
+  </Card>
+  <Card title="Package identity" icon="tag" href="/volumes/identity">
+    The purl scheme in depth: scoped names, encoding rules, and resolution order.
+  </Card>
+  <Card title="Component types" icon="cubes" href="/components/overview">
+    Entrypoint formats, invocation models, and semantic rules for all seven types.
+  </Card>
+  <Card title="Supply chain security" icon="lock" href="/security/supply-chain">
+    The full trust model: content integrity, publisher identity, provenance, and advisories.
+  </Card>
+</CardGroup>
