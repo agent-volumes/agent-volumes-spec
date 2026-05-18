@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-18T00:05:44Z
-**Commit:** d3c2d41
+**Generated:** 2026-05-18T07:04:43Z
+**Commit:** f1376ce
 **Branch:** release/0.1.0-rc1
 
 ## OVERVIEW
@@ -56,7 +56,9 @@ agent-volumes-spec/
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
 | Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0152     |
-| Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
+| Edit Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`      | Keep drift audit + fixtures aligned |
+| Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Required before release freeze      |
+| Update artifact validator | `scripts/validate-artifacts.mjs`        | Central smoke runner; 3k+ lines     |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
 | Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
@@ -81,6 +83,7 @@ agent-volumes-spec/
 
 - Extends `recommended` + `spec`
 - Downgrades to warnings: `no-ambiguous-paths`, `no-enum-type-mismatch`, `no-invalid-media-type-examples`, `spec-strict-refs`
+- OpenAPI 3.1.1 uses JSON Schema 2020-12, external `../schemas/*` refs, scoped/unscoped route pairs, bearer auth only on protected writes, and closed RFC 9457 problem responses.
 
 **Git hooks** — `lefthook.yml`
 
@@ -136,6 +139,7 @@ bun run validate:artifacts
 - **No standard test runner** — validation is via `scripts/validate-artifacts.mjs` (AJV + bespoke logic), not Jest/Vitest/Pytest.
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
+- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.mjs` are the largest maintenance-risk files; inspect local `AGENTS.md` files before editing their subtrees.
 - **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
 - **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.
