@@ -94,7 +94,7 @@ description = "Search arXiv for papers by query, author, or category"
 
 ## `provider` — external service integration
 
-A `provider` package integrates with one or more external services. It should declare provider metadata at the volume level, the component level, or both using the `providers` field. Provider declarations are discovery and compatibility metadata — they tell consumers and search indexes which services your package depends on.
+A `provider` package integrates with one or more external services. It should declare provider metadata at the volume level, the component level, or both using the `providers` field. Provider declarations are discovery and compatibility metadata — they tell consumers and search indexes which external services your package integrates with, without turning those services into Agent Volumes dependency declarations.
 
 Use `provider` when your package is primarily a bridge to an external API, data source, or platform service.
 

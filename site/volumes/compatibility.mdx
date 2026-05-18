@@ -7,7 +7,7 @@ Agent Volumes separates compatibility declarations from dependency constraints. 
 
 ## Runtime compatibility (`[[runtimes]]`)
 
-Declare which agent runtimes your volume supports by adding one `[[runtimes]]` entry per target runtime. If you omit the array entirely, the volume makes no runtime-specific compatibility claim and is treated as potentially compatible with any runtime.
+Declare which agent runtimes your volume supports by adding one `[[runtimes]]` entry per target runtime. If you omit the array entirely, the volume makes no runtime-specific compatibility claim.
 
 ```toml
 [[runtimes]]
@@ -20,9 +20,10 @@ compatibility = ">=0.1.0"
 
 [[runtimes]]
 name = "cursor"
+compatibility = ">=1.0.0"
 ```
 
-The `compatibility` field is a version expression, not a dependency constraint. Tooling preserves it as authored and only evaluates it when the client explicitly understands the version scheme for that runtime. Unknown-scheme expressions are advisory metadata for discovery, display, diagnostics, and adapter selection — a client must not reject a volume solely because it cannot parse the expression.
+The `compatibility` field is a required version expression for each runtime entry, not a dependency constraint. Tooling preserves it as authored and only evaluates it when the client explicitly understands the version scheme for that runtime. Unknown-scheme expressions are advisory metadata for discovery, display, diagnostics, and adapter selection — a client must not reject a volume solely because it cannot parse the expression.
 
 ### Recognized runtime identifiers
 
@@ -202,8 +203,8 @@ For `shell`: `deny < allow`. A component under a `deny` volume cannot declare `a
 
 <Warning>
   Permission escalation is a validation failure. If a component declares a permission broader than its parent volume,
-  clients and bibliothecas reject the artifact. Bibliothecas that discover permission escalation must block the affected
-  artifact from continued distribution.
+  clients must fail before submission when they detect it. Bibliothecas that discover permission escalation must block
+  the affected artifact from continued distribution.
 </Warning>
 
 ### Component-level permission example
@@ -270,6 +271,7 @@ compatibility = "^1.0.0"
 
 [[runtimes]]
 name = "opencode"
+compatibility = ">=0.1.0"
 
 # Protocol compatibility
 [[protocols]]

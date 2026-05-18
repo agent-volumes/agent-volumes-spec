@@ -8,7 +8,7 @@ Every volume must contain a `volume.toml` file at its root. This file is the nor
 
 ## Schema version
 
-The first field inside `[volume]` must be `schema`, set to the integer `1`. Tooling rejects manifests with unrecognized schema versions.
+The `[volume]` table must include `schema`, set to the integer `1`. Key order is not semantically significant. Tooling rejects manifests with unrecognized schema versions.
 
 ```toml
 [volume]
@@ -219,7 +219,7 @@ Declare which components in this volume depend on specific components from other
 
 ## `[[runtimes]]` array
 
-Declare which agent runtimes your volume is compatible with. Each entry names a runtime and optionally provides a compatibility version expression.
+Declare which agent runtimes your volume is compatible with. Each entry names a runtime and provides a compatibility version expression.
 
 ```toml
 [[runtimes]]
@@ -235,10 +235,10 @@ compatibility = ">=0.1.0"
   Runtime identifier. See [Compatibility](/volumes/compatibility) for the full list of 18 recognized runtime IDs.
 </ParamField>
 
-<ParamField path="runtimes[].compatibility" type="string">
-  Advisory version expression for the runtime. This is metadata for discovery and diagnostics — not a hard dependency
-  constraint. Tooling preserves the expression as authored and only evaluates it when the runtime's version scheme is
-  explicitly understood.
+<ParamField path="runtimes[].compatibility" type="string" required>
+  Required advisory version expression for the runtime. This is metadata for discovery and diagnostics — not a hard
+  dependency constraint. Tooling preserves the expression as authored and only evaluates it when the runtime's version
+  scheme is explicitly understood.
 </ParamField>
 
 If you omit the `[[runtimes]]` array entirely, the volume makes no runtime-specific compatibility claim.
@@ -261,8 +261,8 @@ version = ">=3.17"
   Protocol identifier. One of: `mcp`, `lsp`.
 </ParamField>
 
-<ParamField path="protocols[].version" type="string">
-  Protocol version expression. Protocol ecosystems use different version schemes (date-like, short numeric,
+<ParamField path="protocols[].version" type="string" required>
+  Required protocol version expression. Protocol ecosystems use different version schemes (date-like, short numeric,
   SemVer-compatible), so this is advisory metadata. Tooling must not reject a manifest solely because it cannot evaluate
   the expression.
 </ParamField>
@@ -298,7 +298,8 @@ browser = "deny"
 <Warning>
   Declaring a component permission that is broader than the parent volume's permission is a validation failure. For
   example, if the volume declares `filesystem = "read"`, no component may declare `filesystem = "read-write"`. Clients
-  and bibliothecas reject artifacts with permission escalation.
+  must fail before submission when they detect permission escalation. Bibliothecas must block affected artifacts when
+  escalation is discovered.
 </Warning>
 
 ## `[environment]` table

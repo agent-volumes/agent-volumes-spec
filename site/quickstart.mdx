@@ -116,7 +116,7 @@ When asked to summarize a paper, extract the following sections:
 
 </CodeGroup>
 
-Each component name must be unique within the volume across all component types. Component names follow the same naming rules as volume names: lowercase letters, digits, and hyphens only.
+Each component name must be unique within the volume across all component types. Component names use lowercase letters, digits, and hyphens only; unlike volume names, component names are never scoped.
 
 <Tip>
   You can declare all seven component types in a single volume — `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, and `lsp-server`. See [Component Types](/components/overview) for the entrypoint format and semantics for each type.
@@ -146,7 +146,7 @@ os = ["linux", "macos", "windows"]
 
 <Tabs>
   <Tab title="Runtimes">
-    The `[[runtimes]]` array declares which agent runtimes this volume targets and what version range it's compatible with. If you omit this array entirely, the volume makes no runtime-specific compatibility claim and is considered runtime-neutral.
+    The `[[runtimes]]` array declares which agent runtimes this volume targets and what version expression it reports for each runtime. If you omit this array entirely, the volume makes no runtime-specific compatibility claim.
 
     ```toml
     [[runtimes]]
