@@ -1,0 +1,94 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "Agent Volumes",
+  "favicon": "favicon.svg",
+  "colors": {
+    "primary": "#242b2c",
+    "light": "#6a6a6d",
+    "dark": "#ebeaea"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/agent-volumes/agent-volumes-spec"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["introduction", "quickstart", "concepts", "uri-publications"]
+          },
+          {
+            "group": "Volumes",
+            "pages": [
+              "volumes/manifest",
+              "volumes/identity",
+              "volumes/roles",
+              "volumes/dependencies",
+              "volumes/compatibility"
+            ]
+          },
+          {
+            "group": "Component Types",
+            "pages": [
+              "components/overview",
+              "components/agent",
+              "components/skill",
+              "components/command",
+              "components/tool",
+              "components/hook",
+              "components/mcp-server",
+              "components/lsp-server"
+            ]
+          },
+          {
+            "group": "Security",
+            "pages": [
+              "security/supply-chain",
+              "security/content-integrity",
+              "security/publisher-identity",
+              "security/advisories"
+            ]
+          },
+          {
+            "group": "Conformance",
+            "pages": ["conformance/overview", "conformance/fixtures"]
+          }
+        ]
+      },
+      {
+        "tab": "Registry API",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["api/overview", "api/authentication"]
+          },
+          {
+            "group": "Packages",
+            "pages": ["api/publish", "api/fetch", "api/search", "api/version-index"]
+          },
+          {
+            "group": "Trust & Advisories",
+            "pages": ["api/trust-metadata", "api/trust-upload", "api/advisories"]
+          },
+          {
+            "group": "Registry",
+            "pages": ["api/capabilities", "api/errors"]
+          },
+          {
+            "group": "Generated OpenAPI reference",
+            "openapi": {
+              "source": "api-reference/bibliotheca.openapi.json",
+              "directory": "api-reference"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
