@@ -38,6 +38,10 @@ bun run lint:site
 
 Mintlify should be configured as a monorepo deployment with `/site` as the documentation path. Changes deploy after they are pushed to the configured branch and the Mintlify GitHub App can access this repository.
 
+## License
+
+This subtree is part of the Agent Volumes specification repository and is licensed under the repository root [Apache License 2.0](../LICENSE).
+
 ## Release evidence
 
 For release candidates and stable releases, record Namespace and URI publication evidence in the release evidence issue created from `../.github/ISSUE_TEMPLATE/release-evidence.md`.
