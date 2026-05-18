@@ -1,0 +1,143 @@
+---
+title: 'Command component: user-invocable slash commands'
+description: 'Create user-invoked slash commands that users trigger directly in their agent runtime using a defined trigger pattern like /review or /summarize.'
+---
+
+A Command component packages a user-invokable action that fires when the user types a matching slash command in their agent runtime. Commands are explicitly user-initiated — the user types `/review`, `/summarize`, or another trigger pattern, and the runtime executes the associated command definition. This makes Commands distinct from Tools, which agents invoke programmatically.
+
+## Command vs. Tool
+
+The most important distinction in Agent Volumes is between Commands (user-initiated) and Tools (agent-initiated):
+
+|              | Command                     | Tool                     |
+| ------------ | --------------------------- | ------------------------ |
+| Invoked by   | User (explicitly)           | Agent (programmatically) |
+| Trigger      | Slash command pattern       | Function call by agent   |
+| Input        | User-provided context       | Structured parameters    |
+| Statefulness | May maintain workflow state | Stateless per call       |
+
+If you want the agent to be able to call a capability during its task loop, use a [Tool](/components/tool). If you want a user to be able to trigger it by typing a command, use a Command.
+
+## Entrypoint format
+
+Command entrypoints must be Markdown (`.md`) files with YAML frontmatter. The frontmatter must include a `trigger` field.
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a Markdown file.
+- The frontmatter declares a `trigger` field.
+- The `trigger` value matches the regex `^\/[a-z0-9-]+$`.
+
+## Required frontmatter
+
+The `trigger` field is the only required frontmatter field for a command. It defines the slash command pattern users type to invoke it.
+
+```markdown
+---
+trigger: /review
+---
+
+Review the current pull request or diff. Summarize the changes, identify potential issues,
+and suggest improvements with inline code examples where appropriate.
+```
+
+Valid trigger examples: `/review`, `/summarize`, `/explain`, `/fix-types`, `/run-tests`.
+
+<Warning>
+  The trigger must match `^\/[a-z0-9-]+$` exactly. Uppercase letters, spaces, underscores, and special characters other
+  than hyphens are not allowed. A command with an invalid trigger is a validation failure.
+</Warning>
+
+## Declaring a command in `volume.toml`
+
+Add a `[[components]]` entry with `type = "command"` and point `entrypoint` to your Markdown command file.
+
+```toml
+[[components]]
+type = "command"
+name = "review-pr"
+entrypoint = "./commands/review-pr.md"
+description = "Review the current pull request or diff"
+```
+
+A volume can bundle multiple commands alongside other component types:
+
+```toml
+[volume]
+schema = 1
+name = "dev-workflow-pack"
+version = "2.0.0"
+description = "Developer workflow commands for code review and documentation"
+license = "MIT"
+role = "plugin"
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "command"
+name = "review-pr"
+entrypoint = "./commands/review-pr.md"
+description = "Review the current pull request or diff"
+
+[[components]]
+type = "command"
+name = "summarize-changes"
+entrypoint = "./commands/summarize-changes.md"
+description = "Summarize recent changes for a standup or release note"
+
+[[components]]
+type = "command"
+name = "explain-code"
+entrypoint = "./commands/explain-code.md"
+description = "Explain the selected code or the current file"
+```
+
+## Command entrypoint structure
+
+A well-structured command file uses the frontmatter for the trigger and the Markdown body for instructions the runtime follows when the command fires:
+
+```markdown
+---
+trigger: /summarize
+---
+
+Summarize the content provided by the user. Follow these steps:
+
+1. Identify the main topic and scope.
+2. Extract three to five key points.
+3. Write a concise summary paragraph of two to four sentences.
+4. If the content is technical, include a plain-language explanation.
+
+Keep the summary focused and avoid repeating information from the key points.
+```
+
+## Validation requirements
+
+A command entrypoint fails portable validation if any of these conditions are true:
+
+- The file does not exist or is not a regular Markdown file.
+- The frontmatter is missing or unparseable.
+- The `trigger` field is absent.
+- The `trigger` value does not match `^\/[a-z0-9-]+$`.
+
+<Tip>
+  Keep trigger names short and memorable. Users type them directly, so `/review` is better than
+  `/review-pull-request-and-suggest-changes`.
+</Tip>
+
+## Optional fields
+
+| Field         | Type             | Description                                                                   |
+| ------------- | ---------------- | ----------------------------------------------------------------------------- |
+| `description` | string           | One-line description for registry search and tooling.                         |
+| `providers`   | array of strings | External services this command integrates with.                               |
+| `permissions` | table            | Component-specific permission overrides. Can only narrow volume-level values. |
+
+## Component identifier
+
+Once published, reference the command using a purl identifier:
+
+```text
+pkg:volume/dev-workflow-pack@2.0.0#command/review-pr
+```

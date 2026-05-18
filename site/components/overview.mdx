@@ -1,0 +1,121 @@
+---
+title: 'Agent Volumes component types overview'
+description: 'Overview of all seven component types — Agent, Skill, Command, Tool, Hook, MCP Server, and LSP Server — with the export model and directory layout.'
+---
+
+A component is a functional unit that an agent runtime loads and executes from a volume. Agent Volumes defines seven component types, each with distinct semantics, entrypoint formats, and execution models. When you publish a volume, you declare which components it exports in `volume.toml`, and any compatible runtime can discover and load them.
+
+## Component type summary
+
+| Type       | Invoked by           | Execution model          | State             | Primary format       |
+| ---------- | -------------------- | ------------------------ | ----------------- | -------------------- |
+| Agent      | Runtime              | Autonomous, long-running | Stateful          | Markdown             |
+| Skill      | Runtime (contextual) | Loaded into context      | N/A (knowledge)   | Markdown (SKILL.md)  |
+| Command    | User (explicit)      | Trigger-based workflow   | Per-invocation    | Markdown             |
+| Tool       | Agent (programmatic) | Function call            | Stateless         | JSON/YAML/Script     |
+| Hook       | Runtime (event)      | Event-driven             | Stateless         | Markdown/YAML/Script |
+| MCP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config          |
+| LSP Server | Runtime (process)    | Long-running service     | Stateful (server) | JSON config          |
+
+## Component types
+
+<CardGroup cols={2}>
+  <Card title="Agent" icon="robot" href="/components/agent">
+    An autonomous runtime actor that receives a goal and independently decides how to accomplish it using tools, skills,
+    and other agents.
+  </Card>
+  <Card title="Skill" icon="graduation-cap" href="/components/skill">
+    Reusable instructional knowledge loaded into agent context. The runtime interprets and applies it — skills are not
+    executed as code.
+  </Card>
+  <Card title="Command" icon="terminal" href="/components/command">
+    A user-invokable action triggered by a slash command pattern such as `/review` or `/summarize`.
+  </Card>
+  <Card title="Tool" icon="wrench" href="/components/tool">
+    A function or API endpoint that an agent calls programmatically during task execution. Has typed inputs and outputs.
+  </Card>
+  <Card title="Hook" icon="webhook" href="/components/hook">
+    A lifecycle event handler that fires automatically at defined points in the agent runtime — session start, tool use,
+    compaction, and more.
+  </Card>
+  <Card title="MCP Server" icon="server" href="/components/mcp-server">
+    A Model Context Protocol service packaged as a distributable volume component. Runs as a long-running process.
+  </Card>
+  <Card title="LSP Server" icon="code" href="/components/lsp-server">
+    A Language Server Protocol service that provides code intelligence and editor integration when loaded by a
+    compatible runtime.
+  </Card>
+</CardGroup>
+
+## Export model
+
+A volume exports components by declaring them in `volume.toml` and placing their entrypoint files at the declared paths. Three rules govern every exported component:
+
+1. Every exported component must be listed in `volume.toml` under `[[components]]`.
+2. Every declared component must have a valid entrypoint file at the specified path.
+3. Component names must be unique within a volume across all component types.
+
+Each `[[components]]` entry requires three fields:
+
+| Field        | Type   | Description                                                                      |
+| ------------ | ------ | -------------------------------------------------------------------------------- |
+| `type`       | string | One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`. |
+| `name`       | string | Lowercase alphanumeric + hyphens. Unique within the volume.                      |
+| `entrypoint` | string | Relative path from the volume root to the component's entry file.                |
+
+Two optional fields are supported for all component types:
+
+| Field         | Type             | Description                                    |
+| ------------- | ---------------- | ---------------------------------------------- |
+| `description` | string           | One-line description.                          |
+| `providers`   | array of strings | External services integrated by the component. |
+
+```toml
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+```
+
+## Recommended directory layout
+
+The spec recommends organizing your volume with a dedicated directory per component type. This layout is a convention, not a requirement — the `entrypoint` path in `volume.toml` is authoritative.
+
+```text
+volume-root/
+├── volume.toml
+├── README.md
+├── LICENSE
+├── agents/
+├── skills/
+├── commands/
+├── tools/
+├── hooks/
+├── .mcp.json
+├── .lsp.json
+└── scripts/
+```
+
+## Entrypoint resolution
+
+When a runtime or validator loads a component, it follows a three-level precedence chain:
+
+| Source                               | Precedence                                                  |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `volume.toml` `[[components]]` entry | Highest — authoritative for package-level metadata          |
+| Entrypoint frontmatter or descriptor | Second — authoritative for component-level content metadata |
+| Inferred defaults                    | Lowest                                                      |
+
+The minimum a portable validator checks before passing a component to a runtime adapter is type-specific. For Markdown-based types, the entrypoint must exist and have a supported extension. For JSON-based types (`mcp-server`, `lsp-server`), the file must exist, be valid JSON, and parse to an object. For `command`, the frontmatter must include a valid `trigger`. For `hook`, the descriptor must declare a canonical lifecycle event and a valid hook type.
+
+<Note>
+  Entrypoint paths must be relative to the volume root. Absolute paths, paths containing `..` segments, and paths that
+  resolve outside the volume root are all validation failures.
+</Note>
