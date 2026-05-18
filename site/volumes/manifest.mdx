@@ -158,6 +158,48 @@ Declare volume-level dependencies as a TOML table where each key is a volume nam
 "@acme/github-provider" = ">=1.5.0, <3.0.0"
 ```
 
+## `[[external-dependencies]]` array
+
+Declare package dependencies outside the Agent Volumes `pkg:volume` ecosystem as audit metadata. These records are used for review, policy, BOM export, and potential-exposure diagnostics. They are not resolver inputs, lockfile entries, installed package evidence, scanner findings, VEX status, or confirmed vulnerability evidence.
+
+```toml
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+```
+
+<ParamField path="external-dependencies[].purl" type="string" required>
+  Package URL for an external ecosystem package. It must not use the `volume` purl type and must not include a PURL
+  version component or subpath. Put version intent in `constraint`.
+</ParamField>
+
+<ParamField path="external-dependencies[].constraint" type="string" required>
+  VERS expression for the external package range. This is not the Agent Volumes SemVer dependency grammar.
+</ParamField>
+
+<ParamField path="external-dependencies[].purpose" type="string" required>
+  Dependency use context. Core values are `runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`,
+  `documentation`, and `other`. Extension values use reverse-DNS namespace syntax, such as `org.example:codegen`.
+</ParamField>
+
+<ParamField path="external-dependencies[].components" type="string[]">
+  Optional component scope. When present, the array must be non-empty, duplicate-free, and contain only component names
+  declared in the same manifest. Omit it for volume-wide external dependency declarations.
+</ParamField>
+
+<Tip>
+  Stable declaration identifiers use `av-extdep-v1:sha256:<lowercase-hex>`. The digest input includes exactly `purl`,
+  `purpose`, and scope; it deliberately excludes `constraint`, warning payloads, advisory matches, comments, and array
+  positions.
+</Tip>
+
 ## `[component-dependencies]` table
 
 Declare which components in this volume depend on specific components from other volumes. Each key is the name of a component declared in this manifest's `[[components]]` array; each value is an array of component purl strings.
@@ -367,6 +409,17 @@ version = ">=3.17"
 
 [dependencies]
 "search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
 
 [component-dependencies]
 "literature-reviewer" = [
