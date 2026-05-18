@@ -82,7 +82,29 @@ All publish endpoints require authentication. See [Authentication](/api/authenti
     Authorization: Bearer <your-token>
     ```
 
-    The `201 Created` response includes the published release metadata.
+    The `201 Created` response includes the `uploadId`, the published release metadata, and a `detailUrl` for the
+    exact-release metadata endpoint:
+
+    ```json
+    {
+      "uploadId": "upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "release": {
+        "name": "@acme/research-agent-pack",
+        "version": "1.4.0",
+        "purl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+        "integrity": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+        "status": {
+          "state": "available"
+        },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.com/volumes/%40acme/research-agent-pack/1.4.0.tar.gz"
+        }
+      },
+      "detailUrl": "https://api.example.com/api/v1/volumes/@acme/research-agent-pack/1.4.0"
+    }
+    ```
 
   </Step>
 </Steps>

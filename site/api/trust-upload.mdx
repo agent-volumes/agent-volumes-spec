@@ -51,11 +51,26 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
     }
     ```
 
-    The `201 Created` response:
+    The `201 Created` response mirrors the schema-backed intent record, including the bound subject, attachment metadata,
+    declared digest, upload instructions, expiration time, and intent state:
 
     ```json
     {
       "uploadId": "tup_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "subject": {
+        "purl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+        "integrity": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2"
+      },
+      "attachment": {
+        "category": "provenance",
+        "format": {
+          "family": "slsa-provenance",
+          "mediaType": "application/vnd.in-toto+json",
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "declaredDigest": "sha256:c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5",
+      "declaredSize": 2048,
       "upload": {
         "instructionType": "http-put",
         "url": "https://upload.example.com/trust-staging/tup_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
@@ -89,7 +104,25 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
     Authorization: Bearer <your-token>
     ```
 
-    The `201 Created` response includes the finalized attachment record with an `active` status.
+    The `201 Created` response includes the finalized attachment identity, bound subject, artifact digest, status, and detail
+    URL:
+
+    ```json
+    {
+      "uploadId": "tup_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "attachmentId": "att_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "subject": {
+        "purl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+        "integrity": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2"
+      },
+      "artifactDigest": "sha256:c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5",
+      "artifactSize": 2048,
+      "status": {
+        "state": "active"
+      },
+      "detailUrl": "https://api.example.com/api/v1/volumes/@acme/research-agent-pack/1.4.0/trust/detail"
+    }
+    ```
 
   </Step>
 </Steps>

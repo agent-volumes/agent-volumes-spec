@@ -23,7 +23,7 @@ GET /api/v1/volumes/@{scope}/{name}/{version}/trust/detail
 
 ## Summary view
 
-The summary view is fact-first: it reports only observable facts about which trust attachment categories are present, not derived judgments or verification outcomes.
+The summary view is fact-first: it reports observable facts about which trust attachment categories are present. A bibliotheca may include optional `judgments`, but derived judgments are non-canonical policy outcomes and are not substitutes for raw trust facts or independent verification.
 
 ### Summary response fields
 
@@ -58,6 +58,11 @@ The summary view is fact-first: it reports only observable facts about which tru
 
 <ResponseField name="detailAvailable" type="boolean" required>
   Whether the full detail view is available for this release.
+</ResponseField>
+
+<ResponseField name="judgments" type="object">
+  Optional bibliotheca-produced assessments such as verification labels or policy outcomes. These are derived judgments,
+  not canonical trust facts.
 </ResponseField>
 
 <ResponseField name="revision" type="object" required>
@@ -186,6 +191,10 @@ The detail view exposes full information for independent retrieval and verificat
         </ResponseField>
       </Expandable>
     </ResponseField>
+    <ResponseField name="verification" type="object">
+      Optional objective verification facts for formats the implementation claims to support. Unsupported artifact formats
+      must not be reported as verified.
+    </ResponseField>
 
   </Expandable>
 </ResponseField>
@@ -242,12 +251,12 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0/trust/detail
 
 ## Attachment status semantics
 
-| State        | Meaning                        | Satisfies current-state evidence?            |
-| ------------ | ------------------------------ | -------------------------------------------- |
-| `active`     | Current, verified attachment   | Yes                                          |
-| `revoked`    | Attachment has been revoked    | No — treat as failure by default             |
-| `superseded` | Replaced by a newer attachment | No — does not satisfy current-state evidence |
-| `invalid`    | Attachment failed validation   | No — treat as failure by default             |
+| State        | Meaning                        | Satisfies current-state evidence?                                                       |
+| ------------ | ------------------------------ | --------------------------------------------------------------------------------------- |
+| `active`     | Current finalized attachment   | Yes, when it satisfies the required trust category and any separate verification policy |
+| `revoked`    | Attachment has been revoked    | No — treat as failure by default                                                        |
+| `superseded` | Replaced by a newer attachment | No — does not satisfy current-state evidence                                            |
+| `invalid`    | Attachment failed validation   | No — treat as failure by default                                                        |
 
 <Warning>
   `superseded` is a freshness state, not a revocation. A superseded attachment was not necessarily compromised — it was
