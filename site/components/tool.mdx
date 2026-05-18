@@ -1,0 +1,185 @@
+---
+title: 'Tool component: function endpoints for agents'
+description: 'Define function-call tools that agents invoke programmatically during task execution, with typed inputs and outputs described in JSON or YAML.'
+---
+
+A Tool component packages a function or API capability that an agent calls during task execution. When an agent decides it needs to search for papers, read a file, fetch a URL, or execute a shell command, it reaches for a tool. Tools are stateless per invocation — each call is independent — and are always agent-initiated, not user-triggered.
+
+## Tool vs. Command
+
+The key distinction is who initiates the call:
+
+|              | Tool                     | Command                     |
+| ------------ | ------------------------ | --------------------------- |
+| Invoked by   | Agent (programmatically) | User (explicitly)           |
+| Trigger      | Function call by agent   | Slash command pattern       |
+| Input        | Structured parameters    | User-provided context       |
+| Statefulness | Stateless per call       | May maintain workflow state |
+
+If a user types a slash command to invoke it, use a [Command](/components/command). If an agent calls it as a function during its task loop, use a Tool.
+
+## Entrypoint format
+
+Tool entrypoints can be:
+
+- **JSON** (`.json`) — a function descriptor object
+- **YAML** (`.yaml`) — a function descriptor object
+- **Executable script** — any regular executable file
+
+The portable validation minimum requires:
+
+- JSON and YAML descriptor entrypoints must exist and parse successfully.
+- Script entrypoints must exist and be regular files. Host executability and local policy are checked at load time, not during portable validation.
+
+<Note>
+  Agent Volumes v0.1 does not standardize a full tool ABI. If your entrypoint is a JSON or YAML descriptor and it
+  includes `name` and `inputSchema` fields, those are interpreted as function-description metadata. The spec does not
+  define the complete execution contract — that remains runtime-local.
+</Note>
+
+## Declaring a tool in `volume.toml`
+
+Add a `[[components]]` entry with `type = "tool"` and point `entrypoint` to your tool descriptor or script.
+
+```toml
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+```
+
+## JSON descriptor example
+
+A JSON tool descriptor describes the function's name, what it does, and the shape of its inputs:
+
+```json
+{
+  "name": "arxiv-search",
+  "description": "Search arXiv for academic papers by query string, author name, or category.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "Search query string"
+      },
+      "category": {
+        "type": "string",
+        "description": "arXiv category (e.g., cs.AI, math.CO)"
+      },
+      "max_results": {
+        "type": "integer",
+        "description": "Maximum number of results to return",
+        "default": 10
+      }
+    },
+    "required": ["query"]
+  }
+}
+```
+
+## Portable capability classes
+
+Agent Volumes describes tools in terms of portable capability classes — stable cross-runtime concepts that work regardless of which runtime loads your volume. When you design a tool, consider which capability class it belongs to:
+
+| Capability class | Typical permission requirements             |
+| ---------------- | ------------------------------------------- |
+| Shell execution  | `shell = "allow"`                           |
+| File read        | `filesystem = "read"`                       |
+| File write/edit  | `filesystem = "write"` or `"read-write"`    |
+| File discovery   | `filesystem = "read"`                       |
+| Content search   | `filesystem = "read"`                       |
+| Web fetch        | `network = "read"`                          |
+| Web search       | `network = "read"`                          |
+| Code intel       | `filesystem = "read"`                       |
+| External bridge  | `network`, `shell`, or both                 |
+| Delegation       | Depends on the delegated tool's permissions |
+
+Runtime-specific tool names like `Bash`, `WebFetch`, or `run_shell_command` are profile-facing names. The portable capability class is what matters for cross-runtime compatibility.
+
+## Permissions for tools
+
+Declare the permissions your tool needs. Most tools require either filesystem or network access — or both.
+
+```toml
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+providers = ["arxiv"]
+
+[components.permissions]
+network = "read"
+```
+
+For a tool that reads and writes files:
+
+```toml
+[[components]]
+type = "tool"
+name = "file-editor"
+entrypoint = "./tools/file-editor.json"
+description = "Read and edit files in the working directory"
+
+[components.permissions]
+filesystem = "read-write"
+```
+
+<Warning>
+  Component permissions can only be equal to or narrower than the volume-level permissions. Declaring `shell = "allow"`
+  at the component level when the volume declares `shell = "deny"` is a validation failure.
+</Warning>
+
+## Complete volume example with tools
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+providers = ["arxiv"]
+
+[[components]]
+type = "tool"
+name = "semantic-scholar-lookup"
+entrypoint = "./tools/semantic-scholar.json"
+description = "Look up paper details and citation counts from Semantic Scholar"
+providers = ["semantic-scholar"]
+
+[permissions]
+network = "read"
+filesystem = "deny"
+shell = "deny"
+```
+
+## Component identifier
+
+Once published, reference the tool using a purl identifier:
+
+```text
+pkg:volume/research-agent-pack@1.4.0#tool/arxiv-search
+```
+
+Other components can declare a dependency on this tool:
+
+```toml
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+]
+```
