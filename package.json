@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build:site:openapi": "redocly bundle openapi/bibliotheca.openapi.yaml --output site/api-reference/bibliotheca.openapi.json --ext json && prettier --write site/api-reference/bibliotheca.openapi.json",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
@@ -7,6 +8,8 @@
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
+    "lint:site": "bun run --cwd site lint",
+    "site:dev": "bun run --cwd site dev",
     "format": "prettier --write \"**/*.{md,json,yaml,yml,mjs}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
     "release:changelog": "scripts/update-changelog.sh --tag",

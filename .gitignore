@@ -321,8 +321,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# Mintlify documentation site
+/site/.DS_Store
+/site/.atlas-analysis.json
 
 # mypy
 .mypy_cache/
