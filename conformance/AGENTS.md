@@ -6,9 +6,9 @@ Normative offline conformance fixture set for Agent Volumes v0.1. Artifact-first
 
 ```text
 conformance/
-├── README.md              # This file — runner contract, claim labels, fixture mapping
+├── README.md              # Runner contract, claim labels, fixture mapping
 ├── REQUIREMENTS.md        # Role-scoped requirement inventory + deferred topics
-└── fixtures/              # ~50 JSON fixture files
+└── fixtures/              # ~60 JSON fixture files
 ```
 
 ## WHERE TO LOOK
@@ -28,6 +28,7 @@ conformance/
 - **Fixture names encode scenario/status**: `manifest-valid-*`, `manifest-invalid-*`, `*-cases`, `*-lifecycle`, `*-empty`, `*-matrix`.
 - **Offline vectors**: fake domains (`example.test`), embedded `bytesBase64` blobs, no live services.
 - **Stable IDs**: `results[].id` is a lowercase slug derived from fixture path + case name; keep it stable across runs.
+- **Coverage map**: `fixtures/conformance-coverage.json` maps role-scoped `AV-*` requirements to fixture families and cases.
 
 ## ANTI-PATTERNS
 
