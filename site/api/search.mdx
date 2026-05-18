@@ -68,29 +68,66 @@ GET /api/v1/search?type=mcp-server&publisher=acme
 
 ```json
 {
-  "total": 42,
   "items": [
     {
       "name": "github-toolkit",
-      "version": "2.1.0",
-      "purl": "pkg:volume/github-toolkit@2.1.0",
+      "latestVersion": "2.1.0",
       "description": "GitHub integration tools for agent runtimes",
-      "keywords": ["github", "pr", "issues"],
-      "publishers": [{ "id": "example" }],
-      "componentTypes": ["tool"]
+      "role": "provider",
+      "providers": ["github"],
+      "components": [
+        {
+          "type": "tool",
+          "name": "read-pr"
+        },
+        {
+          "type": "tool",
+          "name": "comment-pr"
+        }
+      ]
     },
     {
       "name": "@acme/github-provider",
-      "version": "3.0.1",
-      "purl": "pkg:volume/%40acme/github-provider@3.0.1",
+      "latestVersion": "3.0.1",
       "description": "GitHub provider package for ACME runtimes",
-      "keywords": ["github", "provider"],
-      "publishers": [{ "id": "acme" }],
-      "componentTypes": ["tool", "hook"]
+      "role": "provider",
+      "providers": ["github"],
+      "components": [
+        {
+          "type": "tool",
+          "name": "read-pr"
+        },
+        {
+          "type": "hook",
+          "name": "issue-event"
+        }
+      ]
     }
-  ]
+  ],
+  "total": 42,
+  "limit": 20,
+  "offset": 0
 }
 ```
+
+## Response fields
+
+<ResponseField name="items" type="object[]" required>
+  Matching catalog entries. Each item contains `name` and `latestVersion`, with optional discovery metadata such as
+  `description`, `role`, `providers`, and `components`.
+</ResponseField>
+
+<ResponseField name="total" type="integer" required>
+  Total number of matching entries for the query.
+</ResponseField>
+
+<ResponseField name="limit" type="integer" required>
+  Page size applied to this response.
+</ResponseField>
+
+<ResponseField name="offset" type="integer" required>
+  Zero-based offset applied to this response.
+</ResponseField>
 
 ## Pagination
 
