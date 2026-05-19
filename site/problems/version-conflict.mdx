@@ -1,0 +1,25 @@
+---
+title: 'Version conflict'
+description: 'Stable Problem Details type URI page for version-conflict in the Agent Volumes v0.1 Registry API.'
+---
+
+`https://agentvolumes.org/problems/version-conflict` identifies the `version-conflict` Problem Details type in the closed Agent Volumes v0.1 portable problem set.
+
+| Field       | Value                                                  |
+| ----------- | ------------------------------------------------------ |
+| Type URI    | `https://agentvolumes.org/problems/version-conflict`   |
+| Slug        | `version-conflict`                                     |
+| HTTP status | `409`                                                  |
+| Title       | `Version conflict`                                     |
+| Meaning     | The target version already exists or cannot be reused. |
+
+## Client guidance
+
+Switch on the `type` URI when handling Agent Volumes Registry API errors. The human-readable `title` can vary by implementation or localization, but the `type` URI identifies the portable problem category.
+
+## Canonical sources
+
+- [Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [Problem registry schema](/spec/0.1.0-rc.1/schemas/problem-registry.schema.json)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/release/0.1.0-rc1/conformance/fixtures/problem-registry.json)
+- [API error table](/api/errors)
