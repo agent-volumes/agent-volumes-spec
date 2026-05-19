@@ -59,8 +59,19 @@ specification sites, readers, implementers, auditors, and automated tools need t
 resolve the documentation that matched the artifacts available at the time of a
 release, not only the latest site text.
 
+ADR-0157 adopts a hybrid information architecture for this site: maintain an
+unversioned landing and navigation layer for current readers, but publish
+release-specific specification, API, artifact, conformance, and identifier
+documentation under immutable `/spec/<version>/...` archive paths. Treat
+`/spec/` itself as a release archive selector or version index, not as a mutable
+replacement for the released pages beneath it.
+
 Maintain these publication boundaries:
 
+- Keep unversioned pages limited to site entry, version selection, high-level
+  orientation, release archive discovery, and organization or contribution
+  routing. These pages may point readers to the current release, but they must not
+  duplicate release-specific reference content.
 - Publish non-draft release documentation under immutable versioned paths, such
   as `/spec/0.1.0-rc.1/`, with the matching prose, schema identifier pages,
   OpenAPI publication copy, conformance fixture documentation, URI publication
@@ -105,6 +116,9 @@ Maintain the Mintlify site with these host responsibilities in mind:
 - Versioned routes on the docs host, such as
   `https://docs.agentvolumes.org/spec/0.1.0-rc.1/`, are the canonical rendered
   documentation pages for versioned specification archives.
+- `https://docs.agentvolumes.org/spec/` should act as a release archive selector
+  or version index. It should route readers to immutable versioned archives rather
+  than serving release-specific reference content directly.
 - `https://agentvolumes.org/spec/*` is reserved for permanent specification URI
   aliases on the organization apex host. These aliases should redirect to the
   corresponding `https://docs.agentvolumes.org/spec/*` page rather than serving a
@@ -136,6 +150,52 @@ only when they improve navigation clarity. Keep `hidden` and `noindex` distinct:
 hidden pages are navigation-hidden, while `noindex` is an indexing directive and
 does not by itself remove a page from navigation.
 
+## Unversioned and versioned page classification
+
+Use ADR-0157's classification rule before adding, moving, or rewriting a page:
+
+- If a page explains behavior that an implementer, auditor, conformance runner, or
+  artifact consumer must reproduce for a specific Agent Volumes release, publish
+  it under `/spec/<version>/...`.
+- If a page helps readers choose a version, understand the project at a high
+  level, navigate the site, or find organization and contribution resources, it
+  may remain unversioned.
+- If an unversioned page contains release-specific examples or summaries, keep
+  the summary short and link to the exact versioned page for normative or
+  reproducible details.
+- If a URL is a movable convenience entry point, such as `/latest` or `/current`,
+  configure it as an alias or redirect and do not use it as a canonical release
+  citation.
+
+Classify pages by content role rather than by directory convenience:
+
+| Content role                                                         | Path policy                                          |
+| -------------------------------------------------------------------- | ---------------------------------------------------- |
+| Landing page, project overview, version selector, archive index      | Unversioned, outside release archives                |
+| Quickstart orientation and broad concepts                            | Unversioned only when they link to versioned details |
+| Manifest, identity, component, compatibility, and permission details | Versioned under `/spec/<version>/...`                |
+| Registry API prose and generated OpenAPI reference                   | Versioned with the release they describe             |
+| Schemas, conformance, requirement traceability, artifact inventory   | Versioned with the release they describe             |
+| Problem Details, schema `$id`, namespace, predicate, and URI pages   | Versioned when tied to a release-specific identifier |
+| Governance, contribution, security contact, and organization links   | Unversioned or linked to `https://agentvolumes.org`  |
+
+When using Mintlify navigation, prefer explicit structure over implicit routing.
+Mintlify's navigation documentation supports versioned navigation, nested groups
+and tabs, and version selector labels such as `tag: "Latest"`, but the tag is a
+visual label rather than an automatic latest-version route. Keep `/latest` and
+`/current` as explicit `docs.json` redirects or navigation aids. The first
+Mintlify version is selected by default unless a different version sets
+`default: true`, so do not rely on navigation order alone as the release policy;
+record the active release in redirects, release evidence, and site-maintenance
+notes.
+
+Within Mintlify navigation, keep nesting shallow and use one child-navigation
+pattern at each level. Use group `root` pages for readable index pages such as a
+release overview or archive selector. Use `hidden` only when a page should remain
+directly reachable but absent from navigation; use `noindex` only as an indexing
+directive. Do not use hidden pages, `noindex`, or canonical tags to mask source
+drift between unversioned summaries and versioned archives.
+
 ## Information architecture baseline
 
 When building or organizing the site from a blank slate, use this sidebar shape
@@ -143,6 +203,12 @@ as the baseline for each published release subtree. The exact page names can
 change, and Mintlify tabs may be used for readability, but the coverage should
 remain intact. For the current release, the Bibliotheca API reference can remain
 in a dedicated tab when that is easier to scan than a single long sidebar.
+
+Outside the release subtree, keep the unversioned layer small: the docs landing
+page, `/spec/` archive selector, version selection guidance, current-reader
+quickstart orientation, and links to organization resources are enough. The
+sections below describe the coverage expected inside each immutable
+`/spec/<version>/...` release subtree.
 
 ### Start here
 
@@ -527,6 +593,12 @@ Explain that Agent Volumes-owned identifiers need stable public documentation,
 but each page must distinguish canonical identifiers, human-readable pages, and
 machine-readable artifact URLs. Include versioning, immutability, redirects, and
 latest-alias guidance where applicable.
+
+For versioned specification archives, use `/spec/<version>/...` as the rendered
+documentation target. Use `/spec/` for archive selection, and use `/latest` or
+`/current` only as movable aliases to the active non-draft release. Do not cite a
+latest-style alias as the durable URL for a released schema, Problem Details type,
+namespace term, predicate, or release inventory.
 
 #### Schema `$id` URLs
 
@@ -941,18 +1013,23 @@ When changing the public documentation site:
 2. Update the site page only after the source artifact is correct.
 3. If the change affects structured behavior, check whether schemas, OpenAPI,
    fixtures, conformance coverage, and release notes also need updates.
-4. If the change affects a published URI, confirm whether the path is versioned,
+4. Classify the target page as unversioned navigation, `/spec/` archive selector,
+   immutable `/spec/<version>/...` release content, a latest/current alias, or an
+   apex `/spec/*` redirect alias.
+5. If the change affects a published URI, confirm whether the path is versioned,
    immutable, redirected, an apex `/spec/*` alias, or a latest-style alias.
-5. If the change affects a released documentation surface, confirm whether the
+6. If the change affects a released documentation surface, confirm whether the
    change belongs only in the current release subtree, requires a new release
    subtree, or is an allowed unversioned overview/navigation update. Do not
    retrofit historical release pages with current-release semantics.
-6. If the change affects public discoverability, review title, description,
+7. If the change changes the active release, update `/latest` and `/current`
+   redirects atomically with the release archive and release evidence.
+8. If the change affects public discoverability, review title, description,
    canonical URL, sitemap membership, host-specific redirects, `robots`,
    `noindex`, and AI-facing publication surfaces.
-7. If the change affects API documentation, regenerate any Mintlify publication
+9. If the change affects API documentation, regenerate any Mintlify publication
    copy from the canonical OpenAPI contract.
-8. Run the validation commands for the affected change type.
+10. Run the validation commands for the affected change type.
 
 For Markdown-only maintenance documents, run:
 
@@ -972,6 +1049,13 @@ Before merging documentation-site changes, reviewers should confirm:
 - The page links back to the canonical source artifact.
 - Release-specific pages live under the correct versioned subtree, and historical
   non-draft release pages remain permanently reachable.
+- Unversioned pages are limited to landing, navigation, orientation, archive
+  selection, and organization-resource routing, or they link to exact versioned
+  pages for implementation details.
+- `/spec/` behaves as an archive selector or version index, not as a mutable copy
+  of release-specific reference content.
+- `/latest` and `/current` are explicit convenience redirects or navigation aids,
+  not canonical release citation targets.
 - Decisions, normative release-surface material, and explanatory context are
   clearly labeled.
 - Published identifiers are not rewritten or broadened.
