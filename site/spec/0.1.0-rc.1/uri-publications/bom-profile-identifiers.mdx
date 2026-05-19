@@ -1,0 +1,26 @@
+---
+title: 'BOM and profile identifiers'
+description: 'Agent Volumes BOM/profile identifiers used by trust artifacts and mapping fixtures.'
+---
+
+Agent Volumes uses profile identifiers such as `agent-volumes-bom-v0.1` to label BOM and trust-artifact conventions in release metadata, trust discovery, and mapping fixtures.
+
+These identifiers are release-context strings unless a future specification makes a specific value URI-backed. Do not treat them as a broad external registry of supported artifact formats.
+
+## Current identifier
+
+| Identifier | Current use |
+| ---------- | ----------- |
+| `agent-volumes-bom-v0.1` | Identifies the Agent Volumes v0.1 BOM/profile convention in trust metadata and BOM/provenance mapping fixtures. |
+
+## Publication boundary
+
+- The identifier describes the v0.1 profile context used by Agent Volumes artifacts.
+- It does not make every BOM format portable or verified.
+- It does not replace concrete artifact format identifiers, such as CycloneDX media types or SLSA predicate types.
+
+## Related sources
+
+- [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)
+- [Trust metadata API](/spec/0.1.0-rc.1/api/trust-metadata)
+- [Conformance fixtures](/spec/0.1.0-rc.1/conformance/fixtures)

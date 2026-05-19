@@ -1,0 +1,25 @@
+---
+title: 'in-toto external dependency predicate'
+description: 'Optional in-toto predicate identifier for Agent Volumes external dependency declarations.'
+---
+
+Agent Volumes external dependency declarations can be carried outside SLSA provenance subjects, materials, resolved dependencies, byproducts, and internal parameters by an optional in-toto predicate.
+
+```text
+https://agentvolumes.org/predicates/external-dependency-declarations/v0.1
+```
+
+Use this predicate for declaration-plane metadata. Do not treat it as scanner evidence, resolver output, or installed-package evidence.
+
+## Publication boundary
+
+- The predicate is optional.
+- It is versioned as `v0.1`.
+- It exists to preserve external dependency declarations without changing SLSA subject, material, or resolved dependency semantics.
+- Mapping fixtures define the expected export behavior.
+
+## Related sources
+
+- [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)
+- [Trust metadata API](/spec/0.1.0-rc.1/api/trust-metadata)
+- [ADR-0142](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0142-omit-external-dependency-declarations-from-slsa-provenance-and-use-optional-in-toto-predicate.md)

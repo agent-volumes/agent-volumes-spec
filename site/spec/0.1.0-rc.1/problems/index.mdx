@@ -1,0 +1,36 @@
+---
+title: 'Problem Details type URI index'
+description: 'Stable public documentation for the closed Agent Volumes v0.1 Problem Details type URI set.'
+---
+
+Agent Volumes Registry API errors use RFC 9457 Problem Details. Each problem type URI is a stable identifier under `https://agentvolumes.org/problems/<slug>`.
+
+The closed v0.1 problem set is defined by `schemas/problem-details.schema.json`, `schemas/problem-registry.schema.json`, and `conformance/fixtures/problem-registry.json`. Do not add new problem slugs in site content alone.
+
+| Problem slug | Status | Meaning |
+| ------------ | ------ | ------- |
+| [`authentication-required`](/spec/0.1.0-rc.1/problems/authentication-required) | 401 | Bearer authentication is missing or invalid. |
+| [`authorization-failed`](/spec/0.1.0-rc.1/problems/authorization-failed) | 403 | The caller, request context, or requested resource is not permitted by authorization or access policy. |
+| [`not-found`](/spec/0.1.0-rc.1/problems/not-found) | 404 | The requested resource does not exist or is not visible to the caller. |
+| [`validation-failed`](/spec/0.1.0-rc.1/problems/validation-failed) | 400 | Request payload, parameters, manifest, or metadata failed validation. |
+| [`invalid-manifest`](/spec/0.1.0-rc.1/problems/invalid-manifest) | 400 | A submitted volume.toml is structurally or semantically invalid. |
+| [`invalid-archive`](/spec/0.1.0-rc.1/problems/invalid-archive) | 400 | A submitted hosted archive violates the v0.1 archive transport profile. |
+| [`identity-mismatch`](/spec/0.1.0-rc.1/problems/identity-mismatch) | 409 | A package identity disagrees with its route, manifest, or metadata. |
+| [`version-conflict`](/spec/0.1.0-rc.1/problems/version-conflict) | 409 | The target version already exists or cannot be reused. |
+| [`digest-mismatch`](/spec/0.1.0-rc.1/problems/digest-mismatch) | 400 | Submitted or resolved bytes do not match the declared digest. |
+| [`subject-binding-mismatch`](/spec/0.1.0-rc.1/problems/subject-binding-mismatch) | 400 | A trust artifact does not bind to the intended release subject. |
+| [`inconsistent-registry-state`](/spec/0.1.0-rc.1/problems/inconsistent-registry-state) | 409 | Index, exact metadata, or trust metadata cannot be reconciled. |
+| [`upload-expired`](/spec/0.1.0-rc.1/problems/upload-expired) | 410 | An upload intent expired before finalization. |
+| [`missing-uploaded-bytes`](/spec/0.1.0-rc.1/problems/missing-uploaded-bytes) | 400 | Finalization was requested before upload bytes were available. |
+| [`invalid-upload-state`](/spec/0.1.0-rc.1/problems/invalid-upload-state) | 409 | The upload intent is not in a state that can be finalized. |
+| [`idempotency-conflict`](/spec/0.1.0-rc.1/problems/idempotency-conflict) | 409 | A reused idempotency key conflicts with an earlier request. |
+| [`payload-too-large`](/spec/0.1.0-rc.1/problems/payload-too-large) | 413 | The submitted payload or declared upload size exceeds the bibliotheca's accepted limit. |
+| [`unsupported-media-type`](/spec/0.1.0-rc.1/problems/unsupported-media-type) | 415 | The submitted payload media type is not supported. |
+| [`permission-escalation`](/spec/0.1.0-rc.1/problems/permission-escalation) | 400 | Component permissions exceed the parent volume permission boundary. |
+| [`rate-limited`](/spec/0.1.0-rc.1/problems/rate-limited) | 429 | The request was rate limited. |
+
+## Related sources
+
+- [API error codes and responses](/spec/0.1.0-rc.1/api/errors)
+- [Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/release/0.1.0-rc1/conformance/fixtures/problem-registry.json)

@@ -1,0 +1,26 @@
+---
+title: 'Reserved extension namespaces'
+description: 'Reserved Agent Volumes extension namespace keys for capability metadata and bridge migration checks.'
+---
+
+The reserved extension namespace set is version-aligned with Agent Volumes `0.1.0-rc.1` and published by `schemas/reserved-extension-namespaces.json`.
+
+| Namespace | Meaning |
+| --------- | ------- |
+| `agent-volumes` | Reserved for Agent Volumes-owned extension semantics. |
+| `core` | Reserved for Agent Volumes-owned extension semantics. |
+| `spec` | Reserved for Agent Volumes-owned extension semantics. |
+
+Adding a reserved namespace is a breaking change for the relevant release line because existing extension keys can become spec-owned-looking keys.
+
+## Canonical artifact
+
+```text
+https://agentvolumes.org/spec/0.1.0-rc.1/schemas/reserved-extension-namespaces.json
+```
+
+## Related sources
+
+- [Schema ID publication pages](/spec/0.1.0-rc.1/uri-publications/schema-ids)
+- [Schema artifact inventory](/spec/0.1.0-rc.1/conformance/schema-artifacts)
+- [Capability metadata API](/spec/0.1.0-rc.1/api/capabilities)
