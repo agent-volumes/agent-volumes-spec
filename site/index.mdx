@@ -20,72 +20,42 @@ description: 'Agent Volumes is the open standard for packaging, distributing, an
   style={{ width: '100%', height: 'auto' }}
 />
 
-Agent Volumes defines a universal packaging and distribution standard for the AI agent component ecosystem. Like npm for JavaScript or PyPI for Python, Agent Volumes gives you a single, interoperable way to package skills, tools, hooks, MCP servers, LSP servers, commands, and autonomous agents — and distribute them to any compatible runtime.
+Agent Volumes defines a packaging and distribution standard for AI agent components. Use this landing page to choose the current release archive, browse stable identifier publications, or jump into the current authoring and API guides.
 
 <CardGroup cols={2}>
-  <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Create your first volume and publish it to a bibliotheca in minutes.
+  <Card title="Latest release archive" icon="box-archive" href="/spec/0.1.0-rc.1">
+    Browse the frozen Agent Volumes `0.1.0-rc.1` publication subtree.
   </Card>
-  <Card title="Core Concepts" icon="book-open" href="/concepts">
-    Understand volumes, component types, bibliothecas, and the identity scheme.
+  <Card title="Identifier hub" icon="fingerprint" href="/uri-publications">
+    Find schema IDs, Problem Details type URIs, SPDX terms, predicate IDs, and compatibility artifacts.
   </Card>
-  <Card title="Manifest Reference" icon="file-code" href="/volumes/manifest">
-    Full reference for the `volume.toml` manifest format and all its fields.
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create your first volume and understand the validation path before publishing.
   </Card>
   <Card title="Registry API" icon="server" href="/api/overview">
-    HTTP API reference for publishing, fetching, and discovering volumes.
+    Read the live Bibliotheca API guide and generated OpenAPI reference.
   </Card>
 </CardGroup>
 
-## Why Agent Volumes?
+## Release and archive routes
 
-AI agent runtimes — Claude Code, Codex, Gemini CLI, Cursor, and others — all define their own incompatible component layouts. Agent Volumes solves three structural problems that block ecosystem growth:
+- `/latest/` and `/current/` redirect to the latest non-draft release archive.
+- The current non-draft release archive is [`/spec/0.1.0-rc.1`](/spec/0.1.0-rc.1).
+- Older non-draft release archives remain reachable after newer releases are published.
 
-<CardGroup cols={3}>
-  <Card title="Fragmentation" icon="puzzle-piece">
-    Write a skill or tool once and distribute it to any compatible runtime — no more duplicating work for each
-    ecosystem.
-  </Card>
-  <Card title="No supply chain identity" icon="fingerprint">
-    Every volume gets a globally unique `pkg:volume/...` identifier and an immutable content integrity anchor for each
-    published release.
-  </Card>
-  <Card title="No shared trust model" icon="shield-check">
-    Publisher verification, content hashing, optional trust attachments such as SLSA provenance, and security advisories
-    are first-class features.
-  </Card>
-</CardGroup>
-
-## Get started
-
-<Steps>
-  <Step title="Create a volume manifest">
-    Add a `volume.toml` file to your project root and declare your components.
-  </Step>
-  <Step title="Declare your components">
-    List skills, tools, hooks, MCP servers, and other component types you want to export.
-  </Step>
-  <Step title="Publish to a bibliotheca">
-    Use the `shelf` CLI or the Registry API to publish your volume to a compatible registry.
-  </Step>
-  <Step title="Install in any compatible runtime">
-    Any runtime that supports Agent Volumes can discover and install your components.
-  </Step>
-</Steps>
-
-## Explore the specification
+## Explore the current documentation
 
 <CardGroup cols={2}>
-  <Card title="Component Types" icon="cubes" href="/components/overview">
-    Learn about all seven component types: Agent, Skill, Command, Tool, Hook, MCP Server, and LSP Server.
+  <Card title="Core concepts" icon="book-open" href="/concepts">
+    Understand volumes, component types, bibliothecas, and the identity scheme.
   </Card>
-  <Card title="Package Identity" icon="tag" href="/volumes/identity">
-    Understand `pkg:volume/...` identifiers and how volumes and components are addressed.
+  <Card title="Manifest reference" icon="file-code" href="/volumes/manifest">
+    Read the current `volume.toml` manifest reference and related volume semantics.
   </Card>
-  <Card title="Supply Chain Security" icon="lock" href="/security/supply-chain">
-    Content integrity, publisher identity, provenance attestation, and the threat model.
+  <Card title="Component types" icon="cubes" href="/components/overview">
+    Learn about agents, skills, commands, tools, hooks, MCP servers, and LSP servers.
   </Card>
   <Card title="Conformance" icon="circle-check" href="/conformance/overview">
-    Test your implementation against the normative fixture corpus.
+    Use the offline fixture corpus and role-scoped requirements without treating them as certification.
   </Card>
 </CardGroup>
