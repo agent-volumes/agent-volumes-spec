@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/trust-upload-intent.schema.json",
+  "title": "Agent Volumes Trust Upload Intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["uploadId", "subject", "attachment", "declaredDigest", "upload", "expiresAt", "state"],
+  "properties": {
+    "uploadId": { "type": "string", "minLength": 1 },
+    "subject": { "$ref": "#/$defs/releaseSubject" },
+    "attachment": { "$ref": "#/$defs/attachmentMetadata" },
+    "declaredDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "declaredSize": { "type": "integer", "minimum": 0 },
+    "upload": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["instructionType"],
+      "properties": {
+        "instructionType": {
+          "type": "string",
+          "description": "Upload profile identifier. The v0.1 portable baseline profile is http-put."
+        },
+        "url": { "type": "string", "format": "uri-reference" },
+        "method": { "type": "string", "description": "HTTP method for http-put; omitted or PUT means PUT." },
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "state": {
+      "type": "string",
+      "enum": ["pending-upload", "uploading", "uploaded", "expired", "failed"]
+    },
+    "idempotencyKey": { "type": "string" }
+  },
+  "$defs": {
+    "releaseSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "integrity"],
+      "properties": {
+        "purl": {
+          "type": "string",
+          "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "attachmentMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "format"],
+      "properties": {
+        "category": { "type": "string", "enum": ["bom", "provenance", "signature", "other"] },
+        "format": {
+          "type": "object",
+          "description": "Trust artifact format identity. Baseline examples include CycloneDX JSON BOMs, SLSA provenance predicates, and Sigstore bundle signatures.",
+          "additionalProperties": false,
+          "required": ["family", "mediaType"],
+          "properties": {
+            "family": {
+              "type": "string",
+              "description": "Format family such as cyclonedx, slsa-provenance, or sigstore-bundle."
+            },
+            "mediaType": { "type": "string" },
+            "predicateType": {
+              "type": "string",
+              "format": "uri",
+              "description": "Predicate URI for in-toto/SLSA-style artifacts when applicable."
+            },
+            "profile": {
+              "type": "string",
+              "description": "Optional profile identifier for a more specific artifact convention."
+            },
+            "version": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

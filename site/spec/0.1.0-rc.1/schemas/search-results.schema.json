@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/search-results.schema.json",
+  "title": "Agent Volumes Search Results",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items", "total", "limit", "offset"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "latestVersion"],
+        "properties": {
+          "name": { "$ref": "#/$defs/volumeName" },
+          "latestVersion": { "$ref": "#/$defs/semver" },
+          "description": { "type": "string", "maxLength": 256 },
+          "role": { "type": "string", "enum": ["component", "plugin", "provider", "meta"] },
+          "providers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "name"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
+                },
+                "name": { "$ref": "#/$defs/componentName" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total matching results for the bibliotheca-local query snapshot."
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Page size used for this catalog search response; not a resolver ordering signal."
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Zero-based offset used for this catalog search response; search ordering remains bibliotheca-local."
+    }
+  },
+  "$defs": {
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    }
+  }
+}

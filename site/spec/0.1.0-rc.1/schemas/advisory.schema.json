@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/advisory.schema.json",
+  "title": "Agent Volumes Advisory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "source", "severity", "published", "updated", "affected"],
+  "properties": {
+    "id": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local"],
+      "properties": {
+        "local": { "type": "string" },
+        "preferredExternal": { "type": "string" },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ecosystem"],
+      "properties": {
+        "ecosystem": {
+          "type": "string",
+          "enum": ["cve", "ghsa", "osv", "bibliotheca", "other"]
+        },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"]
+    },
+    "published": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "withdrawn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at"],
+      "properties": {
+        "at": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string" }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "target"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["supersedes", "superseded-by", "related", "duplicate-of"]
+          },
+          "target": { "type": "string" }
+        }
+      }
+    },
+    "affected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["volume", "ranges"],
+      "properties": {
+        "volume": { "$ref": "#/$defs/volumeName" },
+        "purl": { "type": "string", "pattern": "^pkg:volume/" },
+        "ranges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "events"],
+            "properties": {
+              "type": { "type": "string", "enum": ["semver"] },
+              "events": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "minProperties": 1,
+                  "maxProperties": 1,
+                  "properties": {
+                    "introduced": { "$ref": "#/$defs/advisoryVersionEventValue" },
+                    "fixed": { "$ref": "#/$defs/semver" },
+                    "lastAffected": { "$ref": "#/$defs/semver" },
+                    "limit": { "$ref": "#/$defs/semver" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "componentImpact": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["component"],
+            "properties": {
+              "component": {
+                "type": "string",
+                "description": "Informational component impact only; does not change the normative volume-level advisory target."
+              },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "summary": { "type": "string" },
+    "details": { "type": "string" }
+  },
+  "$defs": {
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "advisoryVersionEventValue": {
+      "type": "string",
+      "description": "OSV-style introduced events may use 0 as the beginning-of-time sentinel; other values use full SemVer.",
+      "pattern": "^(?:0|(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?)$"
+    }
+  }
+}

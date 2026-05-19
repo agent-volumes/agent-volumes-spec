@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/version-index-row.schema.json",
+  "title": "Agent Volumes Version Index Row",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["version", "status", "release"],
+  "properties": {
+    "version": { "$ref": "#/$defs/semver" },
+    "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "dependencies": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/volumeName" },
+      "additionalProperties": { "$ref": "#/$defs/semverRange" }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["available", "yanked", "tombstoned", "blocked", "unavailable"]
+        },
+        "reason": { "type": "string" }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string", "format": "uri-reference" }
+      }
+    }
+  },
+  "$defs": {
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "semverRange": {
+      "type": "string",
+      "$comment": "Portable v0.1 dependency range grammar for resolver-facing rows.",
+      "pattern": "^(?:(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)(?:(?:\\s*,\\s*|\\s+)(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)*$"
+    }
+  }
+}

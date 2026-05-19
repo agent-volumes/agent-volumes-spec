@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/volume.schema.json",
+  "title": "Agent Volumes Manifest Canonical Parsed Data Model",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["volume", "publisher"],
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "volume": {
+            "type": "object",
+            "properties": {
+              "role": { "enum": ["component", "plugin", "provider"] }
+            },
+            "required": ["role"]
+          }
+        },
+        "required": ["volume"]
+      },
+      "then": {
+        "type": "object",
+        "required": ["components"],
+        "properties": {
+          "components": { "type": "array", "minItems": 1 }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "volume": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["schema", "name", "version", "description", "license", "role"],
+      "properties": {
+        "schema": { "type": "integer", "const": 1 },
+        "name": { "$ref": "#/$defs/volumeName" },
+        "version": { "$ref": "#/$defs/semver" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "license": {
+          "type": "string",
+          "minLength": 1,
+          "$comment": "Normative SPDX expression validation requires validator logic beyond this structural schema."
+        },
+        "homepage": { "type": "string", "format": "uri" },
+        "repository": { "type": "string", "format": "uri" },
+        "documentation": { "type": "string", "format": "uri" },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 32 },
+          "maxItems": 16,
+          "uniqueItems": true
+        },
+        "role": {
+          "type": "string",
+          "enum": ["component", "plugin", "provider", "meta"]
+        },
+        "secondary-roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["component", "plugin", "provider", "meta"]
+          },
+          "uniqueItems": true
+        },
+        "providers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "publisher": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/scopeName" }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "dependencies": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/volumeName" },
+      "additionalProperties": { "$ref": "#/$defs/semverRange" }
+    },
+    "external-dependencies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/externalDependency" },
+      "uniqueItems": true
+    },
+    "component-dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "pattern": "^pkg:volume/" }
+      }
+    },
+    "runtimes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "compatibility"],
+        "properties": {
+          "name": { "$ref": "#/$defs/runtimeName" },
+          "compatibility": { "type": "string" }
+        }
+      }
+    },
+    "protocols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "version"],
+        "properties": {
+          "name": { "type": "string", "enum": ["mcp", "lsp"] },
+          "version": { "type": "string" }
+        }
+      }
+    },
+    "permissions": { "$ref": "#/$defs/permissions" },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "runtimes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["node", "bun", "deno", "python", "ruby", "go", "rust"] },
+          "uniqueItems": true
+        },
+        "os": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["linux", "macos", "windows"] },
+          "uniqueItems": true
+        },
+        "arch": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["x64", "arm64", "x86"] },
+          "uniqueItems": true
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source-repo": { "type": "string", "format": "uri" },
+        "build": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "system": { "type": "string" },
+            "workflow": { "type": "string" },
+            "signed": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nameSegment": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "scopeName": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "volumeName": {
+      "type": "string",
+      "maxLength": 194,
+      "pattern": "^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "semverRange": {
+      "type": "string",
+      "$comment": "Portable v0.1 dependency range grammar: exact full SemVer operands, caret, tilde, comparators, and comma/whitespace conjunction. Build metadata, partial versions, wildcards, OR expressions, hyphen ranges, tags, and registry-specific selectors are excluded.",
+      "pattern": "^(?:(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)(?:(?:\\s*,\\s*|\\s+)(?:[\\^~]|<=|>=|<|>|=)?(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-(?:(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?)*$"
+    },
+    "runtimeName": {
+      "type": "string",
+      "enum": [
+        "aider",
+        "claude-code",
+        "cline",
+        "codex",
+        "continue",
+        "cursor",
+        "crewai",
+        "gemini",
+        "generic-cli",
+        "generic-mcp",
+        "goose",
+        "hermes-agent",
+        "langgraph",
+        "openai-agents",
+        "openclaw",
+        "opencode",
+        "pi-agent",
+        "semantic-kernel"
+      ]
+    },
+    "stringSet": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "filesystem": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "network": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "browser": {
+          "type": "string",
+          "enum": ["deny", "read", "write", "read-write"],
+          "default": "deny"
+        },
+        "shell": {
+          "type": "string",
+          "enum": ["deny", "allow"],
+          "default": "deny"
+        }
+      }
+    },
+    "externalDependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "constraint", "purpose"],
+      "properties": {
+        "purl": {
+          "type": "string",
+          "$comment": "Structural check only. Semantic validation parses Package URL, rejects pkg:volume, rejects version/subpath, and canonicalizes qualifiers.",
+          "pattern": "^pkg:(?!volume(?:/|$))[A-Za-z][A-Za-z0-9.+-]*/[^@#]+(?:\\?[^#]+)?$"
+        },
+        "constraint": {
+          "type": "string",
+          "$comment": "Structural check only. Semantic validation parses VERS and checks PURL type / VERS scheme compatibility.",
+          "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$"
+        },
+        "purpose": {
+          "type": "string",
+          "anyOf": [
+            {
+              "enum": [
+                "runtime",
+                "build",
+                "development",
+                "test",
+                "optional",
+                "peer",
+                "source",
+                "documentation",
+                "other"
+              ]
+            },
+            {
+              "$comment": "Reverse-DNS extension purpose, e.g. org.example:codegen.",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$"
+            }
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentName" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["type", "name", "entrypoint"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
+        },
+        "name": { "$ref": "#/$defs/componentName" },
+        "entrypoint": {
+          "type": "string",
+          "$comment": "This structural schema validates path shape only. Entrypoint existence and component-type-specific format/frontmatter checks require validator logic beyond JSON Schema.",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+        },
+        "description": { "type": "string", "maxLength": 256 },
+        "providers": { "$ref": "#/$defs/stringSet" },
+        "permissions": { "$ref": "#/$defs/permissions" }
+      }
+    }
+  }
+}

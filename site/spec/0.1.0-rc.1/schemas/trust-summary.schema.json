@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/trust-summary.schema.json",
+  "title": "Agent Volumes Trust Summary",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["subject", "artifacts", "detailAvailable", "revision"],
+  "properties": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "integrity"],
+      "properties": {
+        "purl": {
+          "type": "string",
+          "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "May be empty when the release exists but no trust artifacts have been attached yet.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["category", "formatsPresent"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["bom", "provenance", "signature", "other"]
+          },
+          "formatsPresent": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "present": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "detailAvailable": { "type": "boolean" },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision"],
+      "properties": {
+        "revision": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "judgments": {
+      "type": "object",
+      "description": "Optional derived judgments; not canonical trust facts."
+    }
+  }
+}

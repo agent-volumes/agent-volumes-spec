@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/capability-metadata.schema.json",
+  "title": "Agent Volumes Bibliotheca Capability Metadata",
+  "$comment": "Unknown peer fields are tolerated for forward compatibility, but portable non-core capability fields are canonically placed under extensions.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "specVersion", "apiVersion", "scopePolicy", "deliveryModes", "apis"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1" },
+    "specVersion": { "type": "string" },
+    "compatibleSpecVersions": {
+      "type": "array",
+      "description": "Exact Agent Volumes spec versions the bibliotheca explicitly claims compatibility with. This is a set of exact versions, not a SemVer range expression.",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)*)?(?:\\+[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)*)?$"
+      },
+      "uniqueItems": true
+    },
+    "apiVersion": {
+      "type": "string",
+      "description": "HTTP API major family advertised by this capability document.",
+      "pattern": "^v[1-9][0-9]*$"
+    },
+    "scopePolicy": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["scopesSupported", "scopelessSupported", "scopesRequired"],
+      "properties": {
+        "scopesSupported": { "type": "boolean" },
+        "scopelessSupported": { "type": "boolean" },
+        "scopesRequired": { "type": "boolean" },
+        "curatedScopelessModel": { "type": "boolean" }
+      }
+    },
+    "deliveryModes": {
+      "type": "array",
+      "description": "Known v0.1 baseline values are cdn and git. Unknown values are tolerated and may be surfaced as diagnostics rather than validation failures.",
+      "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+      "uniqueItems": true
+    },
+    "apis": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["trustMetadata", "versionIndex", "releaseUploads", "trustUploads", "advisories"],
+      "properties": {
+        "trustMetadata": { "type": "boolean" },
+        "versionIndex": { "type": "boolean" },
+        "releaseUploads": { "type": "boolean" },
+        "trustUploads": { "type": "boolean" },
+        "advisories": { "type": "boolean" }
+      }
+    },
+    "uploadProfiles": {
+      "type": "object",
+      "description": "Supported upload profiles by upload surface. Known v0.1 portable profile value is http-put. Unknown values are tolerated and may be surfaced as diagnostics rather than validation failures.",
+      "additionalProperties": true,
+      "properties": {
+        "releaseUploads": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+          "uniqueItems": true
+        },
+        "trustUploads": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "allOf": [
+          { "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$" },
+          { "not": { "enum": ["agent-volumes", "core", "spec"] } }
+        ]
+      },
+      "additionalProperties": true
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maxAgeSeconds": { "type": "integer", "minimum": 0 },
+        "revalidate": { "type": "boolean" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "apis": {
+            "type": "object",
+            "properties": { "releaseUploads": { "const": true } },
+            "required": ["releaseUploads"]
+          }
+        },
+        "required": ["apis"]
+      },
+      "then": {
+        "required": ["uploadProfiles"],
+        "properties": {
+          "uploadProfiles": {
+            "type": "object",
+            "required": ["releaseUploads"],
+            "properties": {
+              "releaseUploads": { "type": "array", "contains": { "const": "http-put" } }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "apis": {
+            "type": "object",
+            "properties": { "trustUploads": { "const": true } },
+            "required": ["trustUploads"]
+          }
+        },
+        "required": ["apis"]
+      },
+      "then": {
+        "required": ["uploadProfiles"],
+        "properties": {
+          "uploadProfiles": {
+            "type": "object",
+            "required": ["trustUploads"],
+            "properties": {
+              "trustUploads": { "type": "array", "contains": { "const": "http-put" } }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/trust-detail.schema.json",
+  "title": "Agent Volumes Trust Detail",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subject", "attachments", "revision"],
+  "properties": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "integrity"],
+      "properties": {
+        "purl": {
+          "type": "string",
+          "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
+        "integrity": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision"],
+      "properties": {
+        "revision": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "May be empty when the release exists but no trust artifacts have been attached yet.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "category", "format", "artifactDigest", "locator", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["bom", "provenance", "signature", "other"]
+          },
+          "format": {
+            "type": "object",
+            "description": "Trust artifact format identity. Baseline examples include CycloneDX JSON BOMs, SLSA provenance predicates, and Sigstore bundle signatures.",
+            "additionalProperties": false,
+            "required": ["family", "mediaType"],
+            "properties": {
+              "family": {
+                "type": "string",
+                "description": "Format family such as cyclonedx, slsa-provenance, or sigstore-bundle."
+              },
+              "mediaType": { "type": "string" },
+              "predicateType": {
+                "type": "string",
+                "format": "uri",
+                "description": "Predicate URI for in-toto/SLSA-style artifacts when applicable."
+              },
+              "profile": {
+                "type": "string",
+                "description": "Optional profile identifier for a more specific artifact convention."
+              },
+              "version": { "type": "string" }
+            }
+          },
+          "artifactDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "artifactSize": { "type": "integer", "minimum": 0 },
+          "locator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": { "type": "string", "format": "uri" },
+              "embedded": {}
+            },
+            "anyOf": [
+              { "properties": { "url": { "type": "string", "format": "uri" } }, "required": ["url"] },
+              { "properties": { "embedded": {} }, "required": ["embedded"] }
+            ]
+          },
+          "status": {
+            "type": "object",
+            "description": "Lifecycle status for append-only trust attachments. Superseded attachments are preserved for history but do not satisfy current-state trust evidence.",
+            "additionalProperties": false,
+            "required": ["state"],
+            "properties": {
+              "state": {
+                "type": "string",
+                "enum": ["active", "revoked", "superseded", "invalid"]
+              },
+              "reason": { "type": "string" }
+            }
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subjectDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "signatureFormat": { "type": "string" },
+              "transparencyLog": { "type": "string" },
+              "verifiedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
