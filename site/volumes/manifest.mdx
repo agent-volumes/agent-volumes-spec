@@ -27,8 +27,9 @@ The `[volume]` table carries package identity and discovery metadata.
 
 <ParamField path="volume.name" type="string" required>
   Volume identifier. Use a bare name for scopeless volumes (`my-agent`) or `@scope/name` for scoped volumes
-  (`@acme/research-pack`). Names must be lowercase alphanumeric with hyphens, 1–128 characters, not starting or ending
-  with a hyphen, and without consecutive hyphens.
+  (`@acme/research-pack`). Name segments must be lowercase alphanumeric with hyphens, 1–128 characters, not starting or
+  ending with a hyphen, and without consecutive hyphens. Scoped identifiers also include a scope segment up to 64
+  characters, so the full scoped `volume.name` can be longer than a bare name.
 </ParamField>
 
 <ParamField path="volume.version" type="string" required>
@@ -72,7 +73,8 @@ The `[volume]` table carries package identity and discovery metadata.
 
 <ParamField path="volume.providers" type="string[]">
   External services the volume integrates with at the volume level (e.g., `["github", "slack"]`). These are discovery
-  hints, not dependency declarations. See [Compatibility](/volumes/compatibility) for the full provider list.
+  hints, not dependency declarations. See [Compatibility](/volumes/compatibility) for common provider examples and
+  naming guidance.
 </ParamField>
 
 ## `[publisher]` table
