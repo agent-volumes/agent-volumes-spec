@@ -53,21 +53,23 @@ When you exceed the limit, the bibliotheca returns `429 Too Many Requests` with 
 
 ## Endpoint families
 
-| Family                                                | Description                             |
-| ----------------------------------------------------- | --------------------------------------- |
-| `POST /api/v1/volumes/{name}`                         | Publish a new volume release            |
-| `GET /api/v1/volumes/{name}/{version}`                | Fetch release metadata                  |
-| `DELETE /api/v1/volumes/{name}/{version}`             | Unpublish a release                     |
-| `GET /api/v1/index/volumes/{name}`                    | Version index for dependency resolution |
-| `GET /api/v1/search`                                  | Search the catalog                      |
-| `GET /api/v1/volumes/{name}/{version}/trust/summary`  | Trust attachment summary                |
-| `GET /api/v1/volumes/{name}/{version}/trust/detail`   | Trust attachment detail                 |
-| `POST /api/v1/volumes/{name}/{version}/trust/uploads` | Upload a trust attachment               |
-| `GET /api/v1/advisories`                              | List security advisories                |
-| `GET /api/v1/advisories/{advisoryId}`                 | Fetch a single advisory                 |
-| `GET /api/v1/capabilities`                            | Bibliotheca capability metadata         |
+| Family                                                                    | Description                             |
+| ------------------------------------------------------------------------- | --------------------------------------- |
+| `POST /api/v1/volumes/{name}`                                             | Publish a new volume release            |
+| `POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize`                 | Finalize a release upload               |
+| `GET /api/v1/volumes/{name}/{version}`                                    | Fetch release metadata                  |
+| `DELETE /api/v1/volumes/{name}/{version}`                                 | Unpublish a release                     |
+| `GET /api/v1/index/volumes/{name}`                                        | Version index for dependency resolution |
+| `GET /api/v1/search`                                                      | Search the catalog                      |
+| `GET /api/v1/volumes/{name}/{version}/trust/summary`                      | Trust attachment summary                |
+| `GET /api/v1/volumes/{name}/{version}/trust/detail`                       | Trust attachment detail                 |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads`                     | Upload a trust attachment               |
+| `POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize` | Finalize a trust attachment upload      |
+| `GET /api/v1/advisories`                                                  | List security advisories                |
+| `GET /api/v1/advisories/{advisoryId}`                                     | Fetch a single advisory                 |
+| `GET /api/v1/capabilities`                                                | Bibliotheca capability metadata         |
 
-All scoped volume names (`@scope/name`) have equivalent routes of the form `/api/v1/volumes/@{scope}/{name}/...`.
+Package operation routes that start with `/api/v1/volumes/{name}` have scoped equivalents of the form `/api/v1/volumes/@{scope}/{name}/...`. Version index routes keep the `/api/v1/index/volumes/` prefix, so a scoped version index is `/api/v1/index/volumes/@{scope}/{name}`.
 
 ## OpenAPI contract
 
