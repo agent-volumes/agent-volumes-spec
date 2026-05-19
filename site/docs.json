@@ -70,6 +70,10 @@
               "conformance/fixtures",
               "conformance/requirements"
             ]
+          },
+          {
+            "group": "Specification",
+            "pages": ["design-principles"]
           }
         ]
       },
