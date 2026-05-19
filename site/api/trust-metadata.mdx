@@ -48,7 +48,7 @@ The summary view is fact-first: it reports observable facts about which trust at
       Trust artifact category: `bom`, `provenance`, `signature`, or `other`.
     </ResponseField>
     <ResponseField name="formatsPresent" type="string[]" required>
-      Format family identifiers present for this category, e.g. `["cyclonedx"]`, `["slsa-provenance"]`, `["sigstore-bundle"]`.
+      Format identifiers present for this category, e.g. `["cyclonedx-json"]`, `["slsa-provenance-v1"]`, `["sigstore-bundle-v1"]`.
     </ResponseField>
     <ResponseField name="present" type="boolean">
       Whether artifacts in this category are present. Defaults to `true` when the item appears in the array.
@@ -93,17 +93,17 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0/trust/summary
   "artifacts": [
     {
       "category": "bom",
-      "formatsPresent": ["cyclonedx"],
+      "formatsPresent": ["cyclonedx-json"],
       "present": true
     },
     {
       "category": "provenance",
-      "formatsPresent": ["slsa-provenance"],
+      "formatsPresent": ["slsa-provenance-v1"],
       "present": true
     },
     {
       "category": "signature",
-      "formatsPresent": ["sigstore-bundle"],
+      "formatsPresent": ["sigstore-bundle-v1"],
       "present": true
     }
   ],
