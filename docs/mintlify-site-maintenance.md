@@ -89,6 +89,35 @@ and historical release lookup. A single unversioned overview can introduce Agent
 Volumes and point readers to the latest release, but release-specific reference
 content belongs under a versioned subtree.
 
+## Public host and routing model
+
+ADR-0155 and ADR-0156 split Agent Volumes' public web presence into an
+organization host, a documentation host, and permanent specification aliases.
+Maintain the Mintlify site with these host responsibilities in mind:
+
+- `https://agentvolumes.org` is the canonical host for Agent Volumes Organization
+  landing, governance, charter, adopter, introductory, and contact pages.
+- `https://www.agentvolumes.org` is not a separate website. It should redirect
+  permanently to the corresponding `https://agentvolumes.org` organization URL.
+- `https://docs.agentvolumes.org` is the public host for the Mintlify `site/`
+  deployment, including implementation guidance, release archives, Registry API
+  documentation, conformance documentation, and generated API reference pages.
+- Versioned routes on the docs host, such as
+  `https://docs.agentvolumes.org/spec/0.1.0-rc.1/`, are the canonical rendered
+  documentation pages for versioned specification archives.
+- `https://agentvolumes.org/spec/*` is reserved for permanent specification URI
+  aliases on the organization apex host. These aliases should redirect to the
+  corresponding `https://docs.agentvolumes.org/spec/*` page rather than serving a
+  duplicate indexable copy.
+
+Do not configure the Mintlify site as a competing organization homepage, and do
+not publish duplicate specification pages from both apex and docs hosts. Internal
+links controlled by the project should use the apex host for organization pages,
+the docs host for rendered documentation pages, and apex `/spec/*` only when the
+intent is to cite or verify the durable organization-branded specification alias.
+Canonical metadata, sitemap entries, social metadata, Search Console properties,
+analytics, redirect checks, and release evidence should reflect that split.
+
 ## Landing page and navigation visibility
 
 Treat `site/index.mdx` as the public landing page for the documentation site. If
@@ -623,8 +652,11 @@ vectors, mapping fixtures, and readiness boundaries.
 #### URI publication decisions
 
 Cover ADRs that establish Mintlify as the publication platform, keep the site
-source in this repository, define URI-backed SPDX namespace terms, and require
-stable documentation for Agent Volumes-owned identifiers.
+source in this repository, choose `agentvolumes.org` as the canonical
+organization host, place the Mintlify deployment on `docs.agentvolumes.org`,
+reserve apex `/spec/*` as permanent specification aliases, define URI-backed SPDX
+namespace terms, and require stable documentation for Agent Volumes-owned
+identifiers.
 
 #### Deferred decisions
 
@@ -643,7 +675,12 @@ consistent with those decisions.
 
 The v0.1.0-rc.1 documentation site should provide stable public documentation
 for Agent Volumes-owned identifiers that appear in the specification,
-companion artifacts, or mapping fixtures.
+companion artifacts, or mapping fixtures. For versioned specification archive
+pages, the canonical rendered documentation URL is on `docs.agentvolumes.org`.
+When an Agent Volumes-owned identifier or release evidence uses an apex
+`https://agentvolumes.org/spec/*` URI, treat that apex URI as the durable
+specification alias and verify that it redirects to the corresponding docs-host
+page without creating a duplicate indexable page.
 
 ### Schema identifiers
 
@@ -654,8 +691,12 @@ referenceable:
 https://agentvolumes.org/spec/0.1.0-rc.1/schemas/
 ```
 
-Schema pages should link to the canonical source file in [`../schemas/`](../schemas/)
-and explain the artifact family it belongs to.
+Schema documentation pages should resolve on the corresponding docs-host route,
+such as `https://docs.agentvolumes.org/spec/0.1.0-rc.1/schemas/`, link to the
+canonical source file in [`../schemas/`](../schemas/), and explain the artifact
+family it belongs to. The apex `/spec/*` schema URL remains a stable public alias
+or identifier surface where used by the release; it should redirect rather than
+serve a second rendered copy.
 
 ### Problem Details type URIs
 
@@ -749,14 +790,18 @@ When maintainers need explicit SEO metadata, configure it through
 Mintlify-supported site configuration or page frontmatter:
 
 - Use `docs.json` `seo.metatags` for site-wide defaults such as domain-level
-  verification, global Open Graph defaults, or the preferred canonical host.
+  verification, global Open Graph defaults, or the preferred canonical host for
+  the documentation deployment.
 - Use page frontmatter for page-specific `title`, `description`, `keywords`,
   `og:*`, `twitter:*`, `canonical`, `robots`, and `noindex` values.
 - Quote frontmatter keys that contain colons, such as `"og:title"`.
 - Format `keywords` as a YAML array, and include only terms that genuinely
   describe the page.
 - Verify deployed canonical URL behavior on the public site, especially after
-  changing custom-domain or redirect configuration.
+  changing custom-domain or redirect configuration. Confirm that documentation
+  pages self-canonicalize on `docs.agentvolumes.org`, organization pages
+  self-canonicalize on `agentvolumes.org`, and apex `/spec/*` aliases redirect
+  instead of indexing duplicate docs-host content.
 
 Mintlify can generate Open Graph images from the page title, page description,
 site logo, and site color. Prefer generated previews or a consistent
@@ -897,14 +942,14 @@ When changing the public documentation site:
 3. If the change affects structured behavior, check whether schemas, OpenAPI,
    fixtures, conformance coverage, and release notes also need updates.
 4. If the change affects a published URI, confirm whether the path is versioned,
-   immutable, redirected, or a latest-style alias.
+   immutable, redirected, an apex `/spec/*` alias, or a latest-style alias.
 5. If the change affects a released documentation surface, confirm whether the
    change belongs only in the current release subtree, requires a new release
    subtree, or is an allowed unversioned overview/navigation update. Do not
    retrofit historical release pages with current-release semantics.
 6. If the change affects public discoverability, review title, description,
-   canonical URL, sitemap membership, `robots`, `noindex`, and AI-facing
-   publication surfaces.
+   canonical URL, sitemap membership, host-specific redirects, `robots`,
+   `noindex`, and AI-facing publication surfaces.
 7. If the change affects API documentation, regenerate any Mintlify publication
    copy from the canonical OpenAPI contract.
 8. Run the validation commands for the affected change type.
@@ -933,6 +978,9 @@ Before merging documentation-site changes, reviewers should confirm:
 - Indexed pages have accurate, unique titles and descriptions.
 - Canonical URLs, sitemap membership, `robots`, and `noindex` settings match the
   intended publication role.
+- `docs.agentvolumes.org` routes, `agentvolumes.org` organization pages,
+  `www.agentvolumes.org` redirects, and apex `/spec/*` aliases follow ADR-0155
+  and ADR-0156.
 - AI-facing surfaces are treated as publication aids, not as Google ranking
   requirements or alternate sources of truth.
 - Conformance claims are not represented as certification.
