@@ -645,13 +645,162 @@ Publish explanatory pages for:
 These pages should explain how the artifacts support validation, matching, and
 warning context without becoming package-manager resolution policy.
 
-## Page authoring rules
+## Maintainer search discovery and SEO guidance
+
+This section is for site maintainers and publication editors. It is operational
+guidance for maintaining the Mintlify site; it is not reader-facing specification
+content and should not become a public documentation page.
+
+Treat SEO as publication-layer discoverability work. Search metadata, sitemap
+membership, `robots` behavior, social previews, and AI-facing discovery files
+must help readers and tools find the right page; they must not redefine Agent
+Volumes terminology, broaden published identifiers, or outrank the
+source-of-truth hierarchy.
+
+### Mintlify SEO controls
+
+Mintlify automatically handles several baseline SEO concerns for pages included
+in the documentation navigation, including meta tag generation, semantic HTML,
+mobile-friendly output, `sitemap.xml`, and `robots.txt`. Use those defaults
+unless the site needs an explicit publication decision.
+
+When maintainers need explicit SEO metadata, configure it through
+Mintlify-supported site configuration or page frontmatter:
+
+- Use `docs.json` `seo.metatags` for site-wide defaults such as domain-level
+  verification, global Open Graph defaults, or the preferred canonical host.
+- Use page frontmatter for page-specific `title`, `description`, `keywords`,
+  `og:*`, `twitter:*`, `canonical`, `robots`, and `noindex` values.
+- Quote frontmatter keys that contain colons, such as `"og:title"`.
+- Format `keywords` as a YAML array, and include only terms that genuinely
+  describe the page.
+- Verify deployed canonical URL behavior on the public site, especially after
+  changing custom-domain or redirect configuration.
+
+Mintlify can generate Open Graph images from the page title, page description,
+site logo, and site color. Prefer generated previews or a consistent
+`thumbnails.background` when the default preview is sufficient. Set a static
+`og:image` globally or per page only when the replacement image is intentional
+and remains accurate for the target page.
+
+### Maintainer page metadata rules
+
+When preparing indexed pages, maintainers should ensure metadata matches the
+page's actual purpose:
+
+- Write one unique, descriptive title per page. Lead with the topic a reader is
+  looking for, then add the Agent Volumes context when helpful.
+- Write one unique description that explains what the reader can do or learn on
+  the page. Prefer concrete nouns from the specification over marketing claims.
+- Keep titles and descriptions concise enough to scan in search results, but do
+  not sacrifice accuracy for character-count targets.
+- Use the canonical source artifact as the page's framing context. A page about a
+  schema, Problem Details type, ADR, fixture family, or OpenAPI surface should
+  identify the canonical artifact early.
+- Use `noindex: true` for draft, duplicate, generated-support, or navigation-only
+  pages that should not appear as independent search results.
+- Do not use `noindex`, `robots`, or canonical tags to hide unresolved
+  source-of-truth drift. Fix the source or the page instead.
+
+Metadata must remain consistent with URI publication rules. Do not rewrite
+versioned URI paths, schema `$id` values, Problem Details slugs, SPDX term
+fragments, predicate identifiers, or reserved namespace keys to make them more
+search-friendly.
+
+### Maintainer checklist for search and AI retrieval
+
+Google's guidance for generative AI features is that ordinary SEO fundamentals
+continue to apply: pages need to be crawlable, indexable, eligible for snippets,
+and useful to readers. For this site, that means:
+
+- Write human-first documentation with original, standards-specific explanation.
+  Avoid commodity summaries that restate generic package-registry advice without
+  Agent Volumes-specific value.
+- Use a clear heading hierarchy. Each page should have one primary topic, then
+  descriptive sections that match the questions implementers and reviewers ask.
+- Put the page's core answer or scope statement near the top. Reference pages
+  should identify the canonical source artifact before moving into examples or
+  rationale.
+- Use short paragraphs, lists, tables, and examples when they make the document
+  easier to scan. Do not split pages into artificial fragments only for search or
+  AI systems.
+- Link related pages with descriptive anchor text, such as “version index
+  resolver behavior” or “Problem Details type URIs,” not “click here.”
+- Keep topic clusters coherent: conceptual pages should link to reference pages,
+  reference pages should link to canonical artifacts, and ADR summaries should
+  link to the current accepted decision records they summarize.
+- Add images, diagrams, or video only when they clarify the standard. Provide
+  descriptive filenames and alt text for every meaningful image.
+- Keep examples, generated API references, screenshots, redirects, and
+  publication copies current during release-candidate and stable-release work.
+
+Do not create doorway pages, near-duplicate keyword variants, or “AI SEO” rewrites
+for every possible query. Google explicitly treats generative AI visibility as
+part of Search rather than a separate optimization channel, and its guidance
+warns against scaled content created primarily to manipulate rankings or AI
+answers.
+
+### Indexing, sitemap, robots, and AI-facing surfaces
+
+By default, Mintlify indexes pages included in `docs.json` navigation. Hidden
+pages are excluded from search engine sitemaps, internal documentation search,
+AI assistant context, and MCP search unless the site configuration deliberately
+makes them searchable.
+
+Use indexing controls deliberately:
+
+- Keep canonical public pages in navigation unless there is a clear reason to
+  hide them.
+- Use `seo.indexing: "all"` or `searchable: true` on hidden navigation groups only
+  when hidden pages are intended to be discoverable.
+- Review `/sitemap.xml` after navigation, hidden-page, or indexing changes.
+- Avoid custom `robots.txt` rules unless they are necessary. A custom file
+  replaces Mintlify's generated file.
+- Do not block AI crawlers such as GPTBot, ClaudeBot, or PerplexityBot unless the
+  project intentionally wants to prevent those tools from crawling and citing the
+  documentation.
+
+Mintlify's AI-facing surfaces, including `llms.txt`, `llms-full.txt`,
+`.well-known` discovery paths, MCP access, and Markdown-oriented publication
+formats, are useful for documentation consumers and agentic tools. Maintain them
+as publication aids, but do not describe them as Google ranking factors. Google's
+AI optimization guidance says special AI text files or markup are not required
+for visibility in Google generative AI features.
+
+### Search quality anti-patterns
+
+Avoid these SEO practices on the Agent Volumes site:
+
+- keyword stuffing in titles, descriptions, headings, or hidden metadata;
+- changing normative terminology to match search volume;
+- using speculative future profiles as search landing pages;
+- duplicating pages for minor query variations;
+- representing conformance fixture results as certification, hosted-service
+  approval, or production readiness;
+- using structured data as a substitute for accurate prose and canonical links;
+- seeking inauthentic mentions or backlinks;
+- relying on `llms.txt`, custom AI markup, or content chunking as a replacement
+  for useful, crawlable documentation.
+
+Structured data can support ordinary rich-result eligibility when a future site
+page has an appropriate schema.org use case, but it is not required for Google
+generative AI visibility and must not imply semantics that the specification does
+not define.
+
+## Maintainer page authoring rules
 
 - Use direct, implementer-facing prose.
 - Start each reference page with the canonical source artifact.
+- Give every indexed page a unique, accurate title and description.
+- Keep SEO metadata aligned with the page's canonical source artifact and URI
+  publication role.
 - Prefer examples copied from or derived from the prose specification and
   conformance fixtures.
+- Use descriptive internal-link anchor text and maintain topic-cluster links
+  between concept, reference, artifact, and ADR pages.
 - Mark generated or bundled publication copies as derived.
+- Add alt text for meaningful images and avoid decorative images that distract
+  from the specification.
 - Preserve Human Era / Holocene Era dates in human-readable project text.
 - Do not normalize versioned URI paths, Problem Details slugs, schema `$id`
   values, or URI fragments for style.
@@ -668,9 +817,12 @@ When changing the public documentation site:
    fixtures, conformance coverage, and release notes also need updates.
 4. If the change affects a published URI, confirm whether the path is versioned,
    immutable, redirected, or a latest-style alias.
-5. If the change affects API documentation, regenerate any Mintlify publication
+5. If the change affects public discoverability, review title, description,
+   canonical URL, sitemap membership, `robots`, `noindex`, and AI-facing
+   publication surfaces.
+6. If the change affects API documentation, regenerate any Mintlify publication
    copy from the canonical OpenAPI contract.
-6. Run the validation commands for the affected change type.
+7. Run the validation commands for the affected change type.
 
 For Markdown-only maintenance documents, run:
 
@@ -691,6 +843,11 @@ Before merging documentation-site changes, reviewers should confirm:
 - Decisions, normative release-surface material, and explanatory context are
   clearly labeled.
 - Published identifiers are not rewritten or broadened.
+- Indexed pages have accurate, unique titles and descriptions.
+- Canonical URLs, sitemap membership, `robots`, and `noindex` settings match the
+  intended publication role.
+- AI-facing surfaces are treated as publication aids, not as Google ranking
+  requirements or alternate sources of truth.
 - Conformance claims are not represented as certification.
 - Derived OpenAPI or schema publication copies match their canonical sources.
 - URI publication pages distinguish canonical identifiers, documentation pages,
