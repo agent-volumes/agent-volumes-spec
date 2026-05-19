@@ -52,11 +52,68 @@ Avoid product-style claims. In particular, do not describe conformance labels as
 certification badges, hosted-service approval, production readiness, or live
 cross-registry interoperability guarantees.
 
+## Versioned publication and archive model
+
+The public site must preserve released documentation surfaces by version. For
+specification sites, readers, implementers, auditors, and automated tools need to
+resolve the documentation that matched the artifacts available at the time of a
+release, not only the latest site text.
+
+Maintain these publication boundaries:
+
+- Publish non-draft release documentation under immutable versioned paths, such
+  as `/spec/0.1.0-rc.1/`, with the matching prose, schema identifier pages,
+  OpenAPI publication copy, conformance fixture documentation, URI publication
+  pages, and design-rationale summaries for that release.
+- Keep all past non-draft release documentation permanently reachable. Do not
+  replace historical release pages with current-release prose, and do not rewrite
+  released schema `$id` pages, Problem Details slugs, namespace term fragments,
+  predicate identifiers, or release-specific artifact inventories for style.
+- Treat draft or unreleased work as preview or repository content until it is
+  intentionally published. Drafts are not required to appear on the public site,
+  and draft content must not be presented as the latest released specification.
+- If the site provides a latest-style alias, make it a redirect or navigation aid
+  to the current non-draft release rather than the canonical home for released
+  identifiers. The versioned page remains the durable citation target.
+- Redirect `/latest/` and `/current/` to the most recent non-draft release
+  subtree. These aliases are convenience routes only; update them atomically when
+  a newer non-draft release becomes the active release, and keep older versioned
+  subtrees permanently reachable.
+- Archive derived publication artifacts with their release. A Mintlify OpenAPI
+  publication copy, generated schema reference page, or fixture inventory page is
+  still derived, but the derived copy used for a release must remain auditable
+  against the canonical artifact for that release.
+
+The active site structure should therefore support both current-release browsing
+and historical release lookup. A single unversioned overview can introduce Agent
+Volumes and point readers to the latest release, but release-specific reference
+content belongs under a versioned subtree.
+
+## Landing page and navigation visibility
+
+Treat `site/index.mdx` as the public landing page for the documentation site. If
+the root landing page is omitted from `docs.json` navigation, Mintlify treats it
+like a hidden page: it can remain reachable by URL, but it should not be assumed
+to be a normal visible sidebar entry. Use that pattern only when the page is meant
+to introduce the site, link to the latest release, and route readers into the
+versioned documentation tree without duplicating release-specific reference
+content.
+
+When the landing page should appear in the rendered navigation, add it explicitly
+to `docs.json` or make it the root page for the relevant navigation group. When it
+is a standalone marketing-free landing page rather than a reference page, use
+Mintlify page controls such as custom layout mode and hidden footer pagination
+only when they improve navigation clarity. Keep `hidden` and `noindex` distinct:
+hidden pages are navigation-hidden, while `noindex` is an indexing directive and
+does not by itself remove a page from navigation.
+
 ## Information architecture baseline
 
-When building or organizing the site from a blank slate, use this sidebar
-shape as the baseline. The exact page names can change, but the coverage should
-remain intact.
+When building or organizing the site from a blank slate, use this sidebar shape
+as the baseline for each published release subtree. The exact page names can
+change, and Mintlify tabs may be used for readability, but the coverage should
+remain intact. For the current release, the Bibliotheca API reference can remain
+in a dedicated tab when that is easier to scan than a single long sidebar.
 
 ### Start here
 
@@ -81,7 +138,10 @@ not independent requirements.
 Show a minimal `volume.toml` with `[volume]`, `[publisher]`, and at least one
 `[[components]]` entry. Explain the resulting `pkg:volume/...@version` identity,
 how a component purl addresses an exported component, and which validation steps
-an author should expect before publishing.
+an author should expect before publishing. The quickstart may be more detailed
+than this minimum when it remains task-oriented: compatibility metadata,
+permissions, publish steps, content integrity verification, and a complete example
+are useful additions for implementers.
 
 #### Glossary
 
@@ -104,9 +164,12 @@ Include examples for `pkg:volume/<name>`,
 #### Component types
 
 Document the seven component types: `agent`, `skill`, `command`, `tool`, `hook`,
-`mcp-server`, and `lsp-server`. For each type, cover who invokes it, its
-execution model, expected entrypoint format, and the boundary between portable
-Agent Volumes semantics and runtime-local behavior.
+`mcp-server`, and `lsp-server`. Prefer an overview page plus one page per
+component type when the site can sustain that structure; this keeps invocation
+model, entrypoint format, portable validation minimum, examples, and runtime-local
+boundary text easier to scan. At minimum, the component type section must cover
+who invokes each type, its execution model, expected entrypoint format, and the
+boundary between portable Agent Volumes semantics and runtime-local behavior.
 
 #### Component export and loading
 
@@ -138,7 +201,10 @@ transitive-closure semantics in v0.1.
 Introduce `volume.toml` as the human-authored manifest and distinguish authored
 TOML, typed parser output, and the canonical parsed data model used for schema
 validation. Explain minimal normalization, semantic defaults, and where JSON
-Schema stops short of full semantic validation.
+Schema stops short of full semantic validation. The site may keep a complete
+manifest reference page and split dependency, compatibility, and role guidance
+into adjacent pages when that improves scanability, but the reference cluster
+must still cover every subsection below and link related pages together.
 
 #### Package metadata
 
@@ -196,6 +262,13 @@ applies to manifest structure and does not imply permissive unknown-field
 behavior for every artifact family.
 
 ### Bibliotheca API
+
+The Bibliotheca API may be organized as a dedicated Mintlify tab instead of a
+group inside the primary documentation sidebar. Use the tab when it improves
+readability for implementers who are focused on HTTP API work. Keep adjacent
+prose pages and generated OpenAPI reference pages in the same tab so readers can
+move between interoperability semantics and operation-level shapes without
+leaving the API surface.
 
 #### API overview
 
@@ -277,7 +350,9 @@ not the canonical API contract.
 Explain that the release integrity value is a `sha256:<hex>` digest of a
 normalized file tree, not arbitrary archive bytes. Cover path normalization,
 regular-file constraints, executable-bit handling, byte stream construction, and
-digest rejection behavior.
+digest rejection behavior. Detailed worked examples and algorithm walk-throughs
+are encouraged because this page is one of the main implementation aids for
+clients and bibliothecas.
 
 #### Release subject identity
 
@@ -368,7 +443,8 @@ not weaken the core baseline.
 Document `artifact-fixture-pass`, `client-role`, `bibliotheca-read-role`,
 `bibliotheca-write-capable-role`, and `validator-exporter-role`. State that
 these labels are additive and are not certification badges or hosted-service
-approval.
+approval. Keep the current distinction between role-scoped claims, fixture
+coverage, and product claims visible on conformance overview and fixture pages.
 
 #### Bibliotheca requirements
 
@@ -389,7 +465,9 @@ bridge warnings, and external dependency warnings.
 Group fixture pages by manifest validation, permissions, resolver behavior,
 external dependencies, package identity, archive/integrity, release metadata,
 trust discovery/upload/verification, advisories, capability metadata, mapping,
-errors/warnings, search, and coverage.
+errors/warnings, search, and coverage. The fixture catalog can include more detail
+than a simple inventory, including schema validation units, algorithmic vectors,
+report shape guidance, mapping classifications, and runner workflow examples.
 
 #### Requirement traceability
 
@@ -429,9 +507,12 @@ must not be rewritten for style.
 
 #### Problem Details type URIs
 
-Provide one page or section per closed v0.1 problem type. Each entry should show
-the URI, expected HTTP status, short meaning, representative endpoint families,
-and canonical source artifacts.
+Provide an index page or table for the closed v0.1 problem set, and also provide
+stable public documentation for each Problem Details type URI. Each problem entry
+or page should show the URI, expected HTTP status, short meaning, representative
+endpoint families, and canonical source artifacts. The aggregate table helps
+readers compare the set; the individual URI pages provide durable dereference
+targets.
 
 #### SPDX extension namespace
 
@@ -817,12 +898,16 @@ When changing the public documentation site:
    fixtures, conformance coverage, and release notes also need updates.
 4. If the change affects a published URI, confirm whether the path is versioned,
    immutable, redirected, or a latest-style alias.
-5. If the change affects public discoverability, review title, description,
+5. If the change affects a released documentation surface, confirm whether the
+   change belongs only in the current release subtree, requires a new release
+   subtree, or is an allowed unversioned overview/navigation update. Do not
+   retrofit historical release pages with current-release semantics.
+6. If the change affects public discoverability, review title, description,
    canonical URL, sitemap membership, `robots`, `noindex`, and AI-facing
    publication surfaces.
-6. If the change affects API documentation, regenerate any Mintlify publication
+7. If the change affects API documentation, regenerate any Mintlify publication
    copy from the canonical OpenAPI contract.
-7. Run the validation commands for the affected change type.
+8. Run the validation commands for the affected change type.
 
 For Markdown-only maintenance documents, run:
 
@@ -840,6 +925,8 @@ OpenAPI publication refresh, artifact validation, and URI publication evidence.
 Before merging documentation-site changes, reviewers should confirm:
 
 - The page links back to the canonical source artifact.
+- Release-specific pages live under the correct versioned subtree, and historical
+  non-draft release pages remain permanently reachable.
 - Decisions, normative release-surface material, and explanatory context are
   clearly labeled.
 - Published identifiers are not rewritten or broadened.
