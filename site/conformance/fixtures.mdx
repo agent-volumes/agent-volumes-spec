@@ -91,6 +91,27 @@ The `digest-vectors.json` file contains golden vectors for the normalized file-t
   correct — you must evaluate the expected output against your computed result.
 </Warning>
 
+## BOM and provenance mapping fixtures
+
+The BOM/provenance mapping fixtures explain how Agent Volumes fields project into CycloneDX, SPDX, and SLSA outputs. The source artifacts are `conformance/fixtures/mapping-matrix.json`, `conformance/fixtures/mapping-sample.json`, `schemas/mapping-matrix.schema.json`, and `schemas/mapping-sample.schema.json`.
+
+`mapping-matrix.json` classifies each target mapping by preservation level:
+
+| Mapping kind | Meaning                                                                                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `native`     | The target family has a native field that preserves the Agent Volumes value.                                                                                            |
+| `extension`  | The value is preserved through an Agent Volumes extension namespace or predicate.                                                                                       |
+| `lossy`      | The target family cannot preserve full semantics without an Agent Volumes-aware extension. Treat the output as a human-readable summary, not a round-trip-safe mapping. |
+
+Important examples from the matrix:
+
+- `release.immutableContentIdentity` maps natively to CycloneDX `metadata.component.hashes[SHA-256]`, SPDX `Package.checksums[SHA256]`, and SLSA `subject.digest.sha256`.
+- `release.logicalIdentity` maps natively to CycloneDX `metadata.component.purl` and SPDX `ExternalRef[purl]`; SLSA carries it through an Agent Volumes extension on the subject name.
+- `provenance.build.system` maps natively to SLSA `runDetails.builder.id`, while CycloneDX uses `metadata.properties[agent-volumes:build-system]` and SPDX keeps a lossy creation-info comment.
+- `external-dependencies[]` remain declaration-only. CycloneDX uses external components plus `agent-volumes:*` properties, SPDX 3.0.1 uses the URI-backed Agent Volumes extension namespace, and SLSA omits them from `subject`, `materials`, and `resolvedDependencies` unless an optional in-toto predicate is used.
+
+`mapping-sample.json` is the concrete offline vector. It binds one source manifest and release subject to CycloneDX, SPDX, SPDX external-dependency extension, and SLSA output objects so validators can check native, extension, and lossy mappings separately.
+
 ## Conformance report schema
 
 When your runner finishes evaluating the fixture corpus, output a report using `schemas/conformance-report.schema.json`. The list below is a summary only; the schema is authoritative for required fields, optional metadata, result outcomes, warnings, and skip reporting. At a high level, the report records:
