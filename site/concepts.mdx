@@ -33,7 +33,7 @@ pkg:volume/research-agent-pack@1.4.0
 
 A **bibliotheca** is a registry that indexes, hosts, and serves volumes — the Agent Volumes equivalent of npmjs.com, PyPI, or crates.io.
 
-Bibliothecas implement the [Agent Volumes Registry API](/api/overview), which covers:
+Bibliothecas implement the [Agent Volumes Registry API](/spec/0.1.0-rc.1/api/overview), which covers:
 
 - Publishing and fetching volumes
 - Version discovery and search
@@ -76,7 +76,7 @@ name = "my-skill"
 entrypoint = "./skills/my-skill/SKILL.md"
 ```
 
-The `schema` field is currently always `1`. Tooling rejects manifests with unrecognized schema versions. See the [Manifest reference](/volumes/manifest) for the full field reference.
+The `schema` field is currently always `1`. Tooling rejects manifests with unrecognized schema versions. See the [Manifest reference](/spec/0.1.0-rc.1/volumes/manifest) for the full field reference.
 
 </Accordion>
 
@@ -144,7 +144,7 @@ entrypoint = "./tools/arxiv-search.json"
 description = "Search arXiv for papers by query, author, or category"
 ```
 
-For full semantics and entrypoint format details for each type, see [Component Types](/components/overview).
+For full semantics and entrypoint format details for each type, see [Component Types](/spec/0.1.0-rc.1/components/overview).
 
 </Accordion>
 
@@ -267,16 +267,16 @@ A **publisher** publishes a **volume** to a **bibliotheca**. The volume contains
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Manifest reference" icon="file-code" href="/volumes/manifest">
+  <Card title="Manifest reference" icon="file-code" href="/spec/0.1.0-rc.1/volumes/manifest">
     Every field in volume.toml, with types, constraints, and examples.
   </Card>
-  <Card title="Package identity" icon="tag" href="/volumes/identity">
+  <Card title="Package identity" icon="tag" href="/spec/0.1.0-rc.1/volumes/identity">
     The purl scheme in depth: scoped names, encoding rules, and resolution order.
   </Card>
-  <Card title="Component types" icon="cubes" href="/components/overview">
+  <Card title="Component types" icon="cubes" href="/spec/0.1.0-rc.1/components/overview">
     Entrypoint formats, invocation models, and semantic rules for all seven types.
   </Card>
-  <Card title="Supply chain security" icon="lock" href="/security/supply-chain">
+  <Card title="Supply chain security" icon="lock" href="/spec/0.1.0-rc.1/security/supply-chain">
     The full trust model: content integrity, publisher identity, provenance, and advisories.
   </Card>
 </CardGroup>

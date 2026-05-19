@@ -20,20 +20,20 @@ description: 'Agent Volumes is the open standard for packaging, distributing, an
   style={{ width: '100%', height: 'auto' }}
 />
 
-Agent Volumes defines a packaging and distribution standard for AI agent components. Use this landing page to choose the current release archive, browse stable identifier publications, or jump into the current authoring and API guides.
+Agent Volumes defines a packaging and distribution standard for AI agent components. Use this landing page to choose a release archive, get oriented, or jump to the current release candidate. Release-specific reference pages live under immutable `/spec/<version>/...` archive paths.
 
 <CardGroup cols={2}>
-  <Card title="Latest release archive" icon="box-archive" href="/spec/0.1.0-rc.1">
-    Browse the frozen Agent Volumes `0.1.0-rc.1` publication subtree.
+  <Card title="Release archive" icon="box-archive" href="/spec">
+    Choose a frozen Agent Volumes publication subtree by version.
   </Card>
-  <Card title="Identifier hub" icon="fingerprint" href="/uri-publications">
-    Find schema IDs, Problem Details type URIs, SPDX terms, predicate IDs, and compatibility artifacts.
+  <Card title="Latest release" icon="tag" href="/spec/0.1.0-rc.1">
+    Browse the current non-draft archive for Agent Volumes `0.1.0-rc.1`.
   </Card>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Create your first volume and understand the validation path before publishing.
   </Card>
-  <Card title="Registry API" icon="server" href="/api/overview">
-    Read the live Bibliotheca API guide and generated OpenAPI reference.
+  <Card title="Registry API" icon="server" href="/spec/0.1.0-rc.1/api/overview">
+    Read the current Registry API orientation, then follow the frozen release archive for details.
   </Card>
 </CardGroup>
 
@@ -41,7 +41,9 @@ Agent Volumes defines a packaging and distribution standard for AI agent compone
 
 - `/latest/` and `/current/` redirect to the latest non-draft release archive.
 - The current non-draft release archive is [`/spec/0.1.0-rc.1`](/spec/0.1.0-rc.1).
+- The archive selector is [`/spec/`](/spec).
 - Older non-draft release archives remain reachable after newer releases are published.
+- Use versioned archive pages as durable citation targets. `/latest/` and `/current/` are convenience aliases only.
 
 ## Explore the current documentation
 
@@ -49,13 +51,13 @@ Agent Volumes defines a packaging and distribution standard for AI agent compone
   <Card title="Core concepts" icon="book-open" href="/concepts">
     Understand volumes, component types, bibliothecas, and the identity scheme.
   </Card>
-  <Card title="Manifest reference" icon="file-code" href="/volumes/manifest">
-    Read the current `volume.toml` manifest reference and related volume semantics.
+  <Card title="Manifest reference" icon="file-code" href="/spec/0.1.0-rc.1/volumes/manifest">
+    Read the frozen `volume.toml` manifest reference for `0.1.0-rc.1`.
   </Card>
-  <Card title="Component types" icon="cubes" href="/components/overview">
-    Learn about agents, skills, commands, tools, hooks, MCP servers, and LSP servers.
+  <Card title="Component types" icon="cubes" href="/spec/0.1.0-rc.1/components/overview">
+    Learn about agents, skills, commands, tools, hooks, MCP servers, and LSP servers in the release archive.
   </Card>
-  <Card title="Conformance" icon="circle-check" href="/conformance/overview">
-    Use the offline fixture corpus and role-scoped requirements without treating them as certification.
+  <Card title="Conformance" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
+    Use the archived fixture corpus and role-scoped requirements without treating them as certification.
   </Card>
 </CardGroup>

@@ -1,0 +1,45 @@
+---
+title: 'Agent Volumes release archive'
+description: 'Choose an immutable Agent Volumes documentation archive by release version.'
+sidebarTitle: 'Release archive'
+---
+
+Use this page to choose the documentation archive that matches the Agent Volumes release you are implementing, auditing, or citing. Versioned archive pages are the durable rendered documentation targets for released specification surfaces.
+
+<Note>
+  `/latest/` and `/current/` redirect to the current non-draft release for convenience. Do not use those aliases as
+  durable citation targets; cite the versioned `/spec/<version>/...` page instead.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="0.1.0-rc.1" icon="box-archive" href="/spec/0.1.0-rc.1">
+    Browse the frozen release-candidate documentation archive for Agent Volumes `0.1.0-rc.1`.
+  </Card>
+  <Card title="Current release archive" icon="arrow-right" href="/spec/0.1.0-rc.1">
+    Open the current non-draft release archive directly.
+  </Card>
+</CardGroup>
+
+## Archive policy
+
+- Keep each non-draft release archive permanently reachable under `/spec/<version>/...`.
+- Keep release-specific specification, API, schema, conformance, URI publication, and Problem Details pages inside the matching release archive.
+- Keep unversioned pages short. They may orient readers and link to release archives, but they must not duplicate release-specific reference content.
+- Treat `https://agentvolumes.org/spec/*` as organization-apex aliases that redirect to the corresponding `https://docs.agentvolumes.org/spec/*` archive pages.
+
+## Current archive contents
+
+<CardGroup cols={2}>
+  <Card title="Volume reference" icon="box" href="/spec/0.1.0-rc.1/volumes/manifest">
+    Read the archived manifest, identity, roles, dependencies, and compatibility guidance.
+  </Card>
+  <Card title="Registry API" icon="server" href="/spec/0.1.0-rc.1/api/overview">
+    Read the archived Bibliotheca API prose and generated OpenAPI publication copy.
+  </Card>
+  <Card title="Published identifiers" icon="fingerprint" href="/spec/0.1.0-rc.1/uri-publications">
+    Find archived schema IDs, Problem Details type URIs, namespace terms, predicate IDs, and compatibility artifacts.
+  </Card>
+  <Card title="Conformance" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
+    Review archived fixture, requirement, and schema-artifact publication guidance.
+  </Card>
+</CardGroup>

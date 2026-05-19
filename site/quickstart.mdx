@@ -119,7 +119,7 @@ When asked to summarize a paper, extract the following sections:
 Each component name must be unique within the volume across all component types. Component names use lowercase letters, digits, and hyphens only; unlike volume names, component names are never scoped.
 
 <Tip>
-  You can declare all seven component types in a single volume — `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, and `lsp-server`. See [Component Types](/components/overview) for the entrypoint format and semantics for each type.
+  You can declare all seven component types in a single volume — `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, and `lsp-server`. See [Component Types](/spec/0.1.0-rc.1/components/overview) for the entrypoint format and semantics for each type.
 </Tip>
 </Step>
 
@@ -244,7 +244,7 @@ The verification process reconstructs the normalized file tree digest from your 
 
 <Tip>
   For higher assurance, attach trust artifacts such as CycloneDX BOMs, SLSA provenance, or Sigstore-family signatures
-  after publishing. See [Supply Chain Security](/security/supply-chain) for the full trust model.
+after publishing. See [Supply Chain Security](/spec/0.1.0-rc.1/security/supply-chain) for the full trust model.
 </Tip>
 </Step>
 
@@ -367,13 +367,13 @@ This volume is identified as `pkg:volume/research-agent-pack@1.4.0`. Its `litera
   <Card title="Core concepts" icon="book-open" href="/concepts">
     Deep-dive into the vocabulary: volumes, bibliothecas, identity, trust, and package roles.
   </Card>
-  <Card title="Manifest reference" icon="file-code" href="/volumes/manifest">
+  <Card title="Manifest reference" icon="file-code" href="/spec/0.1.0-rc.1/volumes/manifest">
     Full reference for every field in `volume.toml`, including validation rules and defaults.
   </Card>
-  <Card title="Component types" icon="cubes" href="/components/overview">
+  <Card title="Component types" icon="cubes" href="/spec/0.1.0-rc.1/components/overview">
     Entrypoint formats, invocation semantics, and conventions for all seven component types.
   </Card>
-  <Card title="Supply chain security" icon="lock" href="/security/supply-chain">
+  <Card title="Supply chain security" icon="lock" href="/spec/0.1.0-rc.1/security/supply-chain">
     Content integrity, publisher identity, SLSA provenance, and the trust model.
   </Card>
 </CardGroup>
