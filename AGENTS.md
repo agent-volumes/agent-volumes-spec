@@ -112,7 +112,7 @@ agent-volumes-spec/
 - Do **not** add catalog-specific frontmatter (`domain`, `subdomain`, `tags`, `frameworks`) to dev skills in `.agents/skills/`.
 - Do **not** create README.md, CHANGELOG.md, or auxiliary docs inside skills — only `SKILL.md` + resources.
 - Do **not** duplicate skill content between `.agents/skills/` and `catalog/skills/`.
-- Do **not** hand-edit `site/api-reference/bibliotheca.openapi.json`; regenerate it from `openapi/bibliotheca.openapi.yaml` with `bun run build:site:openapi`.
+- Do **not** hand-edit release-scoped OpenAPI publication artifacts such as `site/spec/<version>/api-reference/bibliotheca.openapi.json`; regenerate them from `openapi/bibliotheca.openapi.yaml` with `bun run build:site:openapi -- <version>`.
 
 ## NORMATIVE LANGUAGE (BCP 14)
 
@@ -132,7 +132,7 @@ bunx lefthook install
 bun run lint:md
 bun run lint:md:fix
 bun run lint:openapi
-bun run build:site:openapi
+bun run build:site:openapi -- <version>
 bun run lint:site
 bun run format
 bun run format:check

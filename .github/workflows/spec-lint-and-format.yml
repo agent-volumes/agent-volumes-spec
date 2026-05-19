@@ -70,10 +70,28 @@ jobs:
         working-directory: site
 
       - name: Build Mintlify OpenAPI publication artifact
-        run: bun run build:site:openapi
+        run: |
+          SPEC_VERSION="$(python3 - <<'PY'
+          from pathlib import Path
+
+          for line in Path('agent-volumes-spec.md').read_text(encoding='utf-8').splitlines():
+              if line.startswith('**Version:** '):
+                  print(line.removeprefix('**Version:** ').strip())
+                  break
+          else:
+              raise SystemExit('Could not find **Version:** in agent-volumes-spec.md')
+          PY
+          )"
+          bun run build:site:openapi -- "${SPEC_VERSION}"
+          printf 'SPEC_VERSION=%s\n' "${SPEC_VERSION}" >> "${GITHUB_ENV}"
 
       - name: Check Mintlify OpenAPI publication artifact is current
-        run: GIT_MASTER=1 git diff --exit-code -- site/api-reference/bibliotheca.openapi.json
+        run: |
+          OPENAPI_PUBLICATION_ARTIFACT="site/spec/${SPEC_VERSION}/api-reference/bibliotheca.openapi.json"
+          if [[ -n "$(GIT_MASTER=1 git status --porcelain -- "${OPENAPI_PUBLICATION_ARTIFACT}")" ]]; then
+            GIT_MASTER=1 git status --short -- "${OPENAPI_PUBLICATION_ARTIFACT}"
+            exit 1
+          fi
 
       - name: Check formatting with Prettier
         run: bun run format:check

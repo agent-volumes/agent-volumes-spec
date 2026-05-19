@@ -29,7 +29,7 @@ Repository CI and consumers of organization-wide reusable security workflows. Wo
 - Non-reusable third-party actions must be pinned by full commit SHA.
 - Reusable workflows from `agent-volumes/.github` are the only SHA-pinning exception and may use `@main`.
 - The main workflow uses `step-security/harden-runner` with `egress-policy: audit`.
-- `spec-lint-and-format.yml` must rebuild `site/api-reference/bibliotheca.openapi.json` and fail if it differs from the committed generated artifact.
+- `spec-lint-and-format.yml` must rebuild the release-scoped OpenAPI publication artifact for the version declared in `agent-volumes-spec.md`, such as `site/spec/<version>/api-reference/bibliotheca.openapi.json`, and fail if it differs from the committed generated artifact.
 
 ## ANTI-PATTERNS
 

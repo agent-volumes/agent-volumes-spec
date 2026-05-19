@@ -17,7 +17,7 @@ Thank you for your interest in contributing to Agent Volumes documentation. This
 3. Install site dependencies with `(cd site && bun install)`
 4. Create a branch for your changes
 5. Make changes
-6. Run `bun run build:site:openapi` from the repository root if API reference content changed
+6. Run `bun run build:site:openapi -- <version>` from the repository root if API reference content changed
 7. Run `bun run site:dev` from the repository root
 8. Run `bun run lint:site` from the repository root before submitting
 9. Commit your changes and submit a pull request

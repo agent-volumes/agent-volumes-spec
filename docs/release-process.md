@@ -30,8 +30,8 @@ Before tagging a draft, release candidate, or stable release:
 2. Confirm schema `$id` values match the release version.
 3. Confirm repository dependencies and isolated site dependencies are installed
    with `bun install` and `(cd site && bun install)`.
-4. Run `bun run build:site:openapi` to refresh the Mintlify publication copy of
-   the Bibliotheca OpenAPI contract.
+4. Run `bun run build:site:openapi -- <version>` to refresh the Mintlify
+   publication copy of the Bibliotheca OpenAPI contract for the release version.
 5. Run `bun run format:check`.
 6. Run `bun run lint:md`.
 7. Run `bun run lint:openapi`.

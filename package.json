@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build:site:openapi": "redocly bundle openapi/bibliotheca.openapi.yaml --output site/api-reference/bibliotheca.openapi.json --ext json && prettier --write site/api-reference/bibliotheca.openapi.json",
+    "build:site:openapi": "node scripts/build-site-openapi.mjs",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",

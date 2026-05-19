@@ -192,9 +192,10 @@ fi
 CHECK_SUMMARY="not run (--skip-checks)"
 if [[ "${RUN_CHECKS}" == "true" ]]; then
   info "Running release-freeze validation commands."
-  bun run build:site:openapi
-  if ! git_cmd diff --exit-code -- site/api-reference/bibliotheca.openapi.json >/dev/null; then
-    error "site/api-reference/bibliotheca.openapi.json is stale. Run 'bun run build:site:openapi' and commit the result before tagging."
+  OPENAPI_PUBLICATION_ARTIFACT="site/spec/${SPEC_VERSION}/api-reference/bibliotheca.openapi.json"
+  bun run build:site:openapi -- "${SPEC_VERSION}"
+  if [[ -n "$(git_cmd status --porcelain -- "${OPENAPI_PUBLICATION_ARTIFACT}")" ]]; then
+    error "${OPENAPI_PUBLICATION_ARTIFACT} is stale. Run 'bun run build:site:openapi -- ${SPEC_VERSION}' and commit the result before tagging."
   fi
   bun run changelog:check
   bun run format:check
