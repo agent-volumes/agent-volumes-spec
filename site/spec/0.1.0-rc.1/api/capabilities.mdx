@@ -1,0 +1,185 @@
+---
+title: 'Bibliotheca capability metadata'
+description: 'GET /api/v1/capabilities — discover registry-wide features including scope policy, delivery modes, supported APIs, and upload profiles.'
+---
+
+The capabilities endpoint is your primary structured discovery surface for registry-wide facts about a bibliotheca. Before your client starts making API calls, fetch capabilities to learn which API surfaces are available, what scope policy the bibliotheca enforces, which delivery modes it supports, and which upload profiles it advertises. No authentication is required.
+
+## Endpoint
+
+```http
+GET /api/v1/capabilities
+```
+
+## Response fields
+
+<ResponseField name="schemaVersion" type="string" required>
+  Capability metadata document-shape major version. The v0.1 baseline value is `"1"`.
+</ResponseField>
+
+<ResponseField name="specVersion" type="string" required>
+  Agent Volumes specification release implemented by this bibliotheca, e.g. `"0.1.0-rc.1"`.
+</ResponseField>
+
+<ResponseField name="compatibleSpecVersions" type="string[]">
+  Explicit set of exact Agent Volumes spec versions this bibliotheca claims compatibility with. This is an exact-version
+  set, not a SemVer range expression. Treat each value as an exact string to match against.
+</ResponseField>
+
+<ResponseField name="apiVersion" type="string" required>
+  HTTP API major family advertised by this bibliotheca. The v0.1 baseline value is `"v1"`. This is not a complete spec
+  compatibility boundary on its own.
+</ResponseField>
+
+<ResponseField name="scopePolicy" type="object" required>
+  Describes the bibliotheca's scope/scopeless namespace policy.
+
+  <Expandable title="scopePolicy fields">
+    <ResponseField name="scopePolicy.scopesSupported" type="boolean" required>
+      Whether the bibliotheca supports scoped volume names (`@scope/name`).
+    </ResponseField>
+    <ResponseField name="scopePolicy.scopelessSupported" type="boolean" required>
+      Whether the bibliotheca supports scopeless volume names.
+    </ResponseField>
+    <ResponseField name="scopePolicy.scopesRequired" type="boolean" required>
+      Whether all volumes on this bibliotheca must use a scope.
+    </ResponseField>
+    <ResponseField name="scopePolicy.curatedScopelessModel" type="boolean">
+      Whether the bibliotheca uses a curated scopeless model (e.g., requires approval to claim a scopeless name).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="deliveryModes" type="string[]" required>
+  Delivery modes supported by this bibliotheca. Known v0.1 baseline values: `cdn` (hosted archive delivery) and `git`
+  (Git-backed source delivery). Unknown values are ignored by baseline clients.
+</ResponseField>
+
+<ResponseField name="apis" type="object" required>
+  Availability flags for optional API surfaces.
+
+  <Expandable title="apis fields">
+    <ResponseField name="apis.trustMetadata" type="boolean" required>
+      Whether the trust metadata summary and detail endpoints are available.
+    </ResponseField>
+    <ResponseField name="apis.versionIndex" type="boolean" required>
+      Whether the version index endpoint is available.
+    </ResponseField>
+    <ResponseField name="apis.releaseUploads" type="boolean" required>
+      Whether the release upload API (publish) is available.
+    </ResponseField>
+    <ResponseField name="apis.trustUploads" type="boolean" required>
+      Whether the trust attachment upload API is available.
+    </ResponseField>
+    <ResponseField name="apis.advisories" type="boolean" required>
+      Whether the advisory discovery API is available.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="uploadProfiles" type="object">
+  Supported upload profiles by upload surface. Required when `apis.releaseUploads` or `apis.trustUploads` is `true`.
+
+  <Expandable title="uploadProfiles fields">
+    <ResponseField name="uploadProfiles.releaseUploads" type="string[]">
+      Upload profiles supported for release uploads. Must include `"http-put"` when `apis.releaseUploads` is `true`.
+    </ResponseField>
+    <ResponseField name="uploadProfiles.trustUploads" type="string[]">
+      Upload profiles supported for trust attachment uploads. Must include `"http-put"` when `apis.trustUploads` is `true`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="extensions" type="object">
+  Reserved extension container for non-core capability fields. Extension data is partitioned by namespace keys. Keys
+  follow the same naming rules as Agent Volumes name segments: lowercase ASCII letters, digits, and hyphens, with no
+  leading hyphen, trailing hyphen, or consecutive hyphens. The namespace keys `agent-volumes`, `core`, and `spec` are
+  reserved for the specification and cannot be used for ordinary extensions.
+</ResponseField>
+
+<ResponseField name="cache" type="object">
+  Optional caching guidance for this document.
+
+  <Expandable title="cache fields">
+    <ResponseField name="cache.maxAgeSeconds" type="integer">
+      Suggested maximum cache age in seconds.
+    </ResponseField>
+    <ResponseField name="cache.revalidate" type="boolean">
+      Whether clients should revalidate after the max age.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example response
+
+```http
+GET /api/v1/capabilities
+```
+
+```json
+{
+  "schemaVersion": "1",
+  "specVersion": "0.1.0-rc.1",
+  "compatibleSpecVersions": ["0.1.0-rc.1"],
+  "apiVersion": "v1",
+  "scopePolicy": {
+    "scopesSupported": true,
+    "scopelessSupported": true,
+    "scopesRequired": false,
+    "curatedScopelessModel": true
+  },
+  "deliveryModes": ["cdn"],
+  "apis": {
+    "trustMetadata": true,
+    "versionIndex": true,
+    "releaseUploads": true,
+    "trustUploads": true,
+    "advisories": true
+  },
+  "uploadProfiles": {
+    "releaseUploads": ["http-put"],
+    "trustUploads": ["http-put"]
+  },
+  "cache": {
+    "maxAgeSeconds": 300,
+    "revalidate": true
+  }
+}
+```
+
+## Client rules
+
+**Ignore unknown fields.** Your client must not reject a capability metadata document solely because it contains unknown fields or values. Unknown capability fields and delivery modes are ignored by baseline clients.
+
+**`compatibleSpecVersions` is an exact-version set.** Do not interpret the values as SemVer ranges. Each string is an exact version to match against, not a constraint expression.
+
+**`apiVersion` is the HTTP API family, not the full spec compatibility boundary.** Use `specVersion` and `compatibleSpecVersions` to assess spec-level compatibility.
+
+**Check `uploadProfiles` before uploading.** If your client supports only `http-put` and the bibliotheca advertises only unsupported profiles, fail with a local unsupported-upload-profile diagnostic rather than proceeding with an unsupported transfer mode.
+
+## Bridge metadata and migration warnings
+
+Capability metadata can be accompanied by extension-to-core bridge metadata when an extension field is being promoted into the core specification. Bridge metadata uses `schemas/bridge-metadata.schema.json` and carries these fields:
+
+| Field             | Meaning                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| `active`          | Always `true` for a bridge metadata object.                                                   |
+| `canonicalForm`   | The canonical core field or representation clients should prefer.                             |
+| `status`          | One of `bridge-active`, `bridge-ending`, or `bridge-ended`.                                   |
+| `removalTarget`   | Object describing the target spec version, phase, or profile where the bridge can be removed. |
+| `acceptedAliases` | Optional list of extension aliases accepted during the bridge period.                         |
+| `warningCategory` | Fixed to `migration` when present.                                                            |
+
+During a bridge period, clients surface migration warnings instead of silently treating the alias as ordinary extension data. This behavior is covered by `AV-CLI-016` and the `bridge-metadata.json` / `bridge-metadata-status-variants.json` fixtures.
+
+Warning payloads use `schemas/warning.schema.json`. The base schema requires a slug-like `category`, allows optional `message`, `path`, `field`, `value`, and `context` fields, and leaves category-specific context semantics to the relevant fixture or schema. Core v0.1 warning categories include `unknown-field`, `deprecated`, `migration`, `unknown-capability-field`, `unknown-capability-value`, `yanked-version`, `stale-trust-evidence-only`, `insufficient-current-trust-evidence`, `noncanonical-entrypoint`, and `external-dependency-potential-exposure`.
+
+<Tip>
+  Fetch capabilities once at startup and cache the response according to the `cache` hints. Capability metadata changes
+  infrequently — there is no need to re-fetch it on every operation.
+</Tip>
+
+<Note>
+  When `apis.releaseUploads` or `apis.trustUploads` is `true`, the `uploadProfiles` object is required and must include
+  `"http-put"` for the corresponding upload surface. This is a conformance requirement, not just a recommendation.
+</Note>

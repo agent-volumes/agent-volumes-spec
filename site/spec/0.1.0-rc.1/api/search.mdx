@@ -1,0 +1,159 @@
+---
+title: 'Search the volume catalog'
+sidebarTitle: 'Search'
+description: 'GET /api/v1/search — query the volume catalog by text, component type, runtime, provider, keyword, and publisher. Returns paginated discovery results.'
+---
+
+The search endpoint lets you discover volumes in a bibliotheca's catalog by freeform text, component type, runtime compatibility, provider, keyword, or publisher. It returns a paginated list of matching volumes. No authentication is required.
+
+## Endpoint
+
+```http
+GET /api/v1/search
+```
+
+## Query parameters
+
+<ParamField query="q" type="string">
+  Freeform query text. Matches against volume names, descriptions, keywords, and other catalog metadata. Ranking and
+  text relevance are bibliotheca-local.
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter by component type. One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
+</ParamField>
+
+<ParamField query="runtime" type="string">
+  Filter by runtime compatibility metadata. Matches volumes that declare compatibility with the given runtime identifier
+  (e.g., `claude-code`, `cursor`, `opencode`). Bibliothecas evaluate this filter only for runtime version schemes they
+  understand.
+</ParamField>
+
+<ParamField query="provider" type="string">
+  Filter by provider declaration. Matches volumes that declare integration with the given provider (e.g., `github`,
+  `slack`, `postgres`).
+</ParamField>
+
+<ParamField query="keyword" type="string">
+  Filter by keyword. Matches volumes that include the given keyword in their `volume.toml` keyword list.
+</ParamField>
+
+<ParamField query="publisher" type="string">
+  Filter by publisher identifier or scope.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Maximum number of results per page. Range: 1–100.
+</ParamField>
+
+<ParamField query="offset" type="integer" default="0">
+  Zero-based pagination offset. Use in combination with `limit` to page through results.
+</ParamField>
+
+## Example requests
+
+```http
+GET /api/v1/search?q=github&type=tool&runtime=claude-code&limit=20
+```
+
+```http
+GET /api/v1/search?provider=postgres&keyword=migration&limit=10&offset=20
+```
+
+```http
+GET /api/v1/search?type=mcp-server&publisher=acme
+```
+
+## Example response
+
+```json
+{
+  "items": [
+    {
+      "name": "github-toolkit",
+      "latestVersion": "2.1.0",
+      "description": "GitHub integration tools for agent runtimes",
+      "role": "provider",
+      "providers": ["github"],
+      "components": [
+        {
+          "type": "tool",
+          "name": "read-pr"
+        },
+        {
+          "type": "tool",
+          "name": "comment-pr"
+        }
+      ]
+    },
+    {
+      "name": "@acme/github-provider",
+      "latestVersion": "3.0.1",
+      "description": "GitHub provider package for ACME runtimes",
+      "role": "provider",
+      "providers": ["github"],
+      "components": [
+        {
+          "type": "tool",
+          "name": "read-pr"
+        },
+        {
+          "type": "hook",
+          "name": "issue-event"
+        }
+      ]
+    }
+  ],
+  "total": 42,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+## Response fields
+
+<ResponseField name="items" type="object[]" required>
+  Matching catalog entries. Each item contains `name` and `latestVersion`, with optional discovery metadata such as
+  `description`, `role`, `providers`, and `components`.
+</ResponseField>
+
+<ResponseField name="total" type="integer" required>
+  Total number of matching entries for the query.
+</ResponseField>
+
+<ResponseField name="limit" type="integer" required>
+  Page size applied to this response.
+</ResponseField>
+
+<ResponseField name="offset" type="integer" required>
+  Zero-based offset applied to this response.
+</ResponseField>
+
+## Pagination
+
+Use `limit` and `offset` together to page through results:
+
+```http
+GET /api/v1/search?q=research&limit=10&offset=0   # page 1
+GET /api/v1/search?q=research&limit=10&offset=10  # page 2
+GET /api/v1/search?q=research&limit=10&offset=20  # page 3
+```
+
+<Note>
+  Search result ordering and ranking are bibliotheca-local. There is no guaranteed stable global ordering across
+  bibliothecas unless a specific bibliotheca documents one.
+</Note>
+
+## Important limitations
+
+<Warning>
+  Do not use search results as inputs to dependency resolution. Search results are discovery aids, not resolver inputs.
+  Always use the [version index](/spec/0.1.0-rc.1/api/version-index) for candidate selection and the
+  [fetch](/spec/0.1.0-rc.1/api/fetch) endpoint for authoritative release metadata before installation or trust
+  evaluation.
+</Warning>
+
+- Search results are **not** resolver inputs. Never substitute a search response for a version index or exact release metadata during resolution.
+- Ordering and ranking are **bibliotheca-local**. The same query may return results in different orders on different bibliothecas.
+- Runtime and protocol compatibility filters are **discovery aids only**. Bibliothecas evaluate these filters only for version schemes they understand and must not claim portable compatibility rejection for unknown schemes.
+- Search responses may be cached under ordinary HTTP semantics, but cached results do not guarantee freshness.

@@ -1,0 +1,213 @@
+---
+title: 'Publish a volume to a bibliotheca'
+description: 'Two-phase upload lifecycle for publishing volume packages — create an upload intent, PUT the archive bytes, then finalize to make the release available.'
+---
+
+Publishing a volume uses a two-phase upload lifecycle. You first create an upload intent to declare your target release and get back opaque upload instructions. You then PUT the `.tar.gz` archive bytes to the URL in those instructions. Finally, you call the finalize endpoint so the bibliotheca can validate the archive, verify the digest, and make the release available. The bibliotheca derives the target volume identity from the route — not from the request body — so you cannot override the package name by sending a different name in the body.
+
+## Endpoints
+
+```http
+# Scopeless
+POST /api/v1/volumes/{name}
+POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize
+
+# Scoped
+POST /api/v1/volumes/@{scope}/{name}
+POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize
+```
+
+All publish endpoints require authentication. See [Authentication](/spec/0.1.0-rc.1/api/authentication).
+
+## Upload lifecycle
+
+<Steps>
+  <Step title="Create an upload intent">
+    Send a `POST` request to the volume route with the target version and upload constraints. The bibliotheca returns an `uploadId`, expiration timestamp, and opaque upload instructions.
+
+    ```http
+    POST /api/v1/volumes/@acme/research-agent-pack
+    Authorization: Bearer <your-token>
+    Content-Type: application/json
+
+    {
+      "version": "1.4.0",
+      "mediaType": "application/gzip",
+      "declaredDigest": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+      "declaredSize": 48320
+    }
+    ```
+
+    The `201 Created` response:
+
+    ```json
+    {
+      "uploadId": "upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "target": {
+        "name": "@acme/research-agent-pack",
+        "version": "1.4.0"
+      },
+      "mediaType": "application/gzip",
+      "declaredDigest": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+      "upload": {
+        "instructionType": "http-put",
+        "url": "https://upload.example.com/staging/upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+        "method": "PUT"
+      },
+      "expiresAt": "2026-05-18T14:30:00Z",
+      "state": "pending-upload"
+    }
+    ```
+
+  </Step>
+
+  <Step title="Upload the archive bytes">
+    PUT the `.tar.gz` bytes to `upload.url` using the method in `upload.method` (default `PUT`). Send any headers the upload instruction includes. Do not infer release identity or authorization from the upload URL itself — it is an opaque transfer target.
+
+    ```http
+    PUT https://upload.example.com/staging/upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C
+    Content-Type: application/gzip
+    Content-Length: 48320
+
+    <raw .tar.gz bytes>
+    ```
+
+  </Step>
+
+  <Step title="Finalize the upload">
+    Call the finalize endpoint with the `uploadId` from step 1. The bibliotheca validates the archive, computes the normalized-file-tree integrity value, and makes the release available.
+
+    ```http
+    POST /api/v1/volumes/@acme/research-agent-pack/uploads/upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C/finalize
+    Authorization: Bearer <your-token>
+    ```
+
+    The `201 Created` response includes the `uploadId`, the published release metadata, and a `detailUrl` for the
+    exact-release metadata endpoint:
+
+    ```json
+    {
+      "uploadId": "upl_01HZ9QRTXK4J2M8SVWBN6P3Y5C",
+      "release": {
+        "name": "@acme/research-agent-pack",
+        "version": "1.4.0",
+        "purl": "pkg:volume/%40acme/research-agent-pack@1.4.0",
+        "integrity": "sha256:a3f2b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+        "status": {
+          "state": "available"
+        },
+        "dist": {
+          "source": "cdn",
+          "mediaType": "application/gzip",
+          "url": "https://cdn.example.com/volumes/%40acme/research-agent-pack/1.4.0.tar.gz"
+        }
+      },
+      "detailUrl": "https://api.example.com/api/v1/volumes/@acme/research-agent-pack/1.4.0"
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## Upload intent request fields
+
+<ParamField body="version" type="string" required>
+  SemVer version string for the release you are publishing. Must not already exist as a lifecycle-marked version.
+</ParamField>
+
+<ParamField body="mediaType" type="string" required>
+  Must be `application/gzip`. This is the only portable v0.1 hosted archive media type.
+</ParamField>
+
+<ParamField body="declaredDigest" type="string">
+  Optional pre-declared `sha256:<hex>` digest of the archive bytes. When provided, the bibliotheca verifies the uploaded bytes match this digest during finalize.
+</ParamField>
+
+<ParamField body="declaredSize" type="integer">
+  Optional declared byte length of the archive. When provided, the bibliotheca verifies the uploaded size matches.
+</ParamField>
+
+<ParamField body="idempotencyKey" type="string">
+  Optional idempotency key for this intent creation. You can also pass this as the `Idempotency-Key` header. If both are
+  present, they must match exactly.
+</ParamField>
+
+## The `http-put` upload profile
+
+Every write-capable v0.1 bibliotheca that supports release uploads must implement the `http-put` upload profile. When `upload.instructionType` is `"http-put"`:
+
+- `upload.url` is the opaque byte-transfer target
+- `upload.method` is `"PUT"` when present; default to `PUT` when omitted
+- `upload.headers` contains any headers you must include on the PUT request
+
+<Warning>
+  Treat `upload.url` as an opaque retrieval target. Do not parse it for release identity or authorization scope. The URL
+  may point at internal infrastructure, a CDN, a time-limited signed object-storage URL, or another backend-specific
+  staging area.
+</Warning>
+
+## Upload intent lifecycle states
+
+| State            | Meaning                                |
+| ---------------- | -------------------------------------- |
+| `pending-upload` | Intent created; bytes not yet received |
+| `uploading`      | Bytes transfer in progress             |
+| `uploaded`       | Bytes received; ready to finalize      |
+| `expired`        | Intent expired before finalization     |
+| `failed`         | Upload attempt failed                  |
+
+## Archive format requirements
+
+Your `.tar.gz` archive must follow the v0.1 hosted archive transport profile:
+
+- The payload is gzip-compressed tar content
+- Archive entries are interpreted relative to one volume root
+- Absolute paths, `.` or `..` path segments, duplicate normalized paths, and entries that normalize to `.` are invalid
+- Only regular files are permitted — symlinks, hardlinks, device nodes, sockets, and other non-regular entries are invalid
+- Archive timestamps, ownership, extended attributes, and platform-specific mode bits (other than the executable bit) are not part of the release subject
+
+## What the bibliotheca validates at finalize
+
+During finalize, the bibliotheca:
+
+1. Verifies the uploaded bytes match any declared digest and size constraints
+2. Validates the archive against the transport profile
+3. Parses and validates the `volume.toml` manifest
+4. Confirms the manifest identity matches the route-derived target (name and version)
+5. Checks that the version is not already lifecycle-marked (no version reuse)
+6. Confirms the caller remains authorized
+7. Computes the authoritative normalized-file-tree `integrity` value
+8. May check for permission escalation; clients must fail before submission when components declare broader permissions than the parent volume, and bibliothecas must block affected artifacts when escalation is discovered
+
+## Version immutability
+
+Once a version number has been published, yanked, tombstoned, blocked, or otherwise lifecycle-marked, it cannot be reused for different release content. Attempting to publish the same version again returns a `409 Conflict` with the `version-conflict` problem type.
+
+## Unpublishing a release
+
+To unpublish a published release, use the `DELETE` endpoint. Unpublished version numbers should be tombstoned when local policy permits unpublishing. Tombstoned versions preserve the version identity but are not installable in the portable v0.1 baseline.
+
+```http
+DELETE /api/v1/volumes/@acme/research-agent-pack/1.4.0
+Authorization: Bearer <your-token>
+```
+
+The bibliotheca returns `202 Accepted`. The version identity is preserved; its lifecycle state changes according to bibliotheca policy, with tombstoning as the portable unpublish behavior described by the specification.
+
+## Idempotency
+
+You can make upload intent creation and finalize requests idempotent by passing an `Idempotency-Key` header. If a request with the same key has already been processed successfully, the bibliotheca returns the original response rather than creating a duplicate.
+
+```http
+POST /api/v1/volumes/@acme/research-agent-pack
+Authorization: Bearer <your-token>
+Content-Type: application/json
+Idempotency-Key: my-release-1.4.0-attempt-1
+
+{ ... }
+```
+
+<Tip>
+  Use idempotency keys in CI pipelines where a network timeout might cause you to retry a request that already succeeded
+  on the server.
+</Tip>
