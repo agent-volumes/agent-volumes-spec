@@ -167,8 +167,9 @@ id = "acme"
 ```
 
 <Note>
-  A `meta` package has no mandatory `[[components]]` entries. Ordinary dependency resolution still applies to its
-  `[dependencies]` — the transitive closure follows the same single-version enforcement rules as any other volume.
+  A `meta` package has no mandatory `[[components]]` entries. Its `[dependencies]` participate in ordinary dependency
+  resolution and single-version enforcement like any other volume dependency. The v0.1 core does not assign special
+  normative semantics to the full transitive dependency closure of `role = "meta"` packages.
 </Note>
 
 ## Combining roles with `secondary-roles`
