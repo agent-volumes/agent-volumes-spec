@@ -27,93 +27,8 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Overview",
-            "pages": ["introduction", "quickstart", "concepts"]
-          },
-          {
-            "group": "Volumes",
-            "pages": [
-              "volumes/manifest",
-              "volumes/identity",
-              "volumes/roles",
-              "volumes/dependencies",
-              "volumes/compatibility"
-            ]
-          },
-          {
-            "group": "Component Types",
-            "pages": [
-              "components/overview",
-              "components/agent",
-              "components/skill",
-              "components/command",
-              "components/tool",
-              "components/hook",
-              "components/mcp-server",
-              "components/lsp-server"
-            ]
-          },
-          {
-            "group": "Security",
-            "pages": [
-              "security/supply-chain",
-              "security/content-integrity",
-              "security/publisher-identity",
-              "security/advisories"
-            ]
-          },
-          {
-            "group": "Conformance",
-            "pages": [
-              "conformance/overview",
-              "conformance/schema-artifacts",
-              "conformance/fixtures",
-              "conformance/requirements"
-            ]
-          },
-          {
-            "group": "Specification",
-            "pages": ["design-principles"]
-          },
-          {
-            "group": "Identifier publications",
-            "pages": [
-              "uri-publications",
-              "uri-publications/schema-ids",
-              "uri-publications/spdx-external-dependency-namespace",
-              "uri-publications/in-toto-external-dependency-predicate",
-              "uri-publications/reserved-extension-namespaces",
-              "uri-publications/purl-vers-compatibility-exceptions",
-              "uri-publications/upstream-baselines",
-              "build/manual/v0.1",
-              "uri-publications/bom-profile-identifiers",
-              "uri-publications/external-dependency-declaration-keys"
-            ]
-          },
-          {
-            "group": "Problem Details type URIs",
-            "pages": [
-              "problems/index",
-              "problems/authentication-required",
-              "problems/authorization-failed",
-              "problems/not-found",
-              "problems/validation-failed",
-              "problems/invalid-manifest",
-              "problems/invalid-archive",
-              "problems/identity-mismatch",
-              "problems/version-conflict",
-              "problems/digest-mismatch",
-              "problems/subject-binding-mismatch",
-              "problems/inconsistent-registry-state",
-              "problems/upload-expired",
-              "problems/missing-uploaded-bytes",
-              "problems/invalid-upload-state",
-              "problems/idempotency-conflict",
-              "problems/payload-too-large",
-              "problems/unsupported-media-type",
-              "problems/permission-escalation",
-              "problems/rate-limited"
-            ]
+            "group": "Start here",
+            "pages": ["introduction", "quickstart", "concepts", "spec/index"]
           }
         ]
       },
@@ -233,34 +148,6 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Registry API",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": ["api/overview", "api/authentication"]
-          },
-          {
-            "group": "Packages",
-            "pages": ["api/publish", "api/fetch", "api/search", "api/version-index"]
-          },
-          {
-            "group": "Trust & Advisories",
-            "pages": ["api/trust-metadata", "api/trust-upload", "api/advisories"]
-          },
-          {
-            "group": "Registry",
-            "pages": ["api/capabilities", "api/errors"]
-          },
-          {
-            "group": "Generated OpenAPI reference",
-            "openapi": {
-              "source": "api-reference/bibliotheca.openapi.json",
-              "directory": "api-reference"
-            }
-          }
-        ]
       }
     ]
   },
@@ -283,6 +170,336 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/volumes/manifest",
+      "destination": "/spec/0.1.0-rc.1/volumes/manifest",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/identity",
+      "destination": "/spec/0.1.0-rc.1/volumes/identity",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/roles",
+      "destination": "/spec/0.1.0-rc.1/volumes/roles",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/dependencies",
+      "destination": "/spec/0.1.0-rc.1/volumes/dependencies",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/compatibility",
+      "destination": "/spec/0.1.0-rc.1/volumes/compatibility",
+      "permanent": false
+    },
+    {
+      "source": "/components/overview",
+      "destination": "/spec/0.1.0-rc.1/components/overview",
+      "permanent": false
+    },
+    {
+      "source": "/components/agent",
+      "destination": "/spec/0.1.0-rc.1/components/agent",
+      "permanent": false
+    },
+    {
+      "source": "/components/skill",
+      "destination": "/spec/0.1.0-rc.1/components/skill",
+      "permanent": false
+    },
+    {
+      "source": "/components/command",
+      "destination": "/spec/0.1.0-rc.1/components/command",
+      "permanent": false
+    },
+    {
+      "source": "/components/tool",
+      "destination": "/spec/0.1.0-rc.1/components/tool",
+      "permanent": false
+    },
+    {
+      "source": "/components/hook",
+      "destination": "/spec/0.1.0-rc.1/components/hook",
+      "permanent": false
+    },
+    {
+      "source": "/components/mcp-server",
+      "destination": "/spec/0.1.0-rc.1/components/mcp-server",
+      "permanent": false
+    },
+    {
+      "source": "/components/lsp-server",
+      "destination": "/spec/0.1.0-rc.1/components/lsp-server",
+      "permanent": false
+    },
+    {
+      "source": "/security/supply-chain",
+      "destination": "/spec/0.1.0-rc.1/security/supply-chain",
+      "permanent": false
+    },
+    {
+      "source": "/security/content-integrity",
+      "destination": "/spec/0.1.0-rc.1/security/content-integrity",
+      "permanent": false
+    },
+    {
+      "source": "/security/publisher-identity",
+      "destination": "/spec/0.1.0-rc.1/security/publisher-identity",
+      "permanent": false
+    },
+    {
+      "source": "/security/advisories",
+      "destination": "/spec/0.1.0-rc.1/security/advisories",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/overview",
+      "destination": "/spec/0.1.0-rc.1/conformance/overview",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/schema-artifacts",
+      "destination": "/spec/0.1.0-rc.1/conformance/schema-artifacts",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/fixtures",
+      "destination": "/spec/0.1.0-rc.1/conformance/fixtures",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/requirements",
+      "destination": "/spec/0.1.0-rc.1/conformance/requirements",
+      "permanent": false
+    },
+    {
+      "source": "/design-principles",
+      "destination": "/spec/0.1.0-rc.1/design-principles",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications",
+      "destination": "/spec/0.1.0-rc.1/uri-publications",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/schema-ids",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/schema-ids",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/spdx-external-dependency-namespace",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/in-toto-external-dependency-predicate",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/in-toto-external-dependency-predicate",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/reserved-extension-namespaces",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/reserved-extension-namespaces",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/purl-vers-compatibility-exceptions",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/purl-vers-compatibility-exceptions",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/upstream-baselines",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/upstream-baselines",
+      "permanent": false
+    },
+    {
+      "source": "/build/manual/v0.1",
+      "destination": "/spec/0.1.0-rc.1/build/manual/v0.1",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/bom-profile-identifiers",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/bom-profile-identifiers",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/external-dependency-declaration-keys",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/external-dependency-declaration-keys",
+      "permanent": false
+    },
+    {
+      "source": "/problems",
+      "destination": "/spec/0.1.0-rc.1/problems",
+      "permanent": false
+    },
+    {
+      "source": "/problems/index",
+      "destination": "/spec/0.1.0-rc.1/problems",
+      "permanent": false
+    },
+    {
+      "source": "/problems/authentication-required",
+      "destination": "/spec/0.1.0-rc.1/problems/authentication-required",
+      "permanent": false
+    },
+    {
+      "source": "/problems/authorization-failed",
+      "destination": "/spec/0.1.0-rc.1/problems/authorization-failed",
+      "permanent": false
+    },
+    {
+      "source": "/problems/not-found",
+      "destination": "/spec/0.1.0-rc.1/problems/not-found",
+      "permanent": false
+    },
+    {
+      "source": "/problems/validation-failed",
+      "destination": "/spec/0.1.0-rc.1/problems/validation-failed",
+      "permanent": false
+    },
+    {
+      "source": "/problems/invalid-manifest",
+      "destination": "/spec/0.1.0-rc.1/problems/invalid-manifest",
+      "permanent": false
+    },
+    {
+      "source": "/problems/invalid-archive",
+      "destination": "/spec/0.1.0-rc.1/problems/invalid-archive",
+      "permanent": false
+    },
+    {
+      "source": "/problems/identity-mismatch",
+      "destination": "/spec/0.1.0-rc.1/problems/identity-mismatch",
+      "permanent": false
+    },
+    {
+      "source": "/problems/version-conflict",
+      "destination": "/spec/0.1.0-rc.1/problems/version-conflict",
+      "permanent": false
+    },
+    {
+      "source": "/problems/digest-mismatch",
+      "destination": "/spec/0.1.0-rc.1/problems/digest-mismatch",
+      "permanent": false
+    },
+    {
+      "source": "/problems/subject-binding-mismatch",
+      "destination": "/spec/0.1.0-rc.1/problems/subject-binding-mismatch",
+      "permanent": false
+    },
+    {
+      "source": "/problems/inconsistent-registry-state",
+      "destination": "/spec/0.1.0-rc.1/problems/inconsistent-registry-state",
+      "permanent": false
+    },
+    {
+      "source": "/problems/upload-expired",
+      "destination": "/spec/0.1.0-rc.1/problems/upload-expired",
+      "permanent": false
+    },
+    {
+      "source": "/problems/missing-uploaded-bytes",
+      "destination": "/spec/0.1.0-rc.1/problems/missing-uploaded-bytes",
+      "permanent": false
+    },
+    {
+      "source": "/problems/invalid-upload-state",
+      "destination": "/spec/0.1.0-rc.1/problems/invalid-upload-state",
+      "permanent": false
+    },
+    {
+      "source": "/problems/idempotency-conflict",
+      "destination": "/spec/0.1.0-rc.1/problems/idempotency-conflict",
+      "permanent": false
+    },
+    {
+      "source": "/problems/payload-too-large",
+      "destination": "/spec/0.1.0-rc.1/problems/payload-too-large",
+      "permanent": false
+    },
+    {
+      "source": "/problems/unsupported-media-type",
+      "destination": "/spec/0.1.0-rc.1/problems/unsupported-media-type",
+      "permanent": false
+    },
+    {
+      "source": "/problems/permission-escalation",
+      "destination": "/spec/0.1.0-rc.1/problems/permission-escalation",
+      "permanent": false
+    },
+    {
+      "source": "/problems/rate-limited",
+      "destination": "/spec/0.1.0-rc.1/problems/rate-limited",
+      "permanent": false
+    },
+    {
+      "source": "/api-reference/bibliotheca.openapi.json",
+      "destination": "/spec/0.1.0-rc.1/api-reference/bibliotheca.openapi.json",
+      "permanent": false
+    },
+    {
+      "source": "/api-reference",
+      "destination": "/spec/0.1.0-rc.1/api-reference",
+      "permanent": false
+    },
+    {
+      "source": "/api/overview",
+      "destination": "/spec/0.1.0-rc.1/api/overview",
+      "permanent": false
+    },
+    {
+      "source": "/api/authentication",
+      "destination": "/spec/0.1.0-rc.1/api/authentication",
+      "permanent": false
+    },
+    {
+      "source": "/api/publish",
+      "destination": "/spec/0.1.0-rc.1/api/publish",
+      "permanent": false
+    },
+    {
+      "source": "/api/fetch",
+      "destination": "/spec/0.1.0-rc.1/api/fetch",
+      "permanent": false
+    },
+    {
+      "source": "/api/search",
+      "destination": "/spec/0.1.0-rc.1/api/search",
+      "permanent": false
+    },
+    {
+      "source": "/api/version-index",
+      "destination": "/spec/0.1.0-rc.1/api/version-index",
+      "permanent": false
+    },
+    {
+      "source": "/api/trust-metadata",
+      "destination": "/spec/0.1.0-rc.1/api/trust-metadata",
+      "permanent": false
+    },
+    {
+      "source": "/api/trust-upload",
+      "destination": "/spec/0.1.0-rc.1/api/trust-upload",
+      "permanent": false
+    },
+    {
+      "source": "/api/advisories",
+      "destination": "/spec/0.1.0-rc.1/api/advisories",
+      "permanent": false
+    },
+    {
+      "source": "/api/capabilities",
+      "destination": "/spec/0.1.0-rc.1/api/capabilities",
+      "permanent": false
+    },
+    {
+      "source": "/api/errors",
+      "destination": "/spec/0.1.0-rc.1/api/errors",
+      "permanent": false
+    },
     {
       "source": "/latest/",
       "destination": "/spec/0.1.0-rc.1/",
