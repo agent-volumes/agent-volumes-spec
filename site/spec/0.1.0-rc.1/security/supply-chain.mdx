@@ -1,0 +1,133 @@
+---
+title: 'Supply chain security in Agent Volumes'
+description: 'How Agent Volumes addresses supply chain risks through content integrity, provenance attestation, and publisher verification for AI agent packages.'
+---
+
+Agent Volumes is designed from the ground up to address supply chain risks that affect AI agent package ecosystems: fragmented integrity models that tie trust to transport containers rather than content, no standardized publisher identity system, and no shared trust model across bibliothecas. The v0.1 core establishes a baseline that any conforming client or bibliotheca can implement independently, without requiring a universal trust root.
+
+## The v0.1 core trust baseline
+
+The core trust baseline is built on four established standards:
+
+<CardGroup cols={2}>
+  <Card title="CycloneDX" icon="shield-check">
+    The normative BOM exchange format. Every Agent Volumes trust workflow that involves a software bill of materials
+    uses CycloneDX as the portable serialization target.
+  </Card>
+  <Card title="SLSA provenance" icon="lock">
+    The baseline provenance model. Trust attachments use the `https://slsa.dev/provenance/v1` predicate type to record
+    who built a release and how.
+  </Card>
+  <Card title="Sigstore" icon="signature">
+    Baseline signing and verification. Provenance and signature artifacts use Sigstore-family bundles that carry the
+    signed subject digest, builder identity, and cryptographic evidence.
+  </Card>
+  <Card title="SPDX" icon="file-lines">
+    Secondary export format. SPDX is a reference-compatibility target for archival, compliance-oriented, and
+    graph-oriented exchange use cases.
+  </Card>
+</CardGroup>
+
+<Note>
+  The v0.1 core does not commit to one narrower AI-BOM or ML-BOM profile beyond the generic CycloneDX baseline.
+  AI-specific BOM representation may be refined through future profiles or extensions.
+</Note>
+
+## Layered verification process
+
+When you install a volume or evaluate trust artifacts for a release, a conforming client performs verification in this order:
+
+<Steps>
+  <Step title="Resolve and validate the release subject">
+    Identify the release by both its package-facing logical identity (`pkg:volume/<name>@<version>`) and its immutable content identity (`sha256:<hex>`). Both identities must be present and consistent.
+  </Step>
+  <Step title="Discover trust metadata">
+    Fetch the trust summary and detail views for the release from the bibliotheca. If the release exists but has no attached trust artifacts, treat this as missing evidence — not as an automatic failure.
+  </Step>
+  <Step title="Apply lifecycle status filtering">
+    Exclude trust attachments whose status is `revoked` or `invalid`. Exclude `superseded` attachments from satisfying current-state evidence requirements. Both types remain in the append-only record for audit purposes, but they do not count as active evidence.
+  </Step>
+  <Step title="Validate artifact format identity">
+    Check each remaining trust attachment against the baseline category and format conventions: `cyclonedx` for BOMs, `slsa-provenance` for provenance, and `sigstore-bundle` for signatures.
+  </Step>
+  <Step title="Retrieve the trust artifact bytes">
+    Fetch the artifact bytes or use the embedded representation from the detail view. Verify the retrieved bytes against the attachment's `artifactDigest` before interpreting the contents.
+  </Step>
+  <Step title="Validate release-subject binding">
+    Confirm that each artifact's declared subject matches both the logical identity (`pkg:volume/...@version`) and the immutable content identity (`sha256:...`). Reject the release if any attachment claims an incompatible identity.
+  </Step>
+  <Step title="Verify Sigstore-family signatures">
+    For signature artifacts, verify the cryptographic signature, the signing certificate or key material, any bundled transparency or timestamp evidence, and the signed subject digest.
+  </Step>
+  <Step title="Verify SLSA provenance">
+    For provenance attestations, verify the attestation envelope, require the predicate type `https://slsa.dev/provenance/v1`, and confirm that the provenance subject digest matches the release integrity value.
+  </Step>
+  <Step title="Validate CycloneDX BOMs">
+    For BOM artifacts, validate the BOM structure and schema/profile identity, and check that the mapped package identity and SHA-256 hash fields match the release subject when present.
+  </Step>
+  <Step title="Report objective facts separately from policy">
+    Surface verification successes and failures as objective artifact facts. Leave broader trust policy — builder identity allowlists, vulnerability blocking, absence of non-mandatory artifacts — as local inputs rather than core hard failures.
+  </Step>
+</Steps>
+
+## Threat model
+
+### In-scope threats
+
+The following threats are within the scope of what the v0.1 baseline is designed to mitigate:
+
+| Threat                                                                                          | Primary mitigation                                                      |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Mutable Git references or tags resolving to unexpected release content                          | Normalized-file-tree integrity, dual subject identity                   |
+| Substituted CDN artifacts                                                                       | Integrity verification, release rejection on mismatch                   |
+| Mismatched trust attachments                                                                    | Dual subject binding, trust detail view, conformance fixtures           |
+| Malicious or compromised publishers                                                             | Publisher verification, provenance, signatures, advisories              |
+| Malicious skill instructions distributed as trusted-looking package content                     | Publisher identity, advisories, explicit component typing               |
+| Prompt injection embedded in reusable components                                                | Component transparency, advisories, permission boundaries               |
+| Tool permission overreach beyond declared or expected capability boundaries                     | Manifest permissions, narrower component overrides, runtime enforcement |
+| MCP server impersonation or substitution                                                        | Protocol declarations, integrity verification, trust attachments        |
+| Dependency confusion across bibliothecas                                                        | Scoped identity model, lockfiles, explicit configured bibliothecas      |
+| Unsigned or unverifiable releases                                                               | Baseline provenance and Sigstore-family verification workflows          |
+| Poisoned updates published under an expected package identity                                   | Immutable versioning, integrity verification, advisories                |
+| Hidden network, filesystem, shell, or browser access not disclosed through manifest permissions | Permission declarations, runtime enforcement, component inspection      |
+| Vulnerable or compromised provider integrations distributed through a volume                    | Provider declarations, advisories, provenance and publisher identity    |
+| Stale or replayed trust metadata                                                                | Revision metadata, current-state trust discovery, status semantics      |
+| Compromised bibliotheca projection behavior that misstates release trust facts                  | Fact-first trust views, raw locator/detail view, independent retrieval  |
+
+### Out-of-scope threats
+
+<Warning>
+  The v0.1 baseline does not claim to solve all possible threats. The following remain outside the guaranteed baseline:
+
+- Endpoint compromise on the consumer side after trusted installation
+- Arbitrary runtime sandbox escape not covered by runtime-specific enforcement
+- Universal trust-root agreement across independent bibliothecas
+- Generalized malware or vulnerability scanning result normalization across all scanners
+- Portable scanner-finding interchange or scanner severity normalization
+
+</Warning>
+
+## Trust attachment lifecycle
+
+Release-scoped trust attachments are **append-only**. Once a bibliotheca accepts a trust artifact for a release, the following invariants hold:
+
+- The published release content identity remains immutable and cannot be changed.
+- New trust attachments may be added after publication without replacing existing ones.
+- Previously published trust attachments are never silently replaced, rewritten, or reinterpreted.
+
+When a trust attachment later becomes invalid, superseded, or revoked, it remains part of the append-only record. Its status changes through **status metadata**, not deletion. The `superseded` status means the attachment has been replaced by a newer artifact — it does not mean the attachment was compromised. A superseded attachment may still be evaluated by historical or audit workflows, but it does not satisfy mandatory current-state evidence requirements.
+
+## Client trust consumption baseline
+
+When consuming trust metadata from a bibliotheca, apply these minimum behaviors:
+
+- **Reject on digest or subject-binding mismatch.** If a trust artifact's declared subject does not match the release identity, treat the release as inconsistent and fail.
+- **Reject on explicit revocation or invalidation.** Treat revoked and invalid attachments as failures by default. You may override this only with an explicit non-baseline configuration.
+- **Treat superseded evidence as stale.** If the only available evidence for a mandatory trust category is superseded, report a stale or insufficient-current-evidence diagnostic rather than treating it as equivalent to an active attachment.
+- **Distinguish facts from policy.** The trust summary view may include derived judgments such as verification labels. These are not canonical trust facts. Consume the raw objective facts from the detail view and apply your own policy locally.
+
+<Tip>
+  Scanner findings are not advisory records and not trust attachments in v0.1. A bibliotheca may create an advisory
+  based on scanner information under local policy, but the portable contract is the advisory read/discovery model only.
+  See [Security advisories](/spec/0.1.0-rc.1/security/advisories) for details.
+</Tip>

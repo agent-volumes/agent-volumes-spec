@@ -1,0 +1,63 @@
+---
+title: 'Schema artifact inventory'
+description: 'Inventory of Agent Volumes v0.1 JSON Schema companion artifacts, schema families, versioning rules, and validation expectations.'
+sidebarTitle: 'Schema artifacts'
+---
+
+Agent Volumes publishes machine-readable companion artifacts under `schemas/` for clients, bibliothecas, validators, exporters, and conformance runners. This page is a publication-layer inventory. The prose specification remains the final normative authority, and `schemas/README.md` remains the source artifact for this inventory.
+
+## Primary schema families
+
+| Area                        | Schema artifacts                                                                                                                                                                                           |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest model              | `volume.schema.json`                                                                                                                                                                                       |
+| Release metadata            | `release-metadata.schema.json`, `exact-release-metadata-case.schema.json`                                                                                                                                  |
+| Version index               | `version-index.schema.json`, `version-index-row.schema.json`                                                                                                                                               |
+| Release upload              | `release-upload-intent.schema.json`, `release-upload-finalize.schema.json`                                                                                                                                 |
+| Trust discovery             | `trust-summary.schema.json`, `trust-detail.schema.json`                                                                                                                                                    |
+| Trust upload                | `trust-upload-intent.schema.json`, `trust-upload-finalize.schema.json`                                                                                                                                     |
+| Trust verification fixtures | `trust-artifact-verification-case.schema.json`                                                                                                                                                             |
+| Advisories                  | `advisory.schema.json`, `advisory-list.schema.json`, `advisory-validation-case.schema.json`                                                                                                                |
+| Capability metadata         | `capability-metadata.schema.json`, `bridge-metadata.schema.json`, `reserved-extension-namespaces.json`                                                                                                     |
+| Errors and warnings         | `problem-details.schema.json`, `problem-registry.schema.json`, `warning.schema.json`                                                                                                                       |
+| Conformance                 | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                                                                                                       |
+| Manifest and semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json`                                                                              |
+| External dependencies       | `external-dependency-validation-case.schema.json`, `upstream-baseline.schema.json`, `purl-vers-compatibility-exceptions.schema.json`, `external-dependency-potential-exposure-warning-context.schema.json` |
+| BOM/provenance mapping      | `mapping-matrix.schema.json`, `mapping-sample.schema.json`                                                                                                                                                 |
+| Search                      | `search-results.schema.json`                                                                                                                                                                               |
+
+## How to read this inventory
+
+- Schema `$id` values include the Agent Volumes spec release, for example `https://agentvolumes.org/spec/0.1.0-rc.1/schemas/<artifact>`.
+- Schema artifacts are version-aligned with `agent-volumes-spec.md`.
+- A material schema change is a normative draft change and is reviewed with the prose and conformance fixtures it affects.
+- `reserved-extension-namespaces.json` is a versioned companion artifact, but it is not itself a JSON Schema document.
+
+## Validation expectations
+
+After changing any schema or schema-backed fixture, run the repository artifact validator:
+
+```bash
+npm run validate:artifacts
+```
+
+After changing schemas referenced by the Bibliotheca API contract, also run the OpenAPI linter:
+
+```bash
+npm run lint:openapi
+```
+
+<Note>
+  The public site summarizes the schema families for readers. Use the repository artifacts for validation and release
+  review: `schemas/README.md`, the individual `schemas/*.json` files, and the fixture mappings under
+  `conformance/fixtures/`.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
+    See how fixture files map to schema validation units and deterministic evaluators.
+  </Card>
+  <Card title="Requirement inventory" icon="list-check" href="/spec/0.1.0-rc.1/conformance/requirements">
+    Connect schema and fixture coverage to role-scoped `AV-BIB-*` and `AV-CLI-*` requirements.
+  </Card>
+</CardGroup>

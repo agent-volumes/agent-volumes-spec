@@ -1,0 +1,452 @@
+---
+title: 'volume.toml manifest reference'
+sidebarTitle: 'Manifest'
+description: 'Complete reference for every field in volume.toml — the required human-authoring format at the root of every Agent Volumes package.'
+---
+
+Every volume must contain a `volume.toml` file at its root. This file is the normative human-authoring format for package metadata: it declares who published the volume, what components it exports, which runtimes it targets, what permissions it needs, and which other volumes it depends on. Tooling validates manifests against a canonical parsed-data model derived from the TOML source, so the structure you write here is the source of truth for everything downstream — resolution, installation, trust, and discovery.
+
+## Schema version
+
+The `[volume]` table must include `schema`, set to the integer `1`. Key order is not semantically significant. Tooling rejects manifests with unrecognized schema versions.
+
+```toml
+[volume]
+schema = 1
+```
+
+## `[volume]` table
+
+The `[volume]` table carries package identity and discovery metadata.
+
+### Required fields
+
+<ParamField path="volume.schema" type="integer" required>
+  Manifest schema version. Currently `1`.
+</ParamField>
+
+<ParamField path="volume.name" type="string" required>
+  Volume identifier. Use a bare name for scopeless volumes (`my-agent`) or `@scope/name` for scoped volumes
+  (`@acme/research-pack`). Name segments must be lowercase alphanumeric with hyphens, 1–128 characters, not starting or
+  ending with a hyphen, and without consecutive hyphens. Scoped identifiers also include a scope segment up to 64
+  characters, so the full scoped `volume.name` can be longer than a bare name.
+</ParamField>
+
+<ParamField path="volume.version" type="string" required>
+  SemVer 2.0.0 version string (e.g., `1.4.0`).
+</ParamField>
+
+<ParamField path="volume.description" type="string" required>
+  One-line summary of the volume. Maximum 256 characters.
+</ParamField>
+
+<ParamField path="volume.license" type="string" required>
+  SPDX license expression (e.g., `Apache-2.0`, `MIT`, `Apache-2.0 OR MIT`).
+</ParamField>
+
+<ParamField path="volume.role" type="string" required>
+  Primary package role. One of: `component`, `plugin`, `provider`, `meta`. See [Package
+  roles](/spec/0.1.0-rc.1/volumes/roles) for guidance on choosing the right role.
+</ParamField>
+
+### Optional fields
+
+<ParamField path="volume.homepage" type="string">
+  URL to the volume's homepage or documentation site.
+</ParamField>
+
+<ParamField path="volume.repository" type="string">
+  URL to the source repository.
+</ParamField>
+
+<ParamField path="volume.documentation" type="string">
+  URL to extended documentation.
+</ParamField>
+
+<ParamField path="volume.keywords" type="string[]">
+  Freeform keywords for search discovery (e.g., `["research", "arxiv", "academic"]`).
+</ParamField>
+
+<ParamField path="volume.secondary-roles" type="string[]">
+  Additional package roles layered on top of the primary role (e.g., `["provider"]`).
+</ParamField>
+
+<ParamField path="volume.providers" type="string[]">
+  External services the volume integrates with at the volume level (e.g., `["github", "slack"]`). These are discovery
+  hints, not dependency declarations. See [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for common provider
+  examples and naming guidance.
+</ParamField>
+
+## `[publisher]` table
+
+The `[publisher]` table is required in every `volume.toml`, including scoped volumes and `role = "meta"` volumes. It identifies the publisher entity, not their verification status — verification is managed by the bibliotheca.
+
+<ParamField path="publisher.id" type="string" required>
+  Publisher identifier. For scopeless volumes, identifies the owner of the volume name. For scoped volumes, identifies
+  the owning scope (without the `@` prefix).
+</ParamField>
+
+```toml
+[publisher]
+id = "acme"
+```
+
+## `[[components]]` array
+
+Declare every component the volume exports as an array of TOML tables. A component without a corresponding `[[components]]` entry is not exported, even if its entrypoint file exists in the volume.
+
+### Required fields per component
+
+<ParamField path="components[].type" type="string" required>
+  Component type. One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
+</ParamField>
+
+<ParamField path="components[].name" type="string" required>
+  Component name. Lowercase alphanumeric with hyphens. Must be unique within the volume across all component types.
+</ParamField>
+
+<ParamField path="components[].entrypoint" type="string" required>
+  Relative path from the volume root to the component's primary entry file (e.g., `./skills/summarize-paper/SKILL.md`).
+  Must not be absolute, must not contain `..` segments, and must resolve to a regular file.
+</ParamField>
+
+### Optional fields per component
+
+<ParamField path="components[].description" type="string">
+  One-line description of the component.
+</ParamField>
+
+<ParamField path="components[].providers" type="string[]">
+  External services integrated by this specific component.
+</ParamField>
+
+<ParamField path="components[].permissions" type="object">
+  Component-specific permission overrides. Values must be narrower than or equal to the parent volume's permissions —
+  you cannot escalate permissions at the component level.
+</ParamField>
+
+```toml
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv by query, author, or category"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+```
+
+<Note>
+  Component names must be unique across **all** component types within a volume. You cannot have a `skill` named
+  `search` and a `tool` named `search` in the same volume.
+</Note>
+
+## `[dependencies]` table
+
+Declare volume-level dependencies as a TOML table where each key is a volume name and each value is a SemVer constraint string. See [Dependencies](/spec/0.1.0-rc.1/volumes/dependencies) for the full constraint grammar.
+
+```toml
+[dependencies]
+"search-toolkit" = "^2.0.0"
+"@acme/github-provider" = ">=1.5.0, <3.0.0"
+```
+
+## `[[external-dependencies]]` array
+
+Declare package dependencies outside the Agent Volumes `pkg:volume` ecosystem as audit metadata. These records are used for review, policy, BOM export, and potential-exposure diagnostics. They are not resolver inputs, lockfile entries, installed package evidence, scanner findings, VEX status, or confirmed vulnerability evidence.
+
+```toml
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+```
+
+<ParamField path="external-dependencies[].purl" type="string" required>
+  Package URL for an external ecosystem package. It must not use the `volume` purl type and must not include a PURL
+  version component or subpath. Put version intent in `constraint`.
+</ParamField>
+
+<ParamField path="external-dependencies[].constraint" type="string" required>
+  VERS expression for the external package range. This is not the Agent Volumes SemVer dependency grammar.
+</ParamField>
+
+<ParamField path="external-dependencies[].purpose" type="string" required>
+  Dependency use context. Core values are `runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`,
+  `documentation`, and `other`. Extension values use reverse-DNS namespace syntax, such as `org.example:codegen`.
+</ParamField>
+
+<ParamField path="external-dependencies[].components" type="string[]">
+  Optional component scope. When present, the array must be non-empty, duplicate-free, and contain only component names
+  declared in the same manifest. Omit it for volume-wide external dependency declarations.
+</ParamField>
+
+<Tip>
+  Stable declaration identifiers use `av-extdep-v1:sha256:<lowercase-hex>`. The digest input includes exactly `purl`,
+  `purpose`, and scope; it deliberately excludes `constraint`, warning payloads, advisory matches, comments, and array
+  positions.
+</Tip>
+
+## `[component-dependencies]` table
+
+Declare which components in this volume depend on specific components from other volumes. Each key is the name of a component declared in this manifest's `[[components]]` array; each value is an array of component purl strings.
+
+```toml
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+```
+
+<Note>
+  A component-level dependency implies the parent volume dependency. After volume resolution, tooling verifies that the
+  referenced components exist in the resolved volume version.
+</Note>
+
+## `[[runtimes]]` array
+
+Declare which agent runtimes your volume is compatible with. Each entry names a runtime and provides a compatibility version expression.
+
+```toml
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[runtimes]]
+name = "opencode"
+compatibility = ">=0.1.0"
+```
+
+<ParamField path="runtimes[].name" type="string" required>
+  Runtime identifier. See [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for the full list of 18 recognized
+  runtime IDs.
+</ParamField>
+
+<ParamField path="runtimes[].compatibility" type="string" required>
+  Required advisory version expression for the runtime. This is metadata for discovery and diagnostics — not a hard
+  dependency constraint. Tooling preserves the expression as authored and only evaluates it when the runtime's version
+  scheme is explicitly understood.
+</ParamField>
+
+If you omit the `[[runtimes]]` array entirely, the volume makes no runtime-specific compatibility claim.
+
+## `[[protocols]]` array
+
+Declare protocol compatibility for volumes that export MCP servers or LSP servers.
+
+```toml
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+```
+
+<ParamField path="protocols[].name" type="string" required>
+  Protocol identifier. One of: `mcp`, `lsp`.
+</ParamField>
+
+<ParamField path="protocols[].version" type="string" required>
+  Required protocol version expression. Protocol ecosystems use different version schemes (date-like, short numeric,
+  SemVer-compatible), so this is advisory metadata. Tooling must not reject a manifest solely because it cannot evaluate
+  the expression.
+</ParamField>
+
+## `[permissions]` table
+
+Declare the maximum permissions your volume needs. All components inherit these defaults; individual components may declare narrower (but never broader) permissions.
+
+```toml
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
+```
+
+<ParamField path="permissions.filesystem" type="string" default="deny">
+  Local filesystem access. One of: `deny`, `read`, `write`, `read-write`.
+</ParamField>
+
+<ParamField path="permissions.network" type="string" default="deny">
+  Network access. One of: `deny`, `read`, `write`, `read-write`.
+</ParamField>
+
+<ParamField path="permissions.browser" type="string" default="deny">
+  Browser access. One of: `deny`, `read`, `write`, `read-write`.
+</ParamField>
+
+<ParamField path="permissions.shell" type="string" default="deny">
+  Shell command execution. One of: `deny`, `allow`.
+</ParamField>
+
+<Warning>
+  Declaring a component permission that is broader than the parent volume's permission is a validation failure. For
+  example, if the volume declares `filesystem = "read"`, no component may declare `filesystem = "read-write"`. Clients
+  must fail before submission when they detect permission escalation. Bibliothecas must block affected artifacts when
+  escalation is discovered.
+</Warning>
+
+## `[environment]` table
+
+Declare execution environment requirements. Omitting any field means no restriction for that dimension.
+
+```toml
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+arch = ["x64", "arm64"]
+```
+
+<ParamField path="environment.runtimes" type="string[]">
+  Required language runtimes. Valid values: `node`, `bun`, `deno`, `python`, `ruby`, `go`, `rust`.
+</ParamField>
+
+<ParamField path="environment.os" type="string[]">
+  Target operating systems. Valid values: `linux`, `macos`, `windows`.
+</ParamField>
+
+<ParamField path="environment.arch" type="string[]">
+  Target CPU architectures. Valid values: `x64`, `arm64`, `x86`.
+</ParamField>
+
+## `[provenance]` table
+
+Declare declarative source and build context metadata. This is package metadata — it does not replace external trust artifacts (BOMs, provenance attestations, signatures) that are associated with the published release.
+
+```toml
+[provenance]
+source-repo = "https://github.com/acme/research-agent-pack"
+
+[provenance.build]
+system = "github-actions"
+workflow = "release.yml"
+signed = true
+```
+
+## Complete example
+
+The following manifest combines all sections. It is adapted from the example in the Agent Volumes specification.
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+homepage = "https://github.com/example/research-agent-pack"
+repository = "https://github.com/example/research-agent-pack"
+keywords = ["research", "literature", "arxiv", "academic"]
+role = "plugin"
+secondary-roles = ["provider"]
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+# --- Components ---
+
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server configuration for repository-aware code intelligence"
+
+# --- Compatibility ---
+
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+
+# --- Dependencies ---
+
+[dependencies]
+"search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+
+# --- Permissions ---
+
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
+
+# --- Environment ---
+
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+
+# --- Provenance ---
+
+[provenance]
+source-repo = "https://github.com/example/research-agent-pack"
+```

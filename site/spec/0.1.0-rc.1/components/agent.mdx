@@ -1,0 +1,144 @@
+---
+title: 'Agent component: autonomous AI agent packaging'
+description: 'Package an autonomous AI agent with its system prompt and tool bindings using the Agent component type in an Agent Volumes volume.'
+---
+
+An Agent component packages an autonomous runtime actor that receives a goal and independently determines how to accomplish it. Unlike a Skill (which provides knowledge) or a Command (which responds to a user trigger), an Agent is the primary decision-making unit — it can invoke tools, delegate to other agents, and maintain state across multiple steps within a session.
+
+## When to use Agent
+
+Use the `agent` type when your component:
+
+- Takes a goal or task description and operates independently to complete it
+- Needs to call tools, skills, or other agents as part of its execution
+- Runs for multiple steps before returning a final result
+- Maintains context across interactions within a session
+
+If your component just needs to teach a runtime how to do something, use a [Skill](/spec/0.1.0-rc.1/components/skill). If it responds to a user-typed slash command, use a [Command](/spec/0.1.0-rc.1/components/command).
+
+## Entrypoint format
+
+Agent entrypoints can be either Markdown (`.md`) or YAML (`.yaml`). The Markdown format is most common and typically contains the agent's system prompt, behavioral instructions, tool bindings, and any other configuration the runtime needs to instantiate the agent.
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a regular file.
+- The file extension is `.md` or `.yaml`.
+- YAML entrypoints must parse as valid YAML.
+
+## Declaring an agent in `volume.toml`
+
+Add a `[[components]]` entry with `type = "agent"` and point `entrypoint` to your agent definition file.
+
+```toml
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+```
+
+A complete manifest that includes the agent alongside its dependencies:
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+```
+
+## Agent semantics
+
+The Agent Volumes spec defines four behavioral properties for agents:
+
+- **Goal-driven**: An agent receives a goal or task and autonomously determines how to accomplish it.
+- **Tool and skill use**: An agent can invoke tools, skills, and other agents during execution.
+- **Session state**: An agent can maintain state across interactions within a session.
+- **Behavior configuration**: An agent's behavior is defined by its system prompt, available tools, and configured policies.
+
+<Note>
+  The spec defines packaging and distribution semantics, not execution semantics. How a runtime instantiates and runs an
+  agent — what model it uses, how it manages context windows, how it orchestrates tool calls — is runtime-local
+  behavior.
+</Note>
+
+## Optional fields
+
+Two optional fields apply to all component types and are particularly useful for agents:
+
+| Field         | Type             | Description                                                                        |
+| ------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| `description` | string           | One-line description surfaced in registry search and tooling.                      |
+| `providers`   | array of strings | External services the agent integrates with (e.g., `["arxiv", "github"]`).         |
+| `permissions` | table            | Component-specific permission overrides. Can only narrow volume-level permissions. |
+
+### Permissions for agents
+
+If your agent reads files or fetches data from the network, declare the permissions it needs. Permissions declared at the component level override the volume-level defaults but can only be equal to or narrower than the volume-level setting.
+
+```toml
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[components.permissions]
+filesystem = "read"
+network = "read"
+```
+
+<Warning>
+  A component cannot declare permissions broader than its parent volume allows. Declaring `network = "read-write"` at
+  the component level when the volume declares `network = "read"` is a validation failure.
+</Warning>
+
+## Component identifier
+
+Once published, you can reference the agent component using a purl component identifier:
+
+```text
+pkg:volume/research-agent-pack@1.4.0#agent/literature-reviewer
+```
+
+For scoped volumes:
+
+```text
+pkg:volume/%40acme/research-agent-pack@1.4.0#agent/literature-reviewer
+```
