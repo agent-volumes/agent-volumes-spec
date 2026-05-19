@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-18T07:04:43Z
-**Commit:** f1376ce
+**Generated:** 2026-05-19T00:00:00+09:00
+**Commit:** ff9fcf1
 **Branch:** release/0.1.0-rc1
 
 ## OVERVIEW
@@ -43,7 +43,10 @@ agent-volumes-spec/
 ├── schemas/                   # Normative JSON Schema artifacts
 ├── conformance/               # Offline conformance fixtures + runner contract
 ├── openapi/                   # Bibliotheca API contract + prose drift audit
-├── docs/decisions/            # 152 ADRs (architecture decision records)
+├── docs/                      # Project process, readiness, security, release docs
+│   └── docs/decisions/        # 154 ADRs (architecture decision records)
+├── site/                      # Mintlify source for public agentvolumes.org docs
+├── .github/workflows/         # CI + org reusable security workflow consumers
 ├── .agents/skills/            # Contributor dev tooling (NOT distributable)
 └── scripts/                   # Artifact validation script
 ```
@@ -55,7 +58,10 @@ agent-volumes-spec/
 | Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
-| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0152     |
+| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0154     |
+| Edit process docs         | `docs/`                                 | Non-normative policy/readiness docs |
+| Edit public docs site     | `site/`                                 | Publication layer, not canonical    |
+| Edit CI workflow          | `.github/workflows/`                    | SHA-pinning + org reusable policy   |
 | Edit Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`      | Keep drift audit + fixtures aligned |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Required before release freeze      |
 | Update artifact validator | `scripts/validate-artifacts.mjs`        | Central smoke runner; 3k+ lines     |
@@ -93,7 +99,7 @@ agent-volumes-spec/
 
 **CI** — `.github/workflows/`
 
-- `spec-lint-and-format.yml`: path-filtered, installs Bun, runs lint/format/validate
+- `spec-lint-and-format.yml`: path-filtered, installs Bun, rebuilds the Mintlify OpenAPI publication artifact, runs lint/format/site/artifact validation
 - Security workflows delegate to org reusable workflows (`agent-volumes/.github` @main) — the **sole SHA-pinning exception**
 - Uses `harden-runner` and pinned action SHAs for non-reusable workflows
 
@@ -106,6 +112,7 @@ agent-volumes-spec/
 - Do **not** add catalog-specific frontmatter (`domain`, `subdomain`, `tags`, `frameworks`) to dev skills in `.agents/skills/`.
 - Do **not** create README.md, CHANGELOG.md, or auxiliary docs inside skills — only `SKILL.md` + resources.
 - Do **not** duplicate skill content between `.agents/skills/` and `catalog/skills/`.
+- Do **not** hand-edit `site/api-reference/bibliotheca.openapi.json`; regenerate it from `openapi/bibliotheca.openapi.yaml` with `bun run build:site:openapi`.
 
 ## NORMATIVE LANGUAGE (BCP 14)
 
@@ -125,6 +132,8 @@ bunx lefthook install
 bun run lint:md
 bun run lint:md:fix
 bun run lint:openapi
+bun run build:site:openapi
+bun run lint:site
 bun run format
 bun run format:check
 bun run changelog:check
@@ -139,6 +148,7 @@ bun run validate:artifacts
 - **No standard test runner** — validation is via `scripts/validate-artifacts.mjs` (AJV + bespoke logic), not Jest/Vitest/Pytest.
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
+- **Site is publication-only** — `site/` content and bundled OpenAPI output must link back to canonical sources and never override spec/schema/OpenAPI/conformance artifacts.
 - **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.mjs` are the largest maintenance-risk files; inspect local `AGENTS.md` files before editing their subtrees.
 - **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
