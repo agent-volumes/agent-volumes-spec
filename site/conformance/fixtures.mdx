@@ -93,7 +93,7 @@ The `digest-vectors.json` file contains golden vectors for the normalized file-t
 
 ## Conformance report schema
 
-When your runner finishes evaluating the fixture corpus, output a report using `schemas/conformance-report.schema.json`. The report records:
+When your runner finishes evaluating the fixture corpus, output a report using `schemas/conformance-report.schema.json`. The list below is a summary only; the schema is authoritative for required fields, optional metadata, result outcomes, warnings, and skip reporting. At a high level, the report records:
 
 - The runner identity and implementation roles claimed
 - Aggregate pass/fail counts
@@ -108,7 +108,7 @@ Keep result IDs stable across repeated runs of the same fixture corpus so report
 
 ## Coverage map
 
-`conformance-coverage.json` (validated against `schemas/conformance-coverage.schema.json`) maps stable prose requirement IDs such as `AV-BIB-*` and `AV-CLI-*` to the fixture families that cover them. Use this file to:
+`conformance-coverage.json` (validated against `schemas/conformance-coverage.schema.json`) maps stable prose requirement IDs such as `AV-BIB-*` and `AV-CLI-*` to the fixture families that cover them. This section is a summary only; the schema and coverage artifact are authoritative for fields such as role, area, coverage type, schema references, fixture paths, and case names. Use this file to:
 
 - Identify which requirements have fixture coverage and which are prose-boundary only
 - Track which fixture families are relevant to the roles you claim
