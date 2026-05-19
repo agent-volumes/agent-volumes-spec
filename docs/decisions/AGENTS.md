@@ -4,21 +4,21 @@ Architecture and specification decision records (ADRs) for Agent Volumes. Non-no
 
 ## STRUCTURE
 
-Flat directory of 154 sequentially numbered records: `0001-*.md` through `0154-*.md`. No subdirectories. Use `README.md` as the live topic index before editing.
+Flat directory of 155 sequentially numbered records: `0001-*.md` through `0155-*.md`. No subdirectories. Use `README.md` as the live topic index before editing.
 
 ## WHERE TO LOOK
 
-| Task                                     | Records                                                                                                                                              | Notes                                      |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Identity and manifest model              | `0001-*`, `0002-*`, `0012-*`, `0048-0051-*`, `0109-0134-*`, `0139-0140-*`, `0142-0144-*`, `0146-0149-*`                                              | Largest topic area                         |
-| Component taxonomy and loading           | `0003-*`, `0084-0089-*`                                                                                                                              | Seven component types                      |
-| Content integrity and release subject    | `0007-*`, `0013-*`, `0014-*`, `0090-*`, `0102-*`                                                                                                     | Digest construction, normalization         |
-| Trust and supply chain                   | `0005-*`, `0006-*`, `0008-0010-*`, `0015-*`, `0022-*`, `0023-*`, `0026-*`, `0027-*`, `0030-0032-*`, `0095-*`, `0099-*`, `0103-*`, `0108-*`, `0142-*` | Publisher identity, provenance, advisories |
-| Registry API, resolver, and upload       | `0019-*`, `0091-*`, `0097-0098-*`, `0100-0101-*`, `0106-*`, `0136-*`, `0152-*`                                                                       | Bibliotheca HTTP API                       |
-| Capability metadata and extensions       | `0060-0083-*`, `0107-*`, `0141-*`                                                                                                                    | Bridge metadata, extension namespaces      |
-| Conformance and readiness structure      | `0020-*`, `0028-0029-*`, `0104-*`, `0144-0151-*`                                                                                                     | Fixture families, runner contract          |
-| Public documentation and URI publication | `0153-*`, `0154-*`                                                                                                                                   | Mintlify platform + `site/` topology       |
-| Check deferred topics                    | `0011-*`, `0015-*`, `0021-*`, `0028-*`, `0054-*`, `0084-*`, `0089-*`, `0092-0094-*`, `0096-0097-*`, `0100-*`, `0103-*`, `0106-*`, `0137-0138-*`      | Intentionally outside v0.1 baseline        |
+| Task                                     | Records                                                                                                                                              | Notes                                               |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Identity and manifest model              | `0001-*`, `0002-*`, `0012-*`, `0048-0051-*`, `0109-0134-*`, `0139-0140-*`, `0142-0144-*`, `0146-0149-*`                                              | Largest topic area                                  |
+| Component taxonomy and loading           | `0003-*`, `0084-0089-*`                                                                                                                              | Seven component types                               |
+| Content integrity and release subject    | `0007-*`, `0013-*`, `0014-*`, `0090-*`, `0102-*`                                                                                                     | Digest construction, normalization                  |
+| Trust and supply chain                   | `0005-*`, `0006-*`, `0008-0010-*`, `0015-*`, `0022-*`, `0023-*`, `0026-*`, `0027-*`, `0030-0032-*`, `0095-*`, `0099-*`, `0103-*`, `0108-*`, `0142-*` | Publisher identity, provenance, advisories          |
+| Registry API, resolver, and upload       | `0019-*`, `0091-*`, `0097-0098-*`, `0100-0101-*`, `0106-*`, `0136-*`, `0152-*`                                                                       | Bibliotheca HTTP API                                |
+| Capability metadata and extensions       | `0060-0083-*`, `0107-*`, `0141-*`                                                                                                                    | Bridge metadata, extension namespaces               |
+| Conformance and readiness structure      | `0020-*`, `0028-0029-*`, `0104-*`, `0144-0151-*`                                                                                                     | Fixture families, runner contract                   |
+| Public documentation and URI publication | `0153-*`, `0154-*`, `0155-*`                                                                                                                         | Mintlify platform, `site/` topology, domain routing |
+| Check deferred topics                    | `0011-*`, `0015-*`, `0021-*`, `0028-*`, `0054-*`, `0084-*`, `0089-*`, `0092-0094-*`, `0096-0097-*`, `0100-*`, `0103-*`, `0106-*`, `0137-0138-*`      | Intentionally outside v0.1 baseline                 |
 
 ## CONVENTIONS
 
