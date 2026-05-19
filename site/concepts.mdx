@@ -10,7 +10,7 @@ Agent Volumes introduces a precise vocabulary to describe how agent components a
 
 <Accordion title="Volume" icon="box">
 
-A **volume** is the distribution unit of the Agent Volumes ecosystem. It is a versioned package that exports one or more agent components.
+A **volume** is the distribution unit of the Agent Volumes ecosystem. It is a versioned package that usually exports agent components; `role = "meta"` volumes can instead act as dependency bundles with no mandatory exported components.
 
 A volume is to agent components what an npm package is to JavaScript modules, or what a Python wheel is to Python code. You publish a volume to a bibliotheca, and users install it into their agent runtime.
 
@@ -19,7 +19,7 @@ Every volume has:
 - A **name** — scopeless (`research-agent-pack`) or scoped (`@acme/research-agent-pack`)
 - A **version** — a [SemVer](https://semver.org/) string such as `1.4.0`
 - A **manifest** — the `volume.toml` file at its root
-- One or more **components** — the actual agent capabilities it exports
+- Optional **components** — the actual agent capabilities it exports, unless the volume is a dependency-focused bundle such as `role = "meta"`
 
 **Example purl:**
 
@@ -220,12 +220,12 @@ This pair is the subject used in provenance attestations, BOM entries, and signa
 
 Every volume declares a **role** that describes its purpose at the package level. The role appears in the `[volume]` table and influences how bibliothecas categorize and display the volume.
 
-| Role        | Description                                                                                                                          |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `component` | A standalone component package — a single skill, tool, command, hook, or server with no broader integration intent.                  |
-| `plugin`    | An extension package that adds capabilities to an agent runtime. Most volumes that bundle related components together use this role. |
-| `provider`  | A package that integrates with an external service or system (e.g., a GitHub integration, a database connector).                     |
-| `meta`      | A meta-package that declares only dependencies with no directly exported components. Used to distribute curated collections.         |
+| Role        | Description                                                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `component` | A standalone component package — a single skill, tool, command, hook, or server with no broader integration intent.                       |
+| `plugin`    | An extension package that adds capabilities to an agent runtime. Most volumes that bundle related components together use this role.      |
+| `provider`  | A package that integrates with an external service or system (e.g., a GitHub integration, a database connector).                          |
+| `meta`      | A meta-package used to distribute curated collections. It has no mandatory exported components, and its value is usually in dependencies. |
 
 A volume declares one primary role and may add `secondary-roles`:
 
@@ -257,12 +257,12 @@ Bibliotheca
     │   ├── [[external-dependencies]] audit declarations
     │   ├── [[runtimes]] + [[protocols]] compatibility
     │   └── [permissions] + [environment]
-    ├── Component files (entrypoints)
+    ├── Component files (entrypoints, when the volume exports components)
     ├── Trust attachments (BOM, provenance, signature, other)
     └── Advisory records (separate discovery surface)
 ```
 
-A **publisher** publishes a **volume** to a **bibliotheca**. The volume contains a `volume.toml` manifest and component entrypoint files. Each **component** within the volume is addressable by its purl subpath. The volume's release is anchored by its **content identity** digest. **Trust attachments** provide cryptographic evidence about the release.
+A **publisher** publishes a **volume** to a **bibliotheca**. The volume contains a `volume.toml` manifest and, when it exports components, component entrypoint files. Each exported **component** within the volume is addressable by its purl subpath. The volume's release is anchored by its **content identity** digest. **Trust attachments** provide cryptographic evidence about the release.
 
 ## Next steps
 
