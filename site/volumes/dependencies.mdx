@@ -101,9 +101,9 @@ Each key must be the name of a component declared in this manifest's `[[componen
 ```
 
 <Note>
-  A component-level dependency implies the parent volume dependency. You do not need to repeat the volume in
-  `[dependencies]` — resolving a component dependency automatically pulls in its containing volume. After resolution,
-  tooling verifies that the referenced components actually exist in the resolved version of that volume.
+  A component-level dependency implies dependency on the containing volume, but versionless component purls still rely
+  on the parent volume's `[dependencies]` constraint to determine the resolved version. After resolution, tooling
+  verifies that the referenced components actually exist in the resolved version of that volume.
 </Note>
 
 ### Omitting versions in authoring
