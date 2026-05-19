@@ -1,0 +1,23 @@
+---
+title: 'PURL and VERS compatibility exceptions'
+description: 'Machine-readable Agent Volumes exceptions that align specific PURL types with VERS schemes for validation and warning context.'
+---
+
+Agent Volumes keeps PURL type and VERS scheme matching strict unless a machine-readable compatibility exception says otherwise. Exceptions support validation, matching, and warning context. They do not create package-manager resolution policy.
+
+## Current exceptions
+
+| ID         | PURL type | VERS scheme | Rationale                                                                                                                                                                                                               |
+| ---------- | --------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pub-dart` | `pub`     | `dart`      | Allows Dart package declarations to use the established PURL type while preserving VERS scheme-native version comparison. This exception does not rewrite PURLs, VERS strings, semantic keys, or declaration-key input. |
+
+## Canonical artifacts
+
+- [`conformance/purl-vers-compatibility-exceptions.json`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/purl-vers-compatibility-exceptions.json)
+- [`schemas/purl-vers-compatibility-exceptions.schema.json`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/schemas/purl-vers-compatibility-exceptions.schema.json)
+
+## Related sources
+
+- [Conformance fixtures](/conformance/fixtures)
+- [External dependency declarations](/volumes/dependencies)
+- [ADR-0149](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0149-apply-purl-vers-compatibility-exceptions-to-validation-matching-and-warning-context.md)

@@ -1,0 +1,24 @@
+---
+title: 'Upstream PURL and VERS baselines'
+description: 'Pinned upstream references used by Agent Volumes PURL and VERS compatibility fixtures.'
+---
+
+Agent Volumes records upstream baselines so maintainers can explain which PURL and VERS references informed release-candidate validation fixtures. The artifact does not vendor those projects or turn their behavior into a general package-manager resolution policy.
+
+## Current baselines
+
+| Name               | Upstream                                 | Revision                                   | Purpose                                                                                                                                            |
+| ------------------ | ---------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package-url-spec` | https://github.com/package-url/purl-spec | `1f8c6f2461cfe8dd3eda85eb6afa30d99b3cc6d0` | Pinned reference for PURL syntax, canonicalization, qualifier, version, and subpath semantics used by external dependency validation fixtures.     |
+| `vers-spec`        | https://github.com/package-url/vers-spec | `ee7d8b44f22f1517c75f7229b57b79374c8d34e5` | Pinned reference for VERS syntax, canonical constraints, and scheme-specific comparison semantics used by external dependency validation fixtures. |
+
+## Canonical artifacts
+
+- [`conformance/upstream-baselines.json`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/upstream-baselines.json)
+- [`schemas/upstream-baseline.schema.json`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/schemas/upstream-baseline.schema.json)
+
+## Related sources
+
+- [PURL and VERS compatibility exceptions](/uri-publications/purl-vers-compatibility-exceptions)
+- [Conformance fixtures](/conformance/fixtures)
+- [ADR-0126](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0126-record-upstream-purl-and-vers-baselines-in-a-machine-readable-manifest.md)

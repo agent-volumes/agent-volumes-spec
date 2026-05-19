@@ -21,6 +21,36 @@ The repository remains authoritative. The public site is a publication layer for
 | Capability extension reserved namespaces   | `agent-volumes`, `core`, `spec`                                                                                            | `schemas/reserved-extension-namespaces.json`; `schemas/capability-metadata.schema.json`; capability fixtures                                                                                              | Reserved-name set is version-aligned with schema release. Record schema ID and validator evidence before tagging.                   |
 | Bridge and warning companion artifacts     | `bridge-metadata.schema.json`; `warning.schema.json`; `external-dependency-potential-exposure-warning-context.schema.json` | `schemas/bridge-metadata.schema.json`; `schemas/warning.schema.json`; `schemas/external-dependency-potential-exposure-warning-context.schema.json`; bridge fixtures; external-dependency warning fixtures | Versioned schema IDs are immutable after release. Record dereference and validator evidence with the schema publication checks.     |
 
+## Identifier pages
+
+<CardGroup cols={2}>
+  <Card title="Schema ID URLs" icon="braces" href="/uri-publications/schema-ids">
+    Versioned JSON Schema `$id` publication pages for the v0.1.0-rc.1 artifact set.
+  </Card>
+  <Card title="SPDX namespace" icon="diagram-project" href="/uri-publications/spdx-external-dependency-namespace">
+    URI-backed SPDX extension terms for external dependency declarations.
+  </Card>
+  <Card title="in-toto predicate" icon="route" href="/uri-publications/in-toto-external-dependency-predicate">
+    Optional predicate identifier for declaration-plane external dependency metadata.
+  </Card>
+  <Card title="Problem Details types" icon="triangle-exclamation" href="/problems">
+    Stable pages for every closed v0.1 Problem Details type URI.
+  </Card>
+  <Card title="Reserved namespaces" icon="lock" href="/uri-publications/reserved-extension-namespaces">
+    Reserved capability extension namespace keys for the release line.
+  </Card>
+  <Card
+    title="PURL/VERS exceptions"
+    icon="arrows-left-right"
+    href="/uri-publications/purl-vers-compatibility-exceptions"
+  >
+    Machine-readable compatibility exceptions for validation and warning context.
+  </Card>
+  <Card title="Upstream baselines" icon="code-branch" href="/uri-publications/upstream-baselines">
+    Pinned upstream PURL and VERS references used by conformance fixtures.
+  </Card>
+</CardGroup>
+
 ## Release evidence workflow
 
 For each release candidate or stable release:
