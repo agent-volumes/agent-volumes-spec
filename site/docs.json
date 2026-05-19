@@ -64,7 +64,12 @@
           },
           {
             "group": "Conformance",
-            "pages": ["conformance/overview", "conformance/fixtures", "conformance/requirements"]
+            "pages": [
+              "conformance/overview",
+              "conformance/schema-artifacts",
+              "conformance/fixtures",
+              "conformance/requirements"
+            ]
           }
         ]
       },
