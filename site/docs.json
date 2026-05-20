@@ -44,6 +44,7 @@
           {
             "tab": "Core spec",
             "groups": [
+              "spec/0.1.0-rc.1/design-principles",
               {
                 "group": "Volumes",
                 "pages": [
@@ -56,8 +57,8 @@
               },
               {
                 "group": "Component types",
+                "root": "spec/0.1.0-rc.1/components/overview",
                 "pages": [
-                  "spec/0.1.0-rc.1/components/overview",
                   "spec/0.1.0-rc.1/components/agent",
                   "spec/0.1.0-rc.1/components/skill",
                   "spec/0.1.0-rc.1/components/command",
@@ -66,10 +67,6 @@
                   "spec/0.1.0-rc.1/components/mcp-server",
                   "spec/0.1.0-rc.1/components/lsp-server"
                 ]
-              },
-              {
-                "group": "Specification",
-                "pages": ["spec/0.1.0-rc.1/design-principles"]
               }
             ]
           },
@@ -78,8 +75,8 @@
             "groups": [
               {
                 "group": "Registry API",
+                "root": "spec/0.1.0-rc.1/api/overview",
                 "pages": [
-                  "spec/0.1.0-rc.1/api/overview",
                   "spec/0.1.0-rc.1/api/authentication",
                   "spec/0.1.0-rc.1/api/publish",
                   "spec/0.1.0-rc.1/api/fetch",
@@ -115,8 +112,8 @@
               },
               {
                 "group": "Conformance",
+                "root": "spec/0.1.0-rc.1/conformance/overview",
                 "pages": [
-                  "spec/0.1.0-rc.1/conformance/overview",
                   "spec/0.1.0-rc.1/conformance/schema-artifacts",
                   "spec/0.1.0-rc.1/conformance/fixtures",
                   "spec/0.1.0-rc.1/conformance/requirements"
@@ -139,8 +136,8 @@
               },
               {
                 "group": "Problem Details type URIs",
+                "root": "spec/0.1.0-rc.1/problems/index",
                 "pages": [
-                  "spec/0.1.0-rc.1/problems/index",
                   "spec/0.1.0-rc.1/problems/authentication-required",
                   "spec/0.1.0-rc.1/problems/authorization-failed",
                   "spec/0.1.0-rc.1/problems/not-found",
