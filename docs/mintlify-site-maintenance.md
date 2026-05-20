@@ -62,9 +62,12 @@ release, not only the latest site text.
 ADR-0157 adopts a hybrid information architecture for this site: maintain an
 unversioned landing and navigation layer for current readers, but publish
 release-specific specification, API, artifact, conformance, and identifier
-documentation under immutable `/spec/<version>/...` archive paths. Treat
-`/spec/` itself as a release archive selector or version index, not as a mutable
-replacement for the released pages beneath it.
+documentation under immutable `/spec/<version>/...` archive paths. Implement that
+hybrid model with Mintlify `navigation.versions`: keep unversioned orientation
+pages in each version's navigation tree, and list release-specific pages under
+the matching `/spec/<version>/...` subtree so the Mintlify version selector shows
+the selected release's pages. Treat `/spec/` itself as a release archive selector
+or version index, not as a mutable replacement for the released pages beneath it.
 
 Maintain these publication boundaries:
 
@@ -90,6 +93,10 @@ Maintain these publication boundaries:
   subtree. These aliases are convenience routes only; update them atomically when
   a newer non-draft release becomes the active release, and keep older versioned
   subtrees permanently reachable.
+- Configure Mintlify `navigation.versions` entries for published non-draft
+  releases. Each version entry should contain the navigation tree for that release
+  and should point release-specific pages at the matching immutable
+  `/spec/<version>/...` archive subtree.
 - Archive derived publication artifacts with their release. A Mintlify OpenAPI
   publication copy, generated schema reference page, or fixture inventory page is
   still derived, but the derived copy used for a release must remain auditable
@@ -180,14 +187,23 @@ Classify pages by content role rather than by directory convenience:
 | Governance, contribution, security contact, and organization links   | Unversioned or linked to `https://agentvolumes.org`  |
 
 When using Mintlify navigation, prefer explicit structure over implicit routing.
-Mintlify's navigation documentation supports versioned navigation, nested groups
-and tabs, and version selector labels such as `tag: "Latest"`, but the tag is a
-visual label rather than an automatic latest-version route. Keep `/latest` and
-`/current` as explicit `docs.json` redirects or navigation aids. The first
-Mintlify version is selected by default unless a different version sets
-`default: true`, so do not rely on navigation order alone as the release policy;
-record the active release in redirects, release evidence, and site-maintenance
-notes.
+Use `navigation.versions` for the site's primary version-selection UI. Keep
+unversioned pages such as the landing page, quickstart orientation, concepts, and
+`/spec/` archive index available from each version entry when they should remain
+stable across releases. Put release-specific pages under the selected version's
+own navigation tree so switching versions changes the release archive sidebar and
+content together. Mintlify's navigation documentation supports versioned
+navigation, nested groups and tabs, and version selector labels such as
+`tag: "Latest"`, but the tag is a visual label rather than an automatic
+latest-version route. Mintlify version labels and `default` fields are UI
+behavior, not release policy by themselves: keep `/latest` and `/current` as
+explicit `docs.json` redirects or navigation aids when maintained, and record the
+active release in redirects, release evidence, and site-maintenance notes.
+
+Avoid a separate top-level `Release archive` tab that duplicates the Mintlify
+version selector as the primary release-selection control. The unversioned
+`/spec/` archive index may remain linked from each version's documentation
+navigation for readers, search engines, and release-evidence workflows.
 
 Within Mintlify navigation, keep nesting shallow and use one child-navigation
 pattern at each level. Use group `root` pages for readable index pages such as a
@@ -1022,8 +1038,9 @@ When changing the public documentation site:
    change belongs only in the current release subtree, requires a new release
    subtree, or is an allowed unversioned overview/navigation update. Do not
    retrofit historical release pages with current-release semantics.
-7. If the change changes the active release, update `/latest` and `/current`
-   redirects atomically with the release archive and release evidence.
+7. If the change changes the active release, update `navigation.versions`,
+   `/spec/latest`, and `/spec/current` atomically with the release archive and release
+   evidence when those aliases are maintained.
 8. If the change affects public discoverability, review title, description,
    canonical URL, sitemap membership, host-specific redirects, `robots`,
    `noindex`, and AI-facing publication surfaces.
@@ -1054,7 +1071,10 @@ Before merging documentation-site changes, reviewers should confirm:
   pages for implementation details.
 - `/spec/` behaves as an archive selector or version index, not as a mutable copy
   of release-specific reference content.
-- `/latest` and `/current` are explicit convenience redirects or navigation aids,
+- `navigation.versions` contains the published non-draft release navigation trees,
+  and the site does not present a competing top-level `Release archive` tab as a
+  second primary version selector.
+- `/spec/latest` and `/spec/current` are explicit convenience redirects or navigation aids,
   not canonical release citation targets.
 - Decisions, normative release-surface material, and explanatory context are
   clearly labeled.
