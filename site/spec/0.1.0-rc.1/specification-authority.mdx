@@ -1,0 +1,85 @@
+---
+title: 'Specification authority and source of truth'
+description: 'How to read the Agent Volumes v0.1.0-rc.1 release archive, decision records, prose specification, companion artifacts, and site pages without confusing their authority.'
+sidebarTitle: 'Specification authority'
+---
+
+This page explains which Agent Volumes sources control a question when release pages, decision history, schemas, OpenAPI, fixtures, or website text appear to overlap. Use it before changing implementation behavior or citing a requirement from the documentation site.
+
+<Warning>
+  The Mintlify site is a publication layer. It helps you find and understand the release, but it does not replace the
+  prose specification, companion artifacts, or current accepted decision records.
+</Warning>
+
+## Authority order
+
+Read Agent Volumes sources in this order:
+
+1. **Current accepted decision records** control the project decisions they record. Later decision records can refine, update, or supersede earlier records.
+2. **The prose specification** defines the current release requirements and interpretation where decision records have not fixed the matter more specifically.
+3. **Companion artifacts** define structured contracts: JSON Schemas, the Bibliotheca OpenAPI contract, conformance fixtures, coverage maps, and release publication artifacts.
+4. **The Mintlify site** explains and publishes the release for readers and tools. If site prose appears to conflict with the sources above, align the site with the canonical source or correct the underlying source drift.
+5. **GitHub issues and planning notes** provide context only unless the specification and companion artifacts are updated.
+
+## What each source is for
+
+| Source               | Use it for                                                                                                | Do not use it for                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Decision records     | Understanding why a decision exists, whether a topic is accepted, updated, superseded, or deferred        | Replacing current prose, schemas, OpenAPI, or fixtures with historical wording          |
+| Prose specification  | Interpreting normative requirements and release behavior                                                  | Ignoring a current accepted decision record that fixed the same issue more specifically |
+| JSON Schemas         | Validating structured payload shapes and schema-backed artifacts                                          | Inferring prose-only semantic rules that the schema cannot express                      |
+| OpenAPI contract     | Checking Bibliotheca HTTP operation shapes, parameters, security, and Problem Details responses           | Treating generated publication copies as the canonical source                           |
+| Conformance fixtures | Exercising deterministic offline vectors, warnings, mappings, and role-scoped coverage                    | Claiming certification, hosted-service approval, or live interoperability               |
+| Site pages           | Finding release-specific explanations, URI publication pages, API guidance, and reader-oriented summaries | Creating new requirements or changing published identifiers                             |
+
+## Canonical source links
+
+- [Decision records](https://github.com/agent-volumes/agent-volumes-spec/tree/main/docs/decisions)
+- [Agent Volumes prose specification](https://github.com/agent-volumes/agent-volumes-spec/blob/main/agent-volumes-spec.md)
+- [JSON Schema artifacts](https://github.com/agent-volumes/agent-volumes-spec/tree/main/schemas)
+- [Bibliotheca OpenAPI contract](https://github.com/agent-volumes/agent-volumes-spec/blob/main/openapi/bibliotheca.openapi.yaml)
+- [Conformance fixtures and reports](https://github.com/agent-volumes/agent-volumes-spec/tree/main/conformance)
+
+## How to resolve drift
+
+If two sources disagree, fix the source with the lower authority or add the required follow-up decision record.
+
+<Steps>
+  <Step title="Check decision history">
+    Start with the [decision rationale index](/spec/0.1.0-rc.1/design-rationale) and the repository's decision records.
+    Later records can update or supersede earlier records.
+  </Step>
+  <Step title="Check the prose specification">
+    Use the release prose as the final normative interpretation where no accepted decision record fixes the same project
+    decision more specifically.
+  </Step>
+  <Step title="Check companion artifacts">
+    Compare the relevant schemas, OpenAPI paths, conformance fixtures, and coverage maps. These artifacts are
+    release-aligned structured contracts, not independent policy documents.
+  </Step>
+  <Step title="Fix publication drift">
+    If a site page disagrees with current decisions, prose, or companion artifacts, update the site page or regenerate
+    the derived publication artifact. Do not cite the site text as a competing requirement.
+  </Step>
+</Steps>
+
+## Release archive boundary
+
+Pages under `/spec/0.1.0-rc.1/...` describe the `v0.1.0-rc.1` release surface. Treat these pages as durable citation and discovery targets for this release. The convenience aliases `/spec/latest` and `/spec/current` can move when a newer non-draft release becomes active, so do not cite them as immutable release URLs.
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Design rationale" icon="scale-balanced" href="/spec/0.1.0-rc.1/design-rationale">
+    Find ADR topic groups, deferred topics, and URI publication decisions.
+  </Card>
+  <Card title="Schema artifact inventory" icon="file-code" href="/spec/0.1.0-rc.1/conformance/schema-artifacts">
+    See the schema families that define structured companion contracts.
+  </Card>
+  <Card title="Requirement inventory" icon="list-check" href="/spec/0.1.0-rc.1/conformance/requirements">
+    Connect role-scoped requirements to fixtures, schemas, OpenAPI, and prose-boundary behavior.
+  </Card>
+  <Card title="URI publications" icon="fingerprint" href="/spec/0.1.0-rc.1/uri-publications">
+    Distinguish canonical identifiers, rendered documentation pages, and machine-readable artifact URLs.
+  </Card>
+</CardGroup>
