@@ -226,6 +226,8 @@ The repository also publishes normative machine-readable companion artifacts und
 - [`openapi/`](openapi/)
 - [`conformance/fixtures/`](conformance/fixtures/)
 
+The public documentation site publishes stable [Namespace and URI publication pages](site/spec/0.1.0-rc.1/uri-publications.mdx) for Agent Volumes-owned schema `$id` URLs, Problem Details type URIs, SPDX extension terms, in-toto predicate identifiers, SLSA build type identifiers, BOM/profile identifiers, declaration key syntax, and reserved extension namespaces.
+
 See [`conformance/README.md`](conformance/README.md) for the offline runner contract and report schema guidance.
 
 For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Implementers Guide](IMPLEMENTERS.md). It maps the normative artifacts to concrete implementation tasks and identifies prototype-local choices that the v0.1 core intentionally leaves outside the standard.
