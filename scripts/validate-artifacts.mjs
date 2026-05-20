@@ -63,6 +63,7 @@ const schemas = {
   trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
   mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
   mappingSample: readJson('schemas/mapping-sample.schema.json'),
+  externalDependencyDeclarationsPredicate: readJson('schemas/external-dependency-declarations-predicate.schema.json'),
   externalDependencyValidationCase: readJson('schemas/external-dependency-validation-case.schema.json'),
   upstreamBaseline: readJson('schemas/upstream-baseline.schema.json'),
   purlVersCompatibilityExceptions: readJson('schemas/purl-vers-compatibility-exceptions.schema.json'),
@@ -541,6 +542,118 @@ const assertReservedExtensionNamespaceDrift = () => {
     };
     validateExpectedFailure('capabilityMetadata', candidate, `capability metadata reserved namespace ${namespace}`);
   }
+};
+
+const assertSiteSchemaPublicationDrift = () => {
+  const schemaDirectory = path.join(root, 'schemas');
+  const siteSchemaDirectory = path.join(root, 'site/spec/0.1.0-rc.1/schemas');
+  const schemaFiles = fs
+    .readdirSync(schemaDirectory)
+    .filter((entry) => entry.endsWith('.json'))
+    .sort();
+
+  for (const schemaFile of schemaFiles) {
+    const canonicalPath = path.join(schemaDirectory, schemaFile);
+    const sitePath = path.join(siteSchemaDirectory, schemaFile);
+
+    assert(fs.existsSync(sitePath), `site schema publication missing ${schemaFile}`);
+    assert(
+      fs.readFileSync(sitePath, 'utf8') === fs.readFileSync(canonicalPath, 'utf8'),
+      `site schema publication ${schemaFile} must match schemas/${schemaFile}`
+    );
+  }
+
+  const siteSchemaFiles = fs
+    .readdirSync(siteSchemaDirectory)
+    .filter((entry) => entry.endsWith('.json'))
+    .sort();
+
+  assert(
+    stableJsonStringify(siteSchemaFiles) === stableJsonStringify(schemaFiles),
+    'site schema publication file set must match schemas/*.json'
+  );
+};
+
+const assertSpdxExternalDependencyContextDrift = () => {
+  const namespace = 'https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#';
+  const contextArtifact = readJsonFile(
+    'site/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld'
+  );
+  const context = contextArtifact['@context'];
+
+  assert(context && typeof context === 'object', 'SPDX external dependency JSON-LD context must define @context');
+  assert(context['@version'] === 1.1, 'SPDX external dependency JSON-LD context must use JSON-LD 1.1');
+  assert(context['@protected'] === true, 'SPDX external dependency JSON-LD context terms must be protected');
+  assert(context.av === namespace, 'SPDX external dependency JSON-LD context av prefix must match profile namespace');
+  assert(
+    context.xsd === 'http://www.w3.org/2001/XMLSchema#',
+    'SPDX external dependency JSON-LD context must define xsd'
+  );
+
+  const mappingSampleFixture = readJsonFile('conformance/fixtures/mapping-sample.json');
+  const spdxExternalDependencyExport = mappingSampleFixture.exports?.spdxExternalDependencies;
+  assert(
+    spdxExternalDependencyExport?.profile === namespace,
+    'mapping sample SPDX external dependency profile must match JSON-LD context namespace'
+  );
+  assert(
+    Array.isArray(spdxExternalDependencyExport.elements) && spdxExternalDependencyExport.elements.length > 0,
+    'mapping sample SPDX external dependency export must include elements'
+  );
+
+  const termsUsedByFixture = new Set();
+  for (const element of spdxExternalDependencyExport.elements) {
+    assert(element['@context']?.av === namespace, 'mapping sample SPDX element av prefix must match JSON-LD context');
+
+    const typeValue = element['@type'];
+    if (typeof typeValue === 'string' && typeValue.startsWith('av:')) {
+      termsUsedByFixture.add(typeValue.slice(3));
+    }
+
+    for (const key of Object.keys(element)) {
+      if (key.startsWith('av:')) {
+        termsUsedByFixture.add(key.slice(3));
+      }
+    }
+  }
+
+  const expectedTerms = [
+    'ExternalDependencyDeclaration',
+    'constraint',
+    'declarationKey',
+    'declarationOnly',
+    'purl',
+    'purpose',
+    'resolvedEvidence',
+    'scope',
+  ];
+  assertDeepEqual(
+    [...termsUsedByFixture].sort(),
+    expectedTerms.sort(),
+    'SPDX external dependency JSON-LD context fixture terms'
+  );
+
+  for (const term of ['ExternalDependencyDeclaration', 'constraint', 'declarationKey', 'purl', 'purpose']) {
+    assert(
+      context[term] === `av:${term}`,
+      `SPDX external dependency JSON-LD context ${term} term must match namespace`
+    );
+  }
+  assertDeepEqual(
+    context.scope,
+    { '@id': 'av:scope', '@container': '@set' },
+    'SPDX external dependency JSON-LD context scope term'
+  );
+  assertDeepEqual(
+    context.declarationOnly,
+    { '@id': 'av:declarationOnly', '@type': 'xsd:boolean' },
+    'SPDX external dependency JSON-LD context declarationOnly term'
+  );
+  assertDeepEqual(
+    context.resolvedEvidence,
+    { '@id': 'av:resolvedEvidence', '@type': 'xsd:boolean' },
+    'SPDX external dependency JSON-LD context resolvedEvidence term'
+  );
 };
 
 const stripTomlComment = (line) => {
@@ -1029,6 +1142,8 @@ assert(
   'bridge status variants fixture must cover distinct non-active statuses'
 );
 assertReservedExtensionNamespaceDrift();
+assertSiteSchemaPublicationDrift();
+assertSpdxExternalDependencyContextDrift();
 
 const problemDetailsCases = readJson('conformance/fixtures/problem-details-cases.json');
 assertSpecVersion(problemDetailsCases, 'problem details cases');
@@ -2531,6 +2646,7 @@ const sampleDigest = sampleRelease.integrity.slice(7);
 const sampleCycloneDx = mappingSample.exports.cyclonedx;
 const sampleSpdx = mappingSample.exports.spdx;
 const sampleSpdxExternalDependencies = mappingSample.exports.spdxExternalDependencies;
+const sampleExternalDependencyPredicate = mappingSample.exports.externalDependencyDeclarationsPredicate;
 const sampleSlsa = mappingSample.exports.slsa;
 const sampleComponentPurls = new Map(
   sampleManifest.components.map((component) => [
@@ -2827,6 +2943,11 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
     `mapping sample SPDX ${declarationKey} constraint must match`
   );
   assert(
+    spdxExtension['av:purpose'] === externalDependency.purpose,
+    `mapping sample SPDX ${declarationKey} purpose must match`
+  );
+  assertDeepEqual(spdxExtension['av:scope'], scope, `mapping sample SPDX ${declarationKey} scope must match`);
+  assert(
     spdxExtension['av:declarationOnly'] === true,
     `mapping sample SPDX ${declarationKey} must be declaration-only`
   );
@@ -2839,6 +2960,64 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
       spdxPackageCandidate.externalRefs?.some((externalRef) => externalRef.referenceLocator === externalDependency.purl)
     ),
     `mapping sample SPDX ${declarationKey} must not project declaration-only dependency as Package inventory`
+  );
+}
+
+validate(
+  'externalDependencyDeclarationsPredicate',
+  sampleExternalDependencyPredicate,
+  'mapping sample external dependency declarations predicate export'
+);
+assert(
+  sampleExternalDependencyPredicate.predicateType ===
+    'https://agentvolumes.org/predicates/external-dependency-declarations/v0.1',
+  'mapping sample external dependency predicate must use Agent Volumes predicate type'
+);
+assert(
+  sampleExternalDependencyPredicate.subject.some(
+    (subject) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest
+  ),
+  'mapping sample external dependency predicate subject must bind release subject'
+);
+assert(
+  sampleExternalDependencyPredicate.predicate.semantics === 'declaration-only',
+  'mapping sample external dependency predicate semantics must be declaration-only'
+);
+for (const externalDependency of sampleManifest['external-dependencies']) {
+  const scope = externalDependency.components ?? [];
+  const declarationKey = declarationKeyForSemanticKey({
+    purl: externalDependency.purl,
+    purpose: externalDependency.purpose,
+    scope,
+  });
+  const predicateDeclaration = sampleExternalDependencyPredicate.predicate.declarations.find(
+    (declaration) => declaration.declarationKey === declarationKey
+  );
+  assert(predicateDeclaration, `mapping sample external dependency predicate needs declaration ${declarationKey}`);
+  assert(
+    predicateDeclaration.purl === externalDependency.purl,
+    `mapping sample external dependency predicate ${declarationKey} purl must match`
+  );
+  assert(
+    predicateDeclaration.constraint === externalDependency.constraint,
+    `mapping sample external dependency predicate ${declarationKey} constraint must match`
+  );
+  assert(
+    predicateDeclaration.purpose === externalDependency.purpose,
+    `mapping sample external dependency predicate ${declarationKey} purpose must match`
+  );
+  assertDeepEqual(
+    predicateDeclaration.scope,
+    scope,
+    `mapping sample external dependency predicate ${declarationKey} scope must match`
+  );
+  assert(
+    predicateDeclaration.declarationOnly === true,
+    `mapping sample external dependency predicate ${declarationKey} must be declaration-only`
+  );
+  assert(
+    predicateDeclaration.resolvedEvidence === false,
+    `mapping sample external dependency predicate ${declarationKey} must deny resolved evidence`
   );
 }
 
