@@ -23,6 +23,9 @@
       "required": ["cyclonedx", "spdx", "slsa"],
       "properties": {
         "cyclonedx": { "type": "object" },
+        "externalDependencyDeclarationsPredicate": {
+          "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/external-dependency-declarations-predicate.schema.json"
+        },
         "spdx": { "type": "object" },
         "spdxExternalDependencies": { "type": "object" },
         "slsa": { "type": "object" }

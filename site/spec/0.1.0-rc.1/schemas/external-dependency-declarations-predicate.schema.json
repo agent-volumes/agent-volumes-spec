@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/external-dependency-declarations-predicate.schema.json",
+  "title": "Agent Volumes External Dependency Declarations Predicate",
+  "description": "An in-toto Statement v1 envelope carrying Agent Volumes declaration-only external dependency records outside SLSA provenance subjects, materials, resolved dependencies, byproducts, and internal parameters.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["_type", "subject", "predicateType", "predicate"],
+  "properties": {
+    "_type": { "type": "string", "const": "https://in-toto.io/Statement/v1" },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/statementSubject" }
+    },
+    "predicateType": {
+      "type": "string",
+      "const": "https://agentvolumes.org/predicates/external-dependency-declarations/v0.1"
+    },
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantics", "declarations"],
+      "properties": {
+        "semantics": { "type": "string", "const": "declaration-only" },
+        "declarations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/externalDependencyDeclaration" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "statementSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "digest"],
+      "properties": {
+        "name": { "$ref": "#/$defs/releasePurl" },
+        "digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sha256"],
+          "properties": {
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
+      }
+    },
+    "externalDependencyDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarationKey", "purl", "constraint", "purpose", "scope", "declarationOnly", "resolvedEvidence"],
+      "properties": {
+        "declarationKey": { "$ref": "#/$defs/externalDependencyDeclarationKey" },
+        "purl": { "type": "string", "pattern": "^pkg:" },
+        "constraint": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "scope": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentName" },
+          "uniqueItems": true
+        },
+        "declarationOnly": { "type": "boolean", "const": true },
+        "resolvedEvidence": { "type": "boolean", "const": false }
+      }
+    },
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "externalDependencyDeclarationKey": {
+      "type": "string",
+      "pattern": "^av-extdep-v1:sha256:[a-f0-9]{64}$"
+    },
+    "releasePurl": {
+      "type": "string",
+      "pattern": "^pkg:volume/(?:%40(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?/)?(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?@(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    }
+  }
+}
