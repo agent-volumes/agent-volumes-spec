@@ -24,7 +24,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "0.1.0-rc.1",
+        "version": "v0.1.0-rc.1",
         "default": true,
         "tabs": [
           {
@@ -35,7 +35,7 @@
                 "pages": ["index", "quickstart", "concepts"]
               },
               {
-                "group": "Release archive",
+                "group": "Release archives",
                 "root": "spec/index",
                 "pages": ["spec/0.1.0-rc.1/index"]
               }
@@ -45,7 +45,7 @@
             "tab": "Core spec",
             "groups": [
               {
-                "group": "0.1.0-rc.1 volumes",
+                "group": "v0.1.0-rc.1 volumes",
                 "pages": [
                   "spec/0.1.0-rc.1/volumes/manifest",
                   "spec/0.1.0-rc.1/volumes/identity",
@@ -55,7 +55,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 component types",
+                "group": "v0.1.0-rc.1 component types",
                 "pages": [
                   "spec/0.1.0-rc.1/components/overview",
                   "spec/0.1.0-rc.1/components/agent",
@@ -68,7 +68,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 specification",
+                "group": "v0.1.0-rc.1 specification",
                 "pages": ["spec/0.1.0-rc.1/design-principles"]
               }
             ]
@@ -77,7 +77,7 @@
             "tab": "Registry API",
             "groups": [
               {
-                "group": "0.1.0-rc.1 Registry API",
+                "group": "v0.1.0-rc.1 Registry API",
                 "pages": [
                   "spec/0.1.0-rc.1/api/overview",
                   "spec/0.1.0-rc.1/api/authentication",
@@ -93,7 +93,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 generated OpenAPI reference",
+                "group": "v0.1.0-rc.1 generated OpenAPI reference",
                 "openapi": {
                   "source": "spec/0.1.0-rc.1/api-reference/bibliotheca.openapi.json",
                   "directory": "spec/0.1.0-rc.1/api-reference"
@@ -105,7 +105,7 @@
             "tab": "Assurance",
             "groups": [
               {
-                "group": "0.1.0-rc.1 security",
+                "group": "v0.1.0-rc.1 security",
                 "pages": [
                   "spec/0.1.0-rc.1/security/supply-chain",
                   "spec/0.1.0-rc.1/security/content-integrity",
@@ -114,7 +114,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 conformance",
+                "group": "v0.1.0-rc.1 conformance",
                 "pages": [
                   "spec/0.1.0-rc.1/conformance/overview",
                   "spec/0.1.0-rc.1/conformance/schema-artifacts",
@@ -123,7 +123,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 identifier publications",
+                "group": "v0.1.0-rc.1 identifier publications",
                 "pages": [
                   "spec/0.1.0-rc.1/uri-publications",
                   "spec/0.1.0-rc.1/uri-publications/schema-ids",
@@ -138,7 +138,7 @@
                 ]
               },
               {
-                "group": "0.1.0-rc.1 Problem Details type URIs",
+                "group": "v0.1.0-rc.1 Problem Details type URIs",
                 "pages": [
                   "spec/0.1.0-rc.1/problems/index",
                   "spec/0.1.0-rc.1/problems/authentication-required",
