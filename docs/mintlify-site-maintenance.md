@@ -994,6 +994,53 @@ as publication aids, but do not describe them as Google ranking factors. Google'
 AI optimization guidance says special AI text files or markup are not required
 for visibility in Google generative AI features.
 
+### Mintlify configuration surfaces to review
+
+Treat `site/docs.json` as the publication blueprint for the Mintlify site. It can
+control navigation, search, AI-facing controls, SEO defaults, API reference
+generation, and interaction behavior. Configuration changes should remain
+publication-layer changes unless the canonical specification artifacts also
+change.
+
+When reviewing `docs.json`, check these Mintlify-specific surfaces:
+
+- Keep `$schema` current with the Mintlify configuration schema used by the site.
+- Use `$ref` only to split large configuration files without hiding publication
+  policy. Referenced files remain part of the same review surface.
+- Review `navigation.directory`, `navigation.versions`, group `root` pages, and
+  `default` version markers together so sidebar behavior, archive routing, and
+  release-selector behavior do not drift.
+- Use `interaction.drilldown` or similar navigation affordances only when they
+  improve scanning; do not use them to bury canonical release pages.
+- Review `contextual.options` and related contextual-menu settings as AI and
+  reader convenience controls. They do not create additional sources of truth.
+- Use `seo.indexing` and group-level `searchable` controls deliberately. Hidden
+  pages should become searchable only when they are intentionally public support
+  pages.
+- Use `metadata.timestamp` only when page timestamps would help readers judge
+  freshness. Timestamps must not imply that old immutable release archives have
+  been updated with current-release semantics.
+
+### Assets, media, and reusable snippets
+
+Keep Mintlify assets and snippets maintainable:
+
+- Store images, icons, and other static files where Mintlify can serve them from
+  stable site paths. Use descriptive filenames and avoid replacing versioned
+  evidence images without release justification.
+- Keep meaningful images within Mintlify's supported image-size limits and provide
+  alt text that explains the image's documentation purpose.
+- Avoid decorative images on reference pages. If a diagram, screenshot, or video
+  stops reflecting the current release, update it with the same source-of-truth
+  review used for prose.
+- Use reusable snippets for repeated publication-layer text such as support
+  notices, derived-artifact labels, or shared navigation explanations. Do not use
+  snippets to duplicate normative requirements that belong in
+  `agent-volumes-spec.md`, schemas, OpenAPI, or conformance artifacts.
+- Review snippet imports during link and preview checks. Some editor surfaces may
+  not support every snippet workflow, so snippet-heavy changes should receive a
+  local preview before merge.
+
 ### Search quality anti-patterns
 
 Avoid these SEO practices on the Agent Volumes site:
@@ -1028,6 +1075,13 @@ not define.
 - Mark generated or bundled publication copies as derived.
 - Add alt text for meaningful images and avoid decorative images that distract
   from the specification.
+- Give fenced code blocks accurate language tags when the language is known, and
+  use plain text fences for terminal output, URLs, or identifier examples.
+- Keep internal links root-relative or repository-relative according to context,
+  and avoid file-extension links in public site prose unless the target is a
+  downloadable artifact.
+- Keep reusable snippets short, publication-layer focused, and easy to preview in
+  local Mintlify builds.
 - Preserve Human Era / Holocene Era dates in human-readable project text.
 - Do not normalize versioned URI paths, Problem Details slugs, schema `$id`
   values, or URI fragments for style.
@@ -1068,6 +1122,26 @@ bun run format:check
 bun run lint:md
 ```
 
+For Mintlify site content, navigation, assets, snippets, or configuration
+changes, run the site validation from the repository root:
+
+```bash
+bun run lint:site
+```
+
+When a change affects anchors, snippets, accessibility, or local preview behavior,
+run the corresponding Mintlify checks from the `site/` subtree before merge:
+
+```bash
+bun run --cwd site broken-links -- --check-anchors --check-snippets
+bun run --cwd site mint a11y
+bun run site:dev
+```
+
+Use `mint score` or other optional Mintlify quality checks only when the pinned
+local Mintlify CLI supports them. Treat their output as publication-quality
+feedback, not as a substitute for source-of-truth review.
+
 For release-candidate or stable-release site work, also follow the release-freeze
 checks in [`release-process.md`](release-process.md), including site linting,
 OpenAPI publication refresh, artifact validation, and URI publication evidence.
@@ -1095,11 +1169,16 @@ Before merging documentation-site changes, reviewers should confirm:
 - Indexed pages have accurate, unique titles and descriptions.
 - Canonical URLs, sitemap membership, `robots`, and `noindex` settings match the
   intended publication role.
+- `docs.json` changes preserve the intended `$schema`, `$ref`, navigation,
+  contextual-menu, indexing, and timestamp behavior for the affected release
+  surface.
 - `docs.agentvolumes.org` routes, `agentvolumes.org` organization pages,
   `www.agentvolumes.org` redirects, and apex `/spec/*` aliases follow ADR-0155
   and ADR-0156.
 - AI-facing surfaces are treated as publication aids, not as Google ranking
   requirements or alternate sources of truth.
+- Assets, media, and reusable snippets remain publication-layer aids, have local
+  preview coverage when changed, and do not duplicate canonical requirements.
 - Conformance claims are not represented as certification.
 - Derived OpenAPI or schema publication copies match their canonical sources.
 - URI publication pages distinguish canonical identifiers, documentation pages,
