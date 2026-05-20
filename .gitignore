@@ -202,6 +202,10 @@ build/
 !site/spec/*/build/
 !site/spec/*/build/manual/
 !site/spec/*/build/manual/*.mdx
+# Keep stable URI publication pages under site/build/ tracked.
+!site/build/
+!site/build/manual/
+!site/build/manual/*.mdx
 develop-eggs/
 dist/
 downloads/

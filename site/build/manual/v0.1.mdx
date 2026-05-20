@@ -1,0 +1,40 @@
+---
+title: 'Manual build type v0.1'
+description: 'Stable semantic identifier landing page for the Agent Volumes manual SLSA build type.'
+---
+
+`https://agentvolumes.org/build/manual/v0.1` identifies the Agent Volumes v0.1 manual build type used in SLSA provenance examples and mapping fixtures.
+
+This page describes the identifier itself. Release-specific documentation remains archived under `/spec/<version>/...`.
+
+## Identifier
+
+```text
+https://agentvolumes.org/build/manual/v0.1
+```
+
+## Semantics
+
+Use this build type when provenance describes a manually assembled or fixture-defined Agent Volumes release subject rather than an automated build platform.
+
+The `v0.1` segment is the semantic identifier line. Patch releases can clarify this page without changing the identifier meaning. Incompatible changes require a new build type URI.
+
+## Boundaries
+
+- This identifier does not define a general build-system registry.
+- It does not replace the SLSA provenance predicate type `https://slsa.dev/provenance/v1`.
+- It does not imply that manually built releases are trusted without separate provenance, signature, and release-subject verification.
+- It is interpreted in the context of the Agent Volumes mapping artifacts that define the `v0.1` line.
+
+## Release archives
+
+- [v0.1.0-rc.1 manual build type archive](/spec/0.1.0-rc.1/build/manual/v0.1)
+- [v0.1.0-rc.1 mapping fixtures](/spec/0.1.0-rc.1/conformance/fixtures)
+- [v0.1.0-rc.1 trust metadata API](/spec/0.1.0-rc.1/api/trust-metadata)
+
+## Canonical sources
+
+- [Agent Volumes specification](https://github.com/agent-volumes/agent-volumes-spec/blob/main/agent-volumes-spec.md)
+- [Mapping matrix fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-matrix.json)
+- [Mapping sample fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-sample.json)
+- [ADR-0158](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0158-separate-semantic-identifier-pages-from-release-archives.md)
