@@ -616,6 +616,19 @@ documentation target. Use `/spec/` for archive selection, and use `/latest` or
 latest-style alias as the durable URL for a released schema, Problem Details type,
 namespace term, predicate, or release inventory.
 
+Use full release versions, including patch and prerelease labels such as
+`0.1.0-rc.1`, for immutable release artifacts and release archive paths. This
+includes schema `$id` URLs, generated OpenAPI publication copies, conformance
+artifact inventories, and rendered `/spec/<version>/...` documentation. Use a
+minor-line identifier such as `v0.1` for Agent Volumes-owned semantic URI
+publications whose meaning is intended to remain stable across compatible patch
+releases, including SPDX extension namespaces, in-toto predicate identifiers,
+SLSA build type URIs, and BOM/profile identifiers. Do not introduce patch-level
+semantic URI versions unless the URI identifies one exact release snapshot rather
+than a compatibility-preserving namespace or profile. Incompatible semantic
+changes require a new identifier, namespace version, predicate URI, build type
+URI, or profile string rather than rewriting the existing `v0.1` meaning.
+
 #### Schema `$id` URLs
 
 Document the versioned schema `$id` URL pattern, explain how schema identifiers
