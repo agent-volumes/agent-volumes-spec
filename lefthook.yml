@@ -15,7 +15,7 @@ commit-msg:
       fail_text: "Missing DCO sign-off. Run 'git commit -s' to sign off."
 
 pre-commit:
-  parallel: true
+  parallel: false
   jobs:
     - name: Lint and format specification files
       glob: '*.{md,mdx,json,yaml,yml,mjs}'
@@ -32,24 +32,29 @@ pre-commit:
         echo "📦 Re-staging fixed files..."
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"
-    - name: Validate OpenAPI specification
-      glob: 'openapi/*'
+    - name: Regenerate site publication artifacts
       run: |
         set -e
+        echo "📚 Rebuilding Mintlify OpenAPI publication artifact..."
+        bun run build:site:openapi
+        echo "📚 Rebuilding Mintlify schema publication artifacts..."
+        bun run build:site:schemas
+        echo "📦 Re-staging generated publication artifacts..."
+        git add site/spec
+        echo "✅ Publication artifacts regenerated!"
+    - name: Run commit validation suite
+      run: |
+        set -e
+        echo "✨ Checking repository formatting..."
+        bun run format:check
+        echo "🔍 Running markdownlint..."
+        bun run lint:md
         echo "🔍 Running Redocly lint..."
-        bunx redocly lint openapi/bibliotheca.openapi.yaml
-        echo "✅ OpenAPI lint passed!"
-    - name: Validate changelog structure
-      glob: '{CHANGELOG.md,cliff.toml,package.json,scripts/*.sh}'
-      run: |
-        set -e
+        bun run lint:openapi
+        echo "🌐 Validating Mintlify documentation site..."
+        bun run lint:site
         echo "🔍 Validating changelog structure..."
         bun run changelog:check
-        echo "✅ Changelog validation passed!"
-    - name: Validate specification artifacts
-      glob: '{schemas,conformance}/**'
-      run: |
-        set -e
         echo "🔍 Running artifact validation..."
         bun run validate:artifacts
-        echo "✅ Artifact validation passed!"
+        echo "✅ Commit validation suite passed!"
