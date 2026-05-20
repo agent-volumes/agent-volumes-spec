@@ -15,6 +15,11 @@
     "light": "#6a6a6d",
     "dark": "#ebeaea"
   },
+  "seo": {
+    "metatags": {
+      "canonical": "https://docs.agentvolumes.org"
+    }
+  },
   "navbar": {
     "primary": {
       "type": "github",
