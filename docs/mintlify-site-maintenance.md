@@ -89,10 +89,10 @@ Maintain these publication boundaries:
 - If the site provides a latest-style alias, make it a redirect or navigation aid
   to the current non-draft release rather than the canonical home for released
   identifiers. The versioned page remains the durable citation target.
-- Redirect `/latest/` and `/current/` to the most recent non-draft release
-  subtree. These aliases are convenience routes only; update them atomically when
-  a newer non-draft release becomes the active release, and keep older versioned
-  subtrees permanently reachable.
+- Redirect `/spec/latest` and `/spec/current` to the most recent non-draft
+  release subtree. These aliases are convenience routes only; update them
+  atomically when a newer non-draft release becomes the active release, and keep
+  older versioned subtrees permanently reachable.
 - Configure Mintlify `navigation.versions` entries for published non-draft
   releases. Each version entry should contain the navigation tree for that release
   and should point release-specific pages at the matching immutable
@@ -170,9 +170,9 @@ Use ADR-0157's classification rule before adding, moving, or rewriting a page:
 - If an unversioned page contains release-specific examples or summaries, keep
   the summary short and link to the exact versioned page for normative or
   reproducible details.
-- If a URL is a movable convenience entry point, such as `/latest` or `/current`,
-  configure it as an alias or redirect and do not use it as a canonical release
-  citation.
+- If a URL is a movable convenience entry point, such as `/spec/latest` or
+  `/spec/current`, configure it as an alias or redirect and do not use it as a
+  canonical release citation.
 
 Classify pages by content role rather than by directory convenience:
 
@@ -196,9 +196,10 @@ content together. Mintlify's navigation documentation supports versioned
 navigation, nested groups and tabs, and version selector labels such as
 `tag: "Latest"`, but the tag is a visual label rather than an automatic
 latest-version route. Mintlify version labels and `default` fields are UI
-behavior, not release policy by themselves: keep `/latest` and `/current` as
-explicit `docs.json` redirects or navigation aids when maintained, and record the
-active release in redirects, release evidence, and site-maintenance notes.
+behavior, not release policy by themselves: keep `/spec/latest` and
+`/spec/current` as explicit `docs.json` redirects or navigation aids when
+maintained, and record the active release in redirects, release evidence, and
+site-maintenance notes.
 
 Avoid a separate top-level `Release archive` tab that duplicates the Mintlify
 version selector as the primary release-selection control. The unversioned
@@ -611,10 +612,10 @@ machine-readable artifact URLs. Include versioning, immutability, redirects, and
 latest-alias guidance where applicable.
 
 For versioned specification archives, use `/spec/<version>/...` as the rendered
-documentation target. Use `/spec/` for archive selection, and use `/latest` or
-`/current` only as movable aliases to the active non-draft release. Do not cite a
-latest-style alias as the durable URL for a released schema, Problem Details type,
-namespace term, predicate, or release inventory.
+documentation target. Use `/spec/` for archive selection, and use `/spec/latest`
+or `/spec/current` only as movable aliases to the active non-draft release. Do not
+cite a latest-style alias as the durable URL for a released schema, Problem
+Details type, namespace term, predicate, or release inventory.
 
 Use full release versions, including patch and prerelease labels such as
 `0.1.0-rc.1`, for immutable release artifacts and release archive paths. This
@@ -1097,8 +1098,8 @@ When changing the public documentation site:
 3. If the change affects structured behavior, check whether schemas, OpenAPI,
    fixtures, conformance coverage, and release notes also need updates.
 4. Classify the target page as unversioned navigation, `/spec/` archive selector,
-   immutable `/spec/<version>/...` release content, a latest/current alias, or an
-   apex `/spec/*` redirect alias.
+   immutable `/spec/<version>/...` release content, a `/spec/latest` or
+   `/spec/current` alias, or an apex `/spec/*` redirect alias.
 5. If the change affects a published URI, confirm whether the path is versioned,
    immutable, redirected, an apex `/spec/*` alias, or a latest-style alias.
 6. If the change affects a released documentation surface, confirm whether the
