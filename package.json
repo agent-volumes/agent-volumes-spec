@@ -1,6 +1,7 @@
 {
   "scripts": {
     "build:site:openapi": "bun scripts/build-site-openapi.mjs",
+    "build:site:schemas": "bun scripts/build-site-schemas.mjs",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
