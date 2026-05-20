@@ -18,8 +18,48 @@ Use this predicate for declaration-plane metadata. Do not treat it as scanner ev
 - It exists to preserve external dependency declarations without changing SLSA subject, material, or resolved dependency semantics.
 - Mapping fixtures define the expected export behavior.
 
+## Statement schema
+
+The release archive publishes a JSON Schema for the optional in-toto Statement envelope:
+
+```text
+https://agentvolumes.org/spec/0.1.0-rc.1/schemas/external-dependency-declarations-predicate.schema.json
+```
+
+The schema uses the in-toto Statement v1 envelope, binds `predicateType` to this URI, and keeps `predicate.semantics` fixed to `declaration-only`. The published copy is generated from `schemas/external-dependency-declarations-predicate.schema.json` so the repository schema remains the source of truth.
+
+```json
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "pkg:volume/research-agent-pack@1.4.0",
+      "digest": {
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ],
+  "predicateType": "https://agentvolumes.org/predicates/external-dependency-declarations/v0.1",
+  "predicate": {
+    "semantics": "declaration-only",
+    "declarations": [
+      {
+        "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+        "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+        "constraint": "vers:npm/>=1.7.0|<2.0.0",
+        "purpose": "runtime",
+        "scope": [],
+        "declarationOnly": true,
+        "resolvedEvidence": false
+      }
+    ]
+  }
+}
+```
+
 ## Related sources
 
 - [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)
+- [Predicate JSON Schema](/spec/0.1.0-rc.1/schemas/external-dependency-declarations-predicate.schema.json)
 - [Trust metadata API](/spec/0.1.0-rc.1/api/trust-metadata)
 - [ADR-0142](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0142-omit-external-dependency-declarations-from-slsa-provenance-and-use-optional-in-toto-predicate.md)
