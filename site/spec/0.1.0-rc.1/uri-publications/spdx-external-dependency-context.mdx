@@ -1,0 +1,51 @@
+---
+title: 'SPDX external dependency JSON-LD context'
+description: 'Published JSON-LD context for compact Agent Volumes SPDX external dependency declaration terms.'
+---
+
+Agent Volumes publishes a JSON-LD context for the versioned SPDX external dependency declaration namespace. Use it when you want compact terms such as `declarationKey` and `resolvedEvidence` to expand to the Agent Volumes-owned namespace IRIs.
+
+```text
+https://agentvolumes.org/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld
+```
+
+The context is a publication artifact for the namespace documented at `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. It does not replace the specification, mapping fixtures, or schema artifacts.
+
+## Published context
+
+The archived context document is available at [`/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld`](/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld).
+
+It defines:
+
+| Compact term                    | Expanded identifier                                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ExternalDependencyDeclaration` | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#ExternalDependencyDeclaration` |
+| `declarationKey`                | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#declarationKey`                |
+| `purl`                          | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#purl`                          |
+| `constraint`                    | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#constraint`                    |
+| `purpose`                       | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#purpose`                       |
+| `scope`                         | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#scope`                         |
+| `declarationOnly`               | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#declarationOnly`               |
+| `resolvedEvidence`              | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#resolvedEvidence`              |
+
+## Example usage
+
+```json
+{
+  "@context": "https://agentvolumes.org/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld",
+  "@type": "ExternalDependencyDeclaration",
+  "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+  "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+  "constraint": "vers:npm/>=1.7.0|<2.0.0",
+  "purpose": "runtime",
+  "scope": [],
+  "declarationOnly": true,
+  "resolvedEvidence": false
+}
+```
+
+## Related sources
+
+- [SPDX external dependency namespace](/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace)
+- [Mapping sample fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-sample.json)
+- [ADR-0141](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0141-use-uri-backed-namespaces-for-spdx-agent-volumes-extension-terms.md)
