@@ -19,7 +19,7 @@ Normative JSON Schema companion artifacts for Agent Volumes v0.1. Prose specific
 | Conformance             | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                                                                                                       |
 | Manifest/semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json`                                                                              |
 | External dependencies   | `external-dependency-validation-case.schema.json`, `upstream-baseline.schema.json`, `purl-vers-compatibility-exceptions.schema.json`, `external-dependency-potential-exposure-warning-context.schema.json` |
-| BOM/provenance mapping  | `mapping-matrix.schema.json`, `mapping-sample.schema.json`                                                                                                                                                 |
+| BOM/provenance mapping  | `mapping-matrix.schema.json`, `mapping-sample.schema.json`, `external-dependency-declarations-predicate.schema.json`                                                                                       |
 | Search                  | `search-results.schema.json`                                                                                                                                                                               |
 
 ## WHERE TO LOOK

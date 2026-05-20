@@ -2081,6 +2081,7 @@ The release-candidate companion artifact inventory includes at least:
 - [`schemas/upstream-baseline.schema.json`](schemas/upstream-baseline.schema.json)
 - [`schemas/purl-vers-compatibility-exceptions.schema.json`](schemas/purl-vers-compatibility-exceptions.schema.json)
 - [`schemas/external-dependency-potential-exposure-warning-context.schema.json`](schemas/external-dependency-potential-exposure-warning-context.schema.json)
+- [`schemas/external-dependency-declarations-predicate.schema.json`](schemas/external-dependency-declarations-predicate.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
 - [`schemas/mapping-sample.schema.json`](schemas/mapping-sample.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
@@ -2140,7 +2141,7 @@ Mappings with `kind = "extension"` MUST name the controlled Agent Volumes extens
 
 The mapping sample fixture MUST provide at least one concrete offline export example that binds a source Agent Volumes manifest and release subject to CycloneDX, SPDX, and SLSA output objects. The sample fixture is a deterministic conformance vector: native and controlled-extension mappings that are represented in the target output MUST round-trip to the source values, intentionally lossy mappings MUST remain identified as lossy by the matrix, and release-subject purl plus SHA-256 identity MUST be recoverable from the applicable CycloneDX, SPDX, and SLSA output fields.
 
-For external dependency declarations, CycloneDX mappings use declaration-only external components with required `agent-volumes:*` properties. SPDX mappings use the Agent Volumes SPDX extension namespace `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. SLSA provenance MUST omit declaration-only external dependencies from `subject`, `materials`, `resolvedDependencies`, `byproducts`, and `internalParameters`; an optional in-toto predicate with type `https://agentvolumes.org/predicates/external-dependency-declarations/v0.1` MAY carry declaration-only records separately.
+For external dependency declarations, CycloneDX mappings use declaration-only external components with required `agent-volumes:*` properties. SPDX mappings use the Agent Volumes SPDX extension namespace `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. SLSA provenance MUST omit declaration-only external dependencies from `subject`, `materials`, `resolvedDependencies`, `byproducts`, and `internalParameters`; an optional in-toto predicate with type `https://agentvolumes.org/predicates/external-dependency-declarations/v0.1` MAY carry declaration-only records separately. The predicate statement shape is published as [`schemas/external-dependency-declarations-predicate.schema.json`](schemas/external-dependency-declarations-predicate.schema.json).
 
 The v0.1 core does not require one narrower AI-specific BOM profile commitment beyond the generic CycloneDX baseline. Where AI-specific semantics need richer exchange treatment, the mapping material MAY identify profile-oriented or extension-oriented paths without implying that the core already guarantees a complete canonical AI-BOM crosswalk.
 
