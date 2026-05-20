@@ -31,6 +31,9 @@ bibliothecas, validators, exporters, and conformance runners.
 - Schema artifacts are version-aligned with `agent-volumes-spec.md`.
 - A material schema change is a normative draft change and is reviewed
   together with the prose and conformance fixtures it affects.
+- The public documentation site records the release-scoped schema `$id` URLs in
+  the [Schema ID publication pages](../site/spec/0.1.0-rc.1/uri-publications/schema-ids.mdx)
+  and groups them with the broader [Namespace and URI publications](../site/spec/0.1.0-rc.1/uri-publications.mdx).
 
 ## Validation
 
@@ -60,5 +63,7 @@ When adding or changing a schema:
    `conformance/upstream-baselines.json`,
    `conformance/purl-vers-compatibility-exceptions.json`, and related fixtures
    aligned.
-5. Update this README if the artifact belongs to a new schema family.
-6. Re-run `npm run validate:artifacts` and `npm run lint:openapi` when relevant.
+5. Update the site [Schema ID publication pages](../site/spec/0.1.0-rc.1/uri-publications/schema-ids.mdx)
+   when adding, removing, or renaming a published schema artifact.
+6. Update this README if the artifact belongs to a new schema family.
+7. Re-run `npm run validate:artifacts` and `npm run lint:openapi` when relevant.
