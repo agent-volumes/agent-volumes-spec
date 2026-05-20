@@ -6,12 +6,12 @@ sidebarTitle: 'Implementers'
 
 Use this page when you are building tooling against Agent Volumes `v0.1.0-rc.1`. It summarizes the implementation path and links to the canonical artifacts you need to validate behavior.
 
-<Note>
+<Tip>
   This page is an overview. The prose specification, schema artifacts, OpenAPI contract, and conformance fixtures remain
   canonical. The repository [Implementers
   Guide](https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md) is the source document for this
   orientation.
-</Note>
+</Tip>
 
 ## What you can build
 
@@ -48,10 +48,10 @@ Use this page when you are building tooling against Agent Volumes `v0.1.0-rc.1`.
 
 A baseline client should first support the portable artifact path:
 
-1. Parse `volume.toml` with TOML v1.1.0 semantics.
-2. Validate the canonical parsed data model against `volume.schema.json` and prose-only semantic rules.
-3. Resolve package identities, component purls, dependency ranges, and lifecycle states.
-4. Download release bytes or source material and verify normalized-file-tree `integrity`.
+1. Parse [`volume.toml`](/spec/0.1.0-rc.1/volumes/manifest) with [TOML v1.1.0](https://toml.io/en/v1.1.0) semantics.
+2. Validate the canonical parsed data model against [`volume.schema.json`](/spec/0.1.0-rc.1/schemas/volume.schema.json) and prose-only semantic rules.
+3. Resolve [package identities, component purls](/spec/0.1.0-rc.1/volumes/identity), [dependency ranges, and lifecycle states](/spec/0.1.0-rc.1/volumes/dependencies).
+4. Download release bytes or source material and verify normalized-file-tree [`integrity`](/spec/0.1.0-rc.1/security/content-integrity).
 5. Reject digest mismatch, subject-binding mismatch, inconsistent registry state, and component permission escalation.
 6. Read trust summary/detail metadata and distinguish objective facts from local policy judgments.
 
@@ -59,12 +59,12 @@ A baseline client should first support the portable artifact path:
 
 A baseline bibliotheca should expose the portable Registry API surface before adding local policy features:
 
-1. Serve `GET /api/v1/capabilities`.
-2. Create and finalize release upload intents for the `http-put` portable upload profile.
+1. Serve [`GET /api/v1/capabilities`](/spec/0.1.0-rc.1/api/capabilities).
+2. [Create and finalize release upload intents](/spec/0.1.0-rc.1/api/publish) for the `http-put` portable upload profile.
 3. Validate uploaded archives, manifest identity, byte digest, size, and normalized-file-tree integrity.
 4. Preserve version immutability and release lifecycle semantics.
-5. Serve exact release metadata, package-scoped version indexes, trust summary/detail views, and advisory discovery.
-6. Return RFC 9457 Problem Details for portable API errors.
+5. Serve [exact release metadata](/spec/0.1.0-rc.1/api/fetch), [package-scoped version indexes](/spec/0.1.0-rc.1/api/version-index), [trust summary/detail views](/spec/0.1.0-rc.1/api/trust-metadata), and [advisory discovery](/spec/0.1.0-rc.1/api/advisories).
+6. Return [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) Problem Details for portable API errors.
 
 ## Keep local policy local
 
