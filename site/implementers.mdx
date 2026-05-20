@@ -1,0 +1,117 @@
+---
+title: 'Implement Agent Volumes'
+description: 'A practical starting point for building experimental Agent Volumes clients, bibliothecas, validators, and exporters from the v0.1.0-rc.1 artifacts.'
+sidebarTitle: 'Implementers'
+---
+
+Use this page when you are building tooling against Agent Volumes `v0.1.0-rc.1`. It summarizes the implementation path and links to the canonical artifacts you need to validate behavior.
+
+<Note>
+  This page is an overview. The prose specification, schema artifacts, OpenAPI contract, and conformance fixtures remain
+  canonical. The repository [Implementers
+  Guide](https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md) is the source document for this
+  orientation.
+</Note>
+
+## What you can build
+
+<CardGroup cols={2}>
+  <Card title="Client" icon="terminal">
+    Validate manifests, resolve versions, download releases, verify content integrity, inspect trust metadata, and load
+    supported component entrypoints.
+  </Card>
+  <Card title="Bibliotheca" icon="server">
+    Publish, index, serve, and expose release metadata, version indexes, trust metadata, advisories, and capability
+    metadata.
+  </Card>
+  <Card title="Validator or exporter" icon="flask">
+    Evaluate schema-backed fixtures, produce conformance reports, and export BOM/provenance mapping artifacts.
+  </Card>
+  <Card title="Runtime adapter" icon="puzzle-piece">
+    Map validated Agent Volumes components into a runtime-specific execution model without changing the portable package
+    contract.
+  </Card>
+</CardGroup>
+
+## Canonical artifacts
+
+| Area                   | Start with                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Prose requirements     | [Specification archive](/spec/0.1.0-rc.1)                                                                      |
+| Manifest model         | [`volume.schema.json`](/spec/0.1.0-rc.1/schemas/volume.schema.json)                                            |
+| Bibliotheca API        | [Registry API overview](/spec/0.1.0-rc.1/api/overview) and [OpenAPI reference](/spec/0.1.0-rc.1/api-reference) |
+| Conformance fixtures   | [Fixture inventory](/spec/0.1.0-rc.1/conformance/fixtures)                                                     |
+| Schema artifacts       | [Schema artifact inventory](/spec/0.1.0-rc.1/conformance/schema-artifacts)                                     |
+| Namespace publications | [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)                                            |
+
+## Minimum viable client
+
+A baseline client should first support the portable artifact path:
+
+1. Parse `volume.toml` with TOML v1.1.0 semantics.
+2. Validate the canonical parsed data model against `volume.schema.json` and prose-only semantic rules.
+3. Resolve package identities, component purls, dependency ranges, and lifecycle states.
+4. Download release bytes or source material and verify normalized-file-tree `integrity`.
+5. Reject digest mismatch, subject-binding mismatch, inconsistent registry state, and component permission escalation.
+6. Read trust summary/detail metadata and distinguish objective facts from local policy judgments.
+
+## Minimum viable bibliotheca
+
+A baseline bibliotheca should expose the portable Registry API surface before adding local policy features:
+
+1. Serve `GET /api/v1/capabilities`.
+2. Create and finalize release upload intents for the `http-put` portable upload profile.
+3. Validate uploaded archives, manifest identity, byte digest, size, and normalized-file-tree integrity.
+4. Preserve version immutability and release lifecycle semantics.
+5. Serve exact release metadata, package-scoped version indexes, trust summary/detail views, and advisory discovery.
+6. Return RFC 9457 Problem Details for portable API errors.
+
+## Keep local policy local
+
+Agent Volumes `v0.1.0-rc.1` intentionally leaves several operational choices to implementations. Document these choices in your project rather than treating them as portable standard behavior.
+
+| Local choice       | Examples to document                                                             |
+| ------------------ | -------------------------------------------------------------------------------- |
+| Authentication     | Token issuance, storage, revocation, and publisher authorization                 |
+| Upload transport   | Non-core staging or transfer instructions beyond the required `http-put` profile |
+| Download transport | Whether `cdn`, `git`, or both are supported                                      |
+| Registry priority  | Source ordering when multiple bibliothecas are configured                        |
+| Trust roots        | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides            |
+| Runtime adapters   | How valid components map into a target runtime's local execution model           |
+
+## Smoke conformance path
+
+Run the repository artifact gates before comparing implementation behavior against the fixture corpus:
+
+```bash
+bun run validate:artifacts
+bun run lint:openapi
+```
+
+Then map implementation tests to fixture families in [Conformance fixtures](/spec/0.1.0-rc.1/conformance/fixtures). Use [Requirement inventory](/spec/0.1.0-rc.1/conformance/requirements) to distinguish fixture-covered behavior from prose-boundary behavior and intentionally deferred topics.
+
+## Suggested implementation order
+
+1. Manifest parsing and semantic validation.
+2. Archive profile and normalized-file-tree digest verification.
+3. Release upload intent/finalize and exact metadata fetch.
+4. Version index consumption and resolver behavior.
+5. Lifecycle/status handling for exact and ordinary resolution.
+6. Trust summary/detail read paths.
+7. Advisory read paths.
+8. Trust attachment upload.
+9. Runtime adapter loading.
+10. Local policy features such as auth UX, lockfiles, scanner ingestion, and trust-root policy.
+
+<CardGroup cols={2}>
+  <Card
+    title="Read the full guide"
+    icon="book-open"
+    href="https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md"
+  >
+    Open the repository implementers guide with the full client, bibliotheca, fixture, and ordering checklist.
+  </Card>
+  <Card title="Use the conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
+    Start with deterministic offline fixtures before adding hosted service or trust-root policy tests.
+  </Card>
+</CardGroup>
