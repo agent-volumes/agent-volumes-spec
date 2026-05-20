@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build:site:openapi": "node scripts/build-site-openapi.mjs",
+    "build:site:openapi": "bun scripts/build-site-openapi.mjs",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
@@ -14,7 +14,7 @@
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
     "release:changelog": "scripts/update-changelog.sh --tag",
     "release:tag": "scripts/create-release-tag.sh",
-    "validate:artifacts": "node scripts/validate-artifacts.mjs"
+    "validate:artifacts": "bun scripts/validate-artifacts.mjs"
   },
   "dependencies": {},
   "devDependencies": {
