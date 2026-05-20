@@ -40,6 +40,10 @@
                 "pages": ["index", "quickstart", "concepts", "implementers", "contributors"]
               },
               {
+                "group": "Release notes",
+                "pages": ["changelog"]
+              },
+              {
                 "group": "Release archives",
                 "root": "spec/index",
                 "pages": ["spec/0.1.0-rc.1/index"]
