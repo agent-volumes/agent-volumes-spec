@@ -1,0 +1,58 @@
+---
+title: 'Problem Details type URIs'
+description: 'Stable semantic identifier landing pages for Agent Volumes Problem Details type URIs.'
+---
+
+Agent Volumes Registry API errors use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457). Each `type` URI is a stable machine-readable identifier under `https://agentvolumes.org/problems/<slug>`.
+
+This page describes the stable problem type URI set. Release-specific API and schema documentation remains archived under `/spec/<version>/...`.
+
+## Problem type URI pattern
+
+```text
+https://agentvolumes.org/problems/<slug>
+```
+
+Switch on the `type` URI when handling Agent Volumes Registry API errors. Do not switch on `title`, because implementations can vary or localize human-readable titles.
+
+## Stable problem types
+
+| Problem type                                                           | Status | Meaning                                                                                                |
+| ---------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------ |
+| [`authentication-required`](/problems/authentication-required)         | 401    | Bearer authentication is missing or invalid.                                                           |
+| [`authorization-failed`](/problems/authorization-failed)               | 403    | The caller, request context, or requested resource is not permitted by authorization or access policy. |
+| [`not-found`](/problems/not-found)                                     | 404    | The requested resource does not exist or is not visible to the caller.                                 |
+| [`validation-failed`](/problems/validation-failed)                     | 400    | Request payload, parameters, manifest, or metadata failed validation.                                  |
+| [`invalid-manifest`](/problems/invalid-manifest)                       | 400    | A submitted `volume.toml` is structurally or semantically invalid.                                     |
+| [`invalid-archive`](/problems/invalid-archive)                         | 400    | A submitted hosted archive violates the v0.1 archive transport profile.                                |
+| [`identity-mismatch`](/problems/identity-mismatch)                     | 409    | A package identity disagrees with its route, manifest, or metadata.                                    |
+| [`version-conflict`](/problems/version-conflict)                       | 409    | The target version already exists or cannot be reused.                                                 |
+| [`digest-mismatch`](/problems/digest-mismatch)                         | 400    | Submitted or resolved bytes do not match the declared digest.                                          |
+| [`subject-binding-mismatch`](/problems/subject-binding-mismatch)       | 400    | A trust artifact does not bind to the intended release subject.                                        |
+| [`inconsistent-registry-state`](/problems/inconsistent-registry-state) | 409    | Index, exact metadata, or trust metadata cannot be reconciled.                                         |
+| [`upload-expired`](/problems/upload-expired)                           | 410    | An upload intent expired before finalization.                                                          |
+| [`missing-uploaded-bytes`](/problems/missing-uploaded-bytes)           | 400    | Finalization was requested before upload bytes were available.                                         |
+| [`invalid-upload-state`](/problems/invalid-upload-state)               | 409    | The upload intent is not in a state that can be finalized.                                             |
+| [`idempotency-conflict`](/problems/idempotency-conflict)               | 409    | A reused idempotency key conflicts with an earlier request.                                            |
+| [`payload-too-large`](/problems/payload-too-large)                     | 413    | The submitted payload or declared upload size exceeds the bibliotheca's accepted limit.                |
+| [`unsupported-media-type`](/problems/unsupported-media-type)           | 415    | The submitted payload media type is not supported.                                                     |
+| [`permission-escalation`](/problems/permission-escalation)             | 400    | Component permissions exceed the parent volume permission boundary.                                    |
+| [`rate-limited`](/problems/rate-limited)                               | 429    | The request was rate limited.                                                                          |
+
+## Versioning policy
+
+The problem URI set is closed for the Agent Volumes v0.1 portable baseline. Patch releases can clarify problem documentation without changing the meaning of an existing `type` URI. Incompatible problem semantics require a new problem slug or a new versioned problem URI.
+
+## Release archives
+
+- [v0.1.0-rc.1 problem type archive](/spec/0.1.0-rc.1/problems)
+- [v0.1.0-rc.1 API error table](/spec/0.1.0-rc.1/api/errors)
+- [v0.1.0-rc.1 Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [v0.1.0-rc.1 problem registry schema](/spec/0.1.0-rc.1/schemas/problem-registry.schema.json)
+
+## Canonical sources
+
+- [Agent Volumes specification](https://github.com/agent-volumes/agent-volumes-spec/blob/main/agent-volumes-spec.md)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/problem-registry.json)
+- [Bibliotheca OpenAPI contract](https://github.com/agent-volumes/agent-volumes-spec/blob/main/openapi/bibliotheca.openapi.yaml)
+- [ADR-0158](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0158-separate-semantic-identifier-pages-from-release-archives.md)

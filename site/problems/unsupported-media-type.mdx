@@ -1,0 +1,27 @@
+---
+title: 'Unsupported media type'
+description: 'Stable Problem Details type URI page for unsupported-media-type.'
+---
+
+`https://agentvolumes.org/problems/unsupported-media-type` identifies the `unsupported-media-type` Problem Details type.
+
+| Field       | Value                                                      |
+| ----------- | ---------------------------------------------------------- |
+| Type URI    | `https://agentvolumes.org/problems/unsupported-media-type` |
+| Slug        | `unsupported-media-type`                                   |
+| HTTP status | `415`                                                      |
+| Title       | `Unsupported media type`                                   |
+| Meaning     | The submitted payload media type is not supported.         |
+
+Switch on the `type` URI when handling Agent Volumes Registry API errors. The human-readable `title` can vary by implementation or localization.
+
+## Release archives
+
+- [v0.1.0-rc.1 problem page](/spec/0.1.0-rc.1/problems/unsupported-media-type)
+- [v0.1.0-rc.1 API error table](/spec/0.1.0-rc.1/api/errors)
+
+## Canonical sources
+
+- [Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [Problem registry schema](/spec/0.1.0-rc.1/schemas/problem-registry.schema.json)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/problem-registry.json)
