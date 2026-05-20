@@ -4,7 +4,7 @@ Architecture and specification decision records (ADRs) for Agent Volumes. Non-no
 
 ## STRUCTURE
 
-Flat directory of 156 sequentially numbered records: `0001-*.md` through `0156-*.md`. No subdirectories. Use `README.md` as the live topic index before editing.
+Flat directory of 158 sequentially numbered records: `0001-*.md` through `0158-*.md`. No subdirectories. Use `README.md` as the live topic index before editing.
 
 ## WHERE TO LOOK
 
@@ -17,7 +17,7 @@ Flat directory of 156 sequentially numbered records: `0001-*.md` through `0156-*
 | Registry API, resolver, and upload       | `0019-*`, `0091-*`, `0097-0098-*`, `0100-0101-*`, `0106-*`, `0136-*`, `0152-*`                                                                       | Bibliotheca HTTP API                                |
 | Capability metadata and extensions       | `0060-0083-*`, `0107-*`, `0141-*`                                                                                                                    | Bridge metadata, extension namespaces               |
 | Conformance and readiness structure      | `0020-*`, `0028-0029-*`, `0104-*`, `0144-0151-*`                                                                                                     | Fixture families, runner contract                   |
-| Public documentation and URI publication | `0153-*`, `0154-*`, `0155-*`, `0156-*`                                                                                                               | Mintlify platform, `site/` topology, domain routing |
+| Public documentation and URI publication | `0153-*`, `0154-*`, `0155-*`, `0156-*`, `0157-*`, `0158-*`                                                                                           | Mintlify platform, `site/` topology, domain routing |
 | Check deferred topics                    | `0011-*`, `0015-*`, `0021-*`, `0028-*`, `0054-*`, `0084-*`, `0089-*`, `0092-0094-*`, `0096-0097-*`, `0100-*`, `0103-*`, `0106-*`, `0137-0138-*`      | Intentionally outside v0.1 baseline                 |
 
 ## CONVENTIONS
