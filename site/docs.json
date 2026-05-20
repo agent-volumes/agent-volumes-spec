@@ -149,27 +149,27 @@
               },
               {
                 "group": "Problem Details type URIs",
-                "root": "spec/0.1.0-rc.1/problems/index",
+                "root": "problems/index",
                 "pages": [
-                  "spec/0.1.0-rc.1/problems/authentication-required",
-                  "spec/0.1.0-rc.1/problems/authorization-failed",
-                  "spec/0.1.0-rc.1/problems/not-found",
-                  "spec/0.1.0-rc.1/problems/validation-failed",
-                  "spec/0.1.0-rc.1/problems/invalid-manifest",
-                  "spec/0.1.0-rc.1/problems/invalid-archive",
-                  "spec/0.1.0-rc.1/problems/identity-mismatch",
-                  "spec/0.1.0-rc.1/problems/version-conflict",
-                  "spec/0.1.0-rc.1/problems/digest-mismatch",
-                  "spec/0.1.0-rc.1/problems/subject-binding-mismatch",
-                  "spec/0.1.0-rc.1/problems/inconsistent-registry-state",
-                  "spec/0.1.0-rc.1/problems/upload-expired",
-                  "spec/0.1.0-rc.1/problems/missing-uploaded-bytes",
-                  "spec/0.1.0-rc.1/problems/invalid-upload-state",
-                  "spec/0.1.0-rc.1/problems/idempotency-conflict",
-                  "spec/0.1.0-rc.1/problems/payload-too-large",
-                  "spec/0.1.0-rc.1/problems/unsupported-media-type",
-                  "spec/0.1.0-rc.1/problems/permission-escalation",
-                  "spec/0.1.0-rc.1/problems/rate-limited"
+                  "problems/authentication-required",
+                  "problems/authorization-failed",
+                  "problems/not-found",
+                  "problems/validation-failed",
+                  "problems/invalid-manifest",
+                  "problems/invalid-archive",
+                  "problems/identity-mismatch",
+                  "problems/version-conflict",
+                  "problems/digest-mismatch",
+                  "problems/subject-binding-mismatch",
+                  "problems/inconsistent-registry-state",
+                  "problems/upload-expired",
+                  "problems/missing-uploaded-bytes",
+                  "problems/invalid-upload-state",
+                  "problems/idempotency-conflict",
+                  "problems/payload-too-large",
+                  "problems/unsupported-media-type",
+                  "problems/permission-escalation",
+                  "problems/rate-limited"
                 ]
               }
             ]
@@ -358,11 +358,6 @@
       "permanent": false
     },
     {
-      "source": "/build/manual/v0.1",
-      "destination": "/spec/0.1.0-rc.1/build/manual/v0.1",
-      "permanent": false
-    },
-    {
       "source": "/uri-publications/bom-profile-identifiers",
       "destination": "/spec/0.1.0-rc.1/uri-publications/bom-profile-identifiers",
       "permanent": false
@@ -370,111 +365,6 @@
     {
       "source": "/uri-publications/external-dependency-declaration-keys",
       "destination": "/spec/0.1.0-rc.1/uri-publications/external-dependency-declaration-keys",
-      "permanent": false
-    },
-    {
-      "source": "/problems",
-      "destination": "/spec/0.1.0-rc.1/problems",
-      "permanent": false
-    },
-    {
-      "source": "/problems/index",
-      "destination": "/spec/0.1.0-rc.1/problems",
-      "permanent": false
-    },
-    {
-      "source": "/problems/authentication-required",
-      "destination": "/spec/0.1.0-rc.1/problems/authentication-required",
-      "permanent": false
-    },
-    {
-      "source": "/problems/authorization-failed",
-      "destination": "/spec/0.1.0-rc.1/problems/authorization-failed",
-      "permanent": false
-    },
-    {
-      "source": "/problems/not-found",
-      "destination": "/spec/0.1.0-rc.1/problems/not-found",
-      "permanent": false
-    },
-    {
-      "source": "/problems/validation-failed",
-      "destination": "/spec/0.1.0-rc.1/problems/validation-failed",
-      "permanent": false
-    },
-    {
-      "source": "/problems/invalid-manifest",
-      "destination": "/spec/0.1.0-rc.1/problems/invalid-manifest",
-      "permanent": false
-    },
-    {
-      "source": "/problems/invalid-archive",
-      "destination": "/spec/0.1.0-rc.1/problems/invalid-archive",
-      "permanent": false
-    },
-    {
-      "source": "/problems/identity-mismatch",
-      "destination": "/spec/0.1.0-rc.1/problems/identity-mismatch",
-      "permanent": false
-    },
-    {
-      "source": "/problems/version-conflict",
-      "destination": "/spec/0.1.0-rc.1/problems/version-conflict",
-      "permanent": false
-    },
-    {
-      "source": "/problems/digest-mismatch",
-      "destination": "/spec/0.1.0-rc.1/problems/digest-mismatch",
-      "permanent": false
-    },
-    {
-      "source": "/problems/subject-binding-mismatch",
-      "destination": "/spec/0.1.0-rc.1/problems/subject-binding-mismatch",
-      "permanent": false
-    },
-    {
-      "source": "/problems/inconsistent-registry-state",
-      "destination": "/spec/0.1.0-rc.1/problems/inconsistent-registry-state",
-      "permanent": false
-    },
-    {
-      "source": "/problems/upload-expired",
-      "destination": "/spec/0.1.0-rc.1/problems/upload-expired",
-      "permanent": false
-    },
-    {
-      "source": "/problems/missing-uploaded-bytes",
-      "destination": "/spec/0.1.0-rc.1/problems/missing-uploaded-bytes",
-      "permanent": false
-    },
-    {
-      "source": "/problems/invalid-upload-state",
-      "destination": "/spec/0.1.0-rc.1/problems/invalid-upload-state",
-      "permanent": false
-    },
-    {
-      "source": "/problems/idempotency-conflict",
-      "destination": "/spec/0.1.0-rc.1/problems/idempotency-conflict",
-      "permanent": false
-    },
-    {
-      "source": "/problems/payload-too-large",
-      "destination": "/spec/0.1.0-rc.1/problems/payload-too-large",
-      "permanent": false
-    },
-    {
-      "source": "/problems/unsupported-media-type",
-      "destination": "/spec/0.1.0-rc.1/problems/unsupported-media-type",
-      "permanent": false
-    },
-    {
-      "source": "/problems/permission-escalation",
-      "destination": "/spec/0.1.0-rc.1/problems/permission-escalation",
-      "permanent": false
-    },
-    {
-      "source": "/problems/rate-limited",
-      "destination": "/spec/0.1.0-rc.1/problems/rate-limited",
       "permanent": false
     },
     {
