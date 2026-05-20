@@ -44,6 +44,12 @@ That command validates the specification artifacts themselves. Independent
 implementations can use the same fixture families to produce their own
 conformance reports.
 
+The public documentation site publishes the companion [Namespace and URI publications](../site/spec/0.1.0-rc.1/uri-publications.mdx)
+for identifiers exercised by this fixture corpus, including schema `$id` URLs,
+Problem Details type URIs, SPDX and in-toto external dependency declaration
+identifiers, SLSA build type identifiers, declaration key syntax, BOM/profile
+identifiers, and reserved extension namespaces.
+
 ## Conformance claim labels
 
 Conformance reports describe the offline artifact/vector surface only. Use
