@@ -576,8 +576,14 @@ const assertSiteSchemaPublicationDrift = () => {
 
 const assertSpdxExternalDependencyContextDrift = () => {
   const namespace = 'https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#';
-  const contextArtifact = readJsonFile(
-    'site/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld'
+  const canonicalContextPath = 'site/contexts/spdx-external-dependency-declarations-v0.1.jsonld';
+  const archivedContextPath = 'site/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld';
+  const contextArtifact = readJsonFile(canonicalContextPath);
+
+  assert(
+    fs.readFileSync(path.join(root, canonicalContextPath), 'utf8') ===
+      fs.readFileSync(path.join(root, archivedContextPath), 'utf8'),
+    'SPDX external dependency canonical JSON-LD context must match release archive copy'
   );
   const context = contextArtifact['@context'];
 

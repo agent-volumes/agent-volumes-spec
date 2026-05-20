@@ -6,14 +6,16 @@ description: 'Published JSON-LD context for compact Agent Volumes SPDX external 
 Agent Volumes publishes a JSON-LD context for the versioned SPDX external dependency declaration namespace. Use it when you want compact terms such as `declarationKey` and `resolvedEvidence` to expand to the Agent Volumes-owned namespace IRIs.
 
 ```text
-https://agentvolumes.org/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld
+https://agentvolumes.org/contexts/spdx-external-dependency-declarations-v0.1.jsonld
 ```
 
-The context is a publication artifact for the namespace documented at `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. It does not replace the specification, mapping fixtures, or schema artifacts.
+The context is the stable canonical remote context for the namespace documented at `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. It does not replace the specification, mapping fixtures, or schema artifacts. This release archive also preserves an identical copy under `/spec/0.1.0-rc.1/contexts/...` for audit and release evidence.
 
 ## Published context
 
-The archived context document is available at [`/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld`](/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld).
+The canonical context document is available at [`/contexts/spdx-external-dependency-declarations-v0.1.jsonld`](/contexts/spdx-external-dependency-declarations-v0.1.jsonld).
+
+The v0.1.0-rc.1 archived copy is available at [`/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld`](/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld). The artifact validator checks that both copies match.
 
 It defines:
 
@@ -32,7 +34,7 @@ It defines:
 
 ```json
 {
-  "@context": "https://agentvolumes.org/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld",
+  "@context": "https://agentvolumes.org/contexts/spdx-external-dependency-declarations-v0.1.jsonld",
   "@type": "ExternalDependencyDeclaration",
   "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
   "purl": "pkg:npm/%40modelcontextprotocol/sdk",
@@ -47,5 +49,6 @@ It defines:
 ## Related sources
 
 - [SPDX external dependency namespace](/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace)
+- [Canonical JSON-LD context](/contexts/spdx-external-dependency-declarations-v0.1.jsonld)
 - [Mapping sample fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-sample.json)
 - [ADR-0141](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0141-use-uri-backed-namespaces-for-spdx-agent-volumes-extension-terms.md)
