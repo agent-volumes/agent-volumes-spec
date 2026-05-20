@@ -45,7 +45,7 @@
             "tab": "Core spec",
             "groups": [
               {
-                "group": "v0.1.0-rc.1 volumes",
+                "group": "Volumes",
                 "pages": [
                   "spec/0.1.0-rc.1/volumes/manifest",
                   "spec/0.1.0-rc.1/volumes/identity",
@@ -55,7 +55,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 component types",
+                "group": "Component types",
                 "pages": [
                   "spec/0.1.0-rc.1/components/overview",
                   "spec/0.1.0-rc.1/components/agent",
@@ -68,7 +68,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 specification",
+                "group": "Specification",
                 "pages": ["spec/0.1.0-rc.1/design-principles"]
               }
             ]
@@ -77,7 +77,7 @@
             "tab": "Registry API",
             "groups": [
               {
-                "group": "v0.1.0-rc.1 Registry API",
+                "group": "Registry API",
                 "pages": [
                   "spec/0.1.0-rc.1/api/overview",
                   "spec/0.1.0-rc.1/api/authentication",
@@ -93,7 +93,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 generated OpenAPI reference",
+                "group": "OpenAPI reference",
                 "openapi": {
                   "source": "spec/0.1.0-rc.1/api-reference/bibliotheca.openapi.json",
                   "directory": "spec/0.1.0-rc.1/api-reference"
@@ -105,7 +105,7 @@
             "tab": "Assurance",
             "groups": [
               {
-                "group": "v0.1.0-rc.1 security",
+                "group": "Security",
                 "pages": [
                   "spec/0.1.0-rc.1/security/supply-chain",
                   "spec/0.1.0-rc.1/security/content-integrity",
@@ -114,7 +114,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 conformance",
+                "group": "Conformance",
                 "pages": [
                   "spec/0.1.0-rc.1/conformance/overview",
                   "spec/0.1.0-rc.1/conformance/schema-artifacts",
@@ -123,7 +123,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 identifier publications",
+                "group": "Identifier publications",
                 "pages": [
                   "spec/0.1.0-rc.1/uri-publications",
                   "spec/0.1.0-rc.1/uri-publications/schema-ids",
@@ -138,7 +138,7 @@
                 ]
               },
               {
-                "group": "v0.1.0-rc.1 Problem Details type URIs",
+                "group": "Problem Details type URIs",
                 "pages": [
                   "spec/0.1.0-rc.1/problems/index",
                   "spec/0.1.0-rc.1/problems/authentication-required",
