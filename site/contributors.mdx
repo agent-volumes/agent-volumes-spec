@@ -1,0 +1,152 @@
+---
+title: 'Contribute to the Agent Volumes specification'
+description: 'Route specification feedback, pull requests, security reports, and community conduct concerns for the Agent Volumes specification project.'
+sidebarTitle: 'Contributors'
+---
+
+Agent Volumes depends on implementers, reviewers, security researchers, documentation contributors, and standards participants. You can help by testing the current release candidate, finding ambiguous requirements, proposing clearer language, or building tools that expose gaps in the specification.
+
+This page summarizes the organization-wide contribution, security, and community policies for specification contributors. The canonical policy documents remain the Agent Volumes organization files on GitHub:
+
+- [CONTRIBUTING.md](https://github.com/agent-volumes/.github/blob/main/CONTRIBUTING.md)
+- [SECURITY.md](https://github.com/agent-volumes/.github/blob/main/SECURITY.md)
+- [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
+
+<Note>
+  The public documentation site is an orientation layer. The canonical specification sources remain the repository
+  artifacts, including `agent-volumes-spec.md`, `schemas/`, `openapi/`, `conformance/`, and the organization policies
+  linked above.
+</Note>
+
+## Choose the right contribution path
+
+<Warning>
+  Security vulnerabilities must be reported privately through [GitHub Security
+  Advisories](https://github.com/agent-volumes/agent-volumes-spec/security/advisories/) or
+  [security@agentvolumes.org](mailto:security@agentvolumes.org). Do not include exploit details, reproduction steps, or
+  sensitive impact analysis in public GitHub Issues or Discussions.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Report a spec issue" icon="bug" href="https://github.com/agent-volumes/agent-volumes-spec/issues">
+    Use GitHub Issues for problems, ambiguities, missing requirements, broken links, and proposed changes to the
+    specification repository.
+  </Card>
+  <Card
+    title="Discuss open design questions"
+    icon="comments"
+    href="https://github.com/agent-volumes/agent-volumes-spec/discussions"
+  >
+    Use GitHub Discussions for broader design questions, early feedback, and topics that need exploration before a
+    concrete proposal.
+  </Card>
+  <Card title="Build from the artifacts" icon="terminal" href="/implementers">
+    Implementers can use the guide for clients, bibliothecas, validators, exporters, and runtime adapters, then report
+    interoperability feedback.
+  </Card>
+  <Card title="Report a vulnerability" icon="shield-exclamation" href="#report-security-issues-privately">
+    Use private security reporting channels for vulnerabilities. Do not open a public issue for security-sensitive
+    findings.
+  </Card>
+  <Card
+    title="List adoption or evaluation"
+    icon="building"
+    href="https://github.com/agent-volumes/agent-volumes-spec/blob/main/ADOPTERS.md"
+  >
+    Projects evaluating or adopting the standard can open an issue or pull request against `ADOPTERS.md`.
+  </Card>
+</CardGroup>
+
+## How specification changes work
+
+Specification changes follow a lightweight proposal process:
+
+<Steps>
+  <Step title="Open an issue for material changes">
+    Describe the problem, the proposed change, and the affected sections or artifacts. Open an issue first for new
+    sections, new component types, behavioral changes, or modifications to normative requirements.
+  </Step>
+  <Step title="Discuss the proposal">
+    Work with maintainers and community members to refine the scope. Use discussion to separate normative requirements
+    from implementation-local choices.
+  </Step>
+  <Step title="Submit a pull request">
+    Target `main`, because the project follows trunk-based development. All work happens from a fork rather than a
+    branch on the main repository.
+  </Step>
+  <Step title="Respond to review">
+    Specification changes require maintainer review. Update prose, schemas, OpenAPI, conformance fixtures, or supporting
+    documentation together when the change crosses artifact boundaries.
+  </Step>
+</Steps>
+
+Editorial fixes such as typos, grammar corrections, formatting changes, and broken-link fixes can be submitted directly as pull requests without a prior issue.
+
+## Before you open a pull request
+
+- Read the current release archive and the canonical source files that your change affects.
+- Preserve BCP 14 usage in normative prose: use `MUST`, `SHOULD`, and `MAY` only when the requirement carries that normative meaning.
+- Define new terms on first use and keep terminology consistent with the glossary and release archive.
+- Keep schema, OpenAPI, conformance fixtures, and prose aligned when a change affects more than one artifact.
+- Sign off every commit for the Developer Certificate of Origin (DCO).
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+You can add the sign-off with `git commit -s`.
+
+## Route issues to the right place
+
+| Topic                                                      | Where to go                                                                                                           |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Specification bugs, ambiguity, or proposals                | [`agent-volumes/agent-volumes-spec` issues](https://github.com/agent-volumes/agent-volumes-spec/issues)               |
+| Open-ended specification design questions                  | [`agent-volumes/agent-volumes-spec` discussions](https://github.com/agent-volumes/agent-volumes-spec/discussions)     |
+| Organization policy or governance                          | [`agent-volumes/.github` issues](https://github.com/agent-volumes/.github/issues)                                     |
+| TSC, Working Group, or future member-company participation | Governance Proposal template in [`agent-volumes/.github`](https://github.com/agent-volumes/.github/issues/new/choose) |
+| Adopter listing requests                                   | `ADOPTERS.md` in the specification repository                                                                         |
+| Implementation bugs                                        | The affected implementation repository, such as `shelf` or `alexandria` when available                                |
+| Unsure where to go                                         | Routing Help template in [`agent-volumes/.github`](https://github.com/agent-volumes/.github/issues/new/choose)        |
+
+Adopter listings and implementation feedback help prioritize the standard. They do not create certification, trademark authorization, hosted-service approval, or special normative status.
+
+## Report security issues privately
+
+Do not open a public issue for a security vulnerability. Use one of these private reporting paths:
+
+- Preferred: the `Security > Advisories` tab in the affected GitHub repository.
+- Alternate: email [security@agentvolumes.org](mailto:security@agentvolumes.org).
+
+Include the affected repository and version or commit, the vulnerability impact, reproduction steps or proof of concept, and any suggested mitigation. The organization acknowledges reports within 3 business days, performs triage within 7 business days, and provides progress updates at least every 7 business days until closure.
+
+<Warning>
+  Avoid denial-of-service testing, social engineering, destructive testing, and public disclosure before coordinated
+  disclosure is complete. Good-faith research that follows the security policy is covered by the project's safe harbor.
+</Warning>
+
+## Participate respectfully
+
+All project spaces follow the [Contributor Covenant 3.0 Code of Conduct](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md). The project expects contributors to engage kindly and honestly, respect different viewpoints, accept constructive feedback, credit sources, and help repair harm when it occurs.
+
+To report a possible Code of Conduct violation, email [conduct@agentvolumes.org](mailto:conduct@agentvolumes.org). Community Moderators handle reports privately while prioritizing safety and confidentiality.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Read the release archive" icon="box-archive" href="/spec/0.1.0-rc.1">
+    Review the current release candidate before filing feedback or proposing text.
+  </Card>
+  <Card title="Study core concepts" icon="book-open" href="/concepts">
+    Learn the vocabulary for volumes, bibliothecas, package identity, trust, and conformance.
+  </Card>
+  <Card title="Build an implementation" icon="terminal" href="/implementers">
+    Turn the release artifacts into a client, bibliotheca, validator, exporter, or runtime adapter.
+  </Card>
+  <Card
+    title="Open a specification issue"
+    icon="circle-question"
+    href="https://github.com/agent-volumes/agent-volumes-spec/issues/new/choose"
+  >
+    Share ambiguity, gaps, editorial fixes, or proposal ideas with the specification maintainers.
+  </Card>
+</CardGroup>

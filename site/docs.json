@@ -37,7 +37,7 @@
             "groups": [
               {
                 "group": "Overview",
-                "pages": ["index", "quickstart", "concepts", "implementers"]
+                "pages": ["index", "quickstart", "concepts", "implementers", "contributors"]
               },
               {
                 "group": "Release archives",
