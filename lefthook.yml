@@ -33,6 +33,14 @@ pre-commit:
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"
     - name: Regenerate site publication artifacts
+      glob:
+        - 'agent-volumes-spec.md'
+        - 'openapi/**'
+        - 'schemas/**'
+        - 'scripts/build-site-openapi.mjs'
+        - 'scripts/build-site-schemas.mjs'
+        - 'package.json'
+        - 'bun.lock'
       run: |
         set -e
         echo "📚 Rebuilding Mintlify OpenAPI publication artifact..."
@@ -42,19 +50,72 @@ pre-commit:
         echo "📦 Re-staging generated publication artifacts..."
         git add site/spec
         echo "✅ Publication artifacts regenerated!"
-    - name: Run commit validation suite
+    - name: Check repository formatting
+      glob: '*.{md,mdx,json,yaml,yml,mjs}'
       run: |
         set -e
         echo "✨ Checking repository formatting..."
         bun run format:check
+        echo "✅ Repository formatting check passed!"
+    - name: Lint Markdown
+      glob:
+        - '*.{md,mdx}'
+        - '.markdownlint-cli2.jsonc'
+      run: |
+        set -e
         echo "🔍 Running markdownlint..."
         bun run lint:md
+        echo "✅ Markdown lint passed!"
+    - name: Lint OpenAPI specification
+      glob:
+        - 'openapi/**'
+        - 'schemas/**'
+        - 'redocly.yaml'
+        - 'package.json'
+        - 'bun.lock'
+      run: |
+        set -e
         echo "🔍 Running Redocly lint..."
         bun run lint:openapi
+        echo "✅ OpenAPI lint passed!"
+    - name: Validate Mintlify documentation site
+      glob:
+        - 'site/**'
+        - 'agent-volumes-spec.md'
+        - 'openapi/**'
+        - 'schemas/**'
+        - 'scripts/build-site-openapi.mjs'
+        - 'scripts/build-site-schemas.mjs'
+        - 'package.json'
+        - 'bun.lock'
+      run: |
+        set -e
         echo "🌐 Validating Mintlify documentation site..."
         bun run lint:site
+        echo "✅ Mintlify site validation passed!"
+    - name: Validate changelog structure
+      glob:
+        - 'CHANGELOG.md'
+        - 'cliff.toml'
+        - 'package.json'
+        - 'bun.lock'
+        - 'scripts/*.sh'
+      run: |
+        set -e
         echo "🔍 Validating changelog structure..."
         bun run changelog:check
+        echo "✅ Changelog validation passed!"
+    - name: Validate specification artifacts
+      glob:
+        - 'agent-volumes-spec.md'
+        - 'schemas/**'
+        - 'conformance/**'
+        - 'openapi/**'
+        - 'scripts/validate-artifacts.mjs'
+        - 'package.json'
+        - 'bun.lock'
+      run: |
+        set -e
         echo "🔍 Running artifact validation..."
         bun run validate:artifacts
-        echo "✅ Commit validation suite passed!"
+        echo "✅ Artifact validation passed!"
