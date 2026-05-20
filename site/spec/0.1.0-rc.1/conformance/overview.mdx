@@ -25,7 +25,7 @@ Use precise labels when describing what your implementation has validated. Label
 
 ## Minimum viable conforming client
 
-Before claiming Agent Volumes `0.1.0-rc.1` compatibility as a client, your implementation must support all of the following:
+Before claiming Agent Volumes `v0.1.0-rc.1` compatibility as a client, your implementation must support all of the following:
 
 1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
 2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
@@ -45,7 +45,7 @@ Before claiming Agent Volumes `0.1.0-rc.1` compatibility as a client, your imple
 
 ## Minimum viable conforming bibliotheca
 
-Before claiming Agent Volumes `0.1.0-rc.1` compatibility as a bibliotheca, your implementation must support all of the following:
+Before claiming Agent Volumes `v0.1.0-rc.1` compatibility as a bibliotheca, your implementation must support all of the following:
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
