@@ -393,6 +393,41 @@
         }
       ]
     },
+    "externalDependencyDeclarationsPredicate": {
+      "_type": "https://in-toto.io/Statement/v1",
+      "subject": [
+        {
+          "name": "pkg:volume/research-agent-pack@1.4.0",
+          "digest": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ],
+      "predicateType": "https://agentvolumes.org/predicates/external-dependency-declarations/v0.1",
+      "predicate": {
+        "semantics": "declaration-only",
+        "declarations": [
+          {
+            "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+            "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+            "constraint": "vers:npm/>=1.7.0|<2.0.0",
+            "purpose": "runtime",
+            "scope": [],
+            "declarationOnly": true,
+            "resolvedEvidence": false
+          },
+          {
+            "declarationKey": "av-extdep-v1:sha256:eb630552537c1430095d5777e89a3c804eafd9d9f42a6cd7dba40ccc08fc2f6c",
+            "purl": "pkg:pypi/requests?extra=socks",
+            "constraint": "vers:pypi/>=2.31.0|<3.0.0",
+            "purpose": "runtime",
+            "scope": ["arxiv-search"],
+            "declarationOnly": true,
+            "resolvedEvidence": false
+          }
+        ]
+      }
+    },
     "slsa": {
       "_type": "https://in-toto.io/Statement/v1",
       "subject": [

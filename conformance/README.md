@@ -165,9 +165,10 @@ Warning payloads use the companion schema
 [`../schemas/warning.schema.json`](../schemas/warning.schema.json).
 
 `mapping-sample.json` is a concrete offline export vector. It binds one source
-manifest and release subject to CycloneDX, SPDX, and SLSA output objects so
-validators can check round-trip-safe native and extension mappings separately
-from intentionally lossy mappings.
+manifest and release subject to CycloneDX, SPDX, the optional Agent Volumes
+external dependency declarations predicate, and SLSA output objects so validators
+can check round-trip-safe native and extension mappings separately from
+intentionally lossy mappings.
 
 Fixture updates that materially change expected behavior are normative draft
 changes and MUST remain version-aligned with the prose specification.
