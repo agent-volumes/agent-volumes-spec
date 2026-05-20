@@ -37,7 +37,7 @@
             "groups": [
               {
                 "group": "Overview",
-                "pages": ["index", "quickstart", "concepts"]
+                "pages": ["index", "quickstart", "concepts", "implementers"]
               },
               {
                 "group": "Release archives",
@@ -137,6 +137,7 @@
                 "pages": [
                   "spec/0.1.0-rc.1/uri-publications/schema-ids",
                   "spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace",
+                  "spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-context",
                   "spec/0.1.0-rc.1/uri-publications/in-toto-external-dependency-predicate",
                   "spec/0.1.0-rc.1/uri-publications/reserved-extension-namespaces",
                   "spec/0.1.0-rc.1/uri-publications/purl-vers-compatibility-exceptions",
@@ -329,6 +330,11 @@
     {
       "source": "/uri-publications/spdx-external-dependency-namespace",
       "destination": "/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/spdx-external-dependency-context",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-context",
       "permanent": false
     },
     {
