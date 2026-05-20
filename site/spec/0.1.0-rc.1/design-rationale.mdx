@@ -13,6 +13,8 @@ Agent Volumes decision records explain why the v0.1 release surface looks the wa
 
 ## How to use decision records
 
+All Agent Volumes ADRs follow the [MADR](https://adr.github.io/madr/) format, so each record uses a consistent structure for context, decision, consequences, and related discussion.
+
 - Read decision records when you need to understand why a behavior is in scope, out of scope, or intentionally deferred.
 - Use the prose specification and companion artifacts for the current release contract.
 - Treat deferred topics as deliberate v0.1 boundaries, not as readiness gaps, unless the relevant record's reopening trigger has been met.
@@ -77,7 +79,7 @@ The publication model comes from the latest documentation and URI publication re
 | Record   | Decision                                                                                                                                           |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ADR-0153 | Adopt Mintlify for the first public documentation site.                                                                                            |
-| ADR-0154 | Manage the Mintlify source in this repository under `site/`.                                                                                       |
+| ADR-0154 | Manage the Mintlify source in the spec repository under `site/`.                                                                                   |
 | ADR-0155 | Use `agentvolumes.org` as the canonical organization host.                                                                                         |
 | ADR-0156 | Host rendered specification documentation on `docs.agentvolumes.org` and reserve apex `/spec/*` aliases for permanent specification URI redirects. |
 | ADR-0157 | Use a hybrid IA with unversioned orientation pages plus immutable `/spec/<version>/...` release archives.                                          |
