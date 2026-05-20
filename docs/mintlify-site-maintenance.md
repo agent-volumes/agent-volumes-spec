@@ -61,13 +61,18 @@ release, not only the latest site text.
 
 ADR-0157 adopts a hybrid information architecture for this site: maintain an
 unversioned landing and navigation layer for current readers, but publish
-release-specific specification, API, artifact, conformance, and identifier
-documentation under immutable `/spec/<version>/...` archive paths. Implement that
-hybrid model with Mintlify `navigation.versions`: keep unversioned orientation
-pages in each version's navigation tree, and list release-specific pages under
-the matching `/spec/<version>/...` subtree so the Mintlify version selector shows
-the selected release's pages. Treat `/spec/` itself as a release archive selector
-or version index, not as a mutable replacement for the released pages beneath it.
+release-specific specification, API, artifact, conformance, and archived
+identifier documentation under immutable `/spec/<version>/...` archive paths.
+ADR-0158 adds stable semantic identifier landing pages outside the release
+archive for routes such as `build/`, `ns/`, `predicates/`, and `problems/`. It
+also treats JSON-LD remote contexts as stable canonical processor inputs under
+`contexts/`, with release archive copies preserved under `/spec/<version>/contexts/`.
+Implement that hybrid model with Mintlify `navigation.versions`: keep
+unversioned orientation pages in each version's navigation tree, and list
+release-specific pages under the matching `/spec/<version>/...` subtree so the
+Mintlify version selector shows the selected release's pages. Treat `/spec/`
+itself as a release archive selector or version index, not as a mutable
+replacement for the released pages beneath it.
 
 Maintain these publication boundaries:
 
@@ -79,6 +84,14 @@ Maintain these publication boundaries:
   as `/spec/0.1.0-rc.1/`, with the matching prose, schema identifier pages,
   OpenAPI publication copy, conformance fixture documentation, URI publication
   pages, and design-rationale summaries for that release.
+- Publish semantic identifier landing pages outside `/spec/<version>/` when the
+  route names the identifier itself rather than a release archive page. These
+  pages must link to the release archives and canonical repository artifacts that
+  define or clarify the identifier.
+- Publish canonical JSON-LD remote context documents outside `/spec/<version>/`
+  when deployed processors are expected to dereference that URL. Preserve an
+  identical copy under the release archive and validate drift between the two
+  copies.
 - Keep all past non-draft release documentation permanently reachable. Do not
   replace historical release pages with current-release prose, and do not rewrite
   released schema `$id` pages, Problem Details slugs, namespace term fragments,
@@ -130,6 +143,17 @@ Maintain the Mintlify site with these host responsibilities in mind:
   aliases on the organization apex host. These aliases should redirect to the
   corresponding `https://docs.agentvolumes.org/spec/*` page rather than serving a
   duplicate indexable copy.
+- Agent Volumes-owned semantic identifier routes, including
+  `https://agentvolumes.org/build/...`, `https://agentvolumes.org/ns/...`,
+  `https://agentvolumes.org/predicates/...`, and
+  `https://agentvolumes.org/problems/...`, should resolve to stable landing pages
+  for the identifier itself rather than redirecting directly to one release
+  archive page.
+- Agent Volumes-owned JSON-LD context routes, including
+  `https://agentvolumes.org/contexts/...`, should resolve to stable canonical
+  context documents. Release archive copies under
+  `https://agentvolumes.org/spec/<version>/contexts/...` remain available for
+  reproducibility and evidence.
 
 Do not configure the Mintlify site as a competing organization homepage, and do
 not publish duplicate specification pages from both apex and docs hosts. Internal
@@ -159,7 +183,8 @@ does not by itself remove a page from navigation.
 
 ## Unversioned and versioned page classification
 
-Use ADR-0157's classification rule before adding, moving, or rewriting a page:
+Use ADR-0157 and ADR-0158's classification rules before adding, moving, or
+rewriting a page:
 
 - If a page explains behavior that an implementer, auditor, conformance runner, or
   artifact consumer must reproduce for a specific Agent Volumes release, publish
@@ -170,21 +195,32 @@ Use ADR-0157's classification rule before adding, moving, or rewriting a page:
 - If an unversioned page contains release-specific examples or summaries, keep
   the summary short and link to the exact versioned page for normative or
   reproducible details.
+- If an unversioned page is a semantic identifier landing page, keep it focused on
+  the identifier, its compatibility boundary, and links to the archived releases
+  that define or clarify it. Do not copy the full release reference page into the
+  unversioned route.
+- If an unversioned route is a JSON-LD remote context document, keep it as the
+  canonical context payload. Put human documentation in release archive pages or
+  stable landing pages, and keep archive copies byte-identical to the canonical
+  context.
 - If a URL is a movable convenience entry point, such as `/spec/latest` or
   `/spec/current`, configure it as an alias or redirect and do not use it as a
   canonical release citation.
 
 Classify pages by content role rather than by directory convenience:
 
-| Content role                                                         | Path policy                                          |
-| -------------------------------------------------------------------- | ---------------------------------------------------- |
-| Landing page, project overview, version selector, archive index      | Unversioned, outside release archives                |
-| Quickstart orientation and broad concepts                            | Unversioned only when they link to versioned details |
-| Manifest, identity, component, compatibility, and permission details | Versioned under `/spec/<version>/...`                |
-| Registry API prose and generated OpenAPI reference                   | Versioned with the release they describe             |
-| Schemas, conformance, requirement traceability, artifact inventory   | Versioned with the release they describe             |
-| Problem Details, schema `$id`, namespace, predicate, and URI pages   | Versioned when tied to a release-specific identifier |
-| Governance, contribution, security contact, and organization links   | Unversioned or linked to `https://agentvolumes.org`  |
+| Content role                                                                                   | Path policy                                                    |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Landing page, project overview, version selector, archive index                                | Unversioned, outside release archives                          |
+| Quickstart orientation and broad concepts                                                      | Unversioned only when they link to versioned details           |
+| Manifest, identity, component, compatibility, and permission details                           | Versioned under `/spec/<version>/...`                          |
+| Registry API prose and generated OpenAPI reference                                             | Versioned with the release they describe                       |
+| Schemas, conformance, requirement traceability, artifact inventory                             | Versioned with the release they describe                       |
+| Schema `$id` pages                                                                             | Versioned under `/spec/<version>/schemas/...`                  |
+| Semantic identifier landing pages for build types, namespaces, predicates, and Problem Details | Stable unversioned route plus links to release archives        |
+| JSON-LD remote context documents                                                               | Stable canonical `/contexts/...` URL plus release archive copy |
+| Archived Problem Details, namespace, predicate, and URI pages                                  | Versioned under `/spec/<version>/...`                          |
+| Governance, contribution, security contact, and organization links                             | Unversioned or linked to `https://agentvolumes.org`            |
 
 When using Mintlify navigation, prefer explicit structure over implicit routing.
 Use `navigation.versions` for the site's primary version-selection UI. Keep
@@ -223,9 +259,10 @@ in a dedicated tab when that is easier to scan than a single long sidebar.
 
 Outside the release subtree, keep the unversioned layer small: the docs landing
 page, `/spec/` archive selector, version selection guidance, current-reader
-quickstart orientation, and links to organization resources are enough. The
-sections below describe the coverage expected inside each immutable
-`/spec/<version>/...` release subtree.
+quickstart orientation, stable semantic identifier landing pages, stable JSON-LD
+context documents, and links to organization resources are enough. The sections
+below describe the coverage expected inside each immutable `/spec/<version>/...`
+release subtree.
 
 ### Start here
 

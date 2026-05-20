@@ -15,7 +15,7 @@
 ## Structure
 
 - `spec/`: release archive selector and immutable release-specific documentation subtrees.
-- Release-specific reference content belongs under `spec/<version>/...`. Do not recreate unversioned `api/`, `api-reference/`, `components/`, `volumes/`, `security/`, `conformance/`, `problems/`, or `uri-publications/` copies unless a follow-up ADR changes the IA model.
+- Release-specific reference content belongs under `spec/<version>/...`. Do not recreate unversioned `api/`, `api-reference/`, `components`, `volumes`, `security`, `conformance`, or `uri-publications` copies unless a follow-up ADR changes the IA model. ADR-0158 allows stable semantic identifier landing pages outside the release archive, including `build/`, `ns/`, `predicates/`, and `problems/`, when those pages describe the identifier itself and link back to release archives plus canonical repository artifacts. ADR-0158 also allows stable JSON-LD context documents under `contexts/` when release archives keep byte-identical copies.
 - `images/` and favicon SVGs: site assets.
 
 ## Terminology

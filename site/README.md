@@ -38,7 +38,7 @@ bun run lint:site
 
 Mintlify should be configured as a monorepo deployment with `/site` as the documentation path. Changes deploy after they are pushed to the configured branch and the Mintlify GitHub App can access this repository.
 
-The docs deployment belongs on `docs.agentvolumes.org`. The organization apex, `agentvolumes.org`, remains the canonical host for organization pages and durable specification aliases such as `agentvolumes.org/spec/*`; those aliases should redirect to the corresponding docs-host release archive page rather than serving duplicate documentation.
+The docs deployment belongs on `docs.agentvolumes.org`. The organization apex, `agentvolumes.org`, remains the canonical host for organization pages and durable specification aliases such as `agentvolumes.org/spec/*`; those aliases should redirect to the corresponding docs-host release archive page rather than serving duplicate documentation. Semantic identifier routes such as `agentvolumes.org/build/...`, `agentvolumes.org/ns/...`, `agentvolumes.org/predicates/...`, and `agentvolumes.org/problems/...` resolve to stable landing pages for the identifier itself and link to the release archives that define or clarify them. JSON-LD context routes such as `agentvolumes.org/contexts/...` resolve to stable canonical context documents, with byte-identical release archive copies under `agentvolumes.org/spec/<version>/contexts/...`.
 
 ## License
 
@@ -57,3 +57,4 @@ For release candidates and stable releases, record Namespace and URI publication
 - [ADR-0155](../docs/decisions/0155-use-agentvolumes-org-as-canonical-organization-host.md)
 - [ADR-0156](../docs/decisions/0156-host-versioned-spec-docs-on-docs-subdomain-with-apex-spec-aliases.md)
 - [ADR-0157](../docs/decisions/0157-use-hybrid-unversioned-and-versioned-docs-information-architecture.md)
+- [ADR-0158](../docs/decisions/0158-separate-semantic-identifier-pages-from-release-archives.md)
