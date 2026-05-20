@@ -32,16 +32,12 @@
             "groups": [
               {
                 "group": "Overview",
-                "pages": [
-                  "introduction",
-                  "quickstart",
-                  "concepts",
-                  {
-                    "group": "Release archive",
-                    "root": "spec/index",
-                    "pages": ["spec/0.1.0-rc.1/index"]
-                  }
-                ]
+                "pages": ["index", "quickstart", "concepts"]
+              },
+              {
+                "group": "Release archive",
+                "root": "spec/index",
+                "pages": ["spec/0.1.0-rc.1/index"]
               }
             ]
           },
@@ -191,6 +187,16 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/introduction/",
+      "destination": "/",
+      "permanent": true
+    },
     {
       "source": "/volumes/manifest",
       "destination": "/spec/0.1.0-rc.1/volumes/manifest",
