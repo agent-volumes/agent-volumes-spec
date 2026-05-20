@@ -3,16 +3,31 @@ title: 'Manual build type v0.1'
 description: 'Stable documentation page for the Agent Volumes manual build type URI used in mapping fixtures.'
 ---
 
-`https://agentvolumes.org/build/manual/v0.1` identifies the manual build type URI used by Agent Volumes mapping fixtures.
+`https://agentvolumes.org/build/manual/v0.1` identifies the Agent Volumes v0.1 manual build type used in SLSA provenance examples and mapping fixtures.
 
-This URI documents fixture and release-evidence context. It does not create a general build-system registry or a universal build profile.
+Use this build type when the provenance describes a manually assembled or fixture-defined Agent Volumes release subject rather than an automated build platform.
+
+## Identifier
+
+```text
+https://agentvolumes.org/build/manual/v0.1
+```
 
 ## Current use
 
-The v0.1 mapping sample uses the URI as a SLSA `buildType` value for a manually assembled fixture. Consumers should interpret it only in the context of the Agent Volumes v0.1 mapping artifacts.
+The v0.1 mapping sample uses this URI as the SLSA `predicate.buildType` value for the Agent Volumes release subject. Consumers should interpret it only in the context of the Agent Volumes v0.1 mapping artifacts.
+
+## Publication boundary
+
+- The URI is versioned as `v0.1`.
+- It documents the build type used by Agent Volumes mapping fixtures.
+- It does not define a general build-system registry.
+- It does not replace the SLSA provenance predicate type `https://slsa.dev/provenance/v1`.
+- It does not imply that manually built releases are trusted without separate provenance, signature, and release-subject verification.
 
 ## Related sources
 
 - [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)
+- [Trust metadata API](/spec/0.1.0-rc.1/api/trust-metadata)
 - [BOM and profile identifiers](/spec/0.1.0-rc.1/uri-publications/bom-profile-identifiers)
 - [Conformance fixtures](/spec/0.1.0-rc.1/conformance/fixtures)
