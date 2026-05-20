@@ -433,6 +433,11 @@
       "permanent": false
     },
     {
+      "source": "/spec/latest/:slug*",
+      "destination": "/spec/0.1.0-rc.1/:slug*",
+      "permanent": false
+    },
+    {
       "source": "/spec/latest/",
       "destination": "/spec/0.1.0-rc.1/",
       "permanent": false
@@ -440,6 +445,11 @@
     {
       "source": "/spec/latest",
       "destination": "/spec/0.1.0-rc.1/",
+      "permanent": false
+    },
+    {
+      "source": "/spec/current/:slug*",
+      "destination": "/spec/0.1.0-rc.1/:slug*",
       "permanent": false
     },
     {

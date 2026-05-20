@@ -125,16 +125,16 @@ For full semantics, invocation rules, and entrypoint formats for each type, see 
 ## Release and archive routes
 
 - `/spec/latest/` and `/spec/current/` redirect to the latest non-draft release archive.
-- The current non-draft release archive is [`/spec/0.1.0-rc.1`](/spec/0.1.0-rc.1).
+- The current non-draft release archive is [`/spec/0.1.0-rc.1/`](/spec/0.1.0-rc.1/).
 - The archive selector is [`/spec/`](/spec).
 - Older non-draft release archives remain reachable after newer releases are published.
 - Use versioned archive pages as durable citation targets. `/spec/latest/` and `/spec/current/` are convenience aliases only.
 
 ## Implementation projects
 
-The **shelf** CLI is the reference client implementation maintained by Windlass. It is intended to demonstrate the Agent Volumes client contract, including publishing volumes, resolving dependencies, verifying content integrity, and managing trust metadata.
+The **shelf** CLI is the reference client implementation maintained by Windlass. It is intended to demonstrate [the Agent Volumes client contract](/spec/latest/specification-authority), including publishing volumes, resolving dependencies, verifying content integrity, and managing trust metadata.
 
-The **Alexandria** bibliotheca is the reference registry implementation, also maintained by Windlass. It is intended to demonstrate the Agent Volumes Registry API, including package operations, version discovery, trust upload, and capability metadata endpoints.
+The **Alexandria** bibliotheca is the reference registry implementation, also maintained by Windlass. It is intended to demonstrate [the Agent Volumes Registry API](/spec/latest/api/overview), including package operations, version discovery, trust upload, and capability metadata endpoints.
 
 <Note>
   shelf and Alexandria are downstream implementation projects, not governance artifacts of the Agent Volumes
