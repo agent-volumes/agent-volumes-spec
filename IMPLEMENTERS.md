@@ -16,24 +16,24 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 
 ## Canonical artifacts
 
-| Area                 | Primary files                                                                              |
-| -------------------- | ------------------------------------------------------------------------------------------ |
-| Prose requirements   | `agent-volumes-spec.md`                                                                    |
-| Manifest model       | `schemas/volume.schema.json`                                                               |
-| Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`                                                         |
-| Release metadata     | `schemas/release-metadata.schema.json`, `schemas/exact-release-metadata-case.schema.json`  |
-| Version index        | `schemas/version-index-row.schema.json`                                                    |
-| Trust discovery      | `schemas/trust-summary.schema.json`, `schemas/trust-detail.schema.json`                    |
-| Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json` |
-| Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`     |
-| Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                     |
-| Mapping samples      | `schemas/mapping-matrix.schema.json`, `schemas/mapping-sample.schema.json`                 |
-| Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`             |
-| Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
-| Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
-| Manifest parsing     | `schemas/manifest-parse-case.schema.json`                                                  |
-| Fixtures and vectors | `conformance/fixtures/`                                                                    |
-| Conformance reports  | `schemas/conformance-report.schema.json`                                                   |
+| Area                 | Primary files                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prose requirements   | `agent-volumes-spec.md`                                                                                                                      |
+| Manifest model       | `schemas/volume.schema.json`                                                                                                                 |
+| Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`                                                                                                           |
+| Release metadata     | `schemas/release-metadata.schema.json`, `schemas/exact-release-metadata-case.schema.json`                                                    |
+| Version index        | `schemas/version-index-row.schema.json`                                                                                                      |
+| Trust discovery      | `schemas/trust-summary.schema.json`, `schemas/trust-detail.schema.json`                                                                      |
+| Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json`                                                   |
+| Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`                                                       |
+| Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                                                                       |
+| Mapping samples      | `schemas/mapping-matrix.schema.json`, `schemas/mapping-sample.schema.json`, `schemas/external-dependency-declarations-predicate.schema.json` |
+| Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`                                                               |
+| Capability discovery | `schemas/capability-metadata.schema.json`                                                                                                    |
+| Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                                                                         |
+| Manifest parsing     | `schemas/manifest-parse-case.schema.json`                                                                                                    |
+| Fixtures and vectors | `conformance/fixtures/`                                                                                                                      |
+| Conformance reports  | `schemas/conformance-report.schema.json`                                                                                                     |
 
 ## Minimum viable conforming client
 
