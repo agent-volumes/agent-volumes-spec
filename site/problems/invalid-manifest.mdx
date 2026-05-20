@@ -1,0 +1,27 @@
+---
+title: 'Invalid manifest'
+description: 'Stable Problem Details type URI page for invalid-manifest.'
+---
+
+`https://agentvolumes.org/problems/invalid-manifest` identifies the `invalid-manifest` Problem Details type.
+
+| Field       | Value                                                              |
+| ----------- | ------------------------------------------------------------------ |
+| Type URI    | `https://agentvolumes.org/problems/invalid-manifest`               |
+| Slug        | `invalid-manifest`                                                 |
+| HTTP status | `400`                                                              |
+| Title       | `Invalid manifest`                                                 |
+| Meaning     | A submitted `volume.toml` is structurally or semantically invalid. |
+
+Switch on the `type` URI when handling Agent Volumes Registry API errors. The human-readable `title` can vary by implementation or localization.
+
+## Release archives
+
+- [v0.1.0-rc.1 problem page](/spec/0.1.0-rc.1/problems/invalid-manifest)
+- [v0.1.0-rc.1 API error table](/spec/0.1.0-rc.1/api/errors)
+
+## Canonical sources
+
+- [Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [Problem registry schema](/spec/0.1.0-rc.1/schemas/problem-registry.schema.json)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/problem-registry.json)

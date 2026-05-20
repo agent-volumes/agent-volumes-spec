@@ -198,6 +198,14 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+# Keep release-scoped URI publication pages under site/spec/*/build/ tracked.
+!site/spec/*/build/
+!site/spec/*/build/manual/
+!site/spec/*/build/manual/*.mdx
+# Keep stable URI publication pages under site/build/ tracked.
+!site/build/
+!site/build/manual/
+!site/build/manual/*.mdx
 develop-eggs/
 dist/
 downloads/
@@ -321,8 +329,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# Mintlify documentation site
+/site/.DS_Store
+/site/.atlas-analysis.json
 
 # mypy
 .mypy_cache/

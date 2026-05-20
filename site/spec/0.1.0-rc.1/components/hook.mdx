@@ -1,0 +1,208 @@
+---
+title: 'Hook component: lifecycle event handlers'
+description: 'Intercept agent runtime lifecycle events with Hook components that run automatically at defined points — session start, tool use, compaction, and more.'
+---
+
+A Hook component packages logic that fires automatically when the agent runtime reaches a specific lifecycle event. Unlike Commands (user-triggered) or Tools (agent-triggered), hooks are reactive — the runtime invokes them in response to events like session start, tool use, or file changes. You don't call a hook directly; you configure it for an event and the runtime fires it when that event occurs.
+
+## Entrypoint format
+
+Hook entrypoints can be:
+
+- **Markdown** (`.md`) — with YAML frontmatter describing the event and hook type
+- **YAML** (`.yaml`) — a descriptor with event and type fields
+- **Executable script** — any regular executable file
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a regular file.
+- The descriptor declares or implies a canonical lifecycle event from the vocabulary below.
+- The descriptor declares one of the three valid hook types: `command`, `script`, or `module`.
+
+## Lifecycle events
+
+Hooks can fire on any of the following canonical lifecycle events:
+
+<CardGroup cols={2}>
+  <Card title="Session events" icon="play">
+    `SessionStart`, `SessionEnd`, `Setup`
+  </Card>
+  <Card title="User interaction events" icon="message">
+    `UserPromptSubmit`, `Stop`, `StopFailure`
+  </Card>
+  <Card title="Tool events" icon="wrench">
+    `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`
+  </Card>
+  <Card title="Agent events" icon="robot">
+    `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`
+  </Card>
+  <Card title="Context events" icon="book-open">
+    `InstructionsLoaded`, `PreCompact`, `PostCompact`
+  </Card>
+  <Card title="Environment events" icon="folder">
+    `ConfigChange`, `CwdChanged`, `FileChanged`
+  </Card>
+</CardGroup>
+
+A hook that declares an event outside this canonical vocabulary is a validation failure.
+
+## Hook types
+
+Three hook types define how the hook executes:
+
+| Type      | Description                                     |
+| --------- | ----------------------------------------------- |
+| `command` | A shell command string executed by the runtime. |
+| `script`  | An executable file run as a subprocess.         |
+| `module`  | A Node.js or Python module loaded and called.   |
+
+## Required descriptor fields
+
+For Markdown and YAML hook entrypoints, the descriptor must include:
+
+| Field   | Required | Description                                              |
+| ------- | -------- | -------------------------------------------------------- |
+| `event` | Yes      | One canonical lifecycle event from the vocabulary above. |
+| `type`  | Yes      | One of: `command`, `script`, `module`.                   |
+
+### Markdown hook with frontmatter
+
+```markdown
+---
+event: PostToolUse
+type: script
+---
+
+Log every tool call result for audit purposes.
+```
+
+### YAML hook descriptor
+
+```yaml
+event: SessionStart
+type: command
+command: echo "Session started at $(date)" >> ~/.agent-sessions.log
+```
+
+## Declaring a hook in `volume.toml`
+
+Add a `[[components]]` entry with `type = "hook"` and point `entrypoint` to your hook file.
+
+```toml
+[[components]]
+type = "hook"
+name = "session-logger"
+entrypoint = "./hooks/session-logger.md"
+description = "Log session start and end events for audit purposes"
+```
+
+A volume that exports several hooks for different lifecycle stages:
+
+```toml
+[volume]
+schema = 1
+name = "audit-hooks-pack"
+version = "1.0.0"
+description = "Lifecycle hooks for session auditing and file change tracking"
+license = "Apache-2.0"
+role = "plugin"
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "hook"
+name = "session-logger"
+entrypoint = "./hooks/session-logger.yaml"
+description = "Log session start and end timestamps"
+
+[[components]]
+type = "hook"
+name = "tool-auditor"
+entrypoint = "./hooks/tool-auditor.md"
+description = "Record every tool invocation and its result"
+
+[[components]]
+type = "hook"
+name = "file-watcher"
+entrypoint = "./hooks/file-watcher.md"
+description = "React to file changes in the working directory"
+
+[permissions]
+filesystem = "write"
+shell = "allow"
+```
+
+## Common hook patterns
+
+<Tabs>
+  <Tab title="SessionStart">
+    Run setup logic when a new session begins — initialize state, load configuration, or log the session.
+
+    ```yaml
+    event: SessionStart
+    type: command
+    command: mkdir -p ~/.agent-logs && echo "$(date): session started" >> ~/.agent-logs/sessions.log
+    ```
+
+  </Tab>
+  <Tab title="PreToolUse">
+    Inspect or gate a tool call before it executes — useful for logging, approval workflows, or enforcing policies.
+
+    ```markdown
+    ---
+    event: PreToolUse
+    type: script
+    ---
+
+    Before executing any tool, validate that the requested operation is permitted
+    under the current session's policy configuration.
+    ```
+
+  </Tab>
+  <Tab title="PostToolUse">
+    Process the result of a tool call — write audit records, trigger follow-up actions, or update state.
+
+    ```markdown
+    ---
+    event: PostToolUse
+    type: module
+    ---
+
+    After each tool call, append the tool name, inputs, and result summary to the
+    session audit log.
+    ```
+
+  </Tab>
+  <Tab title="FileChanged">
+    React when files in the working directory change — trigger reloads, run checks, or notify other systems.
+
+    ```yaml
+    event: FileChanged
+    type: script
+    ```
+
+  </Tab>
+</Tabs>
+
+## Validation requirements
+
+A hook entrypoint fails portable validation if any of these conditions are true:
+
+- The file does not exist or is not a regular file.
+- The descriptor cannot be parsed.
+- The `event` field declares a lifecycle event outside the canonical vocabulary.
+- The `type` field declares a hook type other than `command`, `script`, or `module`.
+
+<Tip>
+  Use `PreToolUse` and `PostToolUse` hooks for cross-cutting concerns like logging and auditing. These fire for every
+  tool call, giving you a consistent observation point without modifying individual tool definitions.
+</Tip>
+
+## Component identifier
+
+Once published, reference the hook using a purl identifier:
+
+```text
+pkg:volume/audit-hooks-pack@1.0.0#hook/session-logger
+```

@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "problems": [
     {
       "slug": "authentication-required",
@@ -13,7 +13,7 @@
       "type": "https://agentvolumes.org/problems/authorization-failed",
       "status": 403,
       "title": "Authorization failed",
-      "meaning": "The authenticated caller is not authorized for the requested operation."
+      "meaning": "The caller, request context, or requested resource is not permitted by authorization or access policy."
     },
     {
       "slug": "not-found",
@@ -111,7 +111,7 @@
       "type": "https://agentvolumes.org/problems/payload-too-large",
       "status": 413,
       "title": "Payload too large",
-      "meaning": "The submitted payload exceeds the bibliotheca's accepted limit."
+      "meaning": "The submitted payload or declared upload size exceeds the bibliotheca's accepted limit."
     },
     {
       "slug": "unsupported-media-type",

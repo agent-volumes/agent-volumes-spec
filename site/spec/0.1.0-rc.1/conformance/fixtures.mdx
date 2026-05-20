@@ -1,0 +1,189 @@
+---
+title: 'Conformance fixtures and test vectors'
+description: 'How to use the Agent Volumes conformance fixture corpus to validate your client or bibliotheca implementation against the v0.1 normative test suite.'
+sidebarTitle: 'Fixtures'
+---
+
+The Agent Volumes conformance fixture corpus is a set of normative test inputs and expected outputs that cover every major surface of the v0.1 specification. Fixtures are deterministic and offline — they do not require a deployed bibliotheca, live Sigstore/Rekor services, network access, or a universal trust-root policy. You run them against your own implementation and produce a conformance report that records which cases passed and which failed.
+
+## What fixtures cover
+
+Fixtures fall into three validation unit types:
+
+- **Whole-file schema** — the entire fixture file is validated against a companion JSON Schema.
+- **Case payload schema** — each element under `cases` or `fixtures` carries a payload validated against the named schema.
+- **Algorithmic vector** — the file shape is checked by the runner and the expected result is evaluated by deterministic logic, such as digest construction or resolver selection.
+
+## Fixture families
+
+The fixture corpus is organized into families, each covering a distinct area of the specification.
+
+<CardGroup cols={2}>
+  <Card title="Manifest validation" icon="file-check">
+    `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json` — valid, invalid, and warning cases
+    for `volume.toml` parsing and semantic checks.
+  </Card>
+  <Card title="Permission validation" icon="shield-exclamation">
+    `permission-escalation.json`, `permission-sibling-escalation.json` — component permission escalation rejection
+    cases.
+  </Card>
+  <Card title="Dependency and resolver behavior" icon="diagram-project">
+    `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` — SemVer
+    range grammar accept/reject cases and resolver lifecycle behavior.
+  </Card>
+  <Card title="External dependency declarations" icon="link">
+    `external-dependency-validation-cases.json`, `external-dependency-potential-exposure-cases.json`,
+    `external-dependency-potential-exposure-warning-context-invalid.json`,
+    `manifest-invalid-external-dependency-*.json`, `../upstream-baselines.json`, `upstream-baselines-invalid.json`,
+    `../purl-vers-compatibility-exceptions.json`, and `purl-vers-compatibility-exceptions-invalid.json` — PURL/VERS
+    validation, declaration keys, upstream baseline compatibility, and potential-exposure warning contexts.
+  </Card>
+  <Card title="Package identity" icon="tag">
+    `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json` — purl serialization and canonical
+    identity cases.
+  </Card>
+  <Card title="Archive and integrity" icon="box">
+    `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` — normalized file-tree digest
+    golden vectors and archive profile validation.
+  </Card>
+  <Card title="Release metadata and upload" icon="upload">
+    `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`, `lifecycle-mutation-cases.json` — release
+    lifecycle states, unpublish and mutation endpoint behavior, and the `http-put` portable upload profile.
+  </Card>
+  <Card title="Trust discovery and upload" icon="lock">
+    `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json` — trust metadata payloads, append-only
+    status variants, and upload lifecycle.
+  </Card>
+  <Card title="Trust artifact verification" icon="certificate">
+    `trust-artifact-verification-cases.json` — portable objective artifact facts, lifecycle behavior, and superseded
+    stale-evidence cases.
+  </Card>
+  <Card title="Advisories" icon="triangle-exclamation">
+    `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-search-failure-cases.json`,
+    `advisory-validation-cases.json` — advisory payloads, validation cases, and read/discovery failure mappings.
+  </Card>
+  <Card title="Capability and extensions" icon="puzzle-piece">
+    `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json` — capability
+    metadata exact version sets, API family, upload profiles, and unknown field tolerance.
+  </Card>
+  <Card title="BOM/provenance export mapping" icon="map">
+    `mapping-matrix.json`, `mapping-sample.json` — round-trip-safe CycloneDX, SPDX, and SLSA output mappings.
+  </Card>
+  <Card title="Errors and warnings" icon="circle-exclamation">
+    `problem-details-cases.json`, `problem-registry.json` — RFC 9457 Problem Details taxonomy, the portable problem
+    type/status set, and warning payload compatibility through `schemas/warning.schema.json`.
+  </Card>
+  <Card title="Search and catalog" icon="magnifying-glass">
+    `search-results.json`, `catalog-search-failure-cases.json` — catalog search response payload shape and search
+    failure mappings.
+  </Card>
+  <Card title="Requirement traceability" icon="list-check">
+    `conformance-coverage.json` — maps `AV-BIB-*` and `AV-CLI-*` requirement IDs to fixture families.
+  </Card>
+</CardGroup>
+
+## Normalized file-tree digest vectors
+
+The `digest-vectors.json` file contains golden vectors for the normalized file-tree integrity algorithm. Your implementation must reproduce these digest values byte-for-byte. Use `digest-invalid-cases.json` to confirm your implementation rejects malformed or mismatched digest inputs.
+
+<Warning>
+  Digest vectors are algorithmic, not schema-only. A schema pass alone does not confirm that your digest construction is
+  correct — you must evaluate the expected output against your computed result.
+</Warning>
+
+## BOM and provenance mapping fixtures
+
+The BOM/provenance mapping fixtures explain how Agent Volumes fields project into CycloneDX, SPDX, and SLSA outputs. The source artifacts are `conformance/fixtures/mapping-matrix.json`, `conformance/fixtures/mapping-sample.json`, `schemas/mapping-matrix.schema.json`, and `schemas/mapping-sample.schema.json`.
+
+`mapping-matrix.json` classifies each target mapping by preservation level:
+
+| Mapping kind | Meaning                                                                                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `native`     | The target family has a native field that preserves the Agent Volumes value.                                                                                            |
+| `extension`  | The value is preserved through an Agent Volumes extension namespace or predicate.                                                                                       |
+| `lossy`      | The target family cannot preserve full semantics without an Agent Volumes-aware extension. Treat the output as a human-readable summary, not a round-trip-safe mapping. |
+
+Important examples from the matrix:
+
+- `release.immutableContentIdentity` maps natively to CycloneDX `metadata.component.hashes[SHA-256]`, SPDX `Package.checksums[SHA256]`, and SLSA `subject.digest.sha256`.
+- `release.logicalIdentity` maps natively to CycloneDX `metadata.component.purl` and SPDX `ExternalRef[purl]`; SLSA carries it through an Agent Volumes extension on the subject name.
+- `provenance.build.system` maps natively to SLSA `runDetails.builder.id`, while CycloneDX uses `metadata.properties[agent-volumes:build-system]` and SPDX keeps a lossy creation-info comment.
+- `external-dependencies[]` remain declaration-only. CycloneDX uses external components plus `agent-volumes:*` properties, SPDX 3.0.1 uses the URI-backed Agent Volumes extension namespace, and SLSA omits them from `subject`, `materials`, and `resolvedDependencies` unless an optional in-toto predicate is used.
+
+`mapping-sample.json` is the concrete offline vector. It binds one source manifest and release subject to CycloneDX, SPDX, SPDX external-dependency extension, and SLSA output objects so validators can check native, extension, and lossy mappings separately.
+
+## Conformance report schema
+
+When your runner finishes evaluating the fixture corpus, output a report using `schemas/conformance-report.schema.json`. The list below is a summary only; the schema is authoritative for required fields, optional metadata, result outcomes, warnings, and skip reporting. At a high level, the report records:
+
+- The runner identity and implementation roles claimed
+- Aggregate pass/fail counts
+- One result per fixture case, keyed by a stable lowercase slug derived from the fixture path and case name (for example, `semantic-validation-cases/command-entrypoint-missing-trigger`)
+
+Keep result IDs stable across repeated runs of the same fixture corpus so reports can be diffed and compared by tooling.
+
+<Note>
+  A conformance report is a statement about the artifact and vector surface only. It is not a product certification
+  badge and does not imply live registry interoperability.
+</Note>
+
+## Coverage map
+
+`conformance-coverage.json` (validated against `schemas/conformance-coverage.schema.json`) maps stable prose requirement IDs such as `AV-BIB-*` and `AV-CLI-*` to the fixture families that cover them. This section is a summary only; the schema and coverage artifact are authoritative for fields such as role, area, coverage type, schema references, fixture paths, and case names. Use this file to:
+
+- Identify which requirements have fixture coverage and which are prose-boundary only
+- Track which fixture families are relevant to the roles you claim
+- Distinguish fixture-checked behavior from intentionally deferred topics
+
+## How to use fixtures in your implementation
+
+<Steps>
+  <Step title="Clone the spec repository">
+    Clone `agent-volumes/agent-volumes-spec` to get the full fixture corpus and companion schemas.
+
+    ```bash
+    git clone https://github.com/agent-volumes/agent-volumes-spec.git
+    ```
+
+  </Step>
+  <Step title="Navigate to the conformance artifacts">
+    Most fixture files live under `conformance/fixtures/`. The root-level `conformance/upstream-baselines.json` and
+    `conformance/purl-vers-compatibility-exceptions.json` are also part of the fixture corpus. Companion schemas are in
+    `schemas/`.
+
+    ```bash
+    cd agent-volumes-spec
+    ```
+
+  </Step>
+  <Step title="Run the fixture families relevant to your implementation">
+    Map your implementation area to the corresponding fixture files using the table above. Run your runner against each family and evaluate the `expected` outcomes — including `valid`, `failureCategory`, warning categories, lifecycle states, and exact digest vectors.
+
+    To run the repository's own smoke validation:
+
+    ```bash
+    npm run validate:artifacts
+    npm run lint:openapi
+    ```
+
+  </Step>
+  <Step title="Generate a conformance report">
+    Output your results using `schemas/conformance-report.schema.json`. Include the claim labels that apply to your implementation. Publish or share the report so other implementers can compare fixture coverage.
+  </Step>
+</Steps>
+
+<Tip>
+  Trust artifact verification fixtures cover portable, objective artifact facts and lifecycle behavior. If your
+  implementation validates real signatures, you can add local cryptographic test roots or offline Sigstore/SLSA samples
+  — but those local trust-root policies are outside the v0.1 portable fixture contract. Unsupported trust artifact
+  formats must remain unverified rather than successfully verified.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Conformance overview" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
+    Claim labels, minimum viable requirements, and prototype-local choices.
+  </Card>
+  <Card title="Supply chain security" icon="shield-check" href="/spec/0.1.0-rc.1/security/supply-chain">
+    Content integrity, publisher identity, and the trust model your implementation must support.
+  </Card>
+</CardGroup>

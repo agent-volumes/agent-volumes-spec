@@ -1,0 +1,226 @@
+---
+title: 'Declaring dependencies in volume.toml'
+description: 'How to declare volume-level and component-level dependencies with portable SemVer range constraints, plus single-version enforcement rules.'
+---
+
+Agent Volumes uses `[dependencies]` for Agent Volumes package dependencies and `[component-dependencies]` for wiring specific components to components exported by those dependencies. Both tables participate in the same single-version resolution graph, so the constraints you write here directly affect how tooling resolves your package's Agent Volumes dependency tree.
+
+Use `[[external-dependencies]]` for package dependencies outside the `pkg:volume` ecosystem. External dependency declarations are audit metadata for review, policy, BOM export, and potential-exposure diagnostics. They are not resolver inputs.
+
+## Volume-level dependencies
+
+Declare volume dependencies in the `[dependencies]` table. Each key is a volume name — either a bare scopeless name or an `@scope/name` — and each value is a SemVer constraint string.
+
+```toml
+[dependencies]
+"search-toolkit" = "^2.0.0"
+"@acme/github-provider" = ">=1.5.0, <3.0.0"
+"@acme/slack-notifier" = "~1.3.0"
+"data-formatter" = "2.4.1"
+```
+
+### Supported constraint syntax
+
+The portable v0.1 grammar supports a constrained npm-like SemVer range syntax. All version operands must be full three-component SemVer strings (with optional prerelease identifiers, without build metadata).
+
+<Tabs>
+  <Tab title="Exact version">
+    Pin to a specific version. `=1.2.3` and `1.2.3` are equivalent.
+
+    ```toml
+    [dependencies]
+    "my-tool" = "1.2.3"
+    ```
+
+  </Tab>
+  <Tab title="Caret range">
+    Accept compatible updates. `^X.Y.Z` means `>=X.Y.Z` and `<(X+1).0.0` when `X > 0`, following standard SemVer-compatible caret semantics.
+
+    ```toml
+    [dependencies]
+    "my-tool" = "^1.2.3"
+    ```
+
+  </Tab>
+  <Tab title="Tilde range">
+    Accept patch-level updates only. `~X.Y.Z` means `>=X.Y.Z` and `<X.(Y+1).0`.
+
+    ```toml
+    [dependencies]
+    "my-tool" = "~1.2.3"
+    ```
+
+  </Tab>
+  <Tab title="Comparators">
+    Use `<`, `<=`, `>`, `>=`, or `=` with full SemVer operands. Join multiple terms with a comma or whitespace for logical AND.
+
+    ```toml
+    [dependencies]
+    "my-tool" = ">=1.5.0, <3.0.0"
+    "other-tool" = ">= 2.0.0 <2.5.0"
+    ```
+
+  </Tab>
+</Tabs>
+
+### What is not supported
+
+The portable v0.1 grammar intentionally excludes several syntaxes found in other ecosystems:
+
+<Warning>
+  The following constraint forms are **not valid** in `volume.toml` and will cause a validation failure:
+
+- **OR / disjunction**: `^1.0.0 || ^2.0.0`
+- **Wildcards or partial versions**: `*`, `1.x`, `1.*`, `1`, `1.2`
+- **Hyphen ranges**: `1.0.0 - 2.0.0`
+- **Tags or aliases**: `latest`
+- **Build metadata in range operands**: `1.2.3+build.1`
+- **Registry-specific channels or dist-tags**
+
+</Warning>
+
+If you need to support multiple incompatible major versions, publish separate volumes or use a meta volume that depends on one.
+
+## Component-level dependencies
+
+When a component in your volume depends on specific components from another volume — not just the volume itself — declare those relationships in `[component-dependencies]`.
+
+Each key must be the name of a component declared in this manifest's `[[components]]` array. Each value is an array of component purl strings whose subpath has the form `<type>/<componentName>`.
+
+```toml
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+"review-agent" = [
+  "pkg:volume/github-provider#tool/read-pr",
+  "pkg:volume/github-provider#tool/comment-pr",
+  "pkg:volume/%40acme/search-pack#skill/code-search",
+]
+```
+
+<Note>
+  A component-level dependency implies dependency on the containing volume, but versionless component purls still rely
+  on the parent volume's `[dependencies]` constraint to determine the resolved version. After resolution, tooling
+  verifies that the referenced components actually exist in the resolved version of that volume.
+</Note>
+
+### Omitting versions in authoring
+
+In `[component-dependencies]`, you may omit the version from a component purl when the parent volume's dependency constraint in `[dependencies]` determines the resolved version:
+
+```toml
+# This is valid in volume.toml authoring — version omitted
+"review-agent" = [
+  "pkg:volume/github-provider#tool/read-pr",
+]
+```
+
+For trust records, lock-like reproducibility inputs, or exact component identity, always include the resolved version:
+
+```text
+pkg:volume/github-provider@2.1.0#tool/read-pr
+```
+
+## External dependency declarations
+
+Declare non-`pkg:volume` dependencies with `[[external-dependencies]]`. These records describe external package ecosystem dependencies with [Package URL](https://packageurl.org/docs/purl/introduction) and [VERS](https://packageurl.org/docs/vers/introduction) rather than Agent Volumes SemVer constraints.
+
+```toml
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+```
+
+Rules for external dependencies:
+
+- `purl`, `constraint`, and `purpose` are required.
+- `purl` must be a valid external [Package URL](https://packageurl.org/docs/purl/specification). It must not use the `volume` [type](https://packageurl.org/docs/purl/purl-types), include a version component, or include a subpath.
+- `constraint` must be a [VERS expression](https://packageurl.org/docs/vers/specification). Do not interpret it as native npm, PyPI, Cargo, or Agent Volumes SemVer range text unless it is also valid VERS.
+- `purpose` is one of the core purpose values (`runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`, `documentation`, `other`) or a reverse-DNS extension value such as `org.example:codegen`.
+- `components`, when present, scopes the declaration to declared component names and must be non-empty and duplicate-free.
+
+The semantic key is `(canonical purl, purpose, scope)`. Equivalent declarations with the same semantic key are duplicates, and declarations with the same semantic key but different normalized VERS constraints are conflicts. Stable declaration identifiers use `av-extdep-v1:sha256:<lowercase-hex>` and exclude `constraint` from the digest input.
+
+<Warning>
+  External dependency declarations are not resolved package inventory, vulnerability evidence, VEX status, scanner
+  output, or provenance material. Treat potential-exposure warnings as diagnostics that need review, not as confirmed
+  vulnerability findings.
+</Warning>
+
+## Single-version enforcement
+
+The dependency graph for a resolved install must not contain multiple versions of the same volume. If two volumes in the dependency tree require incompatible version constraints for a shared dependency, the resolver rejects the graph rather than allowing version duplication.
+
+<Warning>
+  **Irreconcilable constraints are an error.** If `volume-a` requires `^1.0.0` of `shared-tool` and `volume-b` requires
+  `^2.0.0` of `shared-tool`, resolution fails. You must update one of the constraints so they can agree on a single
+  version.
+</Warning>
+
+This rule keeps the resolved install predictable and prevents subtle behavior differences caused by two versions of the same package running side by side.
+
+## Version lifecycle states in resolution
+
+During ordinary dependency resolution, tooling only selects versions in the `available` state. If the version index or exact release metadata reports a version in one of the other states, the following rules apply:
+
+| State         | Ordinary resolution | Exact pinned install                |
+| ------------- | ------------------- | ----------------------------------- |
+| `available`   | Allowed             | Allowed                             |
+| `yanked`      | Excluded            | Allowed with warning                |
+| `tombstoned`  | Excluded            | Fails                               |
+| `blocked`     | Excluded            | Fails                               |
+| `unavailable` | Excluded            | Fails or reports availability error |
+
+A `yanked` version can still be installed when it is exactly pinned in a constraint or already present in a lockfile, but tooling must surface a warning before doing so. A `blocked` version must not be installed even when exactly pinned.
+
+## Full example
+
+This manifest combines volume-level and component-level dependencies in a realistic configuration:
+
+```toml
+[volume]
+schema = 1
+name = "code-review-agent"
+version = "0.5.0"
+description = "Automated code review agent with GitHub and search integration"
+license = "Apache-2.0"
+role = "component"
+
+[publisher]
+id = "acme"
+
+[[components]]
+type = "agent"
+name = "review-agent"
+entrypoint = "./agents/review-agent/AGENT.md"
+description = "Reviews PRs and suggests improvements"
+
+# Volume-level dependencies
+[dependencies]
+"@acme/github-provider" = ">=2.0.0, <3.0.0"
+"@acme/search-pack" = "^1.2.0"
+"diff-formatter" = "~0.8.0"
+
+# External dependency audit metadata
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+# Component-level dependencies
+[component-dependencies]
+"review-agent" = [
+  "pkg:volume/%40acme/github-provider#tool/read-pr",
+  "pkg:volume/%40acme/github-provider#tool/comment-pr",
+  "pkg:volume/%40acme/search-pack#skill/code-search",
+]
+```

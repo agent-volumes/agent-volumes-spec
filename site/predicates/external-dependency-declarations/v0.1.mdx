@@ -1,0 +1,37 @@
+---
+title: 'External dependency declarations predicate v0.1'
+description: 'Stable semantic identifier landing page for the optional Agent Volumes in-toto external dependency declarations predicate.'
+---
+
+`https://agentvolumes.org/predicates/external-dependency-declarations/v0.1` identifies the optional Agent Volumes in-toto predicate for declaration-plane external dependency metadata.
+
+This page describes the predicate identifier itself. Release-specific schema and documentation artifacts remain archived under `/spec/<version>/...`.
+
+## Identifier
+
+```text
+https://agentvolumes.org/predicates/external-dependency-declarations/v0.1
+```
+
+## Semantics
+
+Use this predicate when external dependency declarations need to be carried outside SLSA provenance `subject`, `materials`, `resolvedDependencies`, `byproducts`, and `internalParameters`.
+
+The predicate records declaration-only metadata. Do not treat it as scanner evidence, resolver output, installed-package evidence, or proof that a dependency was present in a build.
+
+The `v0.1` segment is the predicate semantic line. Patch releases can clarify the release archive and schema publication without changing this identifier. Incompatible predicate semantics require a new predicate URI.
+
+## Release archives
+
+- [v0.1.0-rc.1 predicate documentation](/spec/0.1.0-rc.1/uri-publications/in-toto-external-dependency-predicate)
+- [v0.1.0-rc.1 predicate JSON Schema](/spec/0.1.0-rc.1/schemas/external-dependency-declarations-predicate.schema.json)
+- [v0.1.0-rc.1 conformance fixtures](/spec/0.1.0-rc.1/conformance/fixtures)
+
+## Canonical sources
+
+- [Agent Volumes specification](https://github.com/agent-volumes/agent-volumes-spec/blob/main/agent-volumes-spec.md)
+- [Predicate schema source](https://github.com/agent-volumes/agent-volumes-spec/blob/main/schemas/external-dependency-declarations-predicate.schema.json)
+- [Mapping matrix fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-matrix.json)
+- [Mapping sample fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/mapping-sample.json)
+- [ADR-0142](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0142-omit-external-dependency-declarations-from-slsa-provenance-and-use-optional-in-toto-predicate.md)
+- [ADR-0158](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0158-separate-semantic-identifier-pages-from-release-archives.md)

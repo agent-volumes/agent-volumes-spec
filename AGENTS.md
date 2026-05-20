@@ -1,8 +1,8 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-10T21:30:13Z
-**Commit:** f52b0ca
-**Branch:** docs/draft-5-readiness-cleanup
+**Generated:** 2026-05-19T00:00:00+09:00
+**Commit:** ff9fcf1
+**Branch:** release/0.1.0-rc1
 
 ## OVERVIEW
 
@@ -37,13 +37,16 @@ These documents contain critical context that cannot be inferred from this repos
 
 ```text
 agent-volumes-spec/
-├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-draft.5)
+├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-rc.1)
 ├── CHANGELOG.md               # Curated Keep a Changelog release history
 ├── IMPLEMENTERS.md            # Implementation guide for prototype builders
 ├── schemas/                   # Normative JSON Schema artifacts
 ├── conformance/               # Offline conformance fixtures + runner contract
 ├── openapi/                   # Bibliotheca API contract + prose drift audit
-├── decisions/                 # 110 ADRs (architecture decision records)
+├── docs/                      # Project process, readiness, security, release docs
+│   └── docs/decisions/        # 154 ADRs (architecture decision records)
+├── site/                      # Mintlify source for public agentvolumes.org docs
+├── .github/workflows/         # CI + org reusable security workflow consumers
 ├── .agents/skills/            # Contributor dev tooling (NOT distributable)
 └── scripts/                   # Artifact validation script
 ```
@@ -55,8 +58,13 @@ agent-volumes-spec/
 | Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
-| Check ADR history         | `decisions/`                            | Sequential numbering, 0001–0108     |
-| Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Run before release freeze           |
+| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0154     |
+| Edit process docs         | `docs/`                                 | Non-normative policy/readiness docs |
+| Edit public docs site     | `site/`                                 | Publication layer, not canonical    |
+| Edit CI workflow          | `.github/workflows/`                    | SHA-pinning + org reusable policy   |
+| Edit Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`      | Keep drift audit + fixtures aligned |
+| Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Required before release freeze      |
+| Update artifact validator | `scripts/validate-artifacts.mjs`        | Central smoke runner; 3k+ lines     |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
 | Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
@@ -81,6 +89,7 @@ agent-volumes-spec/
 
 - Extends `recommended` + `spec`
 - Downgrades to warnings: `no-ambiguous-paths`, `no-enum-type-mismatch`, `no-invalid-media-type-examples`, `spec-strict-refs`
+- OpenAPI 3.1.1 uses JSON Schema 2020-12, external `../schemas/*` refs, scoped/unscoped route pairs, bearer auth only on protected writes, and closed RFC 9457 problem responses.
 
 **Git hooks** — `lefthook.yml`
 
@@ -90,7 +99,7 @@ agent-volumes-spec/
 
 **CI** — `.github/workflows/`
 
-- `spec-lint-and-format.yml`: path-filtered, installs Bun, runs lint/format/validate
+- `spec-lint-and-format.yml`: path-filtered, installs Bun, rebuilds the Mintlify OpenAPI publication artifact, runs lint/format/site/artifact validation
 - Security workflows delegate to org reusable workflows (`agent-volumes/.github` @main) — the **sole SHA-pinning exception**
 - Uses `harden-runner` and pinned action SHAs for non-reusable workflows
 
@@ -103,6 +112,7 @@ agent-volumes-spec/
 - Do **not** add catalog-specific frontmatter (`domain`, `subdomain`, `tags`, `frameworks`) to dev skills in `.agents/skills/`.
 - Do **not** create README.md, CHANGELOG.md, or auxiliary docs inside skills — only `SKILL.md` + resources.
 - Do **not** duplicate skill content between `.agents/skills/` and `catalog/skills/`.
+- Do **not** hand-edit release-scoped OpenAPI publication artifacts such as `site/spec/<version>/api-reference/bibliotheca.openapi.json`; regenerate them from `openapi/bibliotheca.openapi.yaml` with `bun run build:site:openapi -- <version>`.
 
 ## NORMATIVE LANGUAGE (BCP 14)
 
@@ -110,7 +120,7 @@ When editing normative prose — primarily `agent-volumes-spec.md` and machine-r
 
 - **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** are reserved for normative requirements and carry the meanings defined in [BCP 14](https://www.rfc-editor.org/info/bcp14), [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174).
 - In **non-normative** sentences (explanations, examples, rationales, ADRs), prefer alternative phrasing and avoid lowercase variants of these terms to prevent ambiguity.
-- Decision records under `decisions/` are non-normative context and are not subject to BCP 14 lowercase warnings.
+- Decision records under `docs/decisions/` are non-normative context and are not subject to BCP 14 lowercase warnings.
 
 ## COMMANDS
 
@@ -122,6 +132,8 @@ bunx lefthook install
 bun run lint:md
 bun run lint:md:fix
 bun run lint:openapi
+bun run build:site:openapi -- <version>
+bun run lint:site
 bun run format
 bun run format:check
 bun run changelog:check
@@ -136,6 +148,8 @@ bun run validate:artifacts
 - **No standard test runner** — validation is via `scripts/validate-artifacts.mjs` (AJV + bespoke logic), not Jest/Vitest/Pytest.
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
+- **Site is publication-only** — `site/` content and bundled OpenAPI output must link back to canonical sources and never override spec/schema/OpenAPI/conformance artifacts.
+- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.mjs` are the largest maintenance-risk files; inspect local `AGENTS.md` files before editing their subtrees.
 - **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
 - **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.

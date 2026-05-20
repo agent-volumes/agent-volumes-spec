@@ -1,10 +1,10 @@
 # Agent Volumes v0.1 Implementers Guide
 
-This guide maps the v0.1.0-draft.5 specification artifacts to concrete work for experimental clients and bibliothecas. The prose specification remains the final normative authority; this document is a practical entry point for implementers.
+This guide maps the v0.1.0-rc.1 specification artifacts to concrete work for experimental clients and bibliothecas. The prose specification remains the final normative authority; this document is a practical entry point for implementers.
 
 ## Status and scope
 
-Agent Volumes v0.1.0-draft.5 is suitable for coordinated experimental implementations. It is not yet a stable certification target, and the repository does not define a product certification program.
+Agent Volumes v0.1.0-rc.1 is suitable for coordinated experimental implementations. It is not yet a stable certification target, and the repository does not define a product certification program.
 
 Use this guide to build:
 
@@ -16,28 +16,28 @@ Do not treat this guide as a request to standardize topics that the v0.1 core in
 
 ## Canonical artifacts
 
-| Area                 | Primary files                                                                              |
-| -------------------- | ------------------------------------------------------------------------------------------ |
-| Prose requirements   | `agent-volumes-spec.md`                                                                    |
-| Manifest model       | `schemas/volume.schema.json`                                                               |
-| Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`                                                         |
-| Release metadata     | `schemas/release-metadata.schema.json`, `schemas/exact-release-metadata-case.schema.json`  |
-| Version index        | `schemas/version-index-row.schema.json`                                                    |
-| Trust discovery      | `schemas/trust-summary.schema.json`, `schemas/trust-detail.schema.json`                    |
-| Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json` |
-| Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`     |
-| Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                     |
-| Mapping samples      | `schemas/mapping-matrix.schema.json`, `schemas/mapping-sample.schema.json`                 |
-| Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`             |
-| Capability discovery | `schemas/capability-metadata.schema.json`                                                  |
-| Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                       |
-| Manifest parsing     | `schemas/manifest-parse-case.schema.json`                                                  |
-| Fixtures and vectors | `conformance/fixtures/`                                                                    |
-| Conformance reports  | `schemas/conformance-report.schema.json`                                                   |
+| Area                 | Primary files                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prose requirements   | `agent-volumes-spec.md`                                                                                                                      |
+| Manifest model       | `schemas/volume.schema.json`                                                                                                                 |
+| Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`                                                                                                           |
+| Release metadata     | `schemas/release-metadata.schema.json`, `schemas/exact-release-metadata-case.schema.json`                                                    |
+| Version index        | `schemas/version-index-row.schema.json`                                                                                                      |
+| Trust discovery      | `schemas/trust-summary.schema.json`, `schemas/trust-detail.schema.json`                                                                      |
+| Release upload       | `schemas/release-upload-intent.schema.json`, `schemas/release-upload-finalize.schema.json`                                                   |
+| Trust upload         | `schemas/trust-upload-intent.schema.json`, `schemas/trust-upload-finalize.schema.json`                                                       |
+| Trust verification   | `schemas/trust-artifact-verification-case.schema.json`                                                                                       |
+| Mapping samples      | `schemas/mapping-matrix.schema.json`, `schemas/mapping-sample.schema.json`, `schemas/external-dependency-declarations-predicate.schema.json` |
+| Advisories           | `schemas/advisory.schema.json`, `schemas/advisory-validation-case.schema.json`                                                               |
+| Capability discovery | `schemas/capability-metadata.schema.json`                                                                                                    |
+| Errors and warnings  | `schemas/problem-details.schema.json`, `schemas/warning.schema.json`                                                                         |
+| Manifest parsing     | `schemas/manifest-parse-case.schema.json`                                                                                                    |
+| Fixtures and vectors | `conformance/fixtures/`                                                                                                                      |
+| Conformance reports  | `schemas/conformance-report.schema.json`                                                                                                     |
 
 ## Minimum viable conforming client
 
-A baseline client implementation is expected to support the following before claiming v0.1 draft compatibility:
+A baseline client implementation is expected to support the following before claiming v0.1.0-rc.1 baseline compatibility:
 
 1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
 2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
@@ -56,7 +56,7 @@ A baseline client implementation is expected to support the following before cla
 
 ## Minimum viable conforming bibliotheca
 
-A baseline bibliotheca implementation is expected to support the following before claiming v0.1 draft compatibility:
+A baseline bibliotheca implementation is expected to support the following before claiming v0.1.0-rc.1 baseline compatibility:
 
 1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
 2. Support scoped and scopeless volume identities according to the advertised capability policy.
@@ -69,7 +69,7 @@ A baseline bibliotheca implementation is expected to support the following befor
 9. Expose trust summary/detail views and preserve append-only trust attachment status/revision semantics.
 10. Support trust attachment upload intent/finalize and the `http-put` portable upload profile when the bibliotheca is write-capable for trust artifacts.
 11. Expose advisory read/discovery endpoints for the v0.1 advisory schema.
-12. Use RFC 7807 Problem Details for portable API errors.
+12. Use RFC 9457 Problem Details for portable API errors.
 13. Block continued distribution of artifacts with discovered permission escalation.
 
 ## Prototype-local choices
@@ -103,22 +103,22 @@ The fixture runner contract and portable report shape are documented in
 
 Then map implementation tests to fixture families:
 
-| Implementation area              | Fixture files                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------------------ |
-| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`     |
-| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`     |
-| Purl handling                    | `purl-canonicalization-cases.json`                                                   |
-| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` |
-| Permissions                      | `permission-escalation.json`, `permission-sibling-escalation.json`                   |
-| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                 |
-| Trust upload and discovery       | `trust-upload-lifecycle.json`, `trust-summary*.json`, `trust-detail*.json`           |
-| Trust artifact verification      | `trust-artifact-verification-cases.json`                                             |
-| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-validation-cases.json`         |
-| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                 |
-| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                         |
-| Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                  |
+| Implementation area              | Fixture files                                                                                                                            |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest validation              | `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json`                                                         |
+| Dependency and resolver behavior | `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`                                                         |
+| Purl handling                    | `purl-canonicalization-cases.json`                                                                                                       |
+| Archive and integrity            | `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json`                                                     |
+| Permissions                      | `permission-escalation.json`, `permission-sibling-escalation.json`                                                                       |
+| Release metadata and upload      | `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`                                                                     |
+| Trust upload and discovery       | `trust-upload-lifecycle.json`, `trust-summary*.json`, `trust-detail*.json`                                                               |
+| Trust artifact verification      | `trust-artifact-verification-cases.json`                                                                                                 |
+| Advisories                       | `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-search-failure-cases.json`, `advisory-validation-cases.json` |
+| Capability and extensions        | `capability-metadata*.json`, `bridge-metadata*.json`                                                                                     |
+| BOM/provenance export mapping    | `mapping-matrix.json`, `mapping-sample.json`                                                                                             |
+| Errors and warnings              | `problem-details-cases.json`, `warning.schema.json`                                                                                      |
 
-Fixture updates that materially change expected behavior are normative draft changes and are versioned with the prose release.
+Fixture updates that materially change expected behavior are normative draft or release-candidate changes and are versioned with the prose release.
 
 Trust artifact verification fixtures exercise portable, objective artifact facts and lifecycle behavior. Prototype projects can add implementation-local cryptographic test roots or offline Sigstore/SLSA samples when validating real signatures, but those local trust-root policies are not part of the v0.1 portable fixture contract. Unsupported trust artifact formats remain unverified rather than successfully verified.
 

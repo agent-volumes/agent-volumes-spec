@@ -52,7 +52,7 @@ future ADR changes their status.
 | Permission escalation                             | Component permission validation and escalation fixtures.                                           |
 | Stale or revoked trust evidence                   | Trust attachment status, revision metadata, and failure behavior for revoked or invalid artifacts. |
 | Ambiguous advisory targeting                      | Volume-level advisory targeting and structured affected-version events.                            |
-| API error ambiguity                               | Closed RFC 7807 problem type set and OpenAPI alignment.                                            |
+| API error ambiguity                               | Closed RFC 9457 problem type set and OpenAPI alignment.                                            |
 | Local policy being mistaken for portable behavior | Deferred-topic inventory and explicit prose-boundary documentation.                                |
 
 ## Assurance case

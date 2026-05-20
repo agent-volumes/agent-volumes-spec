@@ -18,7 +18,7 @@ reviewed, tagged, and announced.
 Agent Volumes uses SemVer-style identifiers for published specification
 versions. Draft and release-candidate identifiers use SemVer prerelease syntax.
 
-Release tags use the version string, for example `v0.1.0-draft.5` or `v1.0.0`.
+Release tags use the version string, for example `v0.1.0-rc.1` or `v1.0.0`.
 Important release tags are expected to be signed once signed-release operations
 are available for the project.
 
@@ -28,19 +28,28 @@ Before tagging a draft, release candidate, or stable release:
 
 1. Confirm `agent-volumes-spec.md` has the intended version and status.
 2. Confirm schema `$id` values match the release version.
-3. Run `bun run format:check`.
-4. Run `bun run lint:md`.
-5. Run `bun run lint:openapi`.
-6. Run `bun run validate:artifacts`.
-7. Complete the OpenAPI/prose drift audit in
-   [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
-8. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
-   role-scoped requirements.
-9. Confirm deferred and local-policy topics remain documented in
-   [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
-10. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
+3. Confirm repository dependencies and isolated site dependencies are installed
+   with `bun install` and `(cd site && bun install)`.
+4. Run `bun run build:site:openapi -- <version>` to refresh the Mintlify
+   publication copy of the Bibliotheca OpenAPI contract for the release version.
+5. Run `bun run format:check`.
+6. Run `bun run lint:md`.
+7. Run `bun run lint:openapi`.
+8. Run `bun run lint:site`.
+9. Run `bun run validate:artifacts`.
+10. Create a release evidence issue using
+    [`../.github/ISSUE_TEMPLATE/release-evidence.md`](../.github/ISSUE_TEMPLATE/release-evidence.md)
+    and record Human Era / Holocene Era (HE) dates in human-readable evidence
+    fields.
+11. Complete the OpenAPI/prose drift audit in
+    [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
+12. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
+    role-scoped requirements.
+13. Confirm deferred and local-policy topics remain documented in
+    [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
+14. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
     to generate a `CHANGELOG.md` draft.
-11. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
+15. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
     raw git history dump.
 
 ## Release notes

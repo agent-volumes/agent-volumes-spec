@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "fixtures": [
     {
       "name": "intent-created",
@@ -357,9 +357,9 @@
       "schema": "problem-details",
       "payload": {
         "type": "https://agentvolumes.org/problems/payload-too-large",
-        "title": "Trust attachment payload is too large",
+        "title": "Trust attachment declared size is too large",
         "status": 413,
-        "detail": "The uploaded trust attachment exceeds the registry limit.",
+        "detail": "The declaredSize exceeds the bibliotheca's accepted trust attachment size limit before byte transfer.",
         "uploadId": "upload-8"
       },
       "expected": { "valid": true, "failureCategory": "payload-too-large" }

@@ -1,0 +1,470 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "Agent Volumes",
+  "logo": {
+    "light": "/images/site-logo-light.svg",
+    "dark": "/images/site-logo-dark.svg"
+  },
+  "favicon": {
+    "light": "/favicon-light.svg",
+    "dark": "/favicon-dark.svg"
+  },
+  "colors": {
+    "primary": "#242b2c",
+    "light": "#6a6a6d",
+    "dark": "#ebeaea"
+  },
+  "seo": {
+    "metatags": {
+      "canonical": "https://docs.agentvolumes.org"
+    }
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/agent-volumes/agent-volumes-spec"
+    }
+  },
+  "navigation": {
+    "versions": [
+      {
+        "version": "v0.1.0-rc.1",
+        "default": true,
+        "tabs": [
+          {
+            "tab": "Overview",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["index", "quickstart", "concepts", "implementers", "contributors"]
+              },
+              {
+                "group": "Release notes",
+                "pages": ["changelog"]
+              },
+              {
+                "group": "Release archives",
+                "root": "spec/index",
+                "pages": ["spec/0.1.0-rc.1/index"]
+              }
+            ]
+          },
+          {
+            "tab": "Core spec",
+            "groups": [
+              {
+                "group": "Principles",
+                "pages": [
+                  "spec/0.1.0-rc.1/specification-authority",
+                  "spec/0.1.0-rc.1/design-principles",
+                  "spec/0.1.0-rc.1/design-rationale"
+                ]
+              },
+              {
+                "group": "Volumes",
+                "pages": [
+                  "spec/0.1.0-rc.1/volumes/manifest",
+                  "spec/0.1.0-rc.1/volumes/identity",
+                  "spec/0.1.0-rc.1/volumes/roles",
+                  "spec/0.1.0-rc.1/volumes/dependencies",
+                  "spec/0.1.0-rc.1/volumes/compatibility"
+                ]
+              },
+              {
+                "group": "Component types",
+                "root": "spec/0.1.0-rc.1/components/overview",
+                "pages": [
+                  "spec/0.1.0-rc.1/components/agent",
+                  "spec/0.1.0-rc.1/components/skill",
+                  "spec/0.1.0-rc.1/components/command",
+                  "spec/0.1.0-rc.1/components/tool",
+                  "spec/0.1.0-rc.1/components/hook",
+                  "spec/0.1.0-rc.1/components/mcp-server",
+                  "spec/0.1.0-rc.1/components/lsp-server"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Registry API",
+            "groups": [
+              {
+                "group": "Registry API",
+                "root": "spec/0.1.0-rc.1/api/overview",
+                "pages": [
+                  "spec/0.1.0-rc.1/api/authentication",
+                  "spec/0.1.0-rc.1/api/publish",
+                  "spec/0.1.0-rc.1/api/fetch",
+                  "spec/0.1.0-rc.1/api/search",
+                  "spec/0.1.0-rc.1/api/version-index",
+                  "spec/0.1.0-rc.1/api/trust-metadata",
+                  "spec/0.1.0-rc.1/api/trust-upload",
+                  "spec/0.1.0-rc.1/api/advisories",
+                  "spec/0.1.0-rc.1/api/capabilities",
+                  "spec/0.1.0-rc.1/api/errors"
+                ]
+              },
+              {
+                "group": "OpenAPI reference",
+                "openapi": {
+                  "source": "spec/0.1.0-rc.1/api-reference/bibliotheca.openapi.json",
+                  "directory": "spec/0.1.0-rc.1/api-reference"
+                }
+              }
+            ]
+          },
+          {
+            "tab": "Assurance",
+            "groups": [
+              {
+                "group": "Security",
+                "pages": [
+                  "spec/0.1.0-rc.1/security/supply-chain",
+                  "spec/0.1.0-rc.1/security/content-integrity",
+                  "spec/0.1.0-rc.1/security/publisher-identity",
+                  "spec/0.1.0-rc.1/security/advisories"
+                ]
+              },
+              {
+                "group": "Conformance",
+                "root": "spec/0.1.0-rc.1/conformance/overview",
+                "pages": [
+                  "spec/0.1.0-rc.1/conformance/schema-artifacts",
+                  "spec/0.1.0-rc.1/conformance/fixtures",
+                  "spec/0.1.0-rc.1/conformance/requirements"
+                ]
+              },
+              {
+                "group": "Identifier publications",
+                "root": "spec/0.1.0-rc.1/uri-publications",
+                "pages": [
+                  "spec/0.1.0-rc.1/uri-publications/schema-ids",
+                  "spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace",
+                  "spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-context",
+                  "spec/0.1.0-rc.1/uri-publications/in-toto-external-dependency-predicate",
+                  "spec/0.1.0-rc.1/uri-publications/reserved-extension-namespaces",
+                  "spec/0.1.0-rc.1/uri-publications/purl-vers-compatibility-exceptions",
+                  "spec/0.1.0-rc.1/uri-publications/upstream-baselines",
+                  "spec/0.1.0-rc.1/build/manual/v0.1",
+                  "spec/0.1.0-rc.1/uri-publications/bom-profile-identifiers",
+                  "spec/0.1.0-rc.1/uri-publications/external-dependency-declaration-keys"
+                ]
+              },
+              {
+                "group": "Problem Details type URIs",
+                "root": "problems/index",
+                "pages": [
+                  "problems/authentication-required",
+                  "problems/authorization-failed",
+                  "problems/not-found",
+                  "problems/validation-failed",
+                  "problems/invalid-manifest",
+                  "problems/invalid-archive",
+                  "problems/identity-mismatch",
+                  "problems/version-conflict",
+                  "problems/digest-mismatch",
+                  "problems/subject-binding-mismatch",
+                  "problems/inconsistent-registry-state",
+                  "problems/upload-expired",
+                  "problems/missing-uploaded-bytes",
+                  "problems/invalid-upload-state",
+                  "problems/idempotency-conflict",
+                  "problems/payload-too-large",
+                  "problems/unsupported-media-type",
+                  "problems/permission-escalation",
+                  "problems/rate-limited"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "assistant",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "grok",
+      "aistudio",
+      "devin",
+      "windsurf",
+      "mcp",
+      "cursor",
+      "vscode",
+      "devin-mcp"
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/introduction/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/volumes/manifest",
+      "destination": "/spec/0.1.0-rc.1/volumes/manifest",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/identity",
+      "destination": "/spec/0.1.0-rc.1/volumes/identity",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/roles",
+      "destination": "/spec/0.1.0-rc.1/volumes/roles",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/dependencies",
+      "destination": "/spec/0.1.0-rc.1/volumes/dependencies",
+      "permanent": false
+    },
+    {
+      "source": "/volumes/compatibility",
+      "destination": "/spec/0.1.0-rc.1/volumes/compatibility",
+      "permanent": false
+    },
+    {
+      "source": "/components/overview",
+      "destination": "/spec/0.1.0-rc.1/components/overview",
+      "permanent": false
+    },
+    {
+      "source": "/components/agent",
+      "destination": "/spec/0.1.0-rc.1/components/agent",
+      "permanent": false
+    },
+    {
+      "source": "/components/skill",
+      "destination": "/spec/0.1.0-rc.1/components/skill",
+      "permanent": false
+    },
+    {
+      "source": "/components/command",
+      "destination": "/spec/0.1.0-rc.1/components/command",
+      "permanent": false
+    },
+    {
+      "source": "/components/tool",
+      "destination": "/spec/0.1.0-rc.1/components/tool",
+      "permanent": false
+    },
+    {
+      "source": "/components/hook",
+      "destination": "/spec/0.1.0-rc.1/components/hook",
+      "permanent": false
+    },
+    {
+      "source": "/components/mcp-server",
+      "destination": "/spec/0.1.0-rc.1/components/mcp-server",
+      "permanent": false
+    },
+    {
+      "source": "/components/lsp-server",
+      "destination": "/spec/0.1.0-rc.1/components/lsp-server",
+      "permanent": false
+    },
+    {
+      "source": "/security/supply-chain",
+      "destination": "/spec/0.1.0-rc.1/security/supply-chain",
+      "permanent": false
+    },
+    {
+      "source": "/security/content-integrity",
+      "destination": "/spec/0.1.0-rc.1/security/content-integrity",
+      "permanent": false
+    },
+    {
+      "source": "/security/publisher-identity",
+      "destination": "/spec/0.1.0-rc.1/security/publisher-identity",
+      "permanent": false
+    },
+    {
+      "source": "/security/advisories",
+      "destination": "/spec/0.1.0-rc.1/security/advisories",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/overview",
+      "destination": "/spec/0.1.0-rc.1/conformance/overview",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/schema-artifacts",
+      "destination": "/spec/0.1.0-rc.1/conformance/schema-artifacts",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/fixtures",
+      "destination": "/spec/0.1.0-rc.1/conformance/fixtures",
+      "permanent": false
+    },
+    {
+      "source": "/conformance/requirements",
+      "destination": "/spec/0.1.0-rc.1/conformance/requirements",
+      "permanent": false
+    },
+    {
+      "source": "/design-principles",
+      "destination": "/spec/0.1.0-rc.1/design-principles",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications",
+      "destination": "/spec/0.1.0-rc.1/uri-publications",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/schema-ids",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/schema-ids",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/spdx-external-dependency-namespace",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-namespace",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/spdx-external-dependency-context",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-context",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/in-toto-external-dependency-predicate",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/in-toto-external-dependency-predicate",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/reserved-extension-namespaces",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/reserved-extension-namespaces",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/purl-vers-compatibility-exceptions",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/purl-vers-compatibility-exceptions",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/upstream-baselines",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/upstream-baselines",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/bom-profile-identifiers",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/bom-profile-identifiers",
+      "permanent": false
+    },
+    {
+      "source": "/uri-publications/external-dependency-declaration-keys",
+      "destination": "/spec/0.1.0-rc.1/uri-publications/external-dependency-declaration-keys",
+      "permanent": false
+    },
+    {
+      "source": "/api-reference/bibliotheca.openapi.json",
+      "destination": "/spec/0.1.0-rc.1/api-reference/bibliotheca.openapi.json",
+      "permanent": false
+    },
+    {
+      "source": "/api-reference",
+      "destination": "/spec/0.1.0-rc.1/api-reference",
+      "permanent": false
+    },
+    {
+      "source": "/api/overview",
+      "destination": "/spec/0.1.0-rc.1/api/overview",
+      "permanent": false
+    },
+    {
+      "source": "/api/authentication",
+      "destination": "/spec/0.1.0-rc.1/api/authentication",
+      "permanent": false
+    },
+    {
+      "source": "/api/publish",
+      "destination": "/spec/0.1.0-rc.1/api/publish",
+      "permanent": false
+    },
+    {
+      "source": "/api/fetch",
+      "destination": "/spec/0.1.0-rc.1/api/fetch",
+      "permanent": false
+    },
+    {
+      "source": "/api/search",
+      "destination": "/spec/0.1.0-rc.1/api/search",
+      "permanent": false
+    },
+    {
+      "source": "/api/version-index",
+      "destination": "/spec/0.1.0-rc.1/api/version-index",
+      "permanent": false
+    },
+    {
+      "source": "/api/trust-metadata",
+      "destination": "/spec/0.1.0-rc.1/api/trust-metadata",
+      "permanent": false
+    },
+    {
+      "source": "/api/trust-upload",
+      "destination": "/spec/0.1.0-rc.1/api/trust-upload",
+      "permanent": false
+    },
+    {
+      "source": "/api/advisories",
+      "destination": "/spec/0.1.0-rc.1/api/advisories",
+      "permanent": false
+    },
+    {
+      "source": "/api/capabilities",
+      "destination": "/spec/0.1.0-rc.1/api/capabilities",
+      "permanent": false
+    },
+    {
+      "source": "/api/errors",
+      "destination": "/spec/0.1.0-rc.1/api/errors",
+      "permanent": false
+    },
+    {
+      "source": "/spec/latest/:slug*",
+      "destination": "/spec/0.1.0-rc.1/:slug*",
+      "permanent": false
+    },
+    {
+      "source": "/spec/latest/",
+      "destination": "/spec/0.1.0-rc.1/",
+      "permanent": false
+    },
+    {
+      "source": "/spec/latest",
+      "destination": "/spec/0.1.0-rc.1/",
+      "permanent": false
+    },
+    {
+      "source": "/spec/current/:slug*",
+      "destination": "/spec/0.1.0-rc.1/:slug*",
+      "permanent": false
+    },
+    {
+      "source": "/spec/current/",
+      "destination": "/spec/0.1.0-rc.1/",
+      "permanent": false
+    },
+    {
+      "source": "/spec/current",
+      "destination": "/spec/0.1.0-rc.1/",
+      "permanent": false
+    }
+  ]
+}

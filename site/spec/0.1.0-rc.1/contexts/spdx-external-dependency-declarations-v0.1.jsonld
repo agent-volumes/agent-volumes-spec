@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "av": "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "ExternalDependencyDeclaration": "av:ExternalDependencyDeclaration",
+    "declarationKey": "av:declarationKey",
+    "purl": "av:purl",
+    "constraint": "av:constraint",
+    "purpose": "av:purpose",
+    "scope": {
+      "@id": "av:scope",
+      "@container": "@set"
+    },
+    "declarationOnly": {
+      "@id": "av:declarationOnly",
+      "@type": "xsd:boolean"
+    },
+    "resolvedEvidence": {
+      "@id": "av:resolvedEvidence",
+      "@type": "xsd:boolean"
+    }
+  }
+}

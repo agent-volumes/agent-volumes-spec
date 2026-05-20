@@ -2,9 +2,9 @@
 
 # Agent Volumes Specification
 
-**Version:** 0.1.0-draft.5  
-**Status:** Draft  
-**Date:** 12026-05-11 HE  
+**Version:** 0.1.0-rc.1  
+**Status:** Release Candidate  
+**Date:** 12026-05-18 HE  
 **Authors:** Yunseo Kim
 
 ---
@@ -459,6 +459,37 @@ include that resolved version.
 
 A dependency graph MUST NOT contain multiple versions of the same volume. Conforming clients MUST reject irreconcilable version constraints rather than allowing version duplication.
 
+#### 3.6.4 External Dependency Declarations
+
+External dependency declarations describe package dependencies outside the Agent Volumes `pkg:volume` ecosystem. They are declaration-plane audit metadata for review, policy, BOM export, and potential-exposure diagnostics. They are not dependency resolver inputs, lockfile entries, resolved package inventory, provenance materials, installed package evidence, scanner findings, VEX status, or confirmed vulnerability evidence.
+
+External dependencies are authored as an array of tables:
+
+```toml
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+```
+
+Each `[[external-dependencies]]` record MUST contain `purl`, `constraint`, and `purpose`. The optional `components` array scopes the declaration to one or more declared component names. If `components` is absent, the declaration applies to the volume as a whole. If `components` is present, it MUST be non-empty, duplicate-free, and contain only component names declared in the same manifest.
+
+The `purl` field MUST be a valid Package URL for an external package ecosystem. It MUST NOT use the `volume` purl type. It MUST NOT include a Package URL `version` component or subpath. Qualifiers are allowed and remain part of the canonical external package identity; version or range intent belongs in `constraint`, not in the PURL `version` component.
+
+The `constraint` field MUST be a VERS expression. It is not the Agent Volumes SemVer range grammar from [Section 3.6.1](#361-volume-level-dependencies) and MUST NOT be interpreted as native package-manager range text unless it is also valid VERS.
+
+The `purpose` field identifies dependency use context. Core purpose values are `runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`, `documentation`, and `other`. Extension purpose values MUST use reverse-DNS namespace syntax followed by a colon and purpose token, such as `org.example:codegen`. Short ecosystem-looking prefixes such as `python:lint` are not valid extension namespaces.
+
+The external dependency semantic key is `(canonical purl, purpose, scope)`, where `scope` is the sorted component-name array or the volume scope. `constraint` is deliberately excluded from the semantic key. Two declarations with the same semantic key and equivalent normalized VERS constraints are duplicate declarations. Two declarations with the same semantic key and different normalized VERS constraints are conflicting declarations. Both conditions are semantic validation failures.
+
+Implementations that expose a stable declaration identifier MUST use the `av-extdep-v1:sha256:<lowercase-hex>` form. The `av-extdep-v1` digest input is the JCS canonical UTF-8 JSON object with exactly `purl`, `purpose`, and `scope`; volume scope is encoded as `{ "kind": "volume" }`, component scope as `{ "components": [...] }` with sorted component names. The declaration key input MUST NOT include `constraint`, warning payloads, advisory matches, resolved evidence, carrier wrapper fields, array positions, comments, or whitespace.
+
 ### 3.7 Runtime Compatibility
 
 ```toml
@@ -676,6 +707,17 @@ version = ">=3.17"
 
 [dependencies]
 "search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
 
 [component-dependencies]
 "literature-reviewer" = [
@@ -1285,6 +1327,10 @@ Advisory targeting remains **volume-level only** in v0.1.
 
 Affected-version semantics use an event-style read model compatible with OSV-style range/event interpretation. The v0.1 advisory read contract represents affected history as one or more SemVer ranges containing ordered events such as `introduced`, `fixed`, `lastAffected`, and `limit`. `introduced = "0"` is the beginning-of-time sentinel; other event values use full SemVer strings. When `withdrawn` metadata is present, it MUST include an `at` timestamp. Component-impact metadata remains informational only and MUST NOT be interpreted as changing the normative volume-level target.
 
+External package advisory inputs are not Agent Volumes advisories. A client, bibliotheca, or validator MAY normalize external advisory feed data into local advisory-match inputs and compare them to `[[external-dependencies]]` declarations. A match whose PURL identities are compatible and whose VERS ranges intersect produces at most an `external-dependency-potential-exposure` warning. Such a warning means only that a declaration can potentially overlap an affected external package range. It MUST NOT be represented as an Agent Volumes advisory target, scanner finding, resolved dependency, installed package, reachable vulnerability, VEX status, or policy outcome.
+
+Potential-exposure matching uses three outcomes: `intersects`, `does-not-intersect`, and `indeterminate`. Implementations MUST emit `external-dependency-potential-exposure` only for `intersects`. A `does-not-intersect` result emits no potential-exposure warning. An `indeterminate` result MAY be reported separately, but it is not itself a potential-exposure warning. Duplicate warning inputs are deduplicated by `(dependency.declarationKey, advisoryMatch.canonicalId, advisoryMatch.affectedPurl, advisoryMatch.affectedRange)`.
+
 Scanner findings are not advisory records by themselves in v0.1. A bibliotheca MAY create or update an advisory based on scanner information under local policy, but the portable contract is the advisory read/discovery model, not scanner-result interchange.
 
 The normative machine-readable advisory contract is published in [`schemas/advisory.schema.json`](schemas/advisory.schema.json), with a corresponding example fixture in [`conformance/fixtures/advisory.json`](conformance/fixtures/advisory.json).
@@ -1314,7 +1360,7 @@ Write-capable bibliothecas expose hosted archive publishing through a two-phase 
 
 The target volume identity is route-derived. For `POST /api/v1/volumes/{name}`, the target identity is the path `name`; for `POST /api/v1/volumes/@{scope}/{name}`, it is `@scope/name`. The upload intent request body supplies the target `version` and upload constraints, not an alternate package name. A bibliotheca MUST reject an upload intent or finalization when the route-derived target identity, request body version, uploaded `volume.toml` identity, or finalized release metadata cannot be reconciled to the same release subject.
 
-The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an expired, failed, already-finalized-with-conflicting-input, or otherwise non-finalizable upload intent is an invalid upload state or idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
+The portable lifecycle for a hosted release upload intent is limited to `pending-upload`, `uploading`, `uploaded`, `expired`, and `failed`. Only an upload intent whose bytes are available for finalization can be finalized successfully. Finalizing an unknown or non-visible upload intent is a missing-resource failure; finalizing a known expired upload intent is an upload-expired failure; finalizing a known failed or otherwise non-finalizable upload intent is an invalid upload state; and replaying finalize with conflicting input is an idempotency conflict as appropriate under [Section 9.10](#910-machine-readable-api-contract).
 
 For hosted archive workflows, the release transport is a gzip-compressed tar archive (`.tar.gz`). This transport container is a packaging convention for upload/download interoperability; it does **not** replace the normalized file tree as the canonical release subject for trust workflows.
 
@@ -1361,6 +1407,14 @@ The fetch response identifies a release by both package-facing metadata and immu
   "status": {
     "state": "available"
   },
+  "externalDependencies": [
+    {
+      "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+      "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+      "constraint": "vers:npm/>=1.7.0|<2.0.0",
+      "purpose": "runtime"
+    }
+  ],
   "dist": {
     "source": "cdn",
     "mediaType": "application/gzip",
@@ -1371,9 +1425,11 @@ The fetch response identifies a release by both package-facing metadata and immu
 
 The `name` field in release metadata is the canonical full user-facing volume name: scopeless releases use `name`, and scoped releases use `@scope/name`. The `purl` field is the mandatory canonical package-facing logical identity for that exact release and MUST equal the canonical purl derived from `name` and `version`. The request path is a routing input; exact release metadata is authoritative for the package identity it reports. A scoped fetch response for `@acme/research-agent-pack` therefore reports `"name": "@acme/research-agent-pack"` and `"purl": "pkg:volume/%40acme/research-agent-pack@<version>"`. Clients and bibliothecas MUST treat a mismatch between the requested route identity and the release metadata identity as inconsistent release metadata.
 
+Exact release metadata is the portable API exposure boundary for manifest-derived external dependency declarations. When a release manifest contains valid `[[external-dependencies]]` records, exact release metadata MUST expose those declarations or an equivalent manifest-derived summary using declaration-only semantics. Exact release metadata MUST NOT add resolved external package versions, dependency digests, lockfile observations, scanner findings, installed-package evidence, provenance materials, VEX status, or confirmed vulnerability claims to external dependency declaration records.
+
 Exact release metadata includes lifecycle `status` metadata using the same portable state vocabulary as version index rows: `available`, `yanked`, `tombstoned`, `blocked`, and `unavailable`. Successful exact metadata responses for `available` and `yanked` releases MUST include `dist` metadata. A successful exact metadata response for a `yanked` release is permitted for exact pinned fetch/install behavior, but clients MUST surface a `yanked-version` warning before installing it.
 
-For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 7807 Problem Details response instead: `blocked` releases use an authorization, policy, validation, or registry-state failure appropriate to the bibliotheca; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
+For `blocked`, `tombstoned`, or `unavailable` releases, a bibliotheca MUST NOT provide a portable installable `dist` response as if the release were available. It SHOULD return an RFC 9457 Problem Details response instead: `blocked` releases use `authorization-failed` for authorization or policy blocks, or `inconsistent-registry-state` when the block reflects registry-state inconsistency; `tombstoned` releases use `not-found` or another non-installable tombstone response that preserves version non-reuse; `unavailable` releases use `not-found` or `inconsistent-registry-state` depending on whether the condition is ordinary absence or registry inconsistency. If a bibliotheca exposes non-installable release metadata for audit purposes, malformed or non-portable metadata remains a validation failure, but clients MUST still fail portable exact fetch/install for `blocked`, `tombstoned`, and `unavailable` states.
 
 For `dist` metadata in v0.1:
 
@@ -1413,6 +1469,8 @@ Each version index entry represents one published version row. A row SHOULD incl
 - a pointer to the authoritative exact release metadata endpoint
 
 Clients MAY use the version index to choose candidate versions before fetching exact release metadata. Among eligible stable candidates that satisfy the applicable constraints and are not excluded by lifecycle/status metadata, clients SHOULD prefer the candidate with the highest SemVer precedence. Clients MUST still fetch exact release metadata before installation or trust evaluation. Exact release metadata and normalized-file-tree integrity remain authoritative for release validation.
+
+Version index rows MUST NOT carry `[[external-dependencies]]` declarations as portable core fields. External dependency search, filtering, and registry-side potential-exposure diagnostics are bibliotheca-local discovery features in v0.1 and MUST NOT be treated as complete resolver inputs or portable evidence.
 
 Version index lifecycle states carry the following portable client behavior:
 
@@ -1535,7 +1593,7 @@ POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads
 POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize
 ```
 
-The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes.
+The upload intent request identifies the target release subject, trust attachment category, format metadata, declared uploaded-byte digest, declared size when available, and idempotency information when supplied by the client. The response returns an upload identifier, expiration metadata, and opaque upload instructions for transferring bytes. A bibliotheca MAY reject a trust upload intent with `payload-too-large` when the request's `declaredSize` exceeds the bibliotheca's accepted trust attachment size limit before byte transfer begins.
 
 Every write-capable v0.1 bibliotheca that exposes trust attachment upload intents MUST support the portable `http-put` upload profile for trust uploads. For an `http-put` trust upload intent, `upload.instructionType` is `"http-put"`, `upload.url` is the opaque byte-transfer target, and the upload method is `PUT` when `upload.method` is omitted or explicitly set. Baseline clients that support trust attachment publishing SHOULD support `http-put` and MUST fail locally with an unsupported-upload-profile diagnostic when an upload intent advertises only unsupported profiles.
 
@@ -1543,7 +1601,7 @@ The finalize request commits the upload attempt. A bibliotheca MUST verify the u
 
 Successful finalization MUST preserve the verified uploaded-byte digest in the resulting trust attachment record. If the uploaded-byte digest later cannot be reconciled with the bytes retrievable from the detail locator, clients and bibliothecas MUST treat the attachment as invalid for baseline verification.
 
-The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 7807 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
+The upload API MUST define standard behavior for expired uploads, digest mismatch, payload too large, unsupported media type, invalid state, authorization failure, missing uploaded bytes, subject-binding mismatch, and idempotency conflicts. These failures use the baseline RFC 9457 Problem Details error contract described in [Section 9.10](#910-machine-readable-api-contract).
 
 Successful finalization results in a trust attachment record whose lifecycle state is represented through the same `active`, `revoked`, `superseded`, and `invalid` status model used by the trust detail view. Revocation and supersession remain status changes, not deletion or replacement.
 
@@ -1558,7 +1616,7 @@ GET /api/v1/advisories/{advisoryId}
 
 The machine-readable advisory contract MUST be JSON-based and follow the companion schema.
 
-Advisory list responses use an `items` collection envelope whose item payloads follow [`schemas/advisory.schema.json`](schemas/advisory.schema.json). The collection envelope contract is published as [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json).
+Advisory list responses use an `items` collection envelope whose item payloads follow [`schemas/advisory.schema.json`](schemas/advisory.schema.json). The collection envelope contract is published as [`schemas/advisory-list.schema.json`](schemas/advisory-list.schema.json). When a valid advisory list request has no matching advisories, the bibliotheca MUST return a successful list response with an empty `items` array rather than a missing-resource error.
 
 Advisory read/discovery behavior is part of the v0.1 core interoperability contract. Advisory write operations such as create, update, withdrawal, moderation, and related authority workflows remain bibliotheca-local in v0.1.
 
@@ -1665,9 +1723,9 @@ The v0.1 registry API uses registry-local resource-scoped bearer token semantics
 
 Ownership is evaluated by the bibliotheca. A token subject can act on behalf of a publisher namespace, volume, or release only when the bibliotheca's local policy authorizes that relationship.
 
-Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`.
+Missing, malformed, unknown, expired, or revoked bearer tokens are authentication failures and use `401 Unauthorized`. A valid token that lacks the needed action or resource authorization is an authorization failure and uses `403 Forbidden`. A public endpoint MAY also use `403 Forbidden` when the bibliotheca refuses to serve a specific resource because of security, governance, authorization, or access policy.
 
-Error payloads for the HTTP API use RFC 7807 Problem Details with `application/problem+json` as the baseline machine-readable error format.
+Error payloads for the HTTP API use RFC 9457 Problem Details with `application/problem+json` as the baseline machine-readable error format.
 
 ### 9.9 Rate Limiting
 
@@ -1683,49 +1741,49 @@ Conforming bibliothecas SHOULD implement rate limiting. Recommended tiers:
 
 The normative HTTP contract companion can use OpenAPI together with appropriate schema components where useful. Mixed-format companion publication is intentional: HTTP API topology and payloads need different artifact technologies than manifest structure or fixture shapes.
 
-The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 7807 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
+The baseline machine-readable API contract MUST declare bearer authentication for protected operations and use RFC 9457 Problem Details for common failure surfaces such as authentication failure, authorization failure, missing resources, validation failure, conflicts, and rate limiting.
 
 Agent Volumes baseline problem `type` URIs use the form `https://agentvolumes.org/problems/<slug>`. The following core problem types are reserved for portable clients:
 
-| Problem type slug             | Typical status | Meaning                                                                 |
-| ----------------------------- | -------------- | ----------------------------------------------------------------------- |
-| `authentication-required`     | `401`          | Bearer authentication is missing or invalid.                            |
-| `authorization-failed`        | `403`          | The authenticated caller is not authorized for the requested operation. |
-| `not-found`                   | `404`          | The requested resource does not exist or is not visible to the caller.  |
-| `validation-failed`           | `400`          | Request payload, parameters, manifest, or metadata failed validation.   |
-| `invalid-manifest`            | `400`          | A submitted `volume.toml` is structurally or semantically invalid.      |
-| `invalid-archive`             | `400`          | A submitted hosted archive violates the v0.1 archive transport profile. |
-| `identity-mismatch`           | `409`          | A package identity disagrees with its route, manifest, or metadata.     |
-| `version-conflict`            | `409`          | The target version already exists or cannot be reused.                  |
-| `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.           |
-| `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.         |
-| `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.          |
-| `upload-expired`              | `410`          | An upload intent expired before finalization.                           |
-| `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.          |
-| `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.              |
-| `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.             |
-| `payload-too-large`           | `413`          | The submitted payload exceeds the bibliotheca's accepted limit.         |
-| `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                      |
-| `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.     |
-| `rate-limited`                | `429`          | The request was rate limited.                                           |
+| Problem type slug             | Typical status | Meaning                                                                                                |
+| ----------------------------- | -------------- | ------------------------------------------------------------------------------------------------------ |
+| `authentication-required`     | `401`          | Bearer authentication is missing or invalid.                                                           |
+| `authorization-failed`        | `403`          | The caller, request context, or requested resource is not permitted by authorization or access policy. |
+| `not-found`                   | `404`          | The requested resource does not exist or is not visible to the caller.                                 |
+| `validation-failed`           | `400`          | Request payload, parameters, manifest, or metadata failed validation.                                  |
+| `invalid-manifest`            | `400`          | A submitted `volume.toml` is structurally or semantically invalid.                                     |
+| `invalid-archive`             | `400`          | A submitted hosted archive violates the v0.1 archive transport profile.                                |
+| `identity-mismatch`           | `409`          | A package identity disagrees with its route, manifest, or metadata.                                    |
+| `version-conflict`            | `409`          | The target version already exists or cannot be reused.                                                 |
+| `digest-mismatch`             | `400`          | Submitted or resolved bytes do not match the declared digest.                                          |
+| `subject-binding-mismatch`    | `400`          | A trust artifact does not bind to the intended release subject.                                        |
+| `inconsistent-registry-state` | `409`          | Index, exact metadata, or trust metadata cannot be reconciled.                                         |
+| `upload-expired`              | `410`          | An upload intent expired before finalization.                                                          |
+| `missing-uploaded-bytes`      | `400`          | Finalization was requested before upload bytes were available.                                         |
+| `invalid-upload-state`        | `409`          | The upload intent is not in a state that can be finalized.                                             |
+| `idempotency-conflict`        | `409`          | A reused idempotency key conflicts with an earlier request.                                            |
+| `payload-too-large`           | `413`          | The submitted payload or declared upload size exceeds the bibliotheca's accepted limit.                |
+| `unsupported-media-type`      | `415`          | The submitted payload media type is not supported.                                                     |
+| `permission-escalation`       | `400`          | Component permissions exceed the parent volume permission boundary.                                    |
+| `rate-limited`                | `429`          | The request was rate limited.                                                                          |
 
-The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 7807 examples.
+The reserved problem set above is closed for the v0.1 portable baseline. [`schemas/problem-details.schema.json`](schemas/problem-details.schema.json) restricts `type` to these problem URIs and constrains each problem type to its expected status. The same finite set is also published as [`conformance/fixtures/problem-registry.json`](conformance/fixtures/problem-registry.json) for runners that want registry-shaped metadata rather than only individual RFC 9457 examples.
 
 Representative endpoint failure mappings include:
 
-| Endpoint family                                       | Representative problem type slugs                                                                       |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                     |
-| `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/...`                             | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`              |
-| `POST /api/v1/volumes/.../finalize`                   | `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `upload-expired`         |
-| `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                              |
-| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `unsupported-media-type` |
-| `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`             |
-| `GET /api/v1/advisories...`                           | `not-found`, `rate-limited`                                                                             |
-| `GET /api/v1/capabilities`                            | `rate-limited`                                                                                          |
+| Endpoint family                                       | Representative problem type slugs                                                                                                                                                      |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/v1/search`                                  | `validation-failed`, `rate-limited`                                                                                                                                                    |
+| `GET /api/v1/index/volumes/...`                       | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/...`                             | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                     |
+| `POST /api/v1/volumes/...`                            | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`                                                                                             |
+| `POST /api/v1/volumes/.../finalize`                   | `not-found`, `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `missing-uploaded-bytes`, `invalid-upload-state`, `idempotency-conflict`, `upload-expired` |
+| `GET /api/v1/volumes/.../trust/summary`               | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `GET /api/v1/volumes/.../trust/detail`                | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                             |
+| `POST /api/v1/volumes/.../trust/uploads`              | `authentication-required`, `authorization-failed`, `subject-binding-mismatch`, `payload-too-large`, `unsupported-media-type`                                                           |
+| `POST /api/v1/volumes/.../trust/uploads/.../finalize` | `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `idempotency-conflict`                                                                                            |
+| `GET /api/v1/advisories...`                           | `validation-failed`, `not-found`, `rate-limited`                                                                                                                                       |
+| `GET /api/v1/capabilities`                            | `rate-limited`                                                                                                                                                                         |
 
 For upload intent creation and finalize operations, idempotency can be supplied
 with the `Idempotency-Key` HTTP header. Some request bodies also carry an
@@ -1808,6 +1866,8 @@ A conforming bibliotheca MUST:
 14. **AV-BIB-014** — Expose a dedicated capability metadata endpoint, including capability document version fields, HTTP API major family, exact compatible spec version sets when claimed, and supported upload profiles for advertised upload surfaces ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 15. **AV-BIB-015** — Preserve append-only trust attachment behavior and status/revision metadata semantics ([Section 8.5](#85-trust-attachment-lifecycle)).
 16. **AV-BIB-016** — Publish the mandatory machine-readable companion artifacts or equivalent normatively referenced artifacts for the structured contracts the bibliotheca claims to implement ([Appendix B](#appendix-b-machine-readable-companion-artifacts)).
+17. **AV-BIB-017** — Expose declaration-only external dependency metadata through exact release metadata without claiming resolved dependency evidence ([Section 9.2.2](#922-fetch)).
+18. **AV-BIB-018** — Keep external dependency search, filtering, and registry-side potential-exposure diagnostics outside the required portable registry API while preserving structured warning fixtures for portable diagnostics ([Section 8.7](#87-security-advisories), [Section 9.2.4](#924-version-index)).
 
 A conforming bibliotheca SHOULD:
 
@@ -1836,6 +1896,8 @@ A conforming client MUST:
 14. **AV-CLI-014** — Preserve runtime and protocol compatibility version expressions, compare them only for explicitly understood schemes, and avoid portable rejection based solely on unknown compatibility schemes ([Section 3.7](#37-runtime-compatibility), [Section 3.8](#38-protocol-compatibility)).
 15. **AV-CLI-015** — Consume the capability metadata endpoint without failing solely on unknown fields or values, while preserving the exact-array semantics of `compatibleSpecVersions` and the HTTP API-family semantics of `apiVersion` ([Section 9.6](#96-bibliotheca-capability-metadata-api)).
 16. **AV-CLI-016** — Surface mandatory migration warnings when bridge-period old forms are accepted and the client rewrites or validates those artifacts ([Section 9.7.2](#972-extension-to-core-bridge-semantics)).
+17. **AV-CLI-017** — Parse and semantically validate external dependency declarations, including PURL/VERS compatibility, scoped semantic keys, duplicates, conflicts, and declaration keys ([Section 3.6.4](#364-external-dependency-declarations), [Appendix A](#a3-validation-rules)).
+18. **AV-CLI-018** — Surface external-dependency potential-exposure warnings only for intersecting declaration/advisory ranges and deduplicate them by declaration/advisory/range identity ([Section 8.7](#87-security-advisories), [Appendix A](#a4-warning-model)).
 
 A conforming client SHOULD:
 
@@ -1866,6 +1928,8 @@ The v0.1 core requires normative conformance fixtures and vectors for at least:
 - BOM/provenance mapping sample fixtures
 - conformance coverage fixtures mapping `AV-BIB-*` and `AV-CLI-*` requirements to fixture families
 - dependency-resolution accept/reject cases
+- external dependency declaration validation fixtures, including normalized-equivalent VERS duplicate/conflict cases and schema-level malformed item cases
+- external dependency potential-exposure warning fixtures, including malformed warning-context rejection cases
 - permission-escalation rejection cases
 
 These fixtures are part of the interoperability contract. They are not merely illustrative examples.
@@ -1890,18 +1954,19 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 
 ### A.1 Top-Level Tables
 
-| Table                      | Required          | Description                                                           |
-| -------------------------- | ----------------- | --------------------------------------------------------------------- |
-| `[volume]`                 | Yes               | Package metadata and identity.                                        |
-| `[publisher]`              | Yes               | Publisher identity.                                                   |
-| `[[components]]`           | Yes (except meta) | Exported components.                                                  |
-| `[dependencies]`           | No                | Volume-level dependencies.                                            |
-| `[component-dependencies]` | No                | Component-level dependencies.                                         |
-| `[[runtimes]]`             | No                | Runtime compatibility version expressions.                            |
-| `[[protocols]]`            | No                | Protocol compatibility version expressions.                           |
-| `[permissions]`            | No                | Required permissions.                                                 |
-| `[environment]`            | No                | Environment requirements.                                             |
-| `[provenance]`             | No                | Declarative source and build context metadata for release provenance. |
+| Table                       | Required          | Description                                                           |
+| --------------------------- | ----------------- | --------------------------------------------------------------------- |
+| `[volume]`                  | Yes               | Package metadata and identity.                                        |
+| `[publisher]`               | Yes               | Publisher identity.                                                   |
+| `[[components]]`            | Yes (except meta) | Exported components.                                                  |
+| `[dependencies]`            | No                | Volume-level dependencies.                                            |
+| `[[external-dependencies]]` | No                | Declaration-only external package dependency audit metadata.          |
+| `[component-dependencies]`  | No                | Component-level dependencies.                                         |
+| `[[runtimes]]`              | No                | Runtime compatibility version expressions.                            |
+| `[[protocols]]`             | No                | Protocol compatibility version expressions.                           |
+| `[permissions]`             | No                | Required permissions.                                                 |
+| `[environment]`             | No                | Environment requirements.                                             |
+| `[provenance]`              | No                | Declarative source and build context metadata for release provenance. |
 
 ### A.2 Canonical Parsed-Data Model Rules
 
@@ -1924,6 +1989,10 @@ Where behavior is explicitly outside the portable v0.1 baseline, such as client-
 9. `permissions.filesystem`, `permissions.network`, and `permissions.browser` MUST be one of `deny`, `read`, `write`, or `read-write`.
 10. `permissions.shell` MUST be `deny` or `allow`.
 11. Component permissions MUST NOT exceed volume-level permissions.
+12. `external-dependencies[]` records MUST contain `purl`, `constraint`, and `purpose`; item objects MUST NOT contain unknown fields.
+13. External dependency `purl` values MUST be valid non-`volume` Package URLs without a PURL version component or subpath; qualifiers remain part of canonical identity.
+14. External dependency `constraint` values MUST be valid VERS expressions, and PURL type / VERS scheme mismatches are invalid unless listed in the pinned compatibility exceptions artifact.
+15. External dependency duplicate and conflict checks use `(canonical purl, purpose, scope)` and compare normalized VERS constraints outside JSON Schema.
 
 `[provenance]` metadata describes package-declared source and build context. It does not replace external trust artifacts such as provenance attestations, BOMs, or signatures associated with the published release subject.
 
@@ -1942,6 +2011,7 @@ The v0.1 core warning categories are:
 - `stale-trust-evidence-only`
 - `insufficient-current-trust-evidence`
 - `noncanonical-entrypoint`
+- `external-dependency-potential-exposure`
 
 Implementations MAY add extension warning categories, but baseline clients can rely on the core set.
 
@@ -1951,32 +2021,35 @@ Implementations MAY add extension warning categories, but baseline clients can r
 
 ### B.1 Artifact Families
 
-The v0.1 draft publishes or normatively references the following artifact families:
+The v0.1 release candidate publishes or normatively references the following artifact families:
 
-| Family                  | Purpose                                               | Format family |
-| ----------------------- | ----------------------------------------------------- | ------------- |
-| Manifest schema         | Canonical parsed-data validation contract             | JSON Schema   |
-| Trust/advisory schemas  | Structured payload contracts                          | JSON Schema   |
-| Capability metadata     | Registry-wide capability discovery contract           | JSON Schema   |
-| HTTP API contract       | Endpoint topology and request/response contract       | OpenAPI       |
-| Conformance fixtures    | Executable interoperability vectors and test payloads | JSON          |
-| Reserved-name artifacts | Machine-readable reserved extension namespace list    | JSON          |
+| Family                  | Purpose                                                                                             | Format family      |
+| ----------------------- | --------------------------------------------------------------------------------------------------- | ------------------ |
+| Manifest schema         | Canonical parsed-data validation contract                                                           | JSON Schema        |
+| Trust/advisory schemas  | Structured payload contracts                                                                        | JSON Schema        |
+| Capability metadata     | Registry-wide capability discovery contract                                                         | JSON Schema        |
+| External dependencies   | Declaration validation, upstream baselines, compatibility exceptions, and warning context contracts | JSON Schema / JSON |
+| HTTP API contract       | Endpoint topology and request/response contract                                                     | OpenAPI            |
+| Conformance fixtures    | Executable interoperability vectors and test payloads                                               | JSON               |
+| Reserved-name artifacts | Machine-readable reserved extension namespace list                                                  | JSON               |
 
 ### B.2 Repository Locations
 
-The draft companion artifacts are organized as follows:
+The release-candidate companion artifacts are organized as follows:
 
 - `schemas/`
 - `openapi/`
 - `conformance/fixtures/`
+- `conformance/upstream-baselines.json`
+- `conformance/purl-vers-compatibility-exceptions.json`
 
 ### B.3 Lockstep Versioning
 
-Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-draft.5` is part of the same draft release surface as this specification.
+Companion artifacts are version-aligned with the prose release. The artifact set for `0.1.0-rc.1` is part of the same release-candidate surface as this specification.
 
 ### B.4 Artifact Inventory
 
-The draft companion artifact inventory includes at least:
+The release-candidate companion artifact inventory includes at least:
 
 - [`schemas/volume.schema.json`](schemas/volume.schema.json)
 - [`schemas/trust-summary.schema.json`](schemas/trust-summary.schema.json)
@@ -2004,6 +2077,11 @@ The draft companion artifact inventory includes at least:
 - [`schemas/manifest-parse-case.schema.json`](schemas/manifest-parse-case.schema.json)
 - [`schemas/component-dependency-validation-case.schema.json`](schemas/component-dependency-validation-case.schema.json)
 - [`schemas/semantic-validation-case.schema.json`](schemas/semantic-validation-case.schema.json)
+- [`schemas/external-dependency-validation-case.schema.json`](schemas/external-dependency-validation-case.schema.json)
+- [`schemas/upstream-baseline.schema.json`](schemas/upstream-baseline.schema.json)
+- [`schemas/purl-vers-compatibility-exceptions.schema.json`](schemas/purl-vers-compatibility-exceptions.schema.json)
+- [`schemas/external-dependency-potential-exposure-warning-context.schema.json`](schemas/external-dependency-potential-exposure-warning-context.schema.json)
+- [`schemas/external-dependency-declarations-predicate.schema.json`](schemas/external-dependency-declarations-predicate.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
 - [`schemas/mapping-sample.schema.json`](schemas/mapping-sample.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
@@ -2038,6 +2116,7 @@ The v0.1 fixture set includes at least:
 - resolver accept/reject fixtures
 - purl canonicalization fixtures
 - component dependency semantic-validation fixtures
+- external dependency declaration validation fixtures, PURL/VERS compatibility exception fixtures, upstream baseline manifests, declaration-key vectors, and potential-exposure warning fixtures
 - semantic-validation fixtures for schema-adjacent rules that require validator logic
 - permission-escalation rejection fixtures
 - BOM/provenance mapping matrix and sample fixtures
@@ -2054,12 +2133,15 @@ At minimum, that mapping material MUST identify:
 - which mappings require controlled extensions
 - which mappings are intentionally lossy
 - how provenance-related fields map into the baseline provenance model
+- how declaration-only external dependency records map without becoming resolved package inventory, scanner evidence, or provenance materials
 
 The mapping matrix fixture MUST be serialized as a canonical JSON fixture object with `specVersion` and `entries` fields. `entries` MUST be ordered lexicographically by `agentVolumesField` for stable review diffs and deterministic conformance checks. Each entry MUST use stable target-family keys (`cyclonedx`, `spdx`, and `slsa`) when a mapping exists for that family, and each family mapping MUST classify its `kind` as exactly one of `native`, `extension`, or `lossy`.
 
 Mappings with `kind = "extension"` MUST name the controlled Agent Volumes extension namespace used for serialization. Mappings with `kind = "lossy"` MUST explain the lost semantics so implementations do not treat the target as round-trip-safe. Mapping targets MAY use family-native path notation, but extension property names and lossiness explanations MUST remain stable across fixture updates unless the prose release intentionally changes the interoperability contract.
 
 The mapping sample fixture MUST provide at least one concrete offline export example that binds a source Agent Volumes manifest and release subject to CycloneDX, SPDX, and SLSA output objects. The sample fixture is a deterministic conformance vector: native and controlled-extension mappings that are represented in the target output MUST round-trip to the source values, intentionally lossy mappings MUST remain identified as lossy by the matrix, and release-subject purl plus SHA-256 identity MUST be recoverable from the applicable CycloneDX, SPDX, and SLSA output fields.
+
+For external dependency declarations, CycloneDX mappings use declaration-only external components with required `agent-volumes:*` properties. SPDX mappings use the Agent Volumes SPDX extension namespace `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#`. SLSA provenance MUST omit declaration-only external dependencies from `subject`, `materials`, `resolvedDependencies`, `byproducts`, and `internalParameters`; an optional in-toto predicate with type `https://agentvolumes.org/predicates/external-dependency-declarations/v0.1` MAY carry declaration-only records separately. The predicate statement shape is published as [`schemas/external-dependency-declarations-predicate.schema.json`](schemas/external-dependency-declarations-predicate.schema.json).
 
 The v0.1 core does not require one narrower AI-specific BOM profile commitment beyond the generic CycloneDX baseline. Where AI-specific semantics need richer exchange treatment, the mapping material MAY identify profile-oriented or extension-oriented paths without implying that the core already guarantees a complete canonical AI-BOM crosswalk.
 
@@ -2107,4 +2189,4 @@ Fixture updates that materially change interoperability expectations are normati
 
 ---
 
-End of Agent Volumes Specification v0.1.0-draft.5
+End of Agent Volumes Specification v0.1.0-rc.1

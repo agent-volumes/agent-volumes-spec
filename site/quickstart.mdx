@@ -1,0 +1,382 @@
+---
+title: 'Get started with Agent Volumes'
+description: 'Create a volume.toml manifest, declare components, add compatibility metadata, and publish your first volume to a bibliotheca with the shelf CLI.'
+---
+
+This guide walks you through creating and publishing your first volume — a versioned package of agent components that any compatible runtime can install. You'll write a `volume.toml` manifest, declare components, specify compatibility requirements, and publish using the `shelf` CLI.
+
+<Note>
+  The `shelf` CLI and the Alexandria bibliotheca are Windlass-maintained reference implementation projects in
+  development. They are downstream implementation projects, not governance artifacts, and the canonical standard remains
+  the Agent Volumes `v0.1.0-rc.1` specification plus its companion schemas and conformance fixtures.
+</Note>
+
+<Steps>
+
+<Step title="Create a volume.toml manifest">
+
+Every volume starts with a `volume.toml` file at the root of your project. This file is the authoritative manifest — it declares your package metadata, components, dependencies, and compatibility requirements.
+
+Create `volume.toml` in your project root with the required fields:
+
+```toml volume.toml
+[volume]
+schema = 1
+name = "my-research-pack"
+version = "0.1.0"
+description = "Research assistant with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+
+[publisher]
+id = "yourname"
+```
+
+The required fields are:
+
+| Field         | Description                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `schema`      | Always `1` for the current specification version.                                                                                                |
+| `name`        | Your volume's name. Lowercase letters, digits, and hyphens only. Scopeless (`my-pack`) or scoped (`@org/my-pack`) per your bibliotheca's policy. |
+| `version`     | A valid [SemVer](https://semver.org/) version string.                                                                                            |
+| `description` | A summary up to 256 characters.                                                                                                                  |
+| `license`     | An [SPDX](https://spdx.org/licenses/) license expression, e.g. `Apache-2.0` or `MIT`.                                                            |
+| `role`        | One of `component`, `plugin`, `provider`, or `meta`. Use `plugin` for most volumes that extend a runtime.                                        |
+
+The `[publisher]` table identifies who owns this volume name. For scoped volumes, the `id` matches your scope.
+
+<Tip>
+  Add optional metadata fields to improve discoverability in bibliothecas: `homepage`, `repository`, `documentation`, and `keywords`.
+</Tip>
+</Step>
+
+<Step title="Declare your components">
+
+Components are the actual agent capabilities your volume exports. Declare each one as an `[[components]]` entry with a `type`, a unique `name`, and an `entrypoint` path relative to your volume root.
+
+Add a skill and a tool to your manifest:
+
+```toml volume.toml
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+```
+
+Then create the entrypoint files at the declared paths:
+
+<CodeGroup>
+
+```markdown ./skills/summarize-paper/SKILL.md
+---
+name: summarize-paper
+description: Summarize academic papers with structured extraction
+version: 0.1.0
+---
+
+# Summarize Paper
+
+When asked to summarize a paper, extract the following sections:
+
+- **Title and authors**
+- **Core contribution** (1-2 sentences)
+- **Method** (brief)
+- **Key results** (bullet points)
+- **Limitations** (if stated)
+```
+
+```json ./tools/arxiv-search.json
+{
+  "name": "arxiv-search",
+  "description": "Search arXiv for papers by query, author, or category",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "Search query string"
+      },
+      "max_results": {
+        "type": "integer",
+        "description": "Maximum number of results to return",
+        "default": 10
+      }
+    },
+    "required": ["query"]
+  }
+}
+```
+
+</CodeGroup>
+
+Each component name must be unique within the volume across all component types. Component names use lowercase letters, digits, and hyphens only; unlike volume names, component names are never scoped.
+
+<Tip>
+  You can declare all seven component types in a single volume — `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, and `lsp-server`. See [Component Types](/spec/0.1.0-rc.1/components/overview) for the entrypoint format and semantics for each type.
+</Tip>
+</Step>
+
+<Step title="Add compatibility metadata">
+
+Tell runtimes and users what environments your volume supports. Compatibility metadata is optional but strongly recommended for discoverability.
+
+```toml volume.toml
+# Runtime compatibility
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+# Protocol compatibility (for MCP or LSP components)
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+# Environment requirements
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+```
+
+<Tabs>
+  <Tab title="Runtimes">
+    The `[[runtimes]]` array declares which agent runtimes this volume targets and what version expression it reports for each runtime. If you omit this array entirely, the volume makes no runtime-specific compatibility claim.
+
+    ```toml
+    [[runtimes]]
+    name = "claude-code"
+    compatibility = "^1.0.0"
+
+    [[runtimes]]
+    name = "opencode"
+    compatibility = ">=0.1.0"
+    ```
+
+  </Tab>
+  <Tab title="Protocols">
+    The `[[protocols]]` array declares MCP or LSP version requirements. This is especially important if your volume includes `mcp-server` or `lsp-server` components.
+
+    ```toml
+    [[protocols]]
+    name = "mcp"
+    version = ">=2025.02"
+
+    [[protocols]]
+    name = "lsp"
+    version = ">=3.17"
+    ```
+
+  </Tab>
+  <Tab title="Permissions">
+    Declare the permission surfaces your components need. Permissions default to `deny` — only declare what you actually require.
+
+    ```toml
+    [permissions]
+    filesystem = "read"
+    network = "read"
+    shell = "deny"
+    browser = "deny"
+    ```
+
+    Valid values for `filesystem`, `network`, and `browser` are `deny`, `read`, `write`, and `read-write`. For `shell`, use `deny` or `allow`. Components can only narrow permissions declared at the volume level, not broaden them.
+
+  </Tab>
+</Tabs>
+</Step>
+
+<Step title="Publish using the shelf CLI">
+
+Once your manifest and entrypoint files are in place, publish your volume to a bibliotheca using the `shelf` CLI.
+
+<CodeGroup>
+
+```bash Authenticate
+# Authenticate with your bibliotheca
+shelf login
+```
+
+```bash Publish
+# Publish the volume in the current directory
+shelf publish
+```
+
+```bash Install (for users)
+# Install a published volume
+shelf add my-research-pack
+
+# Install a specific version
+shelf add my-research-pack@1.4.0
+
+# Install a scoped volume
+shelf add @acme/research-agent-pack
+```
+
+</CodeGroup>
+
+`shelf publish` reads your `volume.toml`, validates the manifest and all declared entrypoints, constructs the content integrity digest, and uploads the package to the configured bibliotheca.
+
+<Warning>
+  Make sure all entrypoint files exist at the paths declared in your `volume.toml` before publishing. The CLI will reject the upload if any declared entrypoint is missing.
+</Warning>
+</Step>
+
+<Step title="Verify content integrity">
+
+After publishing, every release is identified by two identities that work together:
+
+- **Logical identity**: `pkg:volume/my-research-pack@0.1.0` — the package-facing release identifier you reference in dependencies and tool calls.
+- **Immutable content identity**: a `sha256:...` digest of the normalized file tree — the cryptographic anchor that lets anyone verify they received exactly what was published.
+
+You can verify a local copy of a volume against its published digest:
+
+```bash
+# Verify the integrity of an installed volume
+shelf verify my-research-pack@0.1.0
+```
+
+The verification process reconstructs the normalized file tree digest from your local files and compares it against the digest recorded at publish time. Any modification to any file in the volume — including the manifest — changes the digest and fails verification.
+
+<Tip>
+  For higher assurance, attach trust artifacts such as CycloneDX BOMs, SLSA provenance, or Sigstore-family signatures
+after publishing. See [Supply Chain Security](/spec/0.1.0-rc.1/security/supply-chain) for the full trust model.
+</Tip>
+</Step>
+
+</Steps>
+
+## Complete example
+
+Here is the full `volume.toml` from the specification, showing all major sections together:
+
+```toml volume.toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+homepage = "https://github.com/example/research-agent-pack"
+repository = "https://github.com/example/research-agent-pack"
+keywords = ["research", "literature", "arxiv", "academic"]
+role = "plugin"
+secondary-roles = ["provider"]
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+# --- Components ---
+
+[[components]]
+type = "agent"
+name = "literature-reviewer"
+entrypoint = "./agents/literature-reviewer/AGENT.md"
+description = "Autonomous literature review agent"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "tool"
+name = "arxiv-search"
+entrypoint = "./tools/arxiv-search.json"
+description = "Search arXiv for papers by query, author, or category"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server configuration for repository-aware code intelligence"
+
+# --- Compatibility ---
+
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+
+# --- Dependencies ---
+
+[dependencies]
+"search-toolkit" = "^2.0.0"
+
+[[external-dependencies]]
+purl = "pkg:npm/%40modelcontextprotocol/sdk"
+constraint = "vers:npm/>=1.7.0|<2.0.0"
+purpose = "runtime"
+
+[[external-dependencies]]
+purl = "pkg:pypi/requests?extra=socks"
+constraint = "vers:pypi/>=2.31.0|<3.0.0"
+purpose = "runtime"
+components = ["arxiv-search"]
+
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#tool/arxiv-search",
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+
+# --- Permissions ---
+
+[permissions]
+filesystem = "read"
+network = "read"
+shell = "deny"
+browser = "deny"
+
+# --- Environment ---
+
+[environment]
+runtimes = ["node", "bun"]
+os = ["linux", "macos", "windows"]
+
+# --- Provenance ---
+
+[provenance]
+source-repo = "https://github.com/example/research-agent-pack"
+```
+
+This volume is identified as `pkg:volume/research-agent-pack@1.4.0`. Its `literature-reviewer` agent component is addressable as `pkg:volume/research-agent-pack@1.4.0#agent/literature-reviewer`.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Core concepts" icon="book-open" href="/concepts">
+    Deep-dive into the vocabulary: volumes, bibliothecas, identity, trust, and package roles.
+  </Card>
+  <Card title="Implementers guide" icon="terminal" href="/implementers">
+    Turn the canonical artifacts into a baseline client, bibliotheca, validator, or exporter.
+  </Card>
+  <Card title="Manifest reference" icon="file-code" href="/spec/0.1.0-rc.1/volumes/manifest">
+    Full reference for every field in `volume.toml`, including validation rules and defaults.
+  </Card>
+  <Card title="Component types" icon="cubes" href="/spec/0.1.0-rc.1/components/overview">
+    Entrypoint formats, invocation semantics, and conventions for all seven component types.
+  </Card>
+  <Card title="Supply chain security" icon="lock" href="/spec/0.1.0-rc.1/security/supply-chain">
+    Content integrity, publisher identity, SLSA provenance, and the trust model.
+  </Card>
+</CardGroup>

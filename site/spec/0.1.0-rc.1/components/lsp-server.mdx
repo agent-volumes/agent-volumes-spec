@@ -1,0 +1,160 @@
+---
+title: 'LSP Server component: Language Server Protocol'
+description: 'Distribute Language Server Protocol servers as Agent Volumes components for code intelligence, diagnostics, and editor integration in compatible runtimes.'
+---
+
+An LSP Server component packages a service endpoint implementing the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/). Wrapping an LSP server in a volume makes it discoverable through a bibliotheca and installable by any runtime that supports Agent Volumes. Agent runtimes with code intelligence features — editors, coding agents, and CLI tools — can load your LSP server to get language-aware diagnostics, completions, and other code intelligence capabilities.
+
+## Entrypoint format
+
+LSP Server entrypoints must be JSON (`.json`) files. JSON is the only v0.1 baseline format for LSP server configuration in Agent Volumes.
+
+The canonical discovery filename is `.lsp.json` at the volume root. Use this path to ensure consistent discovery across runtimes and tooling.
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a regular file.
+- The file is valid JSON.
+- The file parses to a JSON object (not an array or primitive).
+
+<Warning>
+  If your LSP server configuration is at a path other than `.lsp.json`, the runtime or validator will load it
+  successfully but emit a `noncanonical-entrypoint` warning. Use `.lsp.json` to ensure predictable discovery.
+</Warning>
+
+## Declaring an LSP server in `volume.toml`
+
+Add a `[[components]]` entry with `type = "lsp-server"` and point `entrypoint` to your `.lsp.json` configuration file.
+
+```toml
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server for repository-aware code intelligence"
+```
+
+A complete manifest for a volume that exports an LSP server alongside other components:
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server configuration for repository-aware code intelligence"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+
+[permissions]
+filesystem = "read"
+```
+
+## Execution model
+
+An LSP server runs as a long-running process. The two primary transport mechanisms are:
+
+| Transport | Description                                          |
+| --------- | ---------------------------------------------------- |
+| `stdio`   | Communicates over standard input and output streams. |
+| Socket    | Communicates over a TCP or Unix socket transport.    |
+
+The specific socket transport type and address are host-runtime configuration details. How the runtime launches the LSP server, manages its lifecycle, and applies local policy are load-time decisions outside the portable validation scope.
+
+## Protocol compatibility declaration
+
+Declare which LSP protocol version your server targets using the `[[protocols]]` table:
+
+```toml
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+```
+
+This is advisory metadata. Runtimes that understand LSP versioning can use it to match a compatible server. Runtimes that don't understand the version expression must treat it as informational.
+
+<Note>
+  Agent Volumes v0.1 does not define one universal protocol version comparison grammar. Protocol-specific version
+  semantics remain advisory in the core spec. Protocol profiles may define stronger comparison semantics in the future.
+</Note>
+
+## Runtime compatibility
+
+To signal which runtimes your LSP server supports, add `[[runtimes]]` entries:
+
+```toml
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+
+[[runtimes]]
+name = "cursor"
+compatibility = "^1.0.0"
+```
+
+## Combining LSP and MCP in one volume
+
+You can export both an LSP server and an MCP server from the same volume. This is a common pattern for research or language-specific toolkits:
+
+```toml
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+
+[[components]]
+type = "lsp-server"
+name = "research-lsp"
+entrypoint = "./.lsp.json"
+description = "LSP server for repository-aware code intelligence"
+
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[[protocols]]
+name = "lsp"
+version = ">=3.17"
+```
+
+## Validation requirements
+
+An LSP server entrypoint fails portable validation if any of these conditions are true:
+
+- The file does not exist or is not a regular file.
+- The file is not valid JSON.
+- The parsed JSON is not an object (is an array, string, number, boolean, or null).
+
+Runtime-specific failures — the server cannot be launched, the host platform lacks the required execution environment, local policy blocks it — are load-time failures. They do not make the manifest structurally invalid.
+
+<Tip>
+  Place your `.lsp.json` at the volume root. The canonical filename convention ensures that tooling can discover your
+  LSP server without needing to parse `volume.toml` first, enabling faster runtime integration.
+</Tip>
+
+## Component identifier
+
+Once published, reference the LSP server component using a purl identifier:
+
+```text
+pkg:volume/research-agent-pack@1.4.0#lsp-server/research-lsp
+```
+
+For scoped volumes:
+
+```text
+pkg:volume/%40acme/research-agent-pack@1.4.0#lsp-server/research-lsp
+```

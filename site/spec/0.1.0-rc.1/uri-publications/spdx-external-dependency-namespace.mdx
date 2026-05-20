@@ -1,0 +1,45 @@
+---
+title: 'SPDX external dependency namespace'
+description: 'Canonical URI-backed SPDX extension namespace terms for Agent Volumes external dependency declarations.'
+---
+
+Agent Volumes defines a versioned SPDX extension namespace for external dependency declaration terms.
+
+```text
+https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#
+```
+
+The namespace is backed by the specification, the BOM/provenance mapping fixtures, and ADR-0141. It is separate from CycloneDX `agent-volumes:*` property names.
+
+The stable landing page for this namespace is [SPDX external dependency namespace v0.1](/ns/spdx/external-dependency-declarations/v0.1). This page is the v0.1.0-rc.1 release archive copy.
+
+## Canonical terms
+
+| Term                            | Identifier                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ExternalDependencyDeclaration` | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#ExternalDependencyDeclaration` |
+| `declarationKey`                | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#declarationKey`                |
+| `purl`                          | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#purl`                          |
+| `constraint`                    | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#constraint`                    |
+| `purpose`                       | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#purpose`                       |
+| `scope`                         | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#scope`                         |
+| `declarationOnly`               | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#declarationOnly`               |
+| `resolvedEvidence`              | `https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#resolvedEvidence`              |
+
+Use `av:` as the compact alias in examples only after binding it to the namespace URI.
+
+## JSON-LD context
+
+Agent Volumes publishes a stable canonical JSON-LD context for compact term expansion:
+
+```text
+https://agentvolumes.org/contexts/spdx-external-dependency-declarations-v0.1.jsonld
+```
+
+This release archive preserves an identical copy at `https://agentvolumes.org/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld`. See [SPDX external dependency JSON-LD context](/spec/0.1.0-rc.1/uri-publications/spdx-external-dependency-context) for details and example usage.
+
+## Related sources
+
+- [Namespace and URI publications](/spec/0.1.0-rc.1/uri-publications)
+- [ADR-0141](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/decisions/0141-use-uri-backed-namespaces-for-spdx-agent-volumes-extension-terms.md)
+- [Conformance fixtures](https://github.com/agent-volumes/agent-volumes-spec/tree/main/conformance/fixtures)

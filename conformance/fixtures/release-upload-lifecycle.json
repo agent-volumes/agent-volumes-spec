@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "description": "Hosted release upload intent and finalize lifecycle conformance cases.",
   "fixtures": [
     {
@@ -221,6 +221,17 @@
         "title": "Missing uploaded bytes",
         "status": 400,
         "detail": "Release upload bytes must be available before finalization."
+      }
+    },
+    {
+      "name": "release-upload-not-found",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Upload intent not found",
+        "status": 404,
+        "detail": "The release upload intent does not exist or is not visible to the caller."
       }
     },
     {

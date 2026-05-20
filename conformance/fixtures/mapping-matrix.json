@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "entries": [
     {
       "agentVolumesField": "component-dependencies",
@@ -83,6 +83,27 @@
         "kind": "lossy",
         "lossiness": "The target family does not preserve the complete Agent Volumes field semantics without an Agent Volumes-aware extension.",
         "serialization": "Preserve a human-readable summary only; implementations must not treat this as a round-trip-safe mapping."
+      }
+    },
+    {
+      "agentVolumesField": "external-dependencies[]",
+      "cyclonedx": {
+        "target": "components[isExternal=true] plus component.properties[agent-volumes:*]",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes",
+        "serialization": "Project each declaration as an external declaration component with versionRange, purl, stable bom-ref, and required agent-volumes properties: external-dependency, declaration-key, declaration-only, constraint, purpose, scope, and resolved-evidence=false. Do not add hashes, lockfile observations, resolved versions, scanner findings, or installed/runtime evidence."
+      },
+      "spdx": {
+        "target": "SPDX 3.0.1 Element.extension",
+        "kind": "extension",
+        "extensionNamespace": "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#",
+        "serialization": "Use URI-backed Agent Volumes extension terms for declarationKey, purl, constraint, purpose, scope, declarationOnly=true, and resolvedEvidence=false. Do not project declaration-only records as SPDX Package inventory elements."
+      },
+      "slsa": {
+        "target": "omitted from SLSA subject/materials/resolvedDependencies; optional in-toto predicate https://agentvolumes.org/predicates/external-dependency-declarations/v0.1",
+        "kind": "extension",
+        "extensionNamespace": "agent-volumes:external-dependency-declarations",
+        "serialization": "SLSA provenance must not carry declaration-only dependencies as evidence. Optional in-toto predicate subjects the Agent Volume release and carries declarations with semantics=declaration-only and resolvedEvidence=false."
       }
     },
     {

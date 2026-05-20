@@ -1,6 +1,6 @@
 # Bibliotheca OpenAPI / Prose Drift Audit
 
-This checklist is for Agent Volumes `0.1.0-draft.5` release-freeze review. It
+This checklist is for Agent Volumes `0.1.0-rc.1` release-freeze review. It
 keeps `openapi/bibliotheca.openapi.yaml` aligned with the normative Registry API
 prose in `agent-volumes-spec.md` §9 and the conformance requirements in §11.
 
@@ -9,37 +9,100 @@ prose in `agent-volumes-spec.md` §9 and the conformance requirements in §11.
 For each endpoint family:
 
 1. Confirm the route topology matches the prose examples.
-2. Confirm scoped and scopeless route variants have equivalent semantics where
+2. Confirm every OpenAPI `path` / method / `operationId` maps to exactly one row
+   in the operation coverage matrix.
+3. Confirm scoped and scopeless route variants have equivalent semantics where
    both variants exist.
-3. Confirm request and response schemas reference the same companion artifacts
-   named by the prose.
-4. Confirm protected operations declare bearer authentication.
-5. Confirm documented errors use the closed RFC 7807 problem type set.
-6. Confirm conformance fixtures exercise the happy path and at least one relevant
+4. Confirm request contracts match prose: path/query/header parameters, request
+   body required fields, accepted media types, defaults, bounds, enum values,
+   and `Idempotency-Key` header/body equivalence where applicable.
+5. Confirm success responses match prose: status code, response media type,
+   schema `$ref`, required/optional fields, empty-list or empty-collection
+   semantics, cache headers, and examples when present.
+6. Confirm protected operations declare bearer authentication and public read
+   operations remain intentionally unauthenticated.
+7. Confirm documented errors use the closed RFC 9457 problem type set and the
+   expected `application/problem+json` response media type.
+8. Confirm conformance fixtures exercise the happy path and at least one relevant
    failure path when behavior is deterministic offline.
+9. Record evidence for each row by linking the matrix row to the release evidence
+   issue for this version. The issue is the canonical ledger for reviewer/date,
+   command output or CI links, related PRs or commits, fixture links, and any
+   documented prose-boundary exceptions.
 
-## Endpoint matrix
+## Common release-freeze invariants
 
-| Endpoint family                | Status  | Prose anchor | OpenAPI operation IDs                                                  | Schema / fixture anchors                                                                                                                                                 | Audit focus                                                                                                                          |
-| ------------------------------ | ------- | ------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Catalog search                 | pending | §9.3         | `searchVolumes`                                                        | `schemas/search-results.schema.json`, `conformance/fixtures/search-results.json`                                                                                         | Query parameters, `limit`/`offset`, discovery-only semantics, unknown compatibility expression handling                              |
-| Release upload intent          | pending | §9.2.1       | `createVolumeUploadIntent`, `createScopedVolumeUploadIntent`           | `schemas/release-upload-intent.schema.json`, `conformance/fixtures/release-upload-lifecycle.json`                                                                        | Route-derived identity, auth, idempotency key behavior, `http-put` upload profile advertisement                                      |
-| Release upload finalize        | pending | §9.2.1       | `finalizeVolumeUpload`, `finalizeScopedVolumeUpload`                   | `schemas/release-upload-finalize.schema.json`, `conformance/fixtures/release-upload-lifecycle.json`                                                                      | digest/size checks, archive validation, identity mismatch, version conflict, expired upload, invalid upload state                    |
-| Exact release metadata         | pending | §9.2.2       | `getVolumeRelease`, `getScopedVolumeRelease`                           | `schemas/release-metadata.schema.json`, `conformance/fixtures/exact-release-metadata-cases.json`                                                                         | `name`/`purl` consistency, lifecycle states, installable `dist` restrictions, CDN/Git delivery metadata                              |
-| Unpublish / lifecycle mutation | pending | §9.2.3       | `unpublishVolumeRelease`, `unpublishScopedVolumeRelease`               | `conformance/fixtures/release-upload-lifecycle.json`, `conformance/fixtures/version-index.json`                                                                          | auth, tombstone/non-reuse behavior, consistency with exact metadata and version index rows                                           |
-| Version index                  | pending | §9.2.4       | `getVolumeVersionIndex`, `getScopedVolumeVersionIndex`                 | `schemas/version-index.schema.json`, `schemas/version-index-row.schema.json`, `conformance/fixtures/version-index-row-cases.json`                                        | row shape, lifecycle state semantics, exact metadata pointer, conflict with exact metadata                                           |
-| Trust summary                  | pending | §9.4.1       | `getVolumeTrustSummary`, `getScopedVolumeTrustSummary`                 | `schemas/trust-summary.schema.json`, `conformance/fixtures/trust-summary*.json`                                                                                          | fact-first semantics, empty artifact set as `200 OK`, derived judgments are non-canonical                                            |
-| Trust detail                   | pending | §9.4.2       | `getVolumeTrustDetail`, `getScopedVolumeTrustDetail`                   | `schemas/trust-detail.schema.json`, `conformance/fixtures/trust-detail*.json`                                                                                            | artifact locators, byte identity, release-subject binding, status/revision metadata, superseded evidence                             |
-| Trust upload intent            | pending | §9.4.3       | `createVolumeTrustUploadIntent`, `createScopedVolumeTrustUploadIntent` | `schemas/trust-upload-intent.schema.json`, `conformance/fixtures/trust-upload-lifecycle.json`                                                                            | auth, subject binding, declared digest/size, `http-put` upload profile, idempotency                                                  |
-| Trust upload finalize          | pending | §9.4.3       | `finalizeVolumeTrustUpload`, `finalizeScopedVolumeTrustUpload`         | `schemas/trust-upload-finalize.schema.json`, `conformance/fixtures/trust-upload-lifecycle.json`                                                                          | uploaded-byte digest, missing bytes, invalid state, idempotency conflict, activation rules                                           |
-| Advisory discovery             | pending | §9.5         | `searchAdvisories`, `getAdvisory`                                      | `schemas/advisory.schema.json`, `schemas/advisory-list.schema.json`, `conformance/fixtures/advisory*.json`                                                               | read/discovery only, volume-level targeting, withdrawal lifecycle, affected-version events                                           |
-| Capability metadata            | pending | §9.6-§9.7    | `getCapabilityMetadata`                                                | `schemas/capability-metadata.schema.json`, `schemas/bridge-metadata.schema.json`, `conformance/fixtures/capability-*.json`, `conformance/fixtures/bridge-metadata*.json` | exact `compatibleSpecVersions`, API family, upload-profile advertisement, unknown tolerance, extension container and bridge warnings |
+These invariants apply before an endpoint-family row can be treated as reviewed:
+
+- **Operation coverage**: every OpenAPI operation is present in exactly one row
+  in the operation coverage matrix. Adding or removing a path, method, or
+  `operationId` requires updating this audit.
+- **Schema lockstep**: OpenAPI `$ref` targets match the companion schemas named
+  by prose and the fixture mapping in `conformance/README.md`.
+- **Request contract parity**: path/query/header parameters, request body shape,
+  media types, `Idempotency-Key`, upload constraint fields, and default/bounds
+  semantics match §9 prose.
+- **Error contract parity**: each endpoint family exposes the expected closed
+  problem slugs, status codes, and `application/problem+json` examples.
+- **Auth boundary parity**: protected writes declare `bearerAuth`, public read
+  surfaces do not require bearer auth, `401` vs `403` semantics remain distinct,
+  and token issuance, revocation, ownership proof, and authorization policy stay
+  registry-local.
+- **Version lockstep**: OpenAPI `info.version`, `/api/v1` route family,
+  `agent-volumes-spec.md` release version, schema `$id` release versions, capability
+  `schemaVersion`, `specVersion`, `compatibleSpecVersions`, and `apiVersion`
+  remain mutually consistent.
+- **Fixture parity**: deterministic behavior is covered by a named fixture or a
+  documented prose-boundary exception in `conformance/REQUIREMENTS.md`.
+- **Policy boundary parity**: local topics such as lockfiles, registry priority,
+  prerelease selection, token issuance, advisory writes, scanner interchange,
+  multipart upload, and universal trust roots are not implied as portable
+  requirements.
+
+## Operation coverage matrix
+
+| Endpoint family                | Status  | Prose anchor | AV requirements                                                      | Expected auth | OpenAPI operation IDs                                                  | Evidence                                                                                                                                                                                                                                                          |
+| ------------------------------ | ------- | ------------ | -------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog search                 | checked | §9.3         | `AV-BIB-007`                                                         | Public        | `searchVolumes`                                                        | issue=#30; evidence=catalog-search; fixtures=`conformance/fixtures/search-results.json`, `conformance/fixtures/catalog-search-failure-cases.json`; drift=none                                                                                                     |
+| Release upload intent          | checked | §9.2.1       | `AV-BIB-003`, `AV-BIB-004`, `AV-BIB-012`                             | Bearer        | `createVolumeUploadIntent`, `createScopedVolumeUploadIntent`           | issue=#30; evidence=release-upload-intent; fixtures=`conformance/fixtures/release-upload-lifecycle.json`; drift=none                                                                                                                                              |
+| Release upload finalize        | checked | §9.2.1       | `AV-BIB-002`, `AV-BIB-003`, `AV-BIB-004`, `AV-BIB-005`, `AV-BIB-012` | Bearer        | `finalizeVolumeUpload`, `finalizeScopedVolumeUpload`                   | issue=#30; evidence=release-upload-finalize; fixtures=`conformance/fixtures/release-upload-lifecycle.json`; drift=none                                                                                                                                            |
+| Exact release metadata         | checked | §9.2.2       | `AV-BIB-003`, `AV-BIB-009`, `AV-BIB-010`, `AV-BIB-017`               | Public        | `getVolumeRelease`, `getScopedVolumeRelease`                           | issue=#30; evidence=exact-release-metadata; fixtures=`conformance/fixtures/exact-release-metadata-cases.json`; drift=none                                                                                                                                         |
+| Unpublish / lifecycle mutation | checked | §9.2.3       | `AV-BIB-003`, `AV-BIB-004`, `AV-BIB-008`                             | Bearer        | `unpublishVolumeRelease`, `unpublishScopedVolumeRelease`               | issue=#30; evidence=unpublish-lifecycle-mutation; fixtures=`conformance/fixtures/lifecycle-mutation-cases.json`; drift=none                                                                                                                                       |
+| Version index                  | checked | §9.2.4       | `AV-BIB-008`, `AV-BIB-010`, `AV-BIB-018`                             | Public        | `getVolumeVersionIndex`, `getScopedVolumeVersionIndex`                 | issue=#30; evidence=version-index; fixtures=`conformance/fixtures/version-index.json`,`conformance/fixtures/version-index-row-cases.json`; drift=none                                                                                                             |
+| Trust summary                  | checked | §9.4.1       | `AV-BIB-011`, `AV-BIB-010`                                           | Public        | `getVolumeTrustSummary`, `getScopedVolumeTrustSummary`                 | issue=#30; evidence=trust-summary; fixtures=`conformance/fixtures/trust-summary.json`, `conformance/fixtures/trust-summary-empty.json`, `conformance/fixtures/trust-summary-failure-cases.json`; drift=none                                                       |
+| Trust detail                   | checked | §9.4.2       | `AV-BIB-011`, `AV-BIB-010`, `AV-BIB-015`                             | Public        | `getVolumeTrustDetail`, `getScopedVolumeTrustDetail`                   | issue=#30; evidence=trust-detail; fixtures=`conformance/fixtures/trust-detail.json`, `conformance/fixtures/trust-detail-empty.json`, `conformance/fixtures/trust-detail-status-variants.json`, `conformance/fixtures/trust-detail-failure-cases.json`; drift=none |
+| Trust upload intent            | checked | §9.4.3       | `AV-BIB-012`                                                         | Bearer        | `createVolumeTrustUploadIntent`, `createScopedVolumeTrustUploadIntent` | issue=#30; evidence=trust-upload-intent; fixtures=`conformance/fixtures/trust-upload-lifecycle.json`; drift=none                                                                                                                                                  |
+| Trust upload finalize          | checked | §9.4.3       | `AV-BIB-012`, `AV-BIB-015`                                           | Bearer        | `finalizeVolumeTrustUpload`, `finalizeScopedVolumeTrustUpload`         | issue=#30; evidence=trust-upload-finalize; fixtures=`conformance/fixtures/trust-upload-lifecycle.json`; drift=none                                                                                                                                                |
+| Advisory search                | checked | §9.5         | `AV-BIB-013`                                                         | Public        | `searchAdvisories`                                                     | issue=#30; evidence=advisory-search; fixtures=`conformance/fixtures/advisory-list.json`, `conformance/fixtures/advisory-search-failure-cases.json`; drift=none                                                                                                    |
+| Advisory detail                | checked | §9.5         | `AV-BIB-013`                                                         | Public        | `getAdvisory`                                                          | issue=#30; evidence=advisory-detail; fixtures=`conformance/fixtures/advisory-validation-cases.json`; drift=none                                                                                                                                                   |
+| Capability metadata            | checked | §9.6-§9.7    | `AV-BIB-014`, `AV-BIB-016`                                           | Public        | `getCapabilityMetadata`                                                | issue=#30; evidence=capability-metadata; fixtures=`capability-metadata-reserved-extension-rejection.json`,`capability-metadata-unknown-tolerance.json`,`capability-invalid-compatibility-cases.json`; drift=none                                                  |
 
 Status values:
 
 - `pending` — not yet reviewed for this release-freeze pass.
-- `checked` — route, schema, error, auth, and deterministic fixture anchors were reviewed and no update is needed.
-- `needs-update` — prose, OpenAPI, schema, or fixture alignment work remains before release freeze.
+- `checked` — route, schema, error, auth, and deterministic fixture anchors were
+  reviewed and no update is needed. Release-freeze signoff still requires a
+  compact Evidence-cell link to the release evidence issue for this version.
+- `needs-update` — prose, OpenAPI, schema, fixture, or evidence alignment work
+  remains before release freeze.
+
+## Endpoint-family drift checks
+
+| Endpoint family                | Expected problem slugs                                                                                                                                                                                                                                                                                                            | Schema / fixture anchors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Audit focus                                                                                                                                                                         | Prose-boundary notes                                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Catalog search                 | `validation-failed`, `rate-limited`                                                                                                                                                                                                                                                                                               | `schemas/search-results.schema.json`, `conformance/fixtures/search-results.json`, `conformance/fixtures/catalog-search-failure-cases.json`                                                                                                                                                                                                                                                                                                                                                                     | Query parameters, component-type enum, `limit`/`offset` bounds/defaults, discovery-only semantics, unknown compatibility expression handling                                        | Ranking, relevance, and stable global ordering are bibliotheca-local.                                      |
+| Release upload intent          | `authentication-required`, `authorization-failed`, `validation-failed`, `version-conflict`, `idempotency-conflict`, `rate-limited`                                                                                                                                                                                                | `schemas/release-upload-intent.schema.json`, `conformance/fixtures/release-upload-lifecycle.json`                                                                                                                                                                                                                                                                                                                                                                                                              | Route-derived identity, request `version`, `mediaType`, `declaredDigest`, `declaredSize`, bearer auth, idempotency key behavior, `http-put` upload profile advertisement            | Upload target storage and byte-transfer URL semantics are implementation-local behind upload instructions. |
+| Release upload finalize        | `authentication-required`, `authorization-failed`, `not-found`, `invalid-manifest`, `invalid-archive`, `digest-mismatch`, `identity-mismatch`, `missing-uploaded-bytes`, `invalid-upload-state`, `idempotency-conflict`, `upload-expired`, `payload-too-large`, `unsupported-media-type`, `permission-escalation`, `rate-limited` | `schemas/release-upload-finalize.schema.json`, `conformance/fixtures/release-upload-lifecycle.json`, `conformance/fixtures/digest-vectors.json`, `conformance/fixtures/digest-invalid-cases.json`, `conformance/fixtures/tar-archive-profile-cases.json`, `conformance/fixtures/permission-escalation.json`                                                                                                                                                                                                    | Uploaded-byte digest/size checks, archive validation, route/manifest/release identity, version conflict, expired upload, invalid upload state, permission model, computed integrity | Mandatory direct permission-escalation validation on every publish attempt is not required by v0.1.        |
+| Exact release metadata         | `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                                                                                                                                                | `schemas/release-metadata.schema.json`, `conformance/fixtures/exact-release-metadata-cases.json`                                                                                                                                                                                                                                                                                                                                                                                                               | `name`/`purl` consistency, lifecycle states, installable `dist` restrictions, CDN/Git delivery metadata, declaration-only external dependency exposure                              | Registry priority, prerelease policy, scanner findings, VEX status, and lockfiles remain local.            |
+| Unpublish / lifecycle mutation | `authentication-required`, `authorization-failed`, `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                                                                                                                     | `conformance/fixtures/lifecycle-mutation-cases.json`, `conformance/fixtures/version-index.json`, `conformance/fixtures/exact-release-metadata-cases.json`                                                                                                                                                                                                                                                                                                                                                      | Bearer auth, tombstone/non-reuse behavior, lifecycle-state consistency with exact metadata, version index rows, trust/advisory discovery surfaces                                   | Grace windows and who may unpublish are local policy.                                                      |
+| Version index                  | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                                                                                                                                                                        | `schemas/version-index.schema.json`, `schemas/version-index-row.schema.json`, `conformance/fixtures/version-index.json`, `conformance/fixtures/version-index-row-cases.json`, `conformance/fixtures/resolver-cases.json`                                                                                                                                                                                                                                                                                       | Row shape, lifecycle state semantics, exact metadata pointer, conflict with exact metadata, exclusion of external dependency declaration carriers                                   | Physical index storage, replication, sharding, and sparse/Git layout are local implementation choices.     |
+| Trust summary                  | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                                                                                                                                                                        | `schemas/trust-summary.schema.json`, `conformance/fixtures/trust-summary.json`, `conformance/fixtures/trust-summary-empty.json`, `conformance/fixtures/trust-summary-failure-cases.json`                                                                                                                                                                                                                                                                                                                       | Fact-first semantics, empty artifact set as `200 OK`, derived judgments are non-canonical                                                                                           | Verification labels and broader trust policy outcomes are non-mandatory derived judgments.                 |
+| Trust detail                   | `not-found`, `inconsistent-registry-state`, `rate-limited`                                                                                                                                                                                                                                                                        | `schemas/trust-detail.schema.json`, `conformance/fixtures/trust-detail.json`, `conformance/fixtures/trust-detail-empty.json`, `conformance/fixtures/trust-detail-status-variants.json`, `conformance/fixtures/trust-detail-failure-cases.json`                                                                                                                                                                                                                                                                 | Artifact locators, byte identity, release-subject binding, empty attachments as `200 OK`, status/revision metadata, superseded evidence                                             | Universal trust-root policy and live transparency-log policy remain local.                                 |
+| Trust upload intent            | `authentication-required`, `authorization-failed`, `not-found`, `subject-binding-mismatch`, `idempotency-conflict`, `payload-too-large`, `unsupported-media-type`, `rate-limited`                                                                                                                                                 | `schemas/trust-upload-intent.schema.json`, `conformance/fixtures/trust-upload-lifecycle.json`                                                                                                                                                                                                                                                                                                                                                                                                                  | Bearer auth, release-subject binding, category/format metadata, declared digest/size, `http-put` upload profile, idempotency                                                        | Accepted trust attachment size limits are bibliotheca-local, but `413` semantics are portable.             |
+| Trust upload finalize          | `authentication-required`, `authorization-failed`, `not-found`, `missing-uploaded-bytes`, `invalid-upload-state`, `digest-mismatch`, `subject-binding-mismatch`, `idempotency-conflict`, `upload-expired`, `payload-too-large`, `unsupported-media-type`, `rate-limited`                                                          | `schemas/trust-upload-finalize.schema.json`, `conformance/fixtures/trust-upload-lifecycle.json`, `conformance/fixtures/trust-artifact-verification-cases.json`                                                                                                                                                                                                                                                                                                                                                 | Uploaded-byte digest, missing bytes, invalid state, idempotency conflict, activation rules, trust attachment status/revision                                                        | Direct byte-transfer mechanics remain behind opaque upload instructions.                                   |
+| Advisory search                | `validation-failed`, `rate-limited`                                                                                                                                                                                                                                                                                               | `schemas/advisory-list.schema.json`, `conformance/fixtures/advisory-list.json`, `conformance/fixtures/advisory-validation-cases.json`                                                                                                                                                                                                                                                                                                                                                                          | Read/discovery only, advisory list `items` envelope, empty list success semantics, volume-level query targeting                                                                     | Advisory search ranking, scanner ingestion, and advisory write authority remain local.                     |
+| Advisory detail                | `not-found`, `rate-limited`                                                                                                                                                                                                                                                                                                       | `schemas/advisory.schema.json`, `conformance/fixtures/advisory.json`, `conformance/fixtures/advisory-withdrawn.json`, `conformance/fixtures/advisory-validation-cases.json`                                                                                                                                                                                                                                                                                                                                    | Read/discovery only, local advisory ID lookup, withdrawal lifecycle, affected-version events, volume-level targeting                                                                | Advisory create/update/withdraw authority and moderation workflows remain local.                           |
+| Capability metadata            | `rate-limited`                                                                                                                                                                                                                                                                                                                    | `schemas/capability-metadata.schema.json`, `schemas/bridge-metadata.schema.json`, `schemas/reserved-extension-namespaces.json`, `conformance/fixtures/capability-metadata.json`, `conformance/fixtures/capability-metadata-unknown-tolerance.json`, `conformance/fixtures/capability-metadata-reserved-extension-rejection.json`, `conformance/fixtures/capability-invalid-compatibility-cases.json`, `conformance/fixtures/bridge-metadata.json`, `conformance/fixtures/bridge-metadata-status-variants.json` | Scope/scopeless policy, delivery modes, exact `compatibleSpecVersions`, API family, upload-profile advertisement, unknown tolerance, extension container, bridge warnings           | Rich trust-profile, scanner-profile, and upload-mode negotiation are outside v0.1 core.                    |
 
 ## Error contract audit
 
@@ -74,24 +137,88 @@ When adding or removing a problem type, update all of these together:
 4. `conformance/fixtures/problem-details-cases.json`
 5. `conformance/fixtures/problem-registry.json`
 6. `openapi/bibliotheca.openapi.yaml`
+7. The endpoint-family problem slug column above
+
+For every endpoint family, confirm:
+
+- the OpenAPI response status exists for each expected problem slug;
+- shared response components are traced to the operation-specific problem slugs
+  above rather than treated as sufficient evidence by themselves;
+- each problem response uses `application/problem+json`;
+- examples validate against the closed problem-details schema;
+- `401` is used only for missing or invalid bearer authentication;
+- `403` is used for authorization or public-resource refusal semantics;
+- `429` is available where rate limiting is part of the portable surface; and
+- deterministic failure fixtures exist, or the absence is documented as a
+  prose-boundary behavior.
+
+## Evidence format
+
+For each draft, release-candidate, or stable release, create a release evidence
+issue using `.github/ISSUE_TEMPLATE/release-evidence.md`. Use that issue as the
+canonical evidence ledger for the full review. Human-readable dates in evidence
+records use Human Era / Holocene Era (HE) notation, for example
+`12026-05-18 HE`.
+
+Use the matrix Evidence cell as a compact pointer back to that issue:
+
+```text
+issue=<release evidence issue>; evidence=<endpoint-family-anchor>; fixtures=<fixture paths or prose-boundary>; drift=<none | checked exception | needs-update>
+```
+
+Examples:
+
+```text
+issue=#123; evidence=release-upload-finalize; fixtures=conformance/fixtures/release-upload-lifecycle.json; drift=none
+issue=#123; evidence=trust-summary; fixtures=conformance/fixtures/trust-summary.json, conformance/fixtures/trust-summary-failure-cases.json; drift=needs-update: response parity owner @handle
+```
+
+Use the following full evidence shape inside the release evidence issue:
+
+```text
+Reviewer/date: <name or handle>, <YYYYY-MM-DD HE>
+Commands/CI: bun run lint:openapi <link or output>; bun run validate:artifacts <link or output>
+Rows reviewed: <endpoint families>
+Related changes: <PRs or commits>
+Fixture evidence: <fixture paths or prose-boundary note>
+Remaining drift: none | <explicit checked exception>
+```
 
 ## Release-freeze signoff
 
-Before freezing a draft release, record the following checks here, in the PR, or
-in release notes:
+Before freezing a release candidate, record the following checks in the release
+evidence issue and mirror the compact status here. Release notes may link to the
+same issue rather than duplicating the full evidence ledger.
 
-- [ ] `bun run lint:openapi` passes.
-- [ ] `bun run validate:artifacts` passes.
-- [ ] Every endpoint family above is marked `checked` or `needs-update`.
-- [ ] Every deterministic endpoint behavior has at least one conformance fixture
+- [x] `bun run lint:openapi` passes.
+- [x] `bun run validate:artifacts` passes.
+- [x] Every OpenAPI path/method/`operationId` appears in exactly one endpoint
+      family row.
+- [x] Every endpoint family above is marked `checked` before freeze, or any
+      remaining `needs-update` row is explicitly documented as a release-blocking
+      exception with an owner.
+- [x] No release-blocking exception remains unresolved at freeze time.
+- [x] Every deterministic endpoint behavior has at least one conformance fixture
       or an explicit prose-boundary explanation in `conformance/REQUIREMENTS.md`.
-- [ ] All intentionally local policy choices are documented as local choices
+- [x] Every expected problem slug/status/media type is aligned across prose,
+      OpenAPI, schemas, and fixtures.
+- [x] Request contracts, response contracts, auth boundaries, and version
+      lockstep invariants above have evidence.
+- [x] All intentionally local policy choices are documented as local choices
       rather than implied portable requirements.
+- [x] Remaining drift is `none`, except explicitly documented deferred or
+      prose-boundary items that do not block v0.1 release readiness.
 
-| Check                           | Result  | Evidence / notes                                                        |
-| ------------------------------- | ------- | ----------------------------------------------------------------------- |
-| OpenAPI lint                    | pending | Record command output or CI link.                                       |
-| Artifact validation             | pending | Record command output or CI link.                                       |
-| Endpoint family review          | pending | Mark all endpoint-family rows above before freeze.                      |
-| Deterministic behavior coverage | pending | Link fixture updates or prose-boundary notes.                           |
-| Local policy boundary review    | pending | Confirm no implementation-local policy is implied as portable baseline. |
+| Check                            | Result  | Reviewer/date                 | Evidence / notes                                                                                 |
+| -------------------------------- | ------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| OpenAPI lint                     | checked | @yunseo-kim, `12026-05-18 HE` | Record command output or CI link: `Woohoo! Your API description is valid. 🎉`                    |
+| Artifact validation              | checked | @yunseo-kim, `12026-05-18 HE` | Record command output or CI link: `Artifact validation passed.`                                  |
+| Operation coverage               | checked | @yunseo-kim, `12026-05-18 HE` | Confirm every OpenAPI operation maps to exactly one matrix row.                                  |
+| Endpoint family review           | checked | @yunseo-kim, `12026-05-18 HE` | Mark all endpoint-family rows above before freeze.                                               |
+| Request/response contract parity | checked | @yunseo-kim, `12026-05-18 HE` | Link prose/OpenAPI/schema review evidence.                                                       |
+| Error contract parity            | checked | @yunseo-kim, `12026-05-18 HE` | Link problem mapping, schema, fixture, or validator evidence.                                    |
+| Auth/security boundary review    | checked | @yunseo-kim, `12026-05-18 HE` | Confirm protected/public operation boundaries and local-policy limits.                           |
+| Version lockstep                 | checked | @yunseo-kim, `12026-05-18 HE` | Confirm spec, OpenAPI, schemas, and capability metadata version fields.                          |
+| Deterministic behavior coverage  | checked | @yunseo-kim, `12026-05-18 HE` | Link fixture updates or prose-boundary notes.                                                    |
+| Local policy boundary review     | checked | @yunseo-kim, `12026-05-18 HE` | Confirm no implementation-local policy is implied as portable baseline.                          |
+| Freeze gate                      | checked | @yunseo-kim, `12026-05-18 HE` | Must be `none` for unresolved drift; release-blocking exceptions must be resolved before freeze. |

@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "name": "invalid-leading-hyphen-name",
   "canonicalParsedData": {
     "volume": {

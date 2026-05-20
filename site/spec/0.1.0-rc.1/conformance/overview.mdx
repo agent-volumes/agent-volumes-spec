@@ -1,0 +1,105 @@
+---
+title: 'Conformance requirements and claim labels'
+description: 'Understand conformance claim labels, minimum viable client requirements, and minimum viable bibliotheca requirements for Agent Volumes v0.1.'
+sidebarTitle: 'Overview'
+---
+
+Conformance in Agent Volumes describes what an artifact or implementation must do to be compatible with the v0.1 core baseline — it is not a product certification program. When your client or bibliotheca passes the offline fixture suite, you earn an **artifact conformance** claim for that surface. That claim tells other implementers exactly what you have validated; it does not imply live cross-registry interoperability, hosted service approval, or one universal trust-root policy.
+
+## Conformance claim labels
+
+Use precise labels when describing what your implementation has validated. Labels are additive: you can claim more than one when all corresponding requirements are met.
+
+| Claim label                      | Meaning                                                                                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `artifact-fixture-pass`          | The implementation or harness evaluated the v0.1 fixture corpus and produced a conforming report.                                                      |
+| `client-role`                    | The implementation satisfies the client requirements in spec section 11.3.                                                                             |
+| `bibliotheca-read-role`          | The implementation satisfies read/discovery behavior for search, fetch, version index, trust, advisory, and capability metadata.                       |
+| `bibliotheca-write-capable-role` | The implementation satisfies read behavior plus release upload and trust attachment upload behavior, including the `http-put` portable upload profile. |
+| `validator-exporter-role`        | The implementation validates manifests, fixtures, mapping exports, or trust artifacts without claiming live registry behavior.                         |
+
+<Note>
+  Passing fixtures earns you `artifact-fixture-pass`, not a certification badge. These labels are statements about the
+  artifact and vector surface only.
+</Note>
+
+## Minimum viable conforming client
+
+Before claiming Agent Volumes `v0.1.0-rc.1` compatibility as a client, your implementation must support all of the following:
+
+1. Parse `volume.toml` using TOML v1.1.0 semantics and validate the canonical parsed data model against `schemas/volume.schema.json` plus prose-only semantic checks.
+2. Validate package and component identity, including scoped names, canonical purl serialization, and component purl shorthand rules.
+3. Parse the portable dependency range grammar and enforce single-version resolution.
+4. Consume package-scoped version indexes and exact release metadata before installation or trust evaluation.
+5. Apply lifecycle semantics: ordinary resolution selects only `available`; exact `yanked` installs warn; `blocked`, `tombstoned`, and `unavailable` fail in the portable baseline.
+6. Resolve `dist` metadata, retrieve release bytes or source material, construct the normalized file tree, and verify `integrity`.
+7. Reject digest mismatch, subject-binding mismatch, inconsistent registry state, and component permission escalation.
+8. Validate entrypoint existence and type-specific portable load boundaries before handing components to runtime adapters.
+9. Preserve and expose runtime/protocol compatibility version expressions, compare them only for known schemes, and avoid rejecting solely because an expression uses an unknown runtime or protocol scheme.
+10. Consume trust summary/detail metadata and distinguish objective trust facts from non-mandatory derived judgments.
+11. Treat revoked or invalid trust attachments as failures by default, and treat superseded trust attachments as stale evidence that does not satisfy current-state trust requirements.
+12. Validate objective trust artifact facts for formats the implementation claims to support, and never report unsupported artifact formats as verified.
+13. Consume capability metadata without failing solely on unknown capability fields or values, while interpreting `compatibleSpecVersions` as exact version sets and `apiVersion` as the HTTP API major family.
+14. Validate external dependency declarations, including PURL/VERS compatibility, component scopes, duplicate or conflicting declaration keys, and potential-exposure warning contexts.
+15. Surface structured warnings for accepted unknown manifest fields, bridge migrations, yanked exact installs, potential external dependency exposure, and non-canonical entrypoint conventions.
+
+## Minimum viable conforming bibliotheca
+
+Before claiming Agent Volumes `v0.1.0-rc.1` compatibility as a bibliotheca, your implementation must support all of the following:
+
+1. Serve `GET /api/v1/capabilities` with the capability metadata contract.
+2. Support scoped and scopeless volume identities according to the advertised capability policy.
+3. Create release upload intents, support the `http-put` portable upload profile for release uploads, and finalize uploaded `.tar.gz` release bytes.
+4. Verify uploaded-byte digest and size when declared, validate archive profile rules, validate manifest identity against the route identity, compute normalized-file-tree `integrity`, and publish only after finalize succeeds.
+5. Preserve version immutability: a lifecycle-marked version number is never reused for different content.
+6. Serve exact release metadata with lifecycle status and distribution metadata only when the release state permits portable exact fetch semantics.
+7. Serve package-scoped version index rows synchronized with publish, yank, tombstone, block, and unavailable state changes.
+8. Expose catalog search as discovery only; search results never substitute for version indexes or exact metadata during resolution.
+9. Expose trust summary/detail views and preserve append-only trust attachment status/revision semantics.
+10. Support trust attachment upload intent/finalize and the `http-put` portable upload profile when the bibliotheca is write-capable for trust artifacts.
+11. Expose advisory read/discovery endpoints for the v0.1 advisory schema.
+12. Use RFC 9457 Problem Details for portable API errors.
+13. Validate and expose schema-backed external dependency metadata, upstream-baseline and PURL/VERS compatibility artifacts, and potential-exposure warnings where applicable.
+14. Block continued distribution of artifacts with discovered permission escalation.
+
+## Prototype-local choices
+
+The v0.1 core intentionally leaves several operational choices to your implementation. Document each of these explicitly in your project rather than treating them as standard behavior.
+
+| Choice               | What to document                                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth token issuance  | How bearer tokens are created, stored, revoked, and mapped to publisher resources                                                                |
+| Upload byte transfer | Which non-core upload instruction shapes are returned beyond the mandatory `http-put` portable baseline and how bytes are staged before finalize |
+| Download transport   | Whether `dist.source = "cdn"`, `dist.source = "git"`, or both are supported                                                                      |
+| Lockfile behavior    | File format, update workflow, and frozen-install UX                                                                                              |
+| Registry priority    | Ordering and source selection when multiple bibliothecas are configured                                                                          |
+| Prerelease selection | Whether prerelease candidates are considered by default                                                                                          |
+| Trust roots          | Accepted Sigstore/SLSA roots, offline test keys, and policy overrides                                                                            |
+| Advisory authority   | Who can create, update, or withdraw advisories in the implementation                                                                             |
+| Scanner results      | Local scanner ingestion and policy mapping, if any                                                                                               |
+| Runtime adapters     | How valid components are mapped into each target runtime's local execution model                                                                 |
+
+<Tip>
+  Treat this table as a checklist. For each choice your implementation makes, write it down in your own README or
+  documentation so that users know what to expect.
+</Tip>
+
+## Smoke conformance path
+
+Run the repository artifact checks before comparing your implementation behavior against the fixture harness:
+
+```bash
+npm run validate:artifacts
+npm run lint:openapi
+```
+
+These commands validate the specification artifacts themselves. Use the same fixture families to produce your own conformance report. This page is a summary only; the full report shape, including required fields and supported result outcomes, is defined by `schemas/conformance-report.schema.json`, and the runner contract is documented in `conformance/README.md`.
+
+<CardGroup cols={2}>
+  <Card title="Conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
+    Explore the fixture families and learn how to run them against your implementation.
+  </Card>
+  <Card title="Registry API" icon="server" href="/spec/0.1.0-rc.1/api/overview">
+    HTTP API reference for the bibliotheca endpoints your implementation must serve.
+  </Card>
+</CardGroup>

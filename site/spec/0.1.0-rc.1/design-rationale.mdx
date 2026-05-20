@@ -1,0 +1,108 @@
+---
+title: 'Design rationale and decision records'
+description: 'Topic index for Agent Volumes v0.1.0-rc.1 decision records, deferred topics, and release design rationale.'
+sidebarTitle: 'Design rationale'
+---
+
+Agent Volumes decision records explain why the v0.1 release surface looks the way it does. They are decision history and review context, not standalone reference requirements. Use them to understand the rationale behind the prose specification, schemas, OpenAPI contract, conformance fixtures, and URI publication model.
+
+<Note>
+  Current accepted decision records control the decisions they record. Later records can refine, update, or supersede
+  earlier records, so read the latest record in a topic area before relying on historical rationale.
+</Note>
+
+## How to use decision records
+
+All Agent Volumes ADRs follow the [MADR](https://adr.github.io/madr/) format, so each record uses a consistent structure for context, decision, consequences, and related discussion.
+
+- Read decision records when you need to understand why a behavior is in scope, out of scope, or intentionally deferred.
+- Use the prose specification and companion artifacts for the current release contract.
+- Treat deferred topics as deliberate v0.1 boundaries, not as readiness gaps, unless the relevant record's reopening trigger has been met.
+- Add a follow-up decision record when a recorded decision needs to change. Do not silently override it in site prose.
+
+## Current v0.1 baseline anchors
+
+The repository decision index groups the current baseline anchors by topic. Use these groups as the starting point for deeper review.
+
+| Topic                                    | Key records                                                                                                                                                                  | What they explain                                                                                                                                        |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity and manifest model              | `0001-*`, `0002-*`, `0012-*`, `0048-*` through `0051-*`, `0109-*` through `0149-*`                                                                                           | `pkg:volume` identity, `volume.toml`, parsed data model, unknown fields, external dependency declarations, PURL/VERS behavior, and declaration keys      |
+| Component taxonomy and loading           | `0003-*`, `0084-*` through `0089-*`                                                                                                                                          | The seven component types, MCP and LSP conventions, hook events, portable capability classes, and read/write permission distinctions                     |
+| Content integrity and release subject    | `0007-*`, `0013-*`, `0014-*`, `0090-*`, `0102-*`                                                                                                                             | Normalized-file-tree digest construction, `.tar.gz` transport profile, and release-subject identity                                                      |
+| Trust and supply chain                   | `0005-*`, `0006-*`, `0008-*` through `0010-*`, `0015-*`, `0022-*`, `0023-*`, `0026-*`, `0027-*`, `0030-*` through `0032-*`, `0095-*`, `0099-*`, `0103-*`, `0108-*`, `0142-*` | CycloneDX, SLSA, Sigstore-family signatures, trust metadata views, append-only attachments, status lifecycles, and local trust-policy boundaries         |
+| Advisories                               | `0021-*`, `0033-*` through `0042-*`, `0092-*`, `0105-*`, `0135-*`, `0137-*` through `0151-*`                                                                                 | Volume-level advisory targeting, advisory identity, severity and relationship vocabularies, external advisory matches, and potential-exposure warnings   |
+| Machine-readable artifacts               | `0016-*`, `0017-*`, `0020-*`, `0043-*` through `0047-*`, `0139-*` through `0151-*`                                                                                           | JSON contracts, schema publication, conformance fixtures, BOM/provenance mapping, SPDX terms, in-toto predicates, warnings, and compatibility exceptions |
+| Capability metadata and extensions       | `0060-*` through `0083-*`, `0107-*`, `0141-*`                                                                                                                                | Capability endpoint shape, extension containers, bridge metadata, reserved namespaces, and compatible spec-version sets                                  |
+| Registry API, resolver, and upload       | `0019-*`, `0091-*`, `0097-*`, `0098-*`, `0100-*`, `0101-*`, `0102-*`, `0106-*`, `0136-*`, `0152-*`                                                                           | Resolver boundaries, version indexes, SemVer ranges, lifecycle states, bearer-token semantics, upload profiles, and RFC 9457 Problem Details             |
+| Conformance and readiness                | `0020-*`, `0028-*`, `0029-*`, `0104-*`, `0144-*` through `0151-*`                                                                                                            | v0.1 core versus future profiles, deterministic fixture harness behavior, coverage, warning context, and readiness review boundaries                     |
+| Public documentation and URI publication | `0153-*` through `0157-*`                                                                                                                                                    | Mintlify adoption, `site/` ownership, host routing, apex `/spec/*` aliases, and the hybrid unversioned/versioned information architecture                |
+
+## Deferred v0.1 topics
+
+The v0.1 core intentionally leaves these topics outside the portable baseline unless their decision records are reopened:
+
+- common derived-judgment vocabulary;
+- scanner-finding interchange and severity normalization;
+- component-level advisory targeting;
+- source-native external advisory feed ingestion;
+- future strict, enterprise, or other profiles beyond the v0.1 core;
+- structured deprecation metadata;
+- broader MCP configuration formats such as YAML;
+- finer permission granularity beyond the read/write baseline;
+- advisory write semantics and moderation workflows;
+- registry-side potential-exposure diagnostic APIs;
+- universal prerelease-resolution policy;
+- transitive bundle semantics for `role = "meta"`;
+- AI-specific BOM profile guarantees beyond the generic CycloneDX baseline;
+- registry-priority policy and lockfile format;
+- universal trust-root policy;
+- upload profiles beyond mandatory `http-put`.
+
+## Superseded and updated records
+
+Some records remain useful as history even though later ADRs refined the current release direction.
+
+| Earlier record | Current reading                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| ADR-0001       | Superseded by ADR-0012, which selects `volume` as the purl type instead of the earlier `shelf` direction.         |
+| ADR-0003       | Superseded by ADR-0085, which expands the component taxonomy from six types to seven by adding `lsp-server`.      |
+| ADR-0091       | Accepted and updated by ADR-0152, which moves the Problem Details reference from RFC 7807 to RFC 9457.            |
+| ADR-0101       | Accepted and updated by ADR-0152 for protected-write bearer-token error semantics.                                |
+| ADR-0132       | Treat as mapping/export history alongside later external-dependency and warning-context records through ADR-0151. |
+
+Do not delete or rewrite superseded records. They preserve why the project changed direction and which alternatives were rejected.
+
+## URI publication decisions
+
+The publication model comes from the latest documentation and URI publication records:
+
+| Record   | Decision                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ADR-0153 | Adopt Mintlify for the first public documentation site.                                                                                            |
+| ADR-0154 | Manage the Mintlify source in the spec repository under `site/`.                                                                                   |
+| ADR-0155 | Use `agentvolumes.org` as the canonical organization host.                                                                                         |
+| ADR-0156 | Host rendered specification documentation on `docs.agentvolumes.org` and reserve apex `/spec/*` aliases for permanent specification URI redirects. |
+| ADR-0157 | Use a hybrid IA with unversioned orientation pages plus immutable `/spec/<version>/...` release archives.                                          |
+
+The current site implements release convenience aliases as `/spec/latest` and `/spec/current`. These aliases route readers to the active non-draft release but are not durable citation targets.
+
+## Related sources
+
+<CardGroup cols={2}>
+  <Card title="Specification authority" icon="landmark" href="/spec/0.1.0-rc.1/specification-authority">
+    Review the source-of-truth hierarchy before using decision history to interpret release behavior.
+  </Card>
+  <Card title="Design principles" icon="compass" href="/spec/0.1.0-rc.1/design-principles">
+    Read the seven principles that summarize the v0.1 design direction.
+  </Card>
+  <Card title="Conformance requirements" icon="list-check" href="/spec/0.1.0-rc.1/conformance/requirements">
+    See role-scoped requirements, fixture coverage, prose-boundary behavior, and deferred topics.
+  </Card>
+  <Card
+    title="Decision records on GitHub"
+    icon="github"
+    href="https://github.com/agent-volumes/agent-volumes-spec/tree/main/docs/decisions"
+  >
+    Open the complete chronological decision record corpus.
+  </Card>
+</CardGroup>

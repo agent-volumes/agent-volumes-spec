@@ -4,22 +4,23 @@ Normative JSON Schema companion artifacts for Agent Volumes v0.1. Prose specific
 
 ## STRUCTURE
 
-| Family                  | Files                                                                                                                         |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Manifest model          | `volume.schema.json`                                                                                                          |
-| Release metadata        | `release-metadata.schema.json`, `exact-release-metadata-case.schema.json`                                                     |
-| Version index           | `version-index.schema.json`, `version-index-row.schema.json`                                                                  |
-| Release upload          | `release-upload-intent.schema.json`, `release-upload-finalize.schema.json`                                                    |
-| Trust discovery         | `trust-summary.schema.json`, `trust-detail.schema.json`                                                                       |
-| Trust upload            | `trust-upload-intent.schema.json`, `trust-upload-finalize.schema.json`                                                        |
-| Trust verification      | `trust-artifact-verification-case.schema.json`                                                                                |
-| Advisories              | `advisory.schema.json`, `advisory-list.schema.json`, `advisory-validation-case.schema.json`                                   |
-| Capability metadata     | `capability-metadata.schema.json`, `bridge-metadata.schema.json`, `reserved-extension-namespaces.json`                        |
-| Errors/warnings         | `problem-details.schema.json`, `problem-registry.schema.json`, `warning.schema.json`                                          |
-| Conformance             | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                          |
-| Manifest/semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json` |
-| BOM/provenance mapping  | `mapping-matrix.schema.json`, `mapping-sample.schema.json`                                                                    |
-| Search                  | `search-results.schema.json`                                                                                                  |
+| Family                  | Files                                                                                                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Manifest model          | `volume.schema.json`                                                                                                                                                                                       |
+| Release metadata        | `release-metadata.schema.json`, `exact-release-metadata-case.schema.json`                                                                                                                                  |
+| Version index           | `version-index.schema.json`, `version-index-row.schema.json`                                                                                                                                               |
+| Release upload          | `release-upload-intent.schema.json`, `release-upload-finalize.schema.json`                                                                                                                                 |
+| Trust discovery         | `trust-summary.schema.json`, `trust-detail.schema.json`                                                                                                                                                    |
+| Trust upload            | `trust-upload-intent.schema.json`, `trust-upload-finalize.schema.json`                                                                                                                                     |
+| Trust verification      | `trust-artifact-verification-case.schema.json`                                                                                                                                                             |
+| Advisories              | `advisory.schema.json`, `advisory-list.schema.json`, `advisory-validation-case.schema.json`                                                                                                                |
+| Capability metadata     | `capability-metadata.schema.json`, `bridge-metadata.schema.json`, `reserved-extension-namespaces.json`                                                                                                     |
+| Errors/warnings         | `problem-details.schema.json`, `problem-registry.schema.json`, `warning.schema.json`                                                                                                                       |
+| Conformance             | `conformance-report.schema.json`, `conformance-coverage.schema.json`                                                                                                                                       |
+| Manifest/semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json`                                                                              |
+| External dependencies   | `external-dependency-validation-case.schema.json`, `upstream-baseline.schema.json`, `purl-vers-compatibility-exceptions.schema.json`, `external-dependency-potential-exposure-warning-context.schema.json` |
+| BOM/provenance mapping  | `mapping-matrix.schema.json`, `mapping-sample.schema.json`, `external-dependency-declarations-predicate.schema.json`                                                                                       |
+| Search                  | `search-results.schema.json`                                                                                                                                                                               |
 
 ## WHERE TO LOOK
 
@@ -36,6 +37,7 @@ Normative JSON Schema companion artifacts for Agent Volumes v0.1. Prose specific
 - Schema `$id` values include the Agent Volumes spec release.
 - Artifacts are version-aligned with `agent-volumes-spec.md`.
 - Material schema changes are normative draft changes.
+- Most artifacts are Draft 2020-12 `*.schema.json`; `reserved-extension-namespaces.json` is the notable non-schema exception.
 
 ## ANTI-PATTERNS
 

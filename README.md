@@ -126,24 +126,24 @@ See [§8 Trust and Supply Chain Model](agent-volumes-spec.md#8-trust-and-supply-
 
 ## Status
 
-This repository contains the **working draft** of the Agent Volumes specification. No stable version has been released.
+This repository contains the **release candidate** of the Agent Volumes specification. No stable version has been released.
 
-| Document                                             | Version        | Status        |
-| ---------------------------------------------------- | -------------- | ------------- |
-| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-draft.5 | Working Draft |
+| Document                                             | Version     | Status            |
+| ---------------------------------------------------- | ----------- | ----------------- |
+| [Agent Volumes Specification](agent-volumes-spec.md) | v0.1.0-rc.1 | Release Candidate |
 
 See [`CHANGELOG.md`](CHANGELOG.md) for curated release notes and historical
-draft snapshots.
+release snapshots.
 
 ### Roadmap
 
-| Milestone                    | Target     | Description                                                                          |
-| ---------------------------- | ---------- | ------------------------------------------------------------------------------------ |
-| v0.1.0                       | Q2 2026    | Feature-complete draft for public review                                             |
-| Experimental implementations | Q2 2026    | Windlass-maintained reference `shelf` client and `Alexandria` bibliotheca prototypes |
-| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                             |
-| v0.x.y                       | Q4 2026    | Stabilization before release                                                         |
-| v1.0.0                       | Q1 2027    | Stable release after ecosystem validation                                            |
+| Milestone                    | Target     | Description                                                                                            |
+| ---------------------------- | ---------- | ------------------------------------------------------------------------------------------------------ |
+| v0.1.0-rc.1                  | Q2 2026    | Release candidate for public review, implementation feedback, and core artifact freeze                 |
+| Experimental implementations | Q2 2026    | Windlass-maintained experimental reference prototypes: the `shelf` client and `Alexandria` bibliotheca |
+| Early adopters               | Q3–Q4 2026 | Runtime and tooling integration feedback                                                               |
+| v0.x.y                       | Q4 2026    | Stabilization before release                                                                           |
+| v1.0.0                       | Q1 2027    | Targeted stable release, pending ecosystem validation and any required governance approval             |
 
 See [`ROADMAP.md`](ROADMAP.md) for the one-year roadmap, explicit out-of-scope
 items, and review cadence.
@@ -226,6 +226,8 @@ The repository also publishes normative machine-readable companion artifacts und
 - [`openapi/`](openapi/)
 - [`conformance/fixtures/`](conformance/fixtures/)
 
+The public documentation site publishes stable [Namespace and URI publication pages](site/spec/0.1.0-rc.1/uri-publications.mdx) for Agent Volumes-owned schema `$id` URLs, Problem Details type URIs, SPDX extension terms, in-toto predicate identifiers, SLSA build type identifiers, BOM/profile identifiers, declaration key syntax, and reserved extension namespaces.
+
 See [`conformance/README.md`](conformance/README.md) for the offline runner contract and report schema guidance.
 
 For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Implementers Guide](IMPLEMENTERS.md). It maps the normative artifacts to concrete implementation tasks and identifies prototype-local choices that the v0.1 core intentionally leaves outside the standard.
@@ -234,7 +236,7 @@ For prototype client and bibliotheca work, start with the [Agent Volumes v0.1 Im
 
 ## Architecture Decision Records
 
-The project's architecture decisions are recorded under [`decisions/`](decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
+The project's architecture decisions are recorded under [`docs/decisions/`](docs/decisions/). Refer to that directory for the complete ADR history, including superseded and follow-up decisions.
 
 ## Related Standards
 

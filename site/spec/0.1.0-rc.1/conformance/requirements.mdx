@@ -1,0 +1,138 @@
+---
+title: 'Requirement inventory and deferred topics'
+description: 'How to read Agent Volumes role-scoped conformance IDs, fixture coverage, prose-boundary behavior, and deferred v0.1 topics.'
+sidebarTitle: 'Requirements inventory'
+---
+
+The requirement inventory explains how to interpret v0.1 conformance coverage. It does not replace the prose specification. The prose remains the final normative authority, while `conformance/REQUIREMENTS.md` documents how role-scoped requirement IDs, fixtures, schemas, and deferred topics fit together.
+
+## Requirement categories
+
+The inventory separates conformance material into four categories:
+
+1. **Role-scoped requirements** — stable `AV-BIB-*` and `AV-CLI-*` IDs in the specification.
+2. **Fixture-covered behavior** — deterministic vectors or schemas in `conformance/fixtures/` and `schemas/`.
+3. **Prose-boundary behavior** — requirements that need implementation tests, local policy, OpenAPI/schema review, or manual review rather than one offline vector.
+4. **Deferred behavior** — topics intentionally outside the portable v0.1 baseline.
+
+## Role-scoped anchors
+
+The stable IDs are the main conformance anchors for v0.1:
+
+- `AV-BIB-001` through `AV-BIB-018` define conforming bibliotheca behavior.
+- `AV-CLI-001` through `AV-CLI-018` define conforming client behavior.
+
+The machine-readable traceability map is `conformance/fixtures/conformance-coverage.json`. It maps those IDs to fixture families and schemas. This page is a summary only; `schemas/conformance-coverage.schema.json` and the coverage artifact are authoritative for role, area, coverage type, schema reference, fixture path, and case-level fields. One `AV-*` ID can cover several lower-level BCP 14 requirements in the prose.
+
+## Bibliotheca requirement map
+
+`AV-BIB-*` IDs describe registry-side behavior. Use this map to find the fixture family or contract surface that exercises each requirement.
+
+| ID           | Registry behavior                                                                                             | Primary coverage                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `AV-BIB-001` | Accept and serve valid manifests.                                                                             | `manifest-valid-minimal.json`                                                             |
+| `AV-BIB-002` | Block continued distribution after permission escalation is discovered.                                       | `permission-escalation.json`                                                              |
+| `AV-BIB-003` | Implement the package operations API.                                                                         | `openapi/bibliotheca.openapi.yaml`, `problem-details-cases.json`, `problem-registry.json` |
+| `AV-BIB-004` | Enforce version immutability and version non-reuse.                                                           | `release-upload-lifecycle.json` / `release-upload-conflict`                               |
+| `AV-BIB-005` | Compute authoritative normalized-file-tree integrity during finalize.                                         | `digest-vectors.json`, `digest-invalid-cases.json`, `tar-archive-profile-cases.json`      |
+| `AV-BIB-006` | Support the package identity scheme.                                                                          | `purl-canonicalization-cases.json`                                                        |
+| `AV-BIB-007` | Expose query-based catalog search.                                                                            | `search-results.json`, `catalog-search-failure-cases.json`                                |
+| `AV-BIB-008` | Expose synchronized package-scoped version indexes.                                                           | `version-index.json`, `version-index-row-cases.json`, `lifecycle-mutation-cases.json`     |
+| `AV-BIB-009` | Treat logical purl and digest as release identities.                                                          | `exact-release-metadata-cases.json`                                                       |
+| `AV-BIB-010` | Reject inconsistent release, index, or trust metadata.                                                        | `resolver-cases.json` / `version-index-release-metadata-conflict`                         |
+| `AV-BIB-011` | Expose trust metadata summary and detail views.                                                               | `trust-summary*.json`, `trust-detail*.json`, trust discovery failure cases                |
+| `AV-BIB-012` | Expose two-phase release and trust uploads with `http-put`.                                                   | `release-upload-lifecycle.json`, `trust-upload-lifecycle.json`                            |
+| `AV-BIB-013` | Expose the advisory API.                                                                                      | `advisory*.json`, advisory failure and validation cases                                   |
+| `AV-BIB-014` | Expose capability metadata with version fields, API family, and upload profiles.                              | `capability-metadata*.json`, capability compatibility fixtures                            |
+| `AV-BIB-015` | Preserve append-only trust attachment status and revision semantics.                                          | `trust-detail-status-variants.json`                                                       |
+| `AV-BIB-016` | Publish required machine-readable companion artifacts or equivalents.                                         | `schemas/`, `mapping-matrix.json`, `mapping-sample.json`, `conformance-coverage.json`     |
+| `AV-BIB-017` | Expose declaration-only external dependency metadata without resolved evidence claims.                        | `exact-release-metadata-cases.json`                                                       |
+| `AV-BIB-018` | Keep external dependency search/filtering/potential-exposure APIs outside the required portable registry API. | `external-dependency-potential-exposure-cases.json`                                       |
+
+## Client requirement map
+
+`AV-CLI-*` IDs describe client-side behavior. Use this map to scope parser, resolver, installer, trust, capability, and warning tests.
+
+| ID           | Client behavior                                                                                                            | Primary coverage                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `AV-CLI-001` | Parse `volume.toml` and validate the canonical parsed-data model.                                                          | `manifest-parse-cases.json`, `semantic-validation-cases.json`, `component-dependency-validation-cases.json`                               |
+| `AV-CLI-002` | Parse portable dependency range expressions.                                                                               | `semver-range-cases.json`                                                                                                                 |
+| `AV-CLI-003` | Fail on permission escalation in publish, consume, install, or load workflows.                                             | `permission-sibling-escalation.json`                                                                                                      |
+| `AV-CLI-004` | Reject dependency graphs requiring multiple versions of the same volume.                                                   | `resolver-cases.json` / `single-version-conflict`                                                                                         |
+| `AV-CLI-005` | Apply portable version lifecycle semantics during resolution and exact installs.                                           | `resolver-cases.json`, `version-index-row-cases.json`                                                                                     |
+| `AV-CLI-006` | Fetch exact release metadata before installation or trust evaluation.                                                      | `exact-release-metadata-cases.json`                                                                                                       |
+| `AV-CLI-007` | Verify normalized-file-tree integrity after download or source resolution.                                                 | `digest-vectors.json`, `digest-invalid-cases.json`, `tar-archive-profile-cases.json`                                                      |
+| `AV-CLI-008` | Support scoped and scopeless volume identifiers.                                                                           | `purl-canonicalization-cases.json`                                                                                                        |
+| `AV-CLI-009` | Use purl plus digest as release identities for trust metadata.                                                             | `trust-artifact-verification-cases.json`                                                                                                  |
+| `AV-CLI-010` | Reject subject-binding, metadata, or digest mismatches.                                                                    | `trust-artifact-verification-cases.json`                                                                                                  |
+| `AV-CLI-011` | Distinguish canonical trust facts from derived judgments.                                                                  | `trust-summary.json`                                                                                                                      |
+| `AV-CLI-012` | Treat invalidated or revoked trust as failure by default and superseded attachments as stale current evidence.             | `trust-detail-status-variants.json`, `trust-artifact-verification-cases.json`                                                             |
+| `AV-CLI-013` | Implement layered objective artifact verification for supported formats.                                                   | `trust-artifact-verification-cases.json`                                                                                                  |
+| `AV-CLI-014` | Preserve runtime and protocol compatibility expressions without unknown-scheme rejection.                                  | `semantic-validation-cases.json` / `unknown-compatibility-scheme-is-advisory-not-rejection`                                               |
+| `AV-CLI-015` | Consume capability metadata while tolerating unknown fields or values and preserving exact spec-version set semantics.     | `capability-metadata-unknown-tolerance.json`, `capability-invalid-compatibility-cases.json`                                               |
+| `AV-CLI-016` | Surface required migration warnings during bridge periods.                                                                 | `bridge-metadata.json`, `bridge-metadata-status-variants.json`                                                                            |
+| `AV-CLI-017` | Parse and semantically validate external dependency declarations.                                                          | `external-dependency-validation-cases.json`, invalid external dependency fixtures, upstream baseline and compatibility exception fixtures |
+| `AV-CLI-018` | Surface and deduplicate external-dependency potential exposure warnings only for intersecting declaration/advisory ranges. | `external-dependency-potential-exposure-cases.json`, warning context invalid fixtures                                                     |
+
+## Fixture-covered areas
+
+The v0.1 fixture corpus covers readiness-critical surfaces such as manifest parsing, semantic validation, permissions, identity, resolver behavior, external dependency declarations, archive and integrity behavior, release upload, trust metadata, advisories, capabilities, warnings, mappings, and search.
+
+See [Conformance fixtures](/spec/0.1.0-rc.1/conformance/fixtures) for the fixture family list and runner contract.
+
+## Prose-boundary behavior
+
+Some normative behavior is intentionally not represented by a standalone offline vector. Implementers and reviewers evaluate these through prose review, OpenAPI/schema alignment, implementation tests, or local policy documentation:
+
+- live registry behavior such as deployed service behavior, storage replication, CDN behavior, and operational consistency
+- local authorization policy, including token issuance, token revocation, publisher ownership proofs, and resource authorization
+- runtime adapter behavior after the portable load boundary
+- cryptographic trust roots and live transparency-log policy
+- search ranking and catalog ordering beyond the portable pagination shape
+- external dependency discovery surfaces beyond declaration-only exact release metadata
+
+These boundaries are not readiness gaps by themselves. They define what a v0.1 conformance claim can and cannot mean.
+
+## Deferred v0.1 topics
+
+The following topics remain outside the portable v0.1 baseline unless the corresponding decision record is reopened:
+
+- lockfile file format
+- registry-priority policy across configured bibliothecas
+- universal prerelease-selection policy
+- advisory write authority and moderation workflows
+- scanner-finding interchange and scanner severity normalization
+- common vocabulary for non-mandatory derived judgments
+- universal trust-root policy
+- component-level advisory targeting
+- transitive closure semantics for `role = "meta"`
+- upload profiles beyond the mandatory `http-put` portable minimum
+- AI-specific BOM profile guarantees beyond the generic CycloneDX baseline
+- structured deprecation metadata
+- broader MCP configuration formats such as YAML
+- finer permission granularity beyond the read/write baseline
+- future strict, enterprise, or other profiles beyond the v0.1 core
+
+<Warning>
+  Do not count deferred topics as v0.1 readiness gaps unless the corresponding ADR says its reconsideration trigger has
+  been met.
+</Warning>
+
+## Readiness checklist
+
+Before claiming implementation readiness for a draft release:
+
+1. Validate the artifact corpus with `npm run validate:artifacts`.
+2. Validate the Bibliotheca API with `npm run lint:openapi`.
+3. Confirm every role-scoped `AV-*` requirement has fixture, schema, OpenAPI, or documented prose-boundary coverage.
+4. Confirm deferred topics are documented as local policy choices rather than accidental omissions.
+5. For release freeze, perform the endpoint-level prose/OpenAPI drift audit in `openapi/PROSE-DRIFT-AUDIT.md`.
+
+<CardGroup cols={2}>
+  <Card title="Conformance overview" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
+    Review claim labels and minimum viable client and bibliotheca requirements.
+  </Card>
+  <Card title="Conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
+    Explore the offline fixture families and report schema.
+  </Card>
+</CardGroup>

@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.1.0-draft.5",
+  "specVersion": "0.1.0-rc.1",
   "description": "Hosted .tar.gz archive transport profile cases. These cases describe portable archive entry interpretation before normalized-file-tree digest construction.",
   "cases": [
     {

@@ -1,0 +1,130 @@
+---
+title: 'Skill component: reusable agent knowledge'
+description: 'Package instructional knowledge and task patterns as a Skill component that agent runtimes load into context to augment their capabilities.'
+---
+
+A Skill component packages reusable task knowledge that teaches an agent runtime how to perform a specific type of task. Unlike a Tool (which an agent calls as a function) or an Agent (which operates autonomously), a Skill provides structured instructions and patterns that the runtime loads into its context and interprets. The runtime — not the skill itself — decides when and how to apply the knowledge.
+
+## What a skill is
+
+A skill is instructions and knowledge, not executable code. When a runtime loads a skill, it becomes part of the agent's available context. The runtime activates the skill's guidance when it determines it is relevant to the current task. A skill can include reference materials, templates, example outputs, and step-by-step patterns.
+
+This distinction matters: if you need the agent to call an external API, use a [Tool](/spec/0.1.0-rc.1/components/tool). If you need to define an invocable slash command, use a [Command](/spec/0.1.0-rc.1/components/command). If you want to teach the agent how to approach a category of task, use a Skill.
+
+## Entrypoint format
+
+Skill entrypoints must be Markdown (`.md`) files with YAML frontmatter compatible with the [Agent Skills specification](https://agentskills.io/specification.md). The Agent Skills spec defines the frontmatter shape; Agent Volumes adds the packaging and distribution layer on top without replacing it.
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a Markdown file.
+- The frontmatter is Agent Skills-compatible and includes a `description` field sufficient for discovery.
+
+## Required frontmatter
+
+At minimum, your skill's Markdown file must include a `description` field in its YAML frontmatter:
+
+```markdown
+---
+description: Summarize academic papers with structured section extraction
+---
+
+## Instructions
+
+When asked to summarize a research paper, extract the following sections...
+```
+
+The `description` field is used by runtimes and tooling to discover and select the skill. Keep it concise and specific.
+
+## Declaring a skill in `volume.toml`
+
+Add a `[[components]]` entry with `type = "skill"` and point `entrypoint` to your Markdown skill file.
+
+```toml
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+```
+
+A volume can export multiple skills alongside other component types:
+
+```toml
+[volume]
+schema = 1
+name = "research-agent-pack"
+version = "1.4.0"
+description = "Research assistant plugin with literature analysis tools"
+license = "Apache-2.0"
+role = "plugin"
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "skill"
+name = "summarize-paper"
+entrypoint = "./skills/summarize-paper/SKILL.md"
+description = "Summarize academic papers with structured extraction"
+
+[[components]]
+type = "skill"
+name = "extract-citations"
+entrypoint = "./skills/extract-citations/SKILL.md"
+description = "Extract and format citations from academic papers"
+```
+
+## Skill semantics
+
+The spec defines three behavioral properties for skills:
+
+- **Loaded into context**: A skill provides structured instructions, patterns, or knowledge that a runtime loads into its context.
+- **Not independently executable**: A skill does not run on its own — it augments what an agent can do.
+- **Reference materials included**: A skill can include templates, example outputs, and reference content alongside its instructions.
+
+<Note>
+  The Agent Skills spec and Agent Volumes are designed to be compatible. The `volume.toml` manifest is a package-level
+  addition — it doesn't replace the skill's own frontmatter. Both layers coexist in a valid skill component.
+</Note>
+
+## Optional fields
+
+| Field         | Type             | Description                                                                   |
+| ------------- | ---------------- | ----------------------------------------------------------------------------- |
+| `description` | string           | One-line description for registry search. Separate from frontmatter.          |
+| `providers`   | array of strings | External services this skill relates to (e.g., `["arxiv"]`).                  |
+| `permissions` | table            | Component-specific permission overrides. Can only narrow volume-level values. |
+
+## Recommended file layout
+
+Place each skill in its own subdirectory to keep related reference materials together:
+
+```text
+skills/
+├── summarize-paper/
+│   ├── SKILL.md          ← entrypoint
+│   └── examples/
+│       └── example-summary.md
+└── extract-citations/
+    ├── SKILL.md          ← entrypoint
+    └── citation-formats.md
+```
+
+## Component identifier
+
+Once published, reference the skill component using a purl identifier:
+
+```text
+pkg:volume/research-agent-pack@1.4.0#skill/summarize-paper
+```
+
+Other components in the same or different volumes can declare a dependency on this skill:
+
+```toml
+[component-dependencies]
+"literature-reviewer" = [
+  "pkg:volume/research-agent-pack#skill/summarize-paper",
+]
+```

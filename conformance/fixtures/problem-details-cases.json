@@ -1,6 +1,6 @@
 {
-  "specVersion": "0.1.0-draft.5",
-  "description": "Baseline RFC 7807 Problem Details taxonomy cases for portable Agent Volumes clients.",
+  "specVersion": "0.1.0-rc.1",
+  "description": "Baseline RFC 9457 Problem Details taxonomy cases for portable Agent Volumes clients.",
   "cases": [
     {
       "type": "https://agentvolumes.org/problems/authentication-required",

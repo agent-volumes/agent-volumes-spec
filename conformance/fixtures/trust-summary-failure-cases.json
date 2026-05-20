@@ -1,0 +1,78 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "description": "Trust summary Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "trust-summary-release-not-found",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "Trust summary metadata is unavailable because the release does not exist or is not visible."
+      }
+    },
+    {
+      "name": "trust-summary-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "Trust summary metadata cannot be reconciled with the release identity."
+      }
+    },
+    {
+      "name": "trust-summary-rate-limited",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The trust summary request was rate limited."
+      }
+    },
+    {
+      "name": "scoped-trust-summary-release-not-found",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "Scoped trust summary metadata is unavailable because the release does not exist or is not visible."
+      }
+    },
+    {
+      "name": "scoped-trust-summary-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "Scoped trust summary metadata cannot be reconciled with the release identity."
+      }
+    },
+    {
+      "name": "scoped-trust-summary-rate-limited",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The scoped trust summary request was rate limited."
+      }
+    }
+  ]
+}

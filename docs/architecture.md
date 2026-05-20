@@ -12,7 +12,7 @@ It is a high-level design map for contributors and reviewers.
 | [`openapi/bibliotheca.openapi.yaml`](../openapi/bibliotheca.openapi.yaml) | Bibliotheca HTTP API contract                 | Machine-readable API companion to spec §9                 |
 | [`conformance/fixtures/`](../conformance/fixtures/)                       | Offline deterministic fixture corpus          | Normative conformance vectors for covered behavior        |
 | [`conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md)           | Requirement inventory and coverage boundaries | Readiness and traceability guide                          |
-| [`decisions/`](../decisions/)                                             | Architecture Decision Records                 | Non-normative decision history                            |
+| [`docs/decisions/`](decisions/)                                           | Architecture Decision Records                 | Non-normative decision history                            |
 | [`IMPLEMENTERS.md`](../IMPLEMENTERS.md)                                   | Practical implementation guide                | Non-normative guide for prototypes                        |
 
 ## Artifact flow
@@ -27,7 +27,7 @@ agent-volumes-spec.md
   ├─ openapi/bibliotheca.openapi.yaml  HTTP API contract
   ├─ conformance/fixtures/             deterministic examples and vectors
   ├─ conformance/REQUIREMENTS.md       coverage and boundary inventory
-  └─ decisions/                        rationale and superseded alternatives
+  └─ docs/decisions/                   rationale and superseded alternatives
 ```
 
 ## Change categories

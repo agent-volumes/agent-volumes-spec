@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "mint dev",
+    "validate": "mint validate",
+    "broken-links": "mint broken-links",
+    "lint": "mint validate && mint broken-links"
+  },
+  "devDependencies": {
+    "mint": "^4.2.572"
+  },
+  "overrides": {
+    "ws": "^8.20.1"
+  }
+}

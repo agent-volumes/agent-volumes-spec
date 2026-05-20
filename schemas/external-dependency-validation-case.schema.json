@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/external-dependency-validation-case.schema.json",
+  "title": "Agent Volumes External Dependency Validation Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["specVersion", "cases"],
+  "properties": {
+    "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "declaredComponents", "external-dependencies", "expected"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "declaredComponents": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/componentName" },
+            "uniqueItems": true
+          },
+          "external-dependencies": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/externalDependencyCandidate" }
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["valid"],
+            "properties": {
+              "valid": { "type": "boolean" },
+              "failureCategory": {
+                "type": "string",
+                "enum": [
+                  "invalid-external-dependency-purl",
+                  "external-dependency-volume-purl",
+                  "invalid-external-dependency-constraint",
+                  "external-dependency-constraint-type-mismatch",
+                  "invalid-external-dependency-purpose",
+                  "unknown-external-dependency-component",
+                  "duplicate-external-dependency",
+                  "conflicting-external-dependency"
+                ]
+              },
+              "semanticKeys": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["purl", "purpose", "scope"],
+                  "properties": {
+                    "purl": { "type": "string", "pattern": "^pkg:" },
+                    "purpose": { "type": "string", "minLength": 1 },
+                    "scope": {
+                      "type": "array",
+                      "items": { "$ref": "#/$defs/componentName" },
+                      "uniqueItems": true
+                    },
+                    "declarationKey": { "$ref": "#/$defs/externalDependencyDeclarationKey" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "componentName": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+    },
+    "externalDependencyDeclarationKey": {
+      "type": "string",
+      "pattern": "^av-extdep-v1:sha256:[a-f0-9]{64}$"
+    },
+    "externalDependencyCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purl", "constraint", "purpose"],
+      "properties": {
+        "purl": { "type": "string", "minLength": 1 },
+        "constraint": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentName" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

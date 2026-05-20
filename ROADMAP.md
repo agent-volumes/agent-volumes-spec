@@ -3,12 +3,12 @@
 This roadmap describes the intended project direction for at least the next year.
 It is planning guidance, not a normative part of the Agent Volumes specification.
 The normative authority remains [`agent-volumes-spec.md`](agent-volumes-spec.md),
-with schemas, OpenAPI, and conformance artifacts version-aligned to each draft.
+with schemas, OpenAPI, and conformance artifacts version-aligned to each release.
 
 ## Current status
 
-Agent Volumes is a working-draft specification. No stable release has been
-published. The current draft line is `v0.1.0-draft.5`.
+Agent Volumes is a release-candidate specification. No stable release has been
+published. The current release-candidate line is `v0.1.0-rc.1`.
 
 ## Planning horizon
 

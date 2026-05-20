@@ -1,0 +1,30 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "description": "Advisory search Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "advisory-search-invalid-query-parameters",
+      "endpoint": "GET /api/v1/advisories",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "validation-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/validation-failed",
+        "title": "Validation failed",
+        "status": 400,
+        "detail": "The advisory search request contains invalid query parameters."
+      }
+    },
+    {
+      "name": "advisory-search-rate-limited",
+      "endpoint": "GET /api/v1/advisories",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The advisory search request was rate limited."
+      }
+    }
+  ]
+}

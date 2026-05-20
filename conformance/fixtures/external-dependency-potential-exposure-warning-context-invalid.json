@@ -1,0 +1,32 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "cases": [
+    {
+      "name": "reject-missing-advisory-match",
+      "context": {
+        "dependency": {
+          "declarationKey": "av-extdep-v1:sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0"
+        }
+      },
+      "expected": { "valid": false, "failureCategory": "missing-advisory-match" }
+    },
+    {
+      "name": "reject-malformed-declaration-key",
+      "context": {
+        "dependency": {
+          "declarationKey": "sha256:70439a6f77abdfe30f4e7e59f2ed7d5404570bf4d9a7d989192e27bdf4c46bbc",
+          "purl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "constraint": "vers:npm/>=1.7.0|<2.0.0"
+        },
+        "advisoryMatch": {
+          "canonicalId": "GHSA-EXAMPLE-0001",
+          "affectedPurl": "pkg:npm/%40modelcontextprotocol/sdk",
+          "affectedRange": "vers:npm/>=1.8.0|<1.8.3"
+        }
+      },
+      "expected": { "valid": false, "failureCategory": "malformed-declaration-key" }
+    }
+  ]
+}

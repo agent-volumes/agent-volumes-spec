@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "build:site:openapi": "bun scripts/build-site-openapi.mjs",
+    "build:site:schemas": "bun scripts/build-site-schemas.mjs",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
@@ -7,21 +9,23 @@
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
+    "lint:site": "bun run --cwd site lint",
+    "site:dev": "bun run --cwd site dev",
     "format": "prettier --write \"**/*.{md,json,yaml,yml,mjs}\"",
     "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
     "release:changelog": "scripts/update-changelog.sh --tag",
     "release:tag": "scripts/create-release-tag.sh",
-    "validate:artifacts": "node scripts/validate-artifacts.mjs"
+    "validate:artifacts": "bun scripts/validate-artifacts.mjs"
   },
   "dependencies": {},
   "devDependencies": {
-    "@redocly/cli": "^2.30.4",
+    "@redocly/cli": "^2.30.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "git-cliff": "^2.13.1",
     "lefthook": "^2.1.6",
     "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
-    "yaml": "^2.8.1"
+    "yaml": "^2.9.0"
   }
 }

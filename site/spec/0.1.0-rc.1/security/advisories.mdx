@@ -1,0 +1,237 @@
+---
+title: 'Security advisories for volume packages'
+description: 'How security advisories work in Agent Volumes: structure, severity levels, affected version ranges, event-based version history, and the discovery API.'
+---
+
+Security advisories in Agent Volumes are package-facing records that describe known vulnerabilities in published volumes. They are expressed in terms of volume identity and affected version history, not in terms of individual release artifacts. Unlike trust attachments — which are bound to a specific release subject — advisories target a volume across a range of versions and are updated over time as patches become available.
+
+<Note>
+  Advisories are not release-bound trust attachments. They live on a separate discovery surface and use different
+  semantics from BOMs, provenance attestations, and signatures.
+</Note>
+
+## Advisory structure
+
+Each advisory includes the following fields:
+
+### Identification
+
+An advisory has one bibliotheca-local ID and may include external ecosystem identifiers when available:
+
+```json
+{
+  "id": {
+    "local": "BIBSEC-12026-001",
+    "preferredExternal": "GHSA-xxxx-yyyy-zzzz",
+    "aliases": ["CVE-12026-0001"]
+  }
+}
+```
+
+The `local` field is the mandatory bibliotheca-assigned identifier. The `preferredExternal` field names the primary external advisory record when one exists. The `aliases` array lists additional external identifiers such as CVE numbers or OSV IDs.
+
+### Source and ecosystem
+
+The `source` field identifies where the advisory originated:
+
+```json
+{
+  "source": {
+    "ecosystem": "ghsa",
+    "url": "https://github.com/advisories/GHSA-xxxx-yyyy-zzzz"
+  }
+}
+```
+
+The v0.1 core source ecosystem vocabulary is:
+
+| Value         | Meaning                                  |
+| ------------- | ---------------------------------------- |
+| `cve`         | MITRE CVE database                       |
+| `ghsa`        | GitHub Security Advisories               |
+| `osv`         | Open Source Vulnerabilities (osv.dev)    |
+| `bibliotheca` | Originated directly from the bibliotheca |
+| `other`       | Any other source                         |
+
+### Severity
+
+The v0.1 core severity vocabulary has four levels: `critical`, `high`, `medium`, and `low`. Every advisory must declare a severity.
+
+```json
+{
+  "severity": "high"
+}
+```
+
+### Lifecycle fields
+
+Every advisory must include `published` and `updated` timestamps in ISO 8601 format:
+
+```json
+{
+  "published": "2026-05-01T00:00:00Z",
+  "updated": "2026-05-06T00:00:00Z"
+}
+```
+
+When an advisory is withdrawn, the record must include withdrawal metadata with an `at` timestamp indicating when the withdrawal occurred.
+
+## Affected version history
+
+Advisory targeting is volume-level only in v0.1. The `affected` field identifies the volume and describes the affected version history using an event-based model:
+
+```json
+{
+  "affected": {
+    "volume": "github-provider",
+    "purl": "pkg:volume/github-provider",
+    "ranges": [
+      {
+        "type": "semver",
+        "events": [{ "introduced": "0" }, { "fixed": "2.1.0" }, { "limit": "3.0.0" }]
+      }
+    ]
+  }
+}
+```
+
+### Event types
+
+| Event          | Meaning                                                         |
+| -------------- | --------------------------------------------------------------- |
+| `introduced`   | The version at which the vulnerability was introduced           |
+| `fixed`        | The version at which the vulnerability was fixed (not affected) |
+| `lastAffected` | The last version known to be affected                           |
+| `limit`        | An upper bound on the affected range (exclusive)                |
+
+The sentinel value `introduced = "0"` means the vulnerability has been present since the beginning of the package's version history — before any known version.
+
+All other event values use full SemVer strings. Events within a range are ordered and interpreted together to define which versions are affected.
+
+### Component impact metadata
+
+An advisory may include informational `componentImpact` metadata that names specific components affected within the volume:
+
+```json
+{
+  "componentImpact": [
+    {
+      "component": "tool/read-pr",
+      "note": "Informational only; normative targeting remains volume-level."
+    }
+  ]
+}
+```
+
+<Warning>
+  Component impact metadata is **informational only**. It does not change the normative volume-level target of the
+  advisory. Do not use it to conclude that only specific components are affected.
+</Warning>
+
+## Advisory relationships
+
+Advisories may be related to each other. Use the `relationships` array to express those connections:
+
+```json
+{
+  "relationships": [
+    {
+      "type": "related",
+      "target": "BIBSEC-12026-0002"
+    }
+  ]
+}
+```
+
+The v0.1 core relationship vocabulary:
+
+| Type            | Meaning                                                     |
+| --------------- | ----------------------------------------------------------- |
+| `supersedes`    | This advisory replaces an older one                         |
+| `superseded-by` | This advisory has been replaced by a newer one              |
+| `related`       | This advisory is related to another but does not replace it |
+| `duplicate-of`  | This advisory is a duplicate of another                     |
+
+## Complete advisory example
+
+Here is the complete advisory fixture from the v0.1 conformance suite:
+
+```json
+{
+  "id": {
+    "local": "BIBSEC-12026-001",
+    "preferredExternal": "GHSA-xxxx-yyyy-zzzz",
+    "aliases": ["CVE-12026-0001"]
+  },
+  "source": {
+    "ecosystem": "ghsa",
+    "url": "https://github.com/advisories/GHSA-xxxx-yyyy-zzzz"
+  },
+  "severity": "high",
+  "published": "2026-05-01T00:00:00Z",
+  "updated": "2026-05-06T00:00:00Z",
+  "relationships": [
+    {
+      "type": "related",
+      "target": "BIBSEC-12026-0002"
+    }
+  ],
+  "affected": {
+    "volume": "github-provider",
+    "purl": "pkg:volume/github-provider",
+    "ranges": [
+      {
+        "type": "semver",
+        "events": [{ "introduced": "0" }, { "fixed": "2.1.0" }, { "limit": "3.0.0" }]
+      }
+    ],
+    "componentImpact": [
+      {
+        "component": "tool/read-pr",
+        "note": "Informational only; normative targeting remains volume-level."
+      }
+    ]
+  },
+  "summary": "Prompt injection in GitHub issue parser",
+  "details": "The advisory demonstrates the v0.1 event-based affected-version model."
+}
+```
+
+## Querying advisories via the API
+
+Use these endpoints to discover advisories for a volume:
+
+<CodeGroup>
+
+```http List advisories for a volume
+GET /api/v1/advisories?volume=github-provider
+```
+
+```http Fetch a specific advisory
+GET /api/v1/advisories/BIBSEC-12026-001
+```
+
+</CodeGroup>
+
+List responses return an `items` collection envelope. Each item follows the advisory schema described above. You can query by both scopeless and scoped volume names:
+
+```http
+GET /api/v1/advisories?volume=github-provider
+GET /api/v1/advisories?volume=@acme/research-agent-pack
+```
+
+<Info>
+  Advisory read and discovery behavior is part of the v0.1 core interoperability contract and must be supported by all
+  conforming bibliothecas. Advisory **write** operations — creating, updating, withdrawing, and moderating advisories —
+  are bibliotheca-local in v0.1 and are not standardized by the spec.
+</Info>
+
+## Checking advisories during install
+
+A conforming client should check for advisories on install. If an advisory affects the version you are about to install, surface the advisory details to the user before proceeding. The spec does not mandate a specific blocking policy — blocking decisions based on severity, affected range, or relationship type remain local policy — but advisories must be discoverable and surfaced.
+
+<Tip>
+  Scanner findings are not advisory records. A bibliotheca may create an advisory based on scanner output under local
+  policy, but the portable contract is the advisory read model only. Do not expect scanner results to appear directly as
+  advisories without bibliotheca-side curation.
+</Tip>

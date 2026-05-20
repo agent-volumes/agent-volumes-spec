@@ -1,0 +1,136 @@
+---
+title: 'MCP Server component: Model Context Protocol'
+description: 'Package Model Context Protocol servers as distributable volumes so any MCP-compatible agent runtime can discover, install, and run them.'
+---
+
+An MCP Server component packages a service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/). By wrapping an MCP server in a volume, you make it discoverable and installable through any bibliotheca, with content integrity and provenance attached. Any MCP-compatible runtime — Claude Code, Cursor, Cline, and others — can then install and run your server through the standard Agent Volumes workflow.
+
+## Entrypoint format
+
+MCP Server entrypoints must be JSON (`.json`) files. JSON is the only v0.1 baseline format for MCP server configuration in Agent Volumes — this is an interoperability convention that ensures consistent discovery across tools and runtimes.
+
+The canonical discovery filename is `.mcp.json` at the volume root. You should use this path unless you have a specific reason not to.
+
+The portable validation minimum requires:
+
+- The entrypoint file exists and is a regular file.
+- The file is valid JSON.
+- The file parses to a JSON object (not an array or primitive).
+
+<Warning>
+  If your MCP server configuration is at a path other than `.mcp.json`, the runtime or validator will load it
+  successfully but emit a `noncanonical-entrypoint` warning. Use `.mcp.json` to avoid this warning and ensure consistent
+  discovery.
+</Warning>
+
+## Declaring an MCP server in `volume.toml`
+
+Add a `[[components]]` entry with `type = "mcp-server"` and point `entrypoint` to your `.mcp.json` configuration file.
+
+```toml
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+```
+
+A complete manifest for a volume that exports an MCP server:
+
+```toml
+[volume]
+schema = 1
+name = "research-mcp-server"
+version = "1.0.0"
+description = "MCP server for academic research — arXiv search and paper analysis"
+license = "Apache-2.0"
+role = "component"
+providers = ["arxiv", "semantic-scholar"]
+
+[publisher]
+id = "example"
+
+[[components]]
+type = "mcp-server"
+name = "research-mcp"
+entrypoint = "./.mcp.json"
+description = "MCP server providing research tool endpoints"
+
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+
+[permissions]
+network = "read"
+shell = "allow"
+```
+
+## Execution model
+
+An MCP server runs as a long-running process separate from the agent runtime. The three supported transport mechanisms are:
+
+| Transport         | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `stdio`           | Communicates over standard input and output streams. |
+| `sse`             | Server-Sent Events over HTTP.                        |
+| `streamable-http` | Bidirectional streaming over HTTP.                   |
+
+How the runtime launches the process, manages its lifecycle, and applies allow/deny policy are load-time decisions — they are not part of the portable validation that Agent Volumes performs on the component itself.
+
+## Protocol compatibility declaration
+
+If your MCP server targets a specific protocol version, declare it in the `[[protocols]]` table. This is advisory metadata that runtimes and tooling can use to filter compatible servers.
+
+```toml
+[[protocols]]
+name = "mcp"
+version = ">=2025.02"
+```
+
+<Note>
+  Protocol version expressions are advisory metadata in Agent Volumes v0.1. A runtime that does not understand how to
+  evaluate an MCP version expression must treat it as informational rather than applying it as a hard filter.
+</Note>
+
+## Runtime compatibility
+
+To signal that your MCP server is compatible with specific runtimes, add a `[[runtimes]]` entry. The `generic-mcp` identifier covers any MCP-compatible client:
+
+```toml
+[[runtimes]]
+name = "generic-mcp"
+compatibility = "^1.0.0"
+
+[[runtimes]]
+name = "claude-code"
+compatibility = "^1.0.0"
+```
+
+## Validation requirements
+
+An MCP server entrypoint fails portable validation if any of these conditions are true:
+
+- The file does not exist or is not a regular file.
+- The file is not valid JSON.
+- The parsed JSON is not an object (is an array, string, number, boolean, or null).
+
+Runtime-specific failures — the server cannot be launched, local policy blocks it, an allow/deny list rejects it — are load-time failures. They do not make the manifest structurally invalid.
+
+<Tip>
+  Combine your MCP server with related Tool or Skill components in the same volume. A consumer who installs the volume
+  gets both the MCP server and the additional agent-facing components in a single install.
+</Tip>
+
+## Component identifier
+
+Once published, reference the MCP server component using a purl identifier:
+
+```text
+pkg:volume/research-mcp-server@1.0.0#mcp-server/research-mcp
+```
+
+For scoped volumes:
+
+```text
+pkg:volume/%40acme/research-mcp-server@1.0.0#mcp-server/research-mcp
+```

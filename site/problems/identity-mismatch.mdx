@@ -1,0 +1,27 @@
+---
+title: 'Identity mismatch'
+description: 'Stable Problem Details type URI page for identity-mismatch.'
+---
+
+`https://agentvolumes.org/problems/identity-mismatch` identifies the `identity-mismatch` Problem Details type.
+
+| Field       | Value                                                               |
+| ----------- | ------------------------------------------------------------------- |
+| Type URI    | `https://agentvolumes.org/problems/identity-mismatch`               |
+| Slug        | `identity-mismatch`                                                 |
+| HTTP status | `409`                                                               |
+| Title       | `Identity mismatch`                                                 |
+| Meaning     | A package identity disagrees with its route, manifest, or metadata. |
+
+Switch on the `type` URI when handling Agent Volumes Registry API errors. The human-readable `title` can vary by implementation or localization.
+
+## Release archives
+
+- [v0.1.0-rc.1 problem page](/spec/0.1.0-rc.1/problems/identity-mismatch)
+- [v0.1.0-rc.1 API error table](/spec/0.1.0-rc.1/api/errors)
+
+## Canonical sources
+
+- [Problem Details schema](/spec/0.1.0-rc.1/schemas/problem-details.schema.json)
+- [Problem registry schema](/spec/0.1.0-rc.1/schemas/problem-registry.schema.json)
+- [Problem registry fixture](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/fixtures/problem-registry.json)

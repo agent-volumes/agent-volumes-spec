@@ -1,0 +1,12 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "exceptions": [
+    {
+      "id": "pub-dart",
+      "purlType": "pub",
+      "versScheme": "dart",
+      "source": "Package URL type pub and VERS scheme dart identify the same Dart package ecosystem in the pinned upstream references.",
+      "rationale": "Allows Dart package declarations to use the established PURL type while preserving VERS scheme-native version comparison. This exception does not rewrite PURLs, VERS strings, semantic keys, or declaration-key input."
+    }
+  ]
+}
