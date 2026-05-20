@@ -198,6 +198,10 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+# Keep release-scoped URI publication pages under site/spec/*/build/ tracked.
+!site/spec/*/build/
+!site/spec/*/build/manual/
+!site/spec/*/build/manual/*.mdx
 develop-eggs/
 dist/
 downloads/
