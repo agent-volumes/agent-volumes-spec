@@ -46,7 +46,7 @@ This subtree is part of the Agent Volumes specification repository and is licens
 
 ## Release evidence
 
-For release candidates and stable releases, record Namespace and URI publication evidence in the release evidence issue created from `../.github/ISSUE_TEMPLATE/release-evidence.md`.
+For release candidates and stable releases, record Namespace and URI publication evidence in the release evidence issue created from `../.github/ISSUE_TEMPLATE/release-evidence.md`. Use the release archive's [Namespace and URI publications](spec/0.1.0-rc.1/uri-publications.mdx) page as the publication checklist and link hub.
 
 ## Resources
 
