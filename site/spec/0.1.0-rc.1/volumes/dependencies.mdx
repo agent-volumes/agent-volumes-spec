@@ -79,7 +79,7 @@ The portable v0.1 grammar intentionally excludes several syntaxes found in other
 
 </Warning>
 
-If you need to support multiple incompatible major versions, publish separate volumes or use a meta package that depends on one.
+If you need to support multiple incompatible major versions, publish separate volumes or use a meta volume that depends on one.
 
 ## Component-level dependencies
 
@@ -125,7 +125,7 @@ pkg:volume/github-provider@2.1.0#tool/read-pr
 
 ## External dependency declarations
 
-Declare non-`pkg:volume` dependencies with `[[external-dependencies]]`. These records describe external package ecosystem dependencies with Package URL and VERS rather than Agent Volumes SemVer constraints.
+Declare non-`pkg:volume` dependencies with `[[external-dependencies]]`. These records describe external package ecosystem dependencies with [Package URL](https://packageurl.org/docs/purl/introduction) and [VERS](https://packageurl.org/docs/vers/introduction) rather than Agent Volumes SemVer constraints.
 
 ```toml
 [[external-dependencies]]
@@ -143,8 +143,8 @@ components = ["arxiv-search"]
 Rules for external dependencies:
 
 - `purl`, `constraint`, and `purpose` are required.
-- `purl` must be a valid external Package URL. It must not use the `volume` type, include a version component, or include a subpath.
-- `constraint` must be a VERS expression. Do not interpret it as native npm, PyPI, Cargo, or Agent Volumes SemVer range text unless it is also valid VERS.
+- `purl` must be a valid external [Package URL](https://packageurl.org/docs/purl/specification). It must not use the `volume` [type](https://packageurl.org/docs/purl/purl-types), include a version component, or include a subpath.
+- `constraint` must be a [VERS expression](https://packageurl.org/docs/vers/specification). Do not interpret it as native npm, PyPI, Cargo, or Agent Volumes SemVer range text unless it is also valid VERS.
 - `purpose` is one of the core purpose values (`runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`, `documentation`, `other`) or a reverse-DNS extension value such as `org.example:codegen`.
 - `components`, when present, scopes the declaration to declared component names and must be non-empty and duplicate-free.
 

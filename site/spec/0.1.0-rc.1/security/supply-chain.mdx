@@ -10,19 +10,19 @@ Agent Volumes is designed from the ground up to address supply chain risks that 
 The core trust baseline is built on four established standards:
 
 <CardGroup cols={2}>
-  <Card title="CycloneDX" icon="shield-check">
+  <Card title="CycloneDX" icon="shield-check" href="https://cyclonedx.org/docs/1.7/">
     The normative BOM exchange format. Every Agent Volumes trust workflow that involves a software bill of materials
     uses CycloneDX as the portable serialization target.
   </Card>
-  <Card title="SLSA provenance" icon="lock">
+  <Card title="SLSA provenance" icon="lock" href="https://slsa.dev/provenance/v1">
     The baseline provenance model. Trust attachments use the `https://slsa.dev/provenance/v1` predicate type to record
     who built a release and how.
   </Card>
-  <Card title="Sigstore" icon="signature">
+  <Card title="Sigstore" icon="signature" href="https://docs.sigstore.dev/about/bundle/">
     Baseline signing and verification. Provenance and signature artifacts use Sigstore-family bundles that carry the
     signed subject digest, builder identity, and cryptographic evidence.
   </Card>
-  <Card title="SPDX" icon="file-lines">
+  <Card title="SPDX" icon="file-lines" href="https://spdx.github.io/spdx-spec/v3.0.1/">
     Secondary export format. SPDX is a reference-compatibility target for archival, compliance-oriented, and
     graph-oriented exchange use cases.
   </Card>
