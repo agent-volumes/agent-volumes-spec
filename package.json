@@ -17,7 +17,6 @@
     "release:tag": "scripts/create-release-tag.sh",
     "validate:artifacts": "bun scripts/validate-artifacts.mjs"
   },
-  "dependencies": {},
   "devDependencies": {
     "@redocly/cli": "^2.30.6",
     "ajv": "^8.20.0",
@@ -27,5 +26,8 @@
     "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
     "yaml": "^2.9.0"
+  },
+  "overrides": {
+    "protobufjs": "7.5.8"
   }
 }
