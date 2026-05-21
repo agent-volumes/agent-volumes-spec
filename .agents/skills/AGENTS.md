@@ -11,7 +11,6 @@ Skills here help contributors work on this repo. Distributable skills live in `c
 | Skill                        | Type      |                    Has Scripts                     |                      Has References                      | Purpose                                   |
 | ---------------------------- | --------- | :------------------------------------------------: | :------------------------------------------------------: | ----------------------------------------- |
 | **skill-creator**            | Meta      | init_skill.py, package_skill.py, quick_validate.py |             output-patterns.md, workflows.md             | Skill authoring guide + scaffolding tools |
-| **mcp-builder**              | Meta      |           connections.py, evaluation.py            |     mcp_best_practices.md, node/python_mcp_server.md     | MCP server development guide              |
 | **git-master**               | Workflow  |                         --                         |                            --                            | Atomic commits, rebase, history search    |
 | **docs-writer**              | Workflow  |                         --                         |      CORE-CHECKLIST.md, PROFILE-\*.md, TEMPLATES.md      | Profile-based documentation workflow      |
 | **create-pr**                | Workflow  |                         --                         |                            --                            | Conventional Commits PR creation          |

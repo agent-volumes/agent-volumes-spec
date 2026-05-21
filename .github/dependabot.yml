@@ -95,39 +95,3 @@ updates:
     # Cooldown: GitHub Actions only supports default-days, not SemVer cooldown.
     cooldown:
       default-days: 3
-
-  # Python/pip ecosystem - development helper scripts for the mcp-builder skill.
-  # requirements.txt is the lock/update surface for this dev tooling.
-  - package-ecosystem: 'pip'
-    directory: '/.agents/skills/mcp-builder/scripts'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'Asia/Seoul'
-    open-pull-requests-limit: 10
-    groups:
-      # Group minor and patch updates for Python development tooling.
-      # Major updates remain separate for compatibility review.
-      python-dev-dependencies:
-        patterns:
-          - '*'
-        update-types:
-          - 'minor'
-          - 'patch'
-    commit-message:
-      prefix: 'chore'
-      include: 'scope'
-    labels:
-      - 'dependencies'
-      - 'python'
-      - 'security'
-    allow:
-      - dependency-type: 'direct'
-    # Cooldown: Python/pip dependencies per dependency-security.md.
-    # Patch: 7-14 days | Minor: 14-21 days | Major: 21-30 days
-    cooldown:
-      default-days: 7
-      semver-major-days: 21
-      semver-minor-days: 14
-      semver-patch-days: 7
