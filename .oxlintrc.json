@@ -1,0 +1,48 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn",
+    "style": "warn",
+    "restriction": "warn"
+  },
+  "rules": {
+    "import/no-cycle": ["error", { "maxDepth": 3 }]
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.mts"],
+      "rules": {
+        "func-style": "off",
+        "id-length": "off",
+        "import/no-nodejs-modules": "off",
+        "max-params": "off",
+        "max-statements": "off",
+        "no-console": "off",
+        "no-continue": "off",
+        "no-magic-numbers": "off",
+        "no-ternary": "off",
+        "no-underscore-dangle": "off",
+        "no-use-before-define": "off",
+        "no-undefined": "off",
+        "oxc/no-async-await": "off",
+        "oxc/no-optional-chaining": "off",
+        "oxc/no-rest-spread-properties": "off",
+        "sort-imports": "off",
+        "typescript/explicit-function-return-type": "off",
+        "typescript/no-explicit-any": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "unicorn/no-null": "off"
+      }
+    }
+  ],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "env": {
+    "builtin": true
+  }
+}

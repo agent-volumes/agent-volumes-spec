@@ -24,7 +24,14 @@ pre-commit:
         - '**/*.json'
         - '**/*.yaml'
         - '**/*.yml'
+        - '**/*.js'
+        - '**/*.jsx'
         - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
         - '**/*.mdc'
         - '.prettierrc'
       run: |
@@ -45,8 +52,8 @@ pre-commit:
         - 'agent-volumes-spec.md'
         - 'openapi/**'
         - 'schemas/**'
-        - 'scripts/build-site-openapi.mjs'
-        - 'scripts/build-site-schemas.mjs'
+        - 'scripts/build-site-openapi.mts'
+        - 'scripts/build-site-schemas.mts'
         - 'package.json'
         - 'bun.lock'
       run: |
@@ -65,7 +72,14 @@ pre-commit:
         - '**/*.json'
         - '**/*.yaml'
         - '**/*.yml'
+        - '**/*.js'
+        - '**/*.jsx'
         - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
         - '**/*.mdc'
         - '.prettierrc'
       run: |
@@ -73,6 +87,25 @@ pre-commit:
         echo "✨ Checking repository formatting..."
         bun run format:check
         echo "✅ Repository formatting check passed!"
+    - name: Lint JavaScript and TypeScript with Oxlint
+      glob:
+        - '**/*.js'
+        - '**/*.jsx'
+        - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
+        - '.oxlintrc.json'
+        - 'package.json'
+        - 'bun.lock'
+        - 'tsconfig.json'
+      run: |
+        set -e
+        echo "🔍 Running Oxlint..."
+        bun run lint:oxlint
+        echo "✅ Oxlint passed!"
     - name: Lint Markdown
       glob:
         - '**/*.md'
@@ -102,8 +135,8 @@ pre-commit:
         - 'agent-volumes-spec.md'
         - 'openapi/**'
         - 'schemas/**'
-        - 'scripts/build-site-openapi.mjs'
-        - 'scripts/build-site-schemas.mjs'
+        - 'scripts/build-site-openapi.mts'
+        - 'scripts/build-site-schemas.mts'
         - 'package.json'
         - 'bun.lock'
       run: |
@@ -129,7 +162,7 @@ pre-commit:
         - 'schemas/**'
         - 'conformance/**'
         - 'openapi/**'
-        - 'scripts/validate-artifacts.mjs'
+        - 'scripts/validate-artifacts.mts'
         - 'package.json'
         - 'bun.lock'
       run: |

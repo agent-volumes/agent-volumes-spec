@@ -2,8 +2,8 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptDir);
@@ -11,7 +11,14 @@ const repoRoot = dirname(scriptDir);
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
-function run(command, args) {
+function resolveCommand(command: string): string {
+  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
+  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
+
+  return existsSync(localCommand) ? localCommand : command;
+}
+
+function run(command: string, args: string[]): void {
   const result = spawnSync(resolveCommand(command), args, {
     cwd: repoRoot,
     env: process.env,
@@ -27,26 +34,19 @@ function run(command, args) {
   }
 }
 
-function resolveCommand(command) {
-  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
-  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
-
-  return existsSync(localCommand) ? localCommand : command;
-}
-
-async function versionFromSpec() {
+async function versionFromSpec(): Promise<string> {
   const specPath = join(repoRoot, 'agent-volumes-spec.md');
   const spec = await readFile(specPath, 'utf8');
-  const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
+  const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
 
-  if (!match) {
+  if (!match?.[1]) {
     throw new Error('Could not find "**Version:** <version>" in agent-volumes-spec.md.');
   }
 
   return match[1].trim();
 }
 
-function normalizeVersion(rawVersion) {
+function normalizeVersion(rawVersion: string): string {
   const version = rawVersion.replace(/^v/, '');
 
   if (!semverPattern.test(version)) {

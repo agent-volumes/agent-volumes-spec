@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { readdir, readFile, mkdir, copyFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,19 +9,19 @@ const repoRoot = dirname(scriptDir);
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
-async function versionFromSpec() {
+async function versionFromSpec(): Promise<string> {
   const specPath = join(repoRoot, 'agent-volumes-spec.md');
   const spec = await readFile(specPath, 'utf8');
-  const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
+  const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
 
-  if (!match) {
+  if (!match?.[1]) {
     throw new Error('Could not find "**Version:** <version>" in agent-volumes-spec.md.');
   }
 
   return match[1].trim();
 }
 
-function normalizeVersion(rawVersion) {
+function normalizeVersion(rawVersion: string): string {
   const version = rawVersion.replace(/^v/, '');
 
   if (!semverPattern.test(version)) {
@@ -38,10 +38,11 @@ const outputDir = join(repoRoot, 'site', 'spec', specVersion, 'schemas');
 
 await mkdir(outputDir, { recursive: true });
 
-const schemaFiles = (await readdir(sourceDir)).filter((entry) => entry.endsWith('.json')).sort();
+const sourceEntries = await readdir(sourceDir);
+const schemaFiles = sourceEntries.filter((entry) => entry.endsWith('.json')).toSorted();
 
-for (const schemaFile of schemaFiles) {
-  await copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile));
-}
+await Promise.all(
+  schemaFiles.map(async (schemaFile) => copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile)))
+);
 
 console.log(`Copied ${schemaFiles.length} schema artifacts to site/spec/${specVersion}/schemas/.`);
