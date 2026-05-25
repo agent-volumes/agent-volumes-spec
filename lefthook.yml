@@ -24,7 +24,14 @@ pre-commit:
         - '**/*.json'
         - '**/*.yaml'
         - '**/*.yml'
+        - '**/*.js'
+        - '**/*.jsx'
         - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
         - '**/*.mdc'
         - '.prettierrc'
       run: |
@@ -65,7 +72,14 @@ pre-commit:
         - '**/*.json'
         - '**/*.yaml'
         - '**/*.yml'
+        - '**/*.js'
+        - '**/*.jsx'
         - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
         - '**/*.mdc'
         - '.prettierrc'
       run: |
@@ -73,6 +87,24 @@ pre-commit:
         echo "✨ Checking repository formatting..."
         bun run format:check
         echo "✅ Repository formatting check passed!"
+    - name: Lint JavaScript and TypeScript with Oxlint
+      glob:
+        - '**/*.js'
+        - '**/*.jsx'
+        - '**/*.mjs'
+        - '**/*.cjs'
+        - '**/*.ts'
+        - '**/*.tsx'
+        - '**/*.mts'
+        - '**/*.cts'
+        - '.oxlintrc.json'
+        - 'package.json'
+        - 'bun.lock'
+      run: |
+        set -e
+        echo "🔍 Running Oxlint..."
+        bun run lint:oxlint
+        echo "✅ Oxlint passed!"
     - name: Lint Markdown
       glob:
         - '**/*.md'
