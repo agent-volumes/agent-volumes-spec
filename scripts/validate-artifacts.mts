@@ -42,41 +42,41 @@ const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true })
 addFormats(ajv);
 
 const schemas = {
-  volume: readJson('schemas/volume.schema.json'),
   advisory: readJson('schemas/advisory.schema.json'),
   advisoryList: readJson('schemas/advisory-list.schema.json'),
   advisoryValidationCase: readJson('schemas/advisory-validation-case.schema.json'),
-  trustSummary: readJson('schemas/trust-summary.schema.json'),
-  trustDetail: readJson('schemas/trust-detail.schema.json'),
-  capabilityMetadata: readJson('schemas/capability-metadata.schema.json'),
-  searchResults: readJson('schemas/search-results.schema.json'),
-  versionIndexRow: readJson('schemas/version-index-row.schema.json'),
-  versionIndex: readJson('schemas/version-index.schema.json'),
-  trustUploadIntent: readJson('schemas/trust-upload-intent.schema.json'),
-  trustUploadFinalize: readJson('schemas/trust-upload-finalize.schema.json'),
   bridgeMetadata: readJson('schemas/bridge-metadata.schema.json'),
-  releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
-  releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
-  releaseMetadata: readJson('schemas/release-metadata.schema.json'),
+  capabilityMetadata: readJson('schemas/capability-metadata.schema.json'),
+  componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
+  conformanceCoverage: readJson('schemas/conformance-coverage.schema.json'),
   conformanceReport: readJson('schemas/conformance-report.schema.json'),
   exactReleaseMetadataCase: readJson('schemas/exact-release-metadata-case.schema.json'),
-  problemDetails: readJson('schemas/problem-details.schema.json'),
-  problemRegistry: readJson('schemas/problem-registry.schema.json'),
-  warning: readJson('schemas/warning.schema.json'),
-  manifestParseCase: readJson('schemas/manifest-parse-case.schema.json'),
-  componentDependencyValidationCase: readJson('schemas/component-dependency-validation-case.schema.json'),
-  semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
-  conformanceCoverage: readJson('schemas/conformance-coverage.schema.json'),
-  trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
-  mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
-  mappingSample: readJson('schemas/mapping-sample.schema.json'),
   externalDependencyDeclarationsPredicate: readJson('schemas/external-dependency-declarations-predicate.schema.json'),
-  externalDependencyValidationCase: readJson('schemas/external-dependency-validation-case.schema.json'),
-  upstreamBaseline: readJson('schemas/upstream-baseline.schema.json'),
-  purlVersCompatibilityExceptions: readJson('schemas/purl-vers-compatibility-exceptions.schema.json'),
   externalDependencyPotentialExposureWarningContext: readJson(
     'schemas/external-dependency-potential-exposure-warning-context.schema.json'
   ),
+  externalDependencyValidationCase: readJson('schemas/external-dependency-validation-case.schema.json'),
+  manifestParseCase: readJson('schemas/manifest-parse-case.schema.json'),
+  mappingMatrix: readJson('schemas/mapping-matrix.schema.json'),
+  mappingSample: readJson('schemas/mapping-sample.schema.json'),
+  problemDetails: readJson('schemas/problem-details.schema.json'),
+  problemRegistry: readJson('schemas/problem-registry.schema.json'),
+  purlVersCompatibilityExceptions: readJson('schemas/purl-vers-compatibility-exceptions.schema.json'),
+  releaseMetadata: readJson('schemas/release-metadata.schema.json'),
+  releaseUploadFinalize: readJson('schemas/release-upload-finalize.schema.json'),
+  releaseUploadIntent: readJson('schemas/release-upload-intent.schema.json'),
+  searchResults: readJson('schemas/search-results.schema.json'),
+  semanticValidationCase: readJson('schemas/semantic-validation-case.schema.json'),
+  trustArtifactVerificationCase: readJson('schemas/trust-artifact-verification-case.schema.json'),
+  trustDetail: readJson('schemas/trust-detail.schema.json'),
+  trustSummary: readJson('schemas/trust-summary.schema.json'),
+  trustUploadFinalize: readJson('schemas/trust-upload-finalize.schema.json'),
+  trustUploadIntent: readJson('schemas/trust-upload-intent.schema.json'),
+  upstreamBaseline: readJson('schemas/upstream-baseline.schema.json'),
+  versionIndex: readJson('schemas/version-index.schema.json'),
+  versionIndexRow: readJson('schemas/version-index-row.schema.json'),
+  volume: readJson('schemas/volume.schema.json'),
+  warning: readJson('schemas/warning.schema.json'),
 };
 
 const reservedExtensionNamespaces = readJson('schemas/reserved-extension-namespaces.json');
@@ -322,30 +322,42 @@ const isRecognizedSpdxExpressionShape = (expression: JsonValue) => {
   let depth = 0;
   for (const token of tokens) {
     if (token === '(') {
-      if (!expectOperand) return false;
+      if (!expectOperand) {
+        return false;
+      }
       depth += 1;
       continue;
     }
     if (token === ')') {
-      if (expectOperand || depth === 0) return false;
+      if (expectOperand || depth === 0) {
+        return false;
+      }
       depth -= 1;
       continue;
     }
     if (token === 'AND' || token === 'OR') {
-      if (expectOperand) return false;
+      if (expectOperand) {
+        return false;
+      }
       expectOperand = true;
       continue;
     }
     if (token === 'WITH') {
-      if (expectOperand) return false;
+      if (expectOperand) {
+        return false;
+      }
       expectOperand = true;
       continue;
     }
     if (token === '+') {
-      if (expectOperand) return false;
+      if (expectOperand) {
+        return false;
+      }
       continue;
     }
-    if (!expectOperand) return false;
+    if (!expectOperand) {
+      return false;
+    }
     expectOperand = false;
   }
   return tokens.length > 0 && depth === 0 && !expectOperand;
@@ -367,12 +379,14 @@ const canonicalComponentPurl = (volume: JsonValue, version: JsonValue, component
 
 const parseExternalDependencyPurl = (purl: JsonValue) => {
   const match = purl.match(shallowPurlPattern);
-  if (!match) return undefined;
+  if (!match) {
+    return undefined;
+  }
   const [, type, remainder] = match;
   return {
-    type: type.toLowerCase(),
-    hasVersion: /(?:^|[^?])@[^/?#]+/.test(remainder.split('?')[0]),
     hasSubpath: purl.includes('#'),
+    hasVersion: /(?:^|[^?])@[^/?#]+/.test(remainder.split('?')[0]),
+    type: type.toLowerCase(),
   };
 };
 
@@ -380,19 +394,23 @@ const parseVersScheme = (constraint: JsonValue) => constraint.match(shallowVersP
 
 const normalizeVersConstraintForComparison = (constraint: JsonValue) => {
   const match = constraint.match(shallowVersPattern);
-  if (!match) return constraint;
+  if (!match) {
+    return constraint;
+  }
   const [, rawScheme, expression] = match;
   return `vers:${rawScheme.toLowerCase()}/${expression
     .split('|')
     .map((term: JsonValue) => term.trim())
-    .sort()
+    .toSorted()
     .join('|')}`;
 };
 
 const isExternalDependencyPurpose = (purpose: JsonValue) =>
   coreExternalDependencyPurposes.has(purpose) || externalDependencyPurposeExtensionPattern.test(purpose);
 
-const externalDependencyScope = (dependency: JsonValue) => [...(dependency.components ?? [])].sort();
+const compareStrings = (left: string, right: string): number => left.localeCompare(right);
+
+const externalDependencyScope = (dependency: JsonValue) => [...(dependency.components ?? [])].toSorted(compareStrings);
 
 const externalDependencySemanticKey = (dependency: JsonValue) =>
   stableJsonStringify({
@@ -418,7 +436,7 @@ const stableJsonStringify = (value: JsonValue): string => {
   }
   if (value && typeof value === 'object') {
     return `{${Object.keys(value)
-      .sort()
+      .toSorted()
       .map((key: JsonValue) => `${JSON.stringify(key)}:${stableJsonStringify(value[key])}`)
       .join(',')}}`;
   }
@@ -508,7 +526,7 @@ const assertNoUnvalidatedConformanceFixtures = () => {
     .readdirSync(fixtureDirectory)
     .filter((entry: JsonValue) => entry.endsWith('.json'))
     .map((entry: JsonValue) => `conformance/fixtures/${entry}`)
-    .sort();
+    .toSorted();
   for (const fixturePath of fixturePaths) {
     assert(readJsonPaths.has(fixturePath), `${fixturePath} is not connected to scripts/validate-artifacts.mts`);
   }
@@ -544,8 +562,8 @@ const assertReservedExtensionNamespaceDrift = () => {
     ?.not.enum;
   assert(reservedEnum, 'capability metadata schema must deny reserved extension namespaces');
   assert(
-    stableJsonStringify([...reservedEnum].sort()) ===
-      stableJsonStringify([...reservedExtensionNamespaces.reserved].sort()),
+    stableJsonStringify([...reservedEnum].toSorted(compareStrings)) ===
+      stableJsonStringify([...reservedExtensionNamespaces.reserved].toSorted(compareStrings)),
     'capability metadata schema reserved namespace enum must match reserved-extension-namespaces.json'
   );
 
@@ -570,7 +588,7 @@ const assertSiteSchemaPublicationDrift = () => {
   const schemaFiles = fs
     .readdirSync(schemaDirectory)
     .filter((entry: JsonValue) => entry.endsWith('.json'))
-    .sort();
+    .toSorted();
 
   for (const schemaFile of schemaFiles) {
     const canonicalPath = path.join(schemaDirectory, schemaFile);
@@ -586,7 +604,7 @@ const assertSiteSchemaPublicationDrift = () => {
   const siteSchemaFiles = fs
     .readdirSync(siteSchemaDirectory)
     .filter((entry: JsonValue) => entry.endsWith('.json'))
-    .sort();
+    .toSorted();
 
   assert(
     stableJsonStringify(siteSchemaFiles) === stableJsonStringify(schemaFiles),
@@ -627,7 +645,7 @@ const assertSpdxExternalDependencyContextDrift = () => {
     'mapping sample SPDX external dependency export must include elements'
   );
 
-  const termsUsedByFixture = new Set();
+  const termsUsedByFixture = new Set<string>();
   for (const element of spdxExternalDependencyExport.elements) {
     assert(element['@context']?.av === namespace, 'mapping sample SPDX element av prefix must match JSON-LD context');
 
@@ -654,8 +672,8 @@ const assertSpdxExternalDependencyContextDrift = () => {
     'scope',
   ];
   assertDeepEqual(
-    [...termsUsedByFixture].sort(),
-    expectedTerms.sort(),
+    [...termsUsedByFixture].toSorted(compareStrings),
+    expectedTerms.toSorted(compareStrings),
     'SPDX external dependency JSON-LD context fixture terms'
   );
 
@@ -667,7 +685,7 @@ const assertSpdxExternalDependencyContextDrift = () => {
   }
   assertDeepEqual(
     context.scope,
-    { '@id': 'av:scope', '@container': '@set' },
+    { '@container': '@set', '@id': 'av:scope' },
     'SPDX external dependency JSON-LD context scope term'
   );
   assertDeepEqual(
@@ -757,9 +775,15 @@ const parseTomlScalar = (value: string): JsonValue => {
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
   }
-  if (trimmed === 'true') return true;
-  if (trimmed === 'false') return false;
-  if (/^-?(?:0|[1-9]\d*)$/.test(trimmed)) return Number(trimmed);
+  if (trimmed === 'true') {
+    return true;
+  }
+  if (trimmed === 'false') {
+    return false;
+  }
+  if (/^-?(?:0|[1-9]\d*)$/.test(trimmed)) {
+    return Number(trimmed);
+  }
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     const content = trimmed.slice(1, -1).trim();
     return content ? splitTomlArray(content).map((item: string) => parseTomlScalar(item)) : [];
@@ -791,7 +815,7 @@ const resolveTomlPath = (rootObject: JsonObject, header: string, arrayTable: boo
 
 // Fixture-scoped TOML subset parser for deterministic authored-source vectors.
 // It intentionally covers only the TOML shapes used by manifest-parse-cases.json;
-// conforming clients still need a real TOML v1.1.0 parser.
+// Conforming clients still need a real TOML v1.1.0 parser.
 const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
   const parsed: JsonObject = {};
   let current = parsed;
@@ -830,8 +854,8 @@ const parseStablePropertyJson = (properties: JsonValue, name: JsonValue, label: 
   let parsed;
   try {
     parsed = JSON.parse(property.value);
-  } catch (err) {
-    throw new Error(`${label} ${name} property must contain JSON: ${errorMessage(err)}`);
+  } catch (error) {
+    throw new Error(`${label} ${name} property must contain JSON: ${errorMessage(error)}`, { cause: error });
   }
   assert(
     property.value === stableJsonStringify(parsed),
@@ -873,8 +897,8 @@ const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => {
   assert(digest === artifact.artifactDigest, `${label} artifactDigest must match bytes`);
   try {
     return JSON.parse(bytes.toString('utf8'));
-  } catch (err) {
-    throw new Error(`${label} artifact bytes must parse as JSON: ${errorMessage(err)}`);
+  } catch (error) {
+    throw new Error(`${label} artifact bytes must parse as JSON: ${errorMessage(error)}`, { cause: error });
   }
 };
 
@@ -1480,12 +1504,12 @@ const permissionOrder = {
   filesystem: {
     deny: new Set(['deny']),
     read: new Set(['deny', 'read']),
-    write: new Set(['deny', 'write']),
     'read-write': new Set(['deny', 'read', 'write', 'read-write']),
+    write: new Set(['deny', 'write']),
   },
   shell: {
-    deny: new Set(['deny']),
     allow: new Set(['deny', 'allow']),
+    deny: new Set(['deny']),
   },
 };
 type PermissionSurface = keyof typeof permissionOrder;
@@ -1541,8 +1565,8 @@ assert(versionIndexFixture.items.length >= 2, 'version index collection fixture 
 const semverRangeCases = readJson('conformance/fixtures/semver-range-cases.json');
 assertSpecVersion(semverRangeCases, 'semver range cases');
 const semverRangeSchema = {
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
   $ref: `${schemas.volume.$id}#/$defs/semverRange`,
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
 };
 const validateSemverRange = ajv.compile(semverRangeSchema);
 for (const range of semverRangeCases.accepted) {
@@ -1895,8 +1919,8 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       if (trustCase.category === 'signature') {
         assertSigstoreArtifact(artifactJson, trustCase);
       }
-    } catch (err) {
-      artifactError = err;
+    } catch (error) {
+      artifactError = error;
     }
     if (trustCase.expected.valid) {
       assert(
@@ -2089,8 +2113,8 @@ function parseComponentDependencyPurl(componentPurl: JsonValue) {
   }
   const [, scope, name] = match;
   return {
-    parentName: scope === undefined ? name : `@${scope}/${name}`,
     hasVersion: match[3] !== undefined,
+    parentName: scope === undefined ? name : `@${scope}/${name}`,
   };
 }
 
@@ -2288,7 +2312,7 @@ for (const externalDependencyCase of externalDependencyCases.cases) {
         !Object.hasOwn(semanticKey, 'constraint'),
         `external dependency case ${externalDependencyCase.name} semantic key excludes constraint`
       );
-      const sortedScope = [...semanticKey.scope].sort();
+      const sortedScope = [...semanticKey.scope].toSorted(compareStrings);
       assertDeepEqual(
         semanticKey.scope,
         sortedScope,
@@ -2361,12 +2385,12 @@ const canonicalHookEvents = new Set([
 ]);
 const supportedEntrypointExtensionsByType = {
   agent: new Set(['.md', '.yaml']),
-  skill: new Set(['.md']),
   command: new Set(['.md']),
-  tool: new Set(['.json', '.yaml', '.js', '.mjs', '.sh', '.py']),
   hook: new Set(['.md', '.yaml', '.js', '.mjs', '.sh', '.py']),
-  'mcp-server': new Set(['.json']),
   'lsp-server': new Set(['.json']),
+  'mcp-server': new Set(['.json']),
+  skill: new Set(['.md']),
+  tool: new Set(['.json', '.yaml', '.js', '.mjs', '.sh', '.py']),
 };
 type ComponentType = keyof typeof supportedEntrypointExtensionsByType;
 const supportedEntrypointExtensionMap: Record<ComponentType, Set<string>> = supportedEntrypointExtensionsByType;
@@ -2378,7 +2402,7 @@ for (const semanticCase of semanticValidationCases.cases) {
   for (const warning of semanticCase.expected.warnings ?? []) {
     assertWarning(warning, `semantic validation case ${semanticCase.name} warning`);
   }
-  const component = semanticCase.payload.component;
+  const { component } = semanticCase.payload;
   if (component) {
     const extension = path.posix.extname(component.entrypoint);
     const componentType = component.type;
@@ -2690,13 +2714,15 @@ for (const entry of mappingMatrix.entries) {
 const mappingFields = mappingMatrix.entries.map((entry: JsonValue) => entry.agentVolumesField);
 assert(new Set(mappingFields).size === mappingFields.length, 'mapping matrix agentVolumesField entries must be unique');
 assert(
-  mappingFields.join('\n') === [...mappingFields].sort().join('\n'),
+  mappingFields.join('\n') === [...mappingFields].toSorted(compareStrings).join('\n'),
   'mapping matrix entries must be ordered by agentVolumesField for stable serialization'
 );
 for (const entry of mappingMatrix.entries) {
   for (const family of ['cyclonedx', 'spdx', 'slsa']) {
     const mapping = entry[family];
-    if (!mapping) continue;
+    if (!mapping) {
+      continue;
+    }
     if (mapping.kind === 'extension') {
       assert(
         mapping.extensionNamespace?.startsWith('agent-volumes') ||
@@ -2745,8 +2771,8 @@ assert(
 assert(sampleCycloneDx.bomFormat === 'CycloneDX', 'mapping sample CycloneDX export must declare bomFormat');
 assert(sampleCycloneDx.specVersion === '1.7', 'mapping sample CycloneDX export must declare specVersion 1.7');
 assertCycloneDxArtifact(sampleCycloneDx, {
-  name: 'mapping-sample-cyclonedx-export',
   format: { version: '1.7' },
+  name: 'mapping-sample-cyclonedx-export',
   subject: sampleRelease,
 });
 
@@ -3159,8 +3185,11 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
 let openapi: JsonObject;
 try {
   openapi = YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
-} catch (err) {
-  throw new Error(`OpenAPI YAML semantic validation failed: ${err instanceof Error ? err.message : String(err)}`);
+} catch (error) {
+  throw new Error(
+    `OpenAPI YAML semantic validation failed: ${error instanceof Error ? error.message : String(error)}`,
+    { cause: error }
+  );
 }
 assert(openapi.openapi === '3.1.1', 'OpenAPI document must declare version 3.1.1');
 assert(openapi.paths['/api/v1/search'], 'OpenAPI document must define search path');
