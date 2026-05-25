@@ -119,7 +119,7 @@ jobs:
         run: bun run format:check
 
       - name: Lint JavaScript and TypeScript with Oxlint
-        run: bun run lint:oxlint
+        run: bun run lint:oxlint:github
 
       - name: Validate changelog structure
         run: bun run changelog:check
