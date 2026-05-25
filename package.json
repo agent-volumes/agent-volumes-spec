@@ -11,8 +11,10 @@
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
     "lint:site": "bun run --cwd site lint",
     "site:dev": "bun run --cwd site dev",
-    "format": "prettier --write \"**/*.{md,json,yaml,yml,mjs}\"",
-    "format:check": "prettier --check \"**/*.{md,json,yaml,yml,mjs}\"",
+    "format": "prettier --write \"**/*.{md,mdx,json,yaml,yml,mjs}\"",
+    "format:check": "prettier --check \"**/*.{md,mdx,json,yaml,yml,mjs}\"",
+    "format:files": "prettier --write",
+    "lint:md:fix:files": "markdownlint-cli2 --fix",
     "release:changelog": "scripts/update-changelog.sh --tag",
     "release:tag": "scripts/create-release-tag.sh",
     "validate:artifacts": "bun scripts/validate-artifacts.mjs"

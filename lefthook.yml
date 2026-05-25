@@ -24,11 +24,11 @@ pre-commit:
         echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
         for f in {staged_files}; do
           case "$f" in
-            *.md|*.mdx) bunx markdownlint-cli2 --fix "$f" ;;
+            *.md|*.mdx) bun run lint:md:fix:files -- "$f" ;;
           esac
         done
         echo "✨ Running prettier --write on staged files..."
-        bunx prettier --write {staged_files}
+        bun run format:files -- {staged_files}
         echo "📦 Re-staging fixed files..."
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"
