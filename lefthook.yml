@@ -18,7 +18,14 @@ pre-commit:
   parallel: false
   jobs:
     - name: Lint and format specification files
-      glob: '*.{md,mdx,json,yaml,yml,mjs}'
+      glob:
+        - '**/*.md'
+        - '**/*.mdx'
+        - '**/*.json'
+        - '**/*.yaml'
+        - '**/*.yml'
+        - '**/*.mjs'
+        - '.prettierrc'
       run: |
         set -e
         echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
@@ -51,7 +58,14 @@ pre-commit:
         git add site/spec
         echo "✅ Publication artifacts regenerated!"
     - name: Check repository formatting
-      glob: '*.{md,mdx,json,yaml,yml,mjs}'
+      glob:
+        - '**/*.md'
+        - '**/*.mdx'
+        - '**/*.json'
+        - '**/*.yaml'
+        - '**/*.yml'
+        - '**/*.mjs'
+        - '.prettierrc'
       run: |
         set -e
         echo "✨ Checking repository formatting..."
@@ -59,7 +73,8 @@ pre-commit:
         echo "✅ Repository formatting check passed!"
     - name: Lint Markdown
       glob:
-        - '*.{md,mdx}'
+        - '**/*.md'
+        - '**/*.mdx'
         - '.markdownlint-cli2.jsonc'
       run: |
         set -e
@@ -99,7 +114,7 @@ pre-commit:
         - 'cliff.toml'
         - 'package.json'
         - 'bun.lock'
-        - 'scripts/*.sh'
+        - 'scripts/**'
       run: |
         set -e
         echo "🔍 Validating changelog structure..."
