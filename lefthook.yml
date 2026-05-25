@@ -18,17 +18,25 @@ pre-commit:
   parallel: false
   jobs:
     - name: Lint and format specification files
-      glob: '*.{md,mdx,json,yaml,yml,mjs}'
+      glob:
+        - '**/*.md'
+        - '**/*.mdx'
+        - '**/*.json'
+        - '**/*.yaml'
+        - '**/*.yml'
+        - '**/*.mjs'
+        - '**/*.mdc'
+        - '.prettierrc'
       run: |
         set -e
         echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
         for f in {staged_files}; do
           case "$f" in
-            *.md|*.mdx) bunx markdownlint-cli2 --fix "$f" ;;
+            *.md|*.mdx) bun run lint:md:fix:files -- "$f" ;;
           esac
         done
         echo "✨ Running prettier --write on staged files..."
-        bunx prettier --write {staged_files}
+        bun run format:files -- {staged_files}
         echo "📦 Re-staging fixed files..."
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"
@@ -51,7 +59,15 @@ pre-commit:
         git add site/spec
         echo "✅ Publication artifacts regenerated!"
     - name: Check repository formatting
-      glob: '*.{md,mdx,json,yaml,yml,mjs}'
+      glob:
+        - '**/*.md'
+        - '**/*.mdx'
+        - '**/*.json'
+        - '**/*.yaml'
+        - '**/*.yml'
+        - '**/*.mjs'
+        - '**/*.mdc'
+        - '.prettierrc'
       run: |
         set -e
         echo "✨ Checking repository formatting..."
@@ -59,7 +75,9 @@ pre-commit:
         echo "✅ Repository formatting check passed!"
     - name: Lint Markdown
       glob:
-        - '*.{md,mdx}'
+        - '**/*.md'
+        - '**/*.mdx'
+        - '**/*.mdc'
         - '.markdownlint-cli2.jsonc'
       run: |
         set -e
@@ -99,7 +117,7 @@ pre-commit:
         - 'cliff.toml'
         - 'package.json'
         - 'bun.lock'
-        - 'scripts/*.sh'
+        - 'scripts/**'
       run: |
         set -e
         echo "🔍 Validating changelog structure..."
