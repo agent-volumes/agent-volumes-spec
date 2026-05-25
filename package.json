@@ -5,7 +5,7 @@
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
-    "prepare": "lefthook install && codegraph install",
+    "prepare": "lefthook install && codegraph install --target=claude,cursor,opencode --location=local --yes",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
