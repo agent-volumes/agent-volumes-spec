@@ -100,22 +100,12 @@ pre-commit:
         - '.oxlintrc.json'
         - 'package.json'
         - 'bun.lock'
+        - 'tsconfig.json'
       run: |
         set -e
         echo "🔍 Running Oxlint..."
         bun run lint:oxlint
         echo "✅ Oxlint passed!"
-    - name: Type-check TypeScript scripts
-      glob:
-        - 'scripts/**/*.mts'
-        - 'tsconfig.json'
-        - 'package.json'
-        - 'bun.lock'
-      run: |
-        set -e
-        echo "🔍 Type-checking TypeScript scripts..."
-        bun run lint:types
-        echo "✅ TypeScript type-check passed!"
     - name: Lint Markdown
       glob:
         - '**/*.md'

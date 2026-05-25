@@ -3,8 +3,6 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "lib": ["ES2025"],
-    "target": "ES2025",
     "types": ["bun"],
     "skipLibCheck": false
   },

@@ -9,12 +9,11 @@
     "restriction": "warn"
   },
   "rules": {
-    "import/no-cycle": ["error", { "maxDepth": 3 }],
-    "typescript/require-array-sort-compare": "warn"
+    "import/no-cycle": ["error", { "maxDepth": 3 }]
   },
   "options": {
-    "typeAware": false,
-    "typeCheck": false
+    "typeAware": true,
+    "typeCheck": true
   },
   "env": {
     "builtin": true

@@ -9,8 +9,9 @@
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\" \"**/*.mdc\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\" \"**/*.mdc\"",
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
-    "lint:oxlint": "oxlint --quiet --no-error-on-unmatched-pattern",
-    "lint:types": "tsc --noEmit",
+    "lint:oxlint": "oxlint --no-error-on-unmatched-pattern",
+    "lint:oxlint:fix": "oxlint --fix --no-error-on-unmatched-pattern",
+    "lint:oxlint:github": "oxlint --no-error-on-unmatched-pattern --format=github",
     "lint:site": "bun run --cwd site lint",
     "site:dev": "bun run --cwd site dev",
     "format": "git ls-files \"*.md\" \"*.mdx\" \"*.json\" \"*.yaml\" \"*.yml\" \"*.js\" \"*.jsx\" \"*.mjs\" \"*.cjs\" \"*.ts\" \"*.tsx\" \"*.mts\" \"*.cts\" \"*.mdc\" | while IFS= read -r file; do [ -e \"$file\" ] && printf '%s\\n' \"$file\"; done | xargs prettier --write",
@@ -34,7 +35,6 @@
     "oxlint": "^1.66.0",
     "oxlint-tsgolint": "^0.23.0",
     "prettier": "^3.8.3",
-    "typescript": "^6.0.3",
     "yaml": "^2.9.0"
   },
   "overrides": {
