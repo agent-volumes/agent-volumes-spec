@@ -5,7 +5,7 @@
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
-    "prepare": "bunx lefthook install",
+    "prepare": "lefthook install && codegraph install",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"**/*.mdx\"",
     "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"**/*.mdx\"",
     "lint:openapi": "redocly lint openapi/bibliotheca.openapi.yaml",
@@ -18,6 +18,7 @@
     "validate:artifacts": "bun scripts/validate-artifacts.mjs"
   },
   "devDependencies": {
+    "@colbymchenry/codegraph": "^0.9.4",
     "@redocly/cli": "^2.30.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
