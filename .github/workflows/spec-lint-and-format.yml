@@ -65,7 +65,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Install Mintlify site dependencies
         run: bun install --frozen-lockfile
