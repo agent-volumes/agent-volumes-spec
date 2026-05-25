@@ -8,28 +8,32 @@ import YAML from 'yaml';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const normalizeRelativePath = (relativePath) => relativePath.split(path.sep).join('/');
+type JsonValue = any;
+type JsonObject = Record<string, JsonValue>;
 
-const readJsonPaths = new Set();
+const normalizeRelativePath = (relativePath: string): string => relativePath.split(path.sep).join('/');
 
-const readJsonFile = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
+const readJsonPaths = new Set<string>();
 
-const readJson = (relativePath) => {
+const readJsonFile = (relativePath: string): JsonValue =>
+  JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
+
+const readJson = (relativePath: string): JsonValue => {
   readJsonPaths.add(normalizeRelativePath(relativePath));
   return readJsonFile(relativePath);
 };
 
-const readText = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
+const readText = (relativePath: string): string => fs.readFileSync(path.join(root, relativePath), 'utf8');
 
-const pathExists = (relativePath) => fs.existsSync(path.join(root, relativePath));
+const pathExists = (relativePath: string): boolean => fs.existsSync(path.join(root, relativePath));
 
-const isDirectory = (relativePath) => fs.statSync(path.join(root, relativePath)).isDirectory();
+const isDirectory = (relativePath: string): boolean => fs.statSync(path.join(root, relativePath)).isDirectory();
 
-const assert = (condition, message) => {
+function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
-};
+}
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
@@ -491,7 +495,7 @@ const assertNoUnvalidatedConformanceFixtures = () => {
     .map((entry) => `conformance/fixtures/${entry}`)
     .sort();
   for (const fixturePath of fixturePaths) {
-    assert(readJsonPaths.has(fixturePath), `${fixturePath} is not connected to scripts/validate-artifacts.mjs`);
+    assert(readJsonPaths.has(fixturePath), `${fixturePath} is not connected to scripts/validate-artifacts.mts`);
   }
 };
 
@@ -747,7 +751,7 @@ const parseTomlScalar = (value) => {
   throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
 };
 
-const resolveTomlPath = (rootObject, header, arrayTable) => {
+const resolveTomlPath = (rootObject: JsonObject, header: string, arrayTable: boolean): JsonObject => {
   const pathParts = header.split('.').map((part) => parseTomlKey(part));
   let parent = rootObject;
   for (const part of pathParts.slice(0, -1)) {
@@ -759,7 +763,7 @@ const resolveTomlPath = (rootObject, header, arrayTable) => {
   if (arrayTable) {
     parent[finalPart] ??= [];
     assert(Array.isArray(parent[finalPart]), `TOML array table conflicts with singleton table: ${header}`);
-    const item = {};
+    const item: JsonObject = {};
     parent[finalPart].push(item);
     return item;
   }
@@ -771,8 +775,8 @@ const resolveTomlPath = (rootObject, header, arrayTable) => {
 // Fixture-scoped TOML subset parser for deterministic authored-source vectors.
 // It intentionally covers only the TOML shapes used by manifest-parse-cases.json;
 // conforming clients still need a real TOML v1.1.0 parser.
-const parseFixtureTomlSubset = (source, label) => {
-  const parsed = {};
+const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
+  const parsed: JsonObject = {};
   let current = parsed;
   const lines = source.split(/\r?\n/);
   for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
@@ -1560,7 +1564,7 @@ for (const resolverCase of resolverCases.cases) {
     }
   }
   if (resolverCase.exactReleaseMetadata) {
-    for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata)) {
+    for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata) as [string, JsonObject][]) {
       assertReleaseMetadata(metadata, `resolver case ${resolverCase.name} exact metadata ${key}`);
       if (resolverCase.requestRoute && resolverCase.expected.failureCategory !== 'identity-mismatch') {
         assertRouteMetadataIdentity(
@@ -2048,7 +2052,7 @@ for (const dependencyCase of componentDependencyCases.cases) {
   const declaredComponents = new Set(dependencyCase.declaredComponents);
   const parentDependencies = new Set(Object.keys(dependencyCase['volume-dependencies']));
   const resolvedComponents = new Set(dependencyCase.resolvedComponents);
-  const requestedDependencies = Object.values(dependencyCase['component-dependencies']).flat();
+  const requestedDependencies = Object.values(dependencyCase['component-dependencies']).flat() as string[];
   const invalidComponentPurls = requestedDependencies.filter((dependency) => !componentPurlPattern.test(dependency));
   const validRequestedDependencies = requestedDependencies.filter((dependency) =>
     componentPurlPattern.test(dependency)
@@ -2121,11 +2125,9 @@ for (const dependencyCase of componentDependencyCases.cases) {
 }
 assert(
   componentDependencyCases.cases.some((dependencyCase) =>
-    Object.values(dependencyCase['component-dependencies'])
-      .flat()
-      .some(
-        (dependency) => /^pkg:volume\/[^@#]+#/.test(dependency) || /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency)
-      )
+    (Object.values(dependencyCase['component-dependencies']).flat() as string[]).some(
+      (dependency) => /^pkg:volume\/[^@#]+#/.test(dependency) || /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency)
+    )
   ),
   'component dependency cases must include versionless authoring references'
 );
@@ -3067,11 +3069,11 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
   );
 }
 
-let openapi;
+let openapi: JsonObject;
 try {
   openapi = YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
 } catch (err) {
-  throw new Error(`OpenAPI YAML semantic validation failed: ${err.message}`);
+  throw new Error(`OpenAPI YAML semantic validation failed: ${err instanceof Error ? err.message : String(err)}`);
 }
 assert(openapi.openapi === '3.1.1', 'OpenAPI document must declare version 3.1.1');
 assert(openapi.paths['/api/v1/search'], 'OpenAPI document must define search path');
@@ -3195,13 +3197,13 @@ assert(
     '#/components/schemas/AdvisoryList',
   'OpenAPI advisory list endpoint must use the AdvisoryList component'
 );
-for (const [responseName, response] of Object.entries(openapi.components.responses)) {
+for (const [responseName, response] of Object.entries(openapi.components.responses) as [string, JsonObject][]) {
   const problemContent = response.content?.['application/problem+json'];
   if (!problemContent) {
     continue;
   }
   assert(problemContent.examples, `OpenAPI ${responseName} problem response must include representative examples`);
-  for (const [exampleName, example] of Object.entries(problemContent.examples)) {
+  for (const [exampleName, example] of Object.entries(problemContent.examples) as [string, JsonObject][]) {
     assertProblemDetails(example.value, `OpenAPI ${responseName} problem example ${exampleName}`);
   }
 }

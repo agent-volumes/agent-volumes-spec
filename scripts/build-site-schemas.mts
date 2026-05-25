@@ -1,9 +1,7 @@
 #!/usr/bin/env bun
-import { existsSync } from 'node:fs';
-import { mkdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, mkdir, copyFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptDir);
@@ -11,30 +9,7 @@ const repoRoot = dirname(scriptDir);
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
-function run(command, args) {
-  const result = spawnSync(resolveCommand(command), args, {
-    cwd: repoRoot,
-    env: process.env,
-    stdio: 'inherit',
-  });
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
-}
-
-function resolveCommand(command) {
-  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
-  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
-
-  return existsSync(localCommand) ? localCommand : command;
-}
-
-async function versionFromSpec() {
+async function versionFromSpec(): Promise<string> {
   const specPath = join(repoRoot, 'agent-volumes-spec.md');
   const spec = await readFile(specPath, 'utf8');
   const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
@@ -46,7 +21,7 @@ async function versionFromSpec() {
   return match[1].trim();
 }
 
-function normalizeVersion(rawVersion) {
+function normalizeVersion(rawVersion: string): string {
   const version = rawVersion.replace(/^v/, '');
 
   if (!semverPattern.test(version)) {
@@ -58,9 +33,15 @@ function normalizeVersion(rawVersion) {
 
 const rawVersion = process.argv[2] ?? process.env.SPEC_VERSION ?? (await versionFromSpec());
 const specVersion = normalizeVersion(rawVersion);
-const outputPath = join('site', 'spec', specVersion, 'api-reference', 'bibliotheca.openapi.json');
+const sourceDir = join(repoRoot, 'schemas');
+const outputDir = join(repoRoot, 'site', 'spec', specVersion, 'schemas');
 
-await mkdir(join(repoRoot, dirname(outputPath)), { recursive: true });
+await mkdir(outputDir, { recursive: true });
 
-run('redocly', ['bundle', 'openapi/bibliotheca.openapi.yaml', '--output', outputPath, '--ext', 'json']);
-run('prettier', ['--write', outputPath]);
+const schemaFiles = (await readdir(sourceDir)).filter((entry) => entry.endsWith('.json')).sort();
+
+for (const schemaFile of schemaFiles) {
+  await copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile));
+}
+
+console.log(`Copied ${schemaFiles.length} schema artifacts to site/spec/${specVersion}/schemas/.`);
