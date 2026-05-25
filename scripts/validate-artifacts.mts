@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 import Ajv2020 from 'ajv/dist/2020.js';
+import type { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import YAML from 'yaml';
 
@@ -10,6 +11,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 type JsonValue = any;
 type JsonObject = Record<string, JsonValue>;
+
+const errorMessage = (err: unknown): string => (err instanceof Error ? err.message : String(err));
 
 const normalizeRelativePath = (relativePath: string): string => relativePath.split(path.sep).join('/');
 
@@ -82,21 +85,25 @@ for (const schema of Object.values(schemas)) {
   ajv.addSchema(schema);
 }
 
-const validators = Object.fromEntries(
+const validators: Record<string, ValidateFunction> = Object.fromEntries(
   Object.entries(schemas).map(([name, schema]) => [name, ajv.getSchema(schema.$id) ?? ajv.compile(schema)])
 );
 
-const validate = (name, value, label) => {
-  const ok = validators[name](value);
-  assert(ok, `${label} failed ${name} schema validation: ${ajv.errorsText(validators[name].errors)}`);
+const validate = (name: string, value: JsonValue, label: string) => {
+  const validator = validators[name];
+  assert(validator, `Missing ${name} schema validator`);
+  const ok = validator(value);
+  assert(ok, `${label} failed ${name} schema validation: ${ajv.errorsText(validator.errors)}`);
 };
 
-const validateExpectedFailure = (name, value, label) => {
-  const ok = validators[name](value);
+const validateExpectedFailure = (name: string, value: JsonValue, label: string) => {
+  const validator = validators[name];
+  assert(validator, `Missing ${name} schema validator`);
+  const ok = validator(value);
   assert(!ok, `${label} unexpectedly passed ${name} schema validation`);
 };
 
-const assertSpecVersion = (fixture, label) => {
+const assertSpecVersion = (fixture: JsonValue, label: JsonValue) => {
   assert(fixture.specVersion === '0.1.0-rc.1', `${label} must declare specVersion 0.1.0-rc.1`);
 };
 
@@ -145,7 +152,7 @@ const problemStatusBySlug = new Map([
   ['rate-limited', 429],
 ]);
 
-const assertReleaseMetadata = (metadata, label) => {
+const assertReleaseMetadata = (metadata: JsonValue, label: JsonValue) => {
   validate('releaseMetadata', metadata, label);
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
@@ -178,7 +185,7 @@ const assertReleaseMetadata = (metadata, label) => {
   }
 };
 
-const assertProblemDetails = (payload, label) => {
+const assertProblemDetails = (payload: JsonValue, label: JsonValue) => {
   validate('problemDetails', payload, label);
   assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
   const slug = payload.type.replace('https://agentvolumes.org/problems/', '');
@@ -188,7 +195,11 @@ const assertProblemDetails = (payload, label) => {
   assert(payload.status === problemStatusBySlug.get(slug), `${label} status must match problem type ${slug}`);
 };
 
-const assertEndpointProblemFixtures = (relativePath, label, expectedFailuresByEndpoint) => {
+const assertEndpointProblemFixtures = (
+  relativePath: JsonValue,
+  label: JsonValue,
+  expectedFailuresByEndpoint: JsonValue
+) => {
   const fixtureSet = readJson(relativePath);
   assertSpecVersion(fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
@@ -222,7 +233,11 @@ const assertEndpointProblemFixtures = (relativePath, label, expectedFailuresByEn
   }
 };
 
-const assertLifecycleMutationFixtures = (relativePath, label, expectedFailuresByEndpoint) => {
+const assertLifecycleMutationFixtures = (
+  relativePath: JsonValue,
+  label: JsonValue,
+  expectedFailuresByEndpoint: JsonValue
+) => {
   const fixtureSet = readJson(relativePath);
   assertSpecVersion(fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
@@ -285,7 +300,7 @@ const assertLifecycleMutationFixtures = (relativePath, label, expectedFailuresBy
   }
 };
 
-const assertWarning = (warning, label) => {
+const assertWarning = (warning: JsonValue, label: JsonValue) => {
   validate('warning', warning, label);
   if (warning.category === 'external-dependency-potential-exposure') {
     assert(warning.context && typeof warning.context === 'object', `${label} needs potential-exposure context`);
@@ -297,7 +312,7 @@ const assertWarning = (warning, label) => {
   }
 };
 
-const isRecognizedSpdxExpressionShape = (expression) => {
+const isRecognizedSpdxExpressionShape = (expression: JsonValue) => {
   const tokenPattern = /\(|\)|\+|\bAND\b|\bOR\b|\bWITH\b|LicenseRef-[A-Za-z0-9.-]+|[A-Za-z0-9][A-Za-z0-9.-]*/g;
   const tokens = expression.match(tokenPattern) ?? [];
   if (tokens.join('') !== expression.replace(/\s+/g, '')) {
@@ -336,7 +351,7 @@ const isRecognizedSpdxExpressionShape = (expression) => {
   return tokens.length > 0 && depth === 0 && !expectOperand;
 };
 
-const canonicalReleasePurl = (volume, version) => {
+const canonicalReleasePurl = (volume: JsonValue, version: JsonValue) => {
   assert(volumeNamePattern.test(volume), `cannot canonicalize invalid volume name: ${volume}`);
   if (volume.startsWith('@')) {
     const [scope, name] = volume.slice(1).split('/');
@@ -345,12 +360,12 @@ const canonicalReleasePurl = (volume, version) => {
   return `pkg:volume/${volume}@${version}`;
 };
 
-const canonicalComponentPurl = (volume, version, component) => {
+const canonicalComponentPurl = (volume: JsonValue, version: JsonValue, component: JsonValue) => {
   assert(componentNamePattern.test(component.name), `cannot canonicalize invalid component name: ${component.name}`);
   return `${canonicalReleasePurl(volume, version)}#${component.type}/${component.name}`;
 };
 
-const parseExternalDependencyPurl = (purl) => {
+const parseExternalDependencyPurl = (purl: JsonValue) => {
   const match = purl.match(shallowPurlPattern);
   if (!match) return undefined;
   const [, type, remainder] = match;
@@ -361,64 +376,64 @@ const parseExternalDependencyPurl = (purl) => {
   };
 };
 
-const parseVersScheme = (constraint) => constraint.match(shallowVersPattern)?.[1].toLowerCase();
+const parseVersScheme = (constraint: JsonValue) => constraint.match(shallowVersPattern)?.[1].toLowerCase();
 
-const normalizeVersConstraintForComparison = (constraint) => {
+const normalizeVersConstraintForComparison = (constraint: JsonValue) => {
   const match = constraint.match(shallowVersPattern);
   if (!match) return constraint;
   const [, rawScheme, expression] = match;
   return `vers:${rawScheme.toLowerCase()}/${expression
     .split('|')
-    .map((term) => term.trim())
+    .map((term: JsonValue) => term.trim())
     .sort()
     .join('|')}`;
 };
 
-const isExternalDependencyPurpose = (purpose) =>
+const isExternalDependencyPurpose = (purpose: JsonValue) =>
   coreExternalDependencyPurposes.has(purpose) || externalDependencyPurposeExtensionPattern.test(purpose);
 
-const externalDependencyScope = (dependency) => [...(dependency.components ?? [])].sort();
+const externalDependencyScope = (dependency: JsonValue) => [...(dependency.components ?? [])].sort();
 
-const externalDependencySemanticKey = (dependency) =>
+const externalDependencySemanticKey = (dependency: JsonValue) =>
   stableJsonStringify({
     purl: dependency.purl,
     purpose: dependency.purpose,
     scope: externalDependencyScope(dependency),
   });
 
-const declarationKeyInput = (semanticKey) => ({
+const declarationKeyInput = (semanticKey: JsonValue) => ({
   purl: semanticKey.purl,
   purpose: semanticKey.purpose,
   scope: semanticKey.scope.length === 0 ? { kind: 'volume' } : { components: semanticKey.scope },
 });
 
-const declarationKeyForSemanticKey = (semanticKey) => {
+const declarationKeyForSemanticKey = (semanticKey: JsonValue) => {
   const input = stableJsonStringify(declarationKeyInput(semanticKey));
   return `av-extdep-v1:sha256:${crypto.createHash('sha256').update(input, 'utf8').digest('hex')}`;
 };
 
-const stableJsonStringify = (value) => {
+const stableJsonStringify = (value: JsonValue): string => {
   if (Array.isArray(value)) {
-    return `[${value.map((item) => stableJsonStringify(item)).join(',')}]`;
+    return `[${value.map((item: JsonValue) => stableJsonStringify(item)).join(',')}]`;
   }
   if (value && typeof value === 'object') {
     return `{${Object.keys(value)
       .sort()
-      .map((key) => `${JSON.stringify(key)}:${stableJsonStringify(value[key])}`)
+      .map((key: JsonValue) => `${JSON.stringify(key)}:${stableJsonStringify(value[key])}`)
       .join(',')}}`;
   }
   return JSON.stringify(value);
 };
 
-const assertDeepEqual = (actual, expected, label) => {
+const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
   assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
 };
 
-const assertUniqueStrings = (values, label) => {
+const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
   assert(new Set(values).size === values.length, `${label} must be unique`);
 };
 
-const caseNamesFromFixture = (fixture) => {
+const caseNamesFromFixture = (fixture: JsonValue) => {
   const names = [];
   for (const collectionName of ['cases', 'fixtures']) {
     const collection = fixture[collectionName];
@@ -434,16 +449,16 @@ const caseNamesFromFixture = (fixture) => {
   return names;
 };
 
-const resolveCoverageReference = (fixtureName) => {
+const resolveCoverageReference = (fixtureName: JsonValue) => {
   const candidates = [`conformance/fixtures/${fixtureName}`, `conformance/${fixtureName}`, `openapi/${fixtureName}`];
   if (fixtureName.startsWith('schemas/')) {
     candidates.push(fixtureName);
   }
-  return candidates.find((candidate) => pathExists(candidate));
+  return candidates.find((candidate: JsonValue) => pathExists(candidate));
 };
 
-const assertConformanceCoverageReferences = (conformanceCoverage) => {
-  const requirementIds = conformanceCoverage.requirements.map((requirement) => requirement.id);
+const assertConformanceCoverageReferences = (conformanceCoverage: JsonValue) => {
+  const requirementIds = conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id);
   assertUniqueStrings(requirementIds, 'conformance coverage requirement IDs');
   const seenCoverageTuples = new Set();
 
@@ -491,8 +506,8 @@ const assertNoUnvalidatedConformanceFixtures = () => {
   const fixtureDirectory = path.join(root, 'conformance/fixtures');
   const fixturePaths = fs
     .readdirSync(fixtureDirectory)
-    .filter((entry) => entry.endsWith('.json'))
-    .map((entry) => `conformance/fixtures/${entry}`)
+    .filter((entry: JsonValue) => entry.endsWith('.json'))
+    .map((entry: JsonValue) => `conformance/fixtures/${entry}`)
     .sort();
   for (const fixturePath of fixturePaths) {
     assert(readJsonPaths.has(fixturePath), `${fixturePath} is not connected to scripts/validate-artifacts.mts`);
@@ -514,7 +529,7 @@ const assertReservedExtensionNamespaceDrift = () => {
 
   const extensionPropertyNames = schemas.capabilityMetadata.properties.extensions.propertyNames;
   const namespacePattern = extensionPropertyNames.allOf.find(
-    (subschema) => typeof subschema.pattern === 'string'
+    (subschema: JsonValue) => typeof subschema.pattern === 'string'
   )?.pattern;
   assert(namespacePattern, 'capability metadata schema must define an extension namespace pattern');
   const validateNamespaceShape = new RegExp(namespacePattern);
@@ -525,7 +540,8 @@ const assertReservedExtensionNamespaceDrift = () => {
     );
   }
 
-  const reservedEnum = extensionPropertyNames.allOf.find((subschema) => Array.isArray(subschema.not?.enum))?.not.enum;
+  const reservedEnum = extensionPropertyNames.allOf.find((subschema: JsonValue) => Array.isArray(subschema.not?.enum))
+    ?.not.enum;
   assert(reservedEnum, 'capability metadata schema must deny reserved extension namespaces');
   assert(
     stableJsonStringify([...reservedEnum].sort()) ===
@@ -536,7 +552,7 @@ const assertReservedExtensionNamespaceDrift = () => {
   const reservedFixture = readJsonFile('conformance/fixtures/capability-metadata-reserved-extension-rejection.json');
   const reservedFixtureNamespaces = Object.keys(reservedFixture.canonicalParsedData.extensions ?? {});
   assert(
-    reservedFixtureNamespaces.some((namespace) => reservedExtensionNamespaces.reserved.includes(namespace)),
+    reservedFixtureNamespaces.some((namespace: JsonValue) => reservedExtensionNamespaces.reserved.includes(namespace)),
     'capability metadata reserved extension fixture must exercise a reserved namespace from reserved-extension-namespaces.json'
   );
   for (const namespace of reservedExtensionNamespaces.reserved) {
@@ -553,7 +569,7 @@ const assertSiteSchemaPublicationDrift = () => {
   const siteSchemaDirectory = path.join(root, 'site/spec/0.1.0-rc.1/schemas');
   const schemaFiles = fs
     .readdirSync(schemaDirectory)
-    .filter((entry) => entry.endsWith('.json'))
+    .filter((entry: JsonValue) => entry.endsWith('.json'))
     .sort();
 
   for (const schemaFile of schemaFiles) {
@@ -569,7 +585,7 @@ const assertSiteSchemaPublicationDrift = () => {
 
   const siteSchemaFiles = fs
     .readdirSync(siteSchemaDirectory)
-    .filter((entry) => entry.endsWith('.json'))
+    .filter((entry: JsonValue) => entry.endsWith('.json'))
     .sort();
 
   assert(
@@ -666,7 +682,7 @@ const assertSpdxExternalDependencyContextDrift = () => {
   );
 };
 
-const stripTomlComment = (line) => {
+const stripTomlComment = (line: JsonValue) => {
   let inString = false;
   let escaped = false;
   for (let index = 0; index < line.length; index += 1) {
@@ -690,7 +706,7 @@ const stripTomlComment = (line) => {
   return line;
 };
 
-const splitTomlArray = (content) => {
+const splitTomlArray = (content: JsonValue) => {
   const items = [];
   let token = '';
   let inString = false;
@@ -727,7 +743,7 @@ const splitTomlArray = (content) => {
   return items;
 };
 
-const parseTomlKey = (key) => {
+const parseTomlKey = (key: string): string => {
   const trimmed = key.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
@@ -736,7 +752,7 @@ const parseTomlKey = (key) => {
   return trimmed;
 };
 
-const parseTomlScalar = (value) => {
+const parseTomlScalar = (value: string): JsonValue => {
   const trimmed = value.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
@@ -746,13 +762,13 @@ const parseTomlScalar = (value) => {
   if (/^-?(?:0|[1-9]\d*)$/.test(trimmed)) return Number(trimmed);
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     const content = trimmed.slice(1, -1).trim();
-    return content ? splitTomlArray(content).map((item) => parseTomlScalar(item)) : [];
+    return content ? splitTomlArray(content).map((item: string) => parseTomlScalar(item)) : [];
   }
   throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
 };
 
 const resolveTomlPath = (rootObject: JsonObject, header: string, arrayTable: boolean): JsonObject => {
-  const pathParts = header.split('.').map((part) => parseTomlKey(part));
+  const pathParts = header.split('.').map((part: string) => parseTomlKey(part));
   let parent = rootObject;
   for (const part of pathParts.slice(0, -1)) {
     parent[part] ??= {};
@@ -760,6 +776,7 @@ const resolveTomlPath = (rootObject: JsonObject, header: string, arrayTable: boo
     parent = parent[part];
   }
   const finalPart = pathParts[pathParts.length - 1];
+  assert(finalPart, `unsupported empty TOML path in fixture: ${header}`);
   if (arrayTable) {
     parent[finalPart] ??= [];
     assert(Array.isArray(parent[finalPart]), `TOML array table conflicts with singleton table: ${header}`);
@@ -802,19 +819,19 @@ const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
   return parsed;
 };
 
-const findProperty = (properties, name, label) => {
-  const property = properties?.find((candidate) => candidate.name === name);
+const findProperty = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
+  const property = properties?.find((candidate: JsonValue) => candidate.name === name);
   assert(property, `${label} needs ${name} property`);
   return property;
 };
 
-const parseStablePropertyJson = (properties, name, label) => {
+const parseStablePropertyJson = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
   const property = findProperty(properties, name, label);
   let parsed;
   try {
     parsed = JSON.parse(property.value);
   } catch (err) {
-    throw new Error(`${label} ${name} property must contain JSON: ${err.message}`);
+    throw new Error(`${label} ${name} property must contain JSON: ${errorMessage(err)}`);
   }
   assert(
     property.value === stableJsonStringify(parsed),
@@ -823,17 +840,23 @@ const parseStablePropertyJson = (properties, name, label) => {
   return parsed;
 };
 
-const findExternalReference = (references, type, url, label) => {
+const findExternalReference = (references: JsonValue, type: JsonValue, url: JsonValue, label: JsonValue) => {
   assert(
-    references?.some((reference) => reference.type === type && reference.url === url),
+    references?.some((reference: JsonValue) => reference.type === type && reference.url === url),
     `${label} needs ${type} external reference ${url}`
   );
 };
 
-const findSpdxExternalRef = (externalRefs, referenceCategory, referenceType, referenceLocator, label) => {
+const findSpdxExternalRef = (
+  externalRefs: JsonValue,
+  referenceCategory: JsonValue,
+  referenceType: JsonValue,
+  referenceLocator: JsonValue,
+  label: JsonValue
+) => {
   assert(
     externalRefs?.some(
-      (reference) =>
+      (reference: JsonValue) =>
         reference.referenceCategory === referenceCategory &&
         reference.referenceType === referenceType &&
         reference.referenceLocator === referenceLocator
@@ -842,7 +865,7 @@ const findSpdxExternalRef = (externalRefs, referenceCategory, referenceType, ref
   );
 };
 
-const decodeFixtureArtifact = (artifact, label) => {
+const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => {
   assert(artifact?.bytesBase64, `${label} needs artifact.bytesBase64`);
   const bytes = Buffer.from(artifact.bytesBase64, 'base64');
   assert(bytes.length > 0, `${label} artifact bytes must not be empty`);
@@ -851,11 +874,11 @@ const decodeFixtureArtifact = (artifact, label) => {
   try {
     return JSON.parse(bytes.toString('utf8'));
   } catch (err) {
-    throw new Error(`${label} artifact bytes must parse as JSON: ${err.message}`);
+    throw new Error(`${label} artifact bytes must parse as JSON: ${errorMessage(err)}`);
   }
 };
 
-const assertCycloneDxArtifact = (artifactJson, trustCase) => {
+const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   const component = artifactJson.metadata?.component;
   assert(artifactJson.bomFormat === 'CycloneDX', `trust artifact case ${trustCase.name} BOM must declare CycloneDX`);
   assert(
@@ -874,13 +897,13 @@ const assertCycloneDxArtifact = (artifactJson, trustCase) => {
   );
   assert(
     component?.hashes?.some(
-      (hash) => hash.alg === 'SHA-256' && `sha256:${hash.content}` === trustCase.subject.integrity
+      (hash: JsonValue) => hash.alg === 'SHA-256' && `sha256:${hash.content}` === trustCase.subject.integrity
     ),
     `trust artifact case ${trustCase.name} BOM hashes must bind immutable identity`
   );
 };
 
-const assertSlsaArtifact = (artifactJson, trustCase) => {
+const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   assert(
     artifactJson.payloadType === 'application/vnd.in-toto+json',
     `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`
@@ -907,7 +930,7 @@ const assertSlsaArtifact = (artifactJson, trustCase) => {
   );
   assert(
     statement.subject?.some(
-      (subject) =>
+      (subject: JsonValue) =>
         subject.name === trustCase.subject.purl && subject.digest?.sha256 === trustCase.subject.integrity.slice(7)
     ),
     `trust artifact case ${trustCase.name} SLSA subject must bind release subject`
@@ -916,7 +939,7 @@ const assertSlsaArtifact = (artifactJson, trustCase) => {
   assert(statement.predicate?.runDetails?.builder?.id, `trust artifact case ${trustCase.name} needs SLSA builder id`);
 };
 
-const assertSigstoreArtifact = (artifactJson, trustCase) => {
+const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   assert(
     artifactJson.media_type === 'application/vnd.dev.sigstore.bundle.v0.3+json',
     `trust artifact case ${trustCase.name} Sigstore bundle must declare v0.3 media_type`
@@ -958,7 +981,7 @@ const assertSigstoreArtifact = (artifactJson, trustCase) => {
   }
 };
 
-const routeIdentityFromPath = (route) => {
+const routeIdentityFromPath = (route: JsonValue) => {
   const match = route.match(/^\/api\/v1\/volumes\/(?:@([^/]+)\/)?([^/]+)\/([^/]+)$/);
   if (!match) {
     return null;
@@ -970,7 +993,7 @@ const routeIdentityFromPath = (route) => {
   };
 };
 
-const assertRouteMetadataIdentity = (route, metadata, label) => {
+const assertRouteMetadataIdentity = (route: JsonValue, metadata: JsonValue, label: JsonValue) => {
   const identity = routeIdentityFromPath(route);
   assert(identity, `${label} needs a parseable release route`);
   assert(metadata.name === identity.name, `${label} metadata name must match route identity`);
@@ -986,8 +1009,8 @@ assert(
   'withdrawn advisory fixture must include withdrawn.at'
 );
 assert(
-  readJson('conformance/fixtures/advisory.json').affected.ranges.some((range) =>
-    range.events.some((event) => 'limit' in event)
+  readJson('conformance/fixtures/advisory.json').affected.ranges.some((range: JsonValue) =>
+    range.events.some((event: JsonValue) => 'limit' in event)
   ),
   'advisory fixture must exercise limit event semantics'
 );
@@ -1002,8 +1025,8 @@ for (const advisoryCase of advisoryValidationCases.cases) {
   }
 }
 const advisoryRelationshipTypes = new Set(
-  advisoryValidationCases.cases.flatMap((advisoryCase) =>
-    (advisoryCase.payload.relationships ?? []).map((relationship) => relationship.type)
+  advisoryValidationCases.cases.flatMap((advisoryCase: JsonValue) =>
+    (advisoryCase.payload.relationships ?? []).map((relationship: JsonValue) => relationship.type)
   )
 );
 for (const relationshipType of ['supersedes', 'superseded-by', 'related', 'duplicate-of']) {
@@ -1011,12 +1034,12 @@ for (const relationshipType of ['supersedes', 'superseded-by', 'related', 'dupli
 }
 assert(
   advisoryValidationCases.cases.some(
-    (advisoryCase) => advisoryCase.expected.failureCategory === 'invalid-advisory-relationship'
+    (advisoryCase: JsonValue) => advisoryCase.expected.failureCategory === 'invalid-advisory-relationship'
   ),
   'advisory validation cases must include invalid relationship failure'
 );
 assert(
-  advisoryValidationCases.cases.some((advisoryCase) => advisoryCase.payload.affected?.componentImpact),
+  advisoryValidationCases.cases.some((advisoryCase: JsonValue) => advisoryCase.payload.affected?.componentImpact),
   'advisory validation cases must exercise informational componentImpact metadata'
 );
 validate('trustSummary', readJson('conformance/fixtures/trust-summary.json'), 'trust summary fixture');
@@ -1029,17 +1052,21 @@ validate(
   'trust detail status variants fixture'
 );
 const trustDetailStatusVariants = readJson('conformance/fixtures/trust-detail-status-variants.json');
-const trustStates = new Set(trustDetailStatusVariants.attachments.map((attachment) => attachment.status.state));
+const trustStates = new Set(
+  trustDetailStatusVariants.attachments.map((attachment: JsonValue) => attachment.status.state)
+);
 for (const requiredState of ['revoked', 'superseded', 'invalid']) {
   assert(trustStates.has(requiredState), `trust detail status variants fixture must include ${requiredState}`);
 }
 const trustDetailFixture = readJson('conformance/fixtures/trust-detail.json');
-const trustFormatFamilies = new Set(trustDetailFixture.attachments.map((attachment) => attachment.format.family));
+const trustFormatFamilies = new Set(
+  trustDetailFixture.attachments.map((attachment: JsonValue) => attachment.format.family)
+);
 for (const requiredFamily of ['cyclonedx', 'slsa-provenance', 'sigstore-bundle']) {
   assert(trustFormatFamilies.has(requiredFamily), `trust detail fixture must include ${requiredFamily} format family`);
 }
 assert(
-  trustDetailFixture.attachments.some((attachment) => attachment.format.profile),
+  trustDetailFixture.attachments.some((attachment: JsonValue) => attachment.format.profile),
   'trust detail fixture must exercise format.profile'
 );
 validate(
@@ -1096,19 +1123,20 @@ assert(
 );
 assert(
   capabilityUnknownToleranceFixture.expected.warnings.some(
-    (warning) => warning.category === 'unknown-capability-field'
+    (warning: JsonValue) => warning.category === 'unknown-capability-field'
   ),
   'capability metadata unknown tolerance fixture must expect an unknown capability field warning'
 );
 assert(
   capabilityUnknownToleranceFixture.expected.warnings.some(
-    (warning) => warning.category === 'unknown-capability-value' && warning.path === 'deliveryModes[2]'
+    (warning: JsonValue) => warning.category === 'unknown-capability-value' && warning.path === 'deliveryModes[2]'
   ),
   'capability metadata unknown tolerance fixture must expect an unknown delivery mode value warning'
 );
 assert(
   capabilityUnknownToleranceFixture.expected.warnings.some(
-    (warning) => warning.category === 'unknown-capability-value' && warning.path.startsWith('uploadProfiles.')
+    (warning: JsonValue) =>
+      warning.category === 'unknown-capability-value' && warning.path.startsWith('uploadProfiles.')
   ),
   'capability metadata unknown tolerance fixture must expect an unknown upload profile value warning'
 );
@@ -1148,7 +1176,7 @@ for (const fixture of bridgeStatusVariants.fixtures) {
   assert(fixture.expected.valid === true, `bridge metadata ${fixture.name} fixture must be expected valid`);
 }
 assert(
-  new Set(bridgeStatusVariants.fixtures.map((fixture) => fixture.payload.status)).size === 2,
+  new Set(bridgeStatusVariants.fixtures.map((fixture: JsonValue) => fixture.payload.status)).size === 2,
   'bridge status variants fixture must cover distinct non-active statuses'
 );
 assertReservedExtensionNamespaceDrift();
@@ -1166,7 +1194,7 @@ for (const problemCase of problemDetailsCases.cases) {
 }
 for (const slug of problemStatusBySlug.keys()) {
   assert(
-    problemDetailsCases.cases.some((problemCase) => problemCase.type.endsWith(`/${slug}`)),
+    problemDetailsCases.cases.some((problemCase: JsonValue) => problemCase.type.endsWith(`/${slug}`)),
     `problem details cases missing ${slug}`
   );
 }
@@ -1239,13 +1267,13 @@ const releaseUploadLifecycle = readJson('conformance/fixtures/release-upload-lif
 assertSpecVersion(releaseUploadLifecycle, 'release upload lifecycle fixture');
 const releaseUploadFailures = new Set(
   releaseUploadLifecycle.fixtures
-    .filter((fixture) => fixture.schema === 'problem-details')
-    .map((fixture) => fixture.expected.failureCategory)
+    .filter((fixture: JsonValue) => fixture.schema === 'problem-details')
+    .map((fixture: JsonValue) => fixture.expected.failureCategory)
 );
 const releaseUploadStates = new Set(
   releaseUploadLifecycle.fixtures
-    .filter((fixture) => fixture.schema === 'release-upload-intent')
-    .map((fixture) => fixture.payload.state)
+    .filter((fixture: JsonValue) => fixture.schema === 'release-upload-intent')
+    .map((fixture: JsonValue) => fixture.payload.state)
 );
 for (const requiredState of ['pending-upload', 'uploading', 'uploaded', 'expired', 'failed']) {
   assert(releaseUploadStates.has(requiredState), `release upload lifecycle missing ${requiredState} state`);
@@ -1355,7 +1383,7 @@ const unknownFieldFixture = readJson('conformance/fixtures/manifest-unknown-fiel
 assertSpecVersion(unknownFieldFixture, 'unknown-field manifest fixture');
 validate('volume', unknownFieldFixture.canonicalParsedData, 'unknown-field manifest fixture');
 assert(
-  unknownFieldFixture.expected.warnings.some((warning) => warning.category === 'unknown-field'),
+  unknownFieldFixture.expected.warnings.some((warning: JsonValue) => warning.category === 'unknown-field'),
   'unknown-field manifest fixture must expect an unknown-field warning'
 );
 for (const warning of unknownFieldFixture.expected.warnings) {
@@ -1397,7 +1425,9 @@ for (const manifestParseCase of manifestParseCases.cases) {
   }
 }
 assert(
-  manifestParseCases.cases.some((manifestParseCase) => manifestParseCase.name === 'invalid-singleton-component-shape'),
+  manifestParseCases.cases.some(
+    (manifestParseCase: JsonValue) => manifestParseCase.name === 'invalid-singleton-component-shape'
+  ),
   'manifest parse cases must include singleton component shape rejection'
 );
 
@@ -1416,7 +1446,7 @@ for (const [fixturePath, label] of [
     'conformance/fixtures/manifest-invalid-external-dependency-duplicate-components.json',
     'invalid external dependency duplicate components manifest fixture',
   ],
-]) {
+] as const) {
   const fixture = readJson(fixturePath);
   assertSpecVersion(fixture, label);
   validateExpectedFailure('volume', fixture.canonicalParsedData, label);
@@ -1434,7 +1464,9 @@ assert(
   duplicateComponentFixture.expected.valid === false,
   'duplicate component manifest fixture must be an expected failure'
 );
-const componentNames = duplicateComponentFixture.canonicalParsedData.components.map((component) => component.name);
+const componentNames = duplicateComponentFixture.canonicalParsedData.components.map(
+  (component: JsonValue) => component.name
+);
 assert(
   new Set(componentNames).size !== componentNames.length,
   'duplicate component manifest fixture must contain duplicate component names'
@@ -1456,7 +1488,19 @@ const permissionOrder = {
     allow: new Set(['deny', 'allow']),
   },
 };
-const isPermissionEscalation = (surface, parent, child) => !permissionOrder[surface][parent].has(child);
+type PermissionSurface = keyof typeof permissionOrder;
+const isPermissionEscalation = (surface: PermissionSurface, parent: JsonValue, child: JsonValue): boolean => {
+  if (surface === 'filesystem') {
+    if (typeof parent !== 'string' || !Object.hasOwn(permissionOrder.filesystem, parent)) {
+      return false;
+    }
+    return !permissionOrder.filesystem[parent as keyof typeof permissionOrder.filesystem].has(child);
+  }
+  if (typeof parent !== 'string' || !Object.hasOwn(permissionOrder.shell, parent)) {
+    return false;
+  }
+  return !permissionOrder.shell[parent as keyof typeof permissionOrder.shell].has(child);
+};
 const parentFilesystem = permissionFixture.canonicalParsedData.permissions.filesystem;
 const childFilesystem = permissionFixture.canonicalParsedData.components[0].permissions.filesystem;
 assert(
@@ -1512,10 +1556,10 @@ const resolverCases = readJson('conformance/fixtures/resolver-cases.json');
 assertSpecVersion(resolverCases, 'resolver cases');
 assert(
   resolverCases.cases.some(
-    (resolverCase) =>
+    (resolverCase: JsonValue) =>
       resolverCase.resolutionMode === 'exact-pinned' &&
       resolverCase.expected.outcome === 'success' &&
-      resolverCase.expected.warnings?.some((warning) => warning.category === 'yanked-version')
+      resolverCase.expected.warnings?.some((warning: JsonValue) => warning.category === 'yanked-version')
   ),
   'resolver cases must include exact-pinned yanked warning success'
 );
@@ -1527,7 +1571,7 @@ for (const resolverCase of resolverCases.cases) {
 for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registry-state']) {
   assert(
     resolverCases.cases.some(
-      (resolverCase) =>
+      (resolverCase: JsonValue) =>
         resolverCase.resolutionMode === 'exact-pinned' && resolverCase.expected.failureCategory === requiredFailure
     ),
     `resolver cases must include exact-pinned ${requiredFailure} failure`
@@ -1613,7 +1657,7 @@ for (const exactCase of exactReleaseMetadataCases.cases) {
     );
     if (exactCase.metadata.status.state === 'yanked') {
       assert(
-        exactCase.expected.warnings?.some((warning) => warning.category === 'yanked-version'),
+        exactCase.expected.warnings?.some((warning: JsonValue) => warning.category === 'yanked-version'),
         `exact release metadata case ${exactCase.name} must warn for yanked exact install`
       );
     }
@@ -1647,7 +1691,7 @@ for (const exactCase of exactReleaseMetadataCases.cases) {
     }
     if (exactCase.expected.failureCategory === 'resolved-external-dependency-evidence') {
       assert(
-        exactCase.invalidMetadata.externalDependencies?.some((dependency) =>
+        exactCase.invalidMetadata.externalDependencies?.some((dependency: JsonValue) =>
           Object.hasOwn(dependency, 'resolvedVersion')
         ),
         `exact release metadata case ${exactCase.name} must exercise forbidden resolved external dependency evidence`
@@ -1657,13 +1701,17 @@ for (const exactCase of exactReleaseMetadataCases.cases) {
 }
 for (const requiredDistSource of ['cdn', 'git']) {
   assert(
-    exactReleaseMetadataCases.cases.some((exactCase) => exactCase.expected.distSource === requiredDistSource),
+    exactReleaseMetadataCases.cases.some(
+      (exactCase: JsonValue) => exactCase.expected.distSource === requiredDistSource
+    ),
     `exact release metadata cases missing ${requiredDistSource} success`
   );
 }
 for (const requiredFailure of ['blocked', 'tombstoned', 'availability-or-registry-state']) {
   assert(
-    exactReleaseMetadataCases.cases.some((exactCase) => exactCase.expected.failureCategory === requiredFailure),
+    exactReleaseMetadataCases.cases.some(
+      (exactCase: JsonValue) => exactCase.expected.failureCategory === requiredFailure
+    ),
     `exact release metadata cases missing ${requiredFailure} failure`
   );
 }
@@ -1743,7 +1791,7 @@ assertSpecVersion(trustArtifactVerificationCases, 'trust artifact verification c
 for (const trustCategory of ['bom', 'provenance', 'signature']) {
   assert(
     trustArtifactVerificationCases.cases.some(
-      (trustCase) => trustCase.category === trustCategory && trustCase.expected.valid === true
+      (trustCase: JsonValue) => trustCase.category === trustCategory && trustCase.expected.valid === true
     ),
     `trust artifact verification cases must include valid ${trustCategory} binding`
   );
@@ -1835,7 +1883,7 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       trustCase.artifact.mediaType === trustCase.format.mediaType,
       `trust artifact case ${trustCase.name} artifact mediaType must match declared format`
     );
-    let artifactError = null;
+    let artifactError: unknown;
     try {
       const artifactJson = decodeFixtureArtifact(trustCase.artifact, `trust artifact case ${trustCase.name}`);
       if (trustCase.category === 'bom') {
@@ -1851,13 +1899,16 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       artifactError = err;
     }
     if (trustCase.expected.valid) {
-      assert(!artifactError, artifactError?.message ?? `trust artifact case ${trustCase.name} must validate`);
+      assert(
+        !artifactError,
+        artifactError ? errorMessage(artifactError) : `trust artifact case ${trustCase.name} must validate`
+      );
     } else if (trustCase.expected.failureCategory === 'invalid-trust-artifact') {
       assert(artifactError, `trust artifact case ${trustCase.name} must fail artifact validation`);
     } else {
       assert(
         !artifactError,
-        artifactError?.message ?? `trust artifact case ${trustCase.name} artifact validation failed`
+        artifactError ? errorMessage(artifactError) : `trust artifact case ${trustCase.name} artifact validation failed`
       );
     }
   }
@@ -1870,7 +1921,7 @@ for (const fixture of digestVectors.fixtures) {
     ? Buffer.from(fixture.canonicalInputBase64, 'base64')
     : Buffer.from(fixture.canonicalInput, 'utf8');
   assert(
-    fixture.normalizedFiles.every((file) => {
+    fixture.normalizedFiles.every((file: JsonValue) => {
       const contentBytes = file.contentBase64
         ? Buffer.from(file.contentBase64, 'base64')
         : Buffer.from(file.content, 'utf8');
@@ -1888,15 +1939,15 @@ for (const fixture of digestVectors.fixtures) {
     `digest vector ${fixture.name} expected ${fixture.expectedIntegrity} but computed ${actual}`
   );
 }
-const isInvalidNormalizedPath = (pathValue) =>
-  pathValue.startsWith('/') || pathValue.split('/').some((segment) => segment === '.' || segment === '..');
-const normalizeArchivePath = (pathValue) => path.posix.normalize(pathValue);
-const isInvalidArchivePath = (pathValue) => {
+const isInvalidNormalizedPath = (pathValue: JsonValue) =>
+  pathValue.startsWith('/') || pathValue.split('/').some((segment: JsonValue) => segment === '.' || segment === '..');
+const normalizeArchivePath = (pathValue: JsonValue) => path.posix.normalize(pathValue);
+const isInvalidArchivePath = (pathValue: JsonValue) => {
   const normalized = normalizeArchivePath(pathValue);
   return (
     pathValue.startsWith('/') ||
     normalized === '.' ||
-    pathValue.split('/').some((segment) => segment === '.' || segment === '..')
+    pathValue.split('/').some((segment: JsonValue) => segment === '.' || segment === '..')
   );
 };
 const digestInvalidCases = readJson('conformance/fixtures/digest-invalid-cases.json');
@@ -1904,12 +1955,12 @@ assertSpecVersion(digestInvalidCases, 'digest invalid cases');
 for (const digestCase of digestInvalidCases.cases) {
   if (digestCase.expected.failureCategory === 'invalid-path') {
     assert(
-      digestCase.normalizedFiles.some((file) => isInvalidNormalizedPath(file.path)),
+      digestCase.normalizedFiles.some((file: JsonValue) => isInvalidNormalizedPath(file.path)),
       `digest invalid case ${digestCase.name} must contain an invalid path`
     );
   }
   if (digestCase.expected.failureCategory === 'duplicate-path') {
-    const paths = digestCase.normalizedFiles.map((file) => file.path);
+    const paths = digestCase.normalizedFiles.map((file: JsonValue) => file.path);
     assert(
       new Set(paths).size !== paths.length,
       `digest invalid case ${digestCase.name} must contain duplicate normalized paths`
@@ -1917,7 +1968,7 @@ for (const digestCase of digestInvalidCases.cases) {
   }
   if (digestCase.expected.failureCategory === 'non-regular-file') {
     assert(
-      digestCase.normalizedFiles.some((file) => file.entryType && file.entryType !== 'file'),
+      digestCase.normalizedFiles.some((file: JsonValue) => file.entryType && file.entryType !== 'file'),
       `digest invalid case ${digestCase.name} must contain a non-regular entry`
     );
   }
@@ -1936,12 +1987,12 @@ for (const archiveCase of tarArchiveProfileCases.cases) {
   }
   if (archiveCase.expected.failureCategory === 'invalid-archive-path') {
     assert(
-      archiveCase.archiveEntries.some((entry) => isInvalidArchivePath(entry.path)),
+      archiveCase.archiveEntries.some((entry: JsonValue) => isInvalidArchivePath(entry.path)),
       `tar archive case ${archiveCase.name} must contain an invalid archive path`
     );
   }
   if (archiveCase.expected.failureCategory === 'duplicate-archive-path') {
-    const normalizedPaths = archiveCase.archiveEntries.map((entry) => normalizeArchivePath(entry.path));
+    const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) => normalizeArchivePath(entry.path));
     assert(
       new Set(normalizedPaths).size !== normalizedPaths.length,
       `tar archive case ${archiveCase.name} must contain duplicate normalized archive paths`
@@ -1949,7 +2000,7 @@ for (const archiveCase of tarArchiveProfileCases.cases) {
   }
   if (archiveCase.expected.failureCategory === 'non-regular-archive-entry') {
     assert(
-      archiveCase.archiveEntries.some((entry) => entry.entryType !== 'file'),
+      archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== 'file'),
       `tar archive case ${archiveCase.name} must contain a non-regular archive entry`
     );
   }
@@ -1991,11 +2042,11 @@ for (const invalidBaselineCase of invalidUpstreamBaselines.cases) {
   );
 }
 assert(
-  upstreamBaselines.baselines.some((baseline) => baseline.name === 'package-url-spec'),
+  upstreamBaselines.baselines.some((baseline: JsonValue) => baseline.name === 'package-url-spec'),
   'upstream baselines must include Package URL spec'
 );
 assert(
-  upstreamBaselines.baselines.some((baseline) => baseline.name === 'vers-spec'),
+  upstreamBaselines.baselines.some((baseline: JsonValue) => baseline.name === 'vers-spec'),
   'upstream baselines must include VERS spec'
 );
 for (const baseline of upstreamBaselines.baselines) {
@@ -2022,7 +2073,8 @@ for (const invalidExceptionCase of invalidPurlVersCompatibilityExceptions.cases)
 }
 assert(
   purlVersCompatibilityExceptions.exceptions.some(
-    (exception) => exception.id === 'pub-dart' && exception.purlType === 'pub' && exception.versScheme === 'dart'
+    (exception: JsonValue) =>
+      exception.id === 'pub-dart' && exception.purlType === 'pub' && exception.versScheme === 'dart'
   ),
   'PURL/VERS compatibility exceptions must include pub/dart'
 );
@@ -2030,7 +2082,7 @@ assert(
 const componentPurlPattern =
   /^pkg:volume\/(?:%40((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/)?((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?)(?:@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?)?#(agent|skill|command|tool|hook|mcp-server|lsp-server)\/(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
 
-function parseComponentDependencyPurl(componentPurl) {
+function parseComponentDependencyPurl(componentPurl: JsonValue) {
   const match = componentPurl.match(componentPurlPattern);
   if (!match) {
     return undefined;
@@ -2053,15 +2105,19 @@ for (const dependencyCase of componentDependencyCases.cases) {
   const parentDependencies = new Set(Object.keys(dependencyCase['volume-dependencies']));
   const resolvedComponents = new Set(dependencyCase.resolvedComponents);
   const requestedDependencies = Object.values(dependencyCase['component-dependencies']).flat() as string[];
-  const invalidComponentPurls = requestedDependencies.filter((dependency) => !componentPurlPattern.test(dependency));
-  const validRequestedDependencies = requestedDependencies.filter((dependency) =>
+  const invalidComponentPurls = requestedDependencies.filter(
+    (dependency: JsonValue) => !componentPurlPattern.test(dependency)
+  );
+  const validRequestedDependencies = requestedDependencies.filter((dependency: JsonValue) =>
     componentPurlPattern.test(dependency)
   );
-  const missingDependencies = validRequestedDependencies.filter((dependency) => !resolvedComponents.has(dependency));
-  const unknownLocalComponents = Object.keys(dependencyCase['component-dependencies']).filter(
-    (componentName) => !declaredComponents.has(componentName)
+  const missingDependencies = validRequestedDependencies.filter(
+    (dependency: JsonValue) => !resolvedComponents.has(dependency)
   );
-  const missingParentDependencies = validRequestedDependencies.filter((dependency) => {
+  const unknownLocalComponents = Object.keys(dependencyCase['component-dependencies']).filter(
+    (componentName: JsonValue) => !declaredComponents.has(componentName)
+  );
+  const missingParentDependencies = validRequestedDependencies.filter((dependency: JsonValue) => {
     const parsedDependency = parseComponentDependencyPurl(dependency);
     if (parsedDependency === undefined || parsedDependency.hasVersion) {
       return false;
@@ -2124,9 +2180,10 @@ for (const dependencyCase of componentDependencyCases.cases) {
   }
 }
 assert(
-  componentDependencyCases.cases.some((dependencyCase) =>
+  componentDependencyCases.cases.some((dependencyCase: JsonValue) =>
     (Object.values(dependencyCase['component-dependencies']).flat() as string[]).some(
-      (dependency) => /^pkg:volume\/[^@#]+#/.test(dependency) || /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency)
+      (dependency: JsonValue) =>
+        /^pkg:volume\/[^@#]+#/.test(dependency) || /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency)
     )
   ),
   'component dependency cases must include versionless authoring references'
@@ -2136,7 +2193,9 @@ const externalDependencyCases = readJson('conformance/fixtures/external-dependen
 validate('externalDependencyValidationCase', externalDependencyCases, 'external dependency validation cases fixture');
 assertSpecVersion(externalDependencyCases, 'external dependency validation cases');
 const purlVersExceptionPairs = new Set(
-  purlVersCompatibilityExceptions.exceptions.map((exception) => `${exception.purlType}:${exception.versScheme}`)
+  purlVersCompatibilityExceptions.exceptions.map(
+    (exception: JsonValue) => `${exception.purlType}:${exception.versScheme}`
+  )
 );
 for (const externalDependencyCase of externalDependencyCases.cases) {
   const declaredComponents = new Set(externalDependencyCase.declaredComponents);
@@ -2246,13 +2305,15 @@ for (const externalDependencyCase of externalDependencyCases.cases) {
 }
 assert(
   externalDependencyCases.cases.some(
-    (externalDependencyCase) => externalDependencyCase.name === 'normalized-equivalent-vers-constraints-are-duplicate'
+    (externalDependencyCase: JsonValue) =>
+      externalDependencyCase.name === 'normalized-equivalent-vers-constraints-are-duplicate'
   ),
   'external dependency validation cases must include normalized-equivalent VERS duplicate coverage'
 );
 assert(
   externalDependencyCases.cases.some(
-    (externalDependencyCase) => externalDependencyCase.name === 'normalized-distinct-vers-constraints-are-conflict'
+    (externalDependencyCase: JsonValue) =>
+      externalDependencyCase.name === 'normalized-distinct-vers-constraints-are-conflict'
   ),
   'external dependency validation cases must include normalized VERS conflict coverage'
 );
@@ -2268,7 +2329,7 @@ for (const requiredFailure of [
 ]) {
   assert(
     externalDependencyCases.cases.some(
-      (externalDependencyCase) => externalDependencyCase.expected.failureCategory === requiredFailure
+      (externalDependencyCase: JsonValue) => externalDependencyCase.expected.failureCategory === requiredFailure
     ),
     `external dependency validation cases must include ${requiredFailure}`
   );
@@ -2307,6 +2368,12 @@ const supportedEntrypointExtensionsByType = {
   'mcp-server': new Set(['.json']),
   'lsp-server': new Set(['.json']),
 };
+type ComponentType = keyof typeof supportedEntrypointExtensionsByType;
+const supportedEntrypointExtensionMap: Record<ComponentType, Set<string>> = supportedEntrypointExtensionsByType;
+
+const isComponentType = (value: JsonValue): value is ComponentType =>
+  typeof value === 'string' && Object.hasOwn(supportedEntrypointExtensionsByType, value);
+
 for (const semanticCase of semanticValidationCases.cases) {
   for (const warning of semanticCase.expected.warnings ?? []) {
     assertWarning(warning, `semantic validation case ${semanticCase.name} warning`);
@@ -2314,7 +2381,10 @@ for (const semanticCase of semanticValidationCases.cases) {
   const component = semanticCase.payload.component;
   if (component) {
     const extension = path.posix.extname(component.entrypoint);
-    const supportedExtensions = supportedEntrypointExtensionsByType[component.type];
+    const componentType = component.type;
+    const supportedExtensions = isComponentType(componentType)
+      ? supportedEntrypointExtensionMap[componentType]
+      : undefined;
     if (semanticCase.expected.valid === true && supportedExtensions) {
       assert(
         supportedExtensions.has(extension),
@@ -2357,7 +2427,7 @@ for (const requiredComponentFailure of [
 ]) {
   assert(
     semanticValidationCases.cases.some(
-      (semanticCase) =>
+      (semanticCase: JsonValue) =>
         semanticCase.area === 'manifest' && semanticCase.expected.failureCategory === requiredComponentFailure
     ),
     `semantic validation cases must include component entrypoint failure ${requiredComponentFailure}`
@@ -2366,13 +2436,13 @@ for (const requiredComponentFailure of [
 for (const componentType of ['agent', 'skill', 'command', 'tool', 'hook', 'mcp-server', 'lsp-server']) {
   assert(
     semanticValidationCases.cases.some(
-      (semanticCase) =>
+      (semanticCase: JsonValue) =>
         semanticCase.area === 'manifest' &&
         semanticCase.expected.valid === true &&
         semanticCase.payload.component?.type === componentType
     ) ||
       semanticValidationCases.cases.some(
-        (semanticCase) =>
+        (semanticCase: JsonValue) =>
           semanticCase.area === 'warning' &&
           semanticCase.expected.valid === true &&
           semanticCase.payload.component?.type === componentType
@@ -2382,23 +2452,24 @@ for (const componentType of ['agent', 'skill', 'command', 'tool', 'hook', 'mcp-s
 }
 assert(
   semanticValidationCases.cases.some(
-    (semanticCase) =>
+    (semanticCase: JsonValue) =>
       semanticCase.area === 'warning' &&
-      semanticCase.expected.warnings?.some((warning) => warning.category === 'noncanonical-entrypoint')
+      semanticCase.expected.warnings?.some((warning: JsonValue) => warning.category === 'noncanonical-entrypoint')
   ),
   'semantic validation cases must include noncanonical-entrypoint warning'
 );
 assert(
   semanticValidationCases.cases.some(
-    (semanticCase) =>
+    (semanticCase: JsonValue) =>
       semanticCase.area === 'warning' &&
-      semanticCase.expected.warnings?.some((warning) => warning.category === 'deprecated')
+      semanticCase.expected.warnings?.some((warning: JsonValue) => warning.category === 'deprecated')
   ),
   'semantic validation cases must include deprecated warning category'
 );
 assert(
   semanticValidationCases.cases.some(
-    (semanticCase) => semanticCase.area === 'load' && semanticCase.expected.failureCategory === 'load-policy-blocked'
+    (semanticCase: JsonValue) =>
+      semanticCase.area === 'load' && semanticCase.expected.failureCategory === 'load-policy-blocked'
   ),
   'semantic validation cases must include load-time policy blocking boundary'
 );
@@ -2410,19 +2481,21 @@ for (const compatibilityCaseName of [
 ]) {
   assert(
     semanticValidationCases.cases.some(
-      (semanticCase) => semanticCase.name === compatibilityCaseName && semanticCase.expected.valid === true
+      (semanticCase: JsonValue) => semanticCase.name === compatibilityCaseName && semanticCase.expected.valid === true
     ),
     `semantic validation cases must include positive compatibility expression case ${compatibilityCaseName}`
   );
 }
 assert(
   semanticValidationCases.cases.some(
-    (semanticCase) => semanticCase.expected.failureCategory === 'non-regular-archive-entry'
+    (semanticCase: JsonValue) => semanticCase.expected.failureCategory === 'non-regular-archive-entry'
   ),
   'semantic validation cases must include release file-selection non-regular entry failure'
 );
 assert(
-  semanticValidationCases.cases.some((semanticCase) => semanticCase.expected.failureCategory === 'digest-mismatch'),
+  semanticValidationCases.cases.some(
+    (semanticCase: JsonValue) => semanticCase.expected.failureCategory === 'digest-mismatch'
+  ),
   'semantic validation cases must include trust attachment byte identity mismatch'
 );
 
@@ -2452,7 +2525,7 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
     `potential exposure case ${exposureCase.name} needs a declaration key`
   );
   assert(
-    advisoryMatches.every((advisoryMatch) => advisoryMatch !== undefined),
+    advisoryMatches.every((advisoryMatch: JsonValue) => advisoryMatch !== undefined),
     `potential exposure case ${exposureCase.name} needs advisory match input`
   );
   assert(
@@ -2467,7 +2540,7 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
     );
     assert(
       advisoryMatches.some(
-        (advisoryMatch) =>
+        (advisoryMatch: JsonValue) =>
           warning.context.advisoryMatch.canonicalId === advisoryMatch.canonicalId &&
           warning.context.advisoryMatch.affectedPurl === advisoryMatch.affectedPurl &&
           warning.context.advisoryMatch.affectedRange === advisoryMatch.affectedRange
@@ -2478,7 +2551,7 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
   if (exposureCase.expected.intersection === 'intersects') {
     assert(
       (exposureCase.expected.warnings ?? []).some(
-        (warning) => warning.category === 'external-dependency-potential-exposure'
+        (warning: JsonValue) => warning.category === 'external-dependency-potential-exposure'
       ),
       `potential exposure case ${exposureCase.name} intersecting cases must emit a potential exposure warning`
     );
@@ -2506,7 +2579,7 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
     );
   }
   if (exposureCase.expected.dedupIdentities) {
-    const expectedIdentities = (exposureCase.expected.warnings ?? []).map((warning) => [
+    const expectedIdentities = (exposureCase.expected.warnings ?? []).map((warning: JsonValue) => [
       exposureCase.declaration.declarationKey,
       warning.context.advisoryMatch.canonicalId,
       warning.context.advisoryMatch.affectedPurl,
@@ -2517,14 +2590,14 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
       `potential exposure case ${exposureCase.name} dedupIdentities must match emitted warning identities`
     );
     assert(
-      new Set(exposureCase.expected.dedupIdentities.map((identity) => identity.join('\u0000'))).size ===
+      new Set(exposureCase.expected.dedupIdentities.map((identity: JsonValue) => identity.join('\u0000'))).size ===
         exposureCase.expected.dedupIdentities.length,
       `potential exposure case ${exposureCase.name} dedupIdentities must be distinct`
     );
     for (const expectedIdentity of expectedIdentities) {
       assert(
         exposureCase.expected.dedupIdentities.some(
-          (dedupIdentity) => dedupIdentity.join('\u0000') === expectedIdentity.join('\u0000')
+          (dedupIdentity: JsonValue) => dedupIdentity.join('\u0000') === expectedIdentity.join('\u0000')
         ),
         `potential exposure case ${exposureCase.name} dedupIdentities must use declaration/advisory/range tuples`
       );
@@ -2537,14 +2610,14 @@ for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
 }
 assert(
   externalDependencyPotentialExposureCases.cases.some(
-    (exposureCase) => exposureCase.name === 'same-advisory-distinct-affected-ranges-emit-distinct-warnings'
+    (exposureCase: JsonValue) => exposureCase.name === 'same-advisory-distinct-affected-ranges-emit-distinct-warnings'
   ),
   'potential exposure cases must include same-advisory distinct affected range warning coverage'
 );
 for (const requiredIntersection of ['intersects', 'does-not-intersect', 'indeterminate']) {
   assert(
     externalDependencyPotentialExposureCases.cases.some(
-      (exposureCase) => exposureCase.expected.intersection === requiredIntersection
+      (exposureCase: JsonValue) => exposureCase.expected.intersection === requiredIntersection
     ),
     `potential exposure cases must include ${requiredIntersection}`
   );
@@ -2554,16 +2627,18 @@ const conformanceCoverage = readJson('conformance/fixtures/conformance-coverage.
 validate('conformanceCoverage', conformanceCoverage, 'conformance coverage fixture');
 assertSpecVersion(conformanceCoverage, 'conformance coverage fixture');
 assertConformanceCoverageReferences(conformanceCoverage);
-const coverageRequirementIds = new Set(conformanceCoverage.requirements.map((requirement) => requirement.id));
+const coverageRequirementIds = new Set(
+  conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id)
+);
 for (const id of [
-  ...Array.from({ length: 18 }, (_, index) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
-  ...Array.from({ length: 18 }, (_, index) => `AV-CLI-${String(index + 1).padStart(3, '0')}`),
+  ...Array.from({ length: 18 }, (_: JsonValue, index: JsonValue) => `AV-BIB-${String(index + 1).padStart(3, '0')}`),
+  ...Array.from({ length: 18 }, (_: JsonValue, index: JsonValue) => `AV-CLI-${String(index + 1).padStart(3, '0')}`),
 ]) {
   assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
 }
 assert(
-  conformanceCoverage.requirements.some((requirement) =>
-    requirement.coverage.some((coverage) => coverage.fixture === 'search-results.json')
+  conformanceCoverage.requirements.some((requirement: JsonValue) =>
+    requirement.coverage.some((coverage: JsonValue) => coverage.fixture === 'search-results.json')
   ),
   'conformance coverage fixture must map search API coverage'
 );
@@ -2602,7 +2677,7 @@ for (const field of [
   'component-dependencies',
 ]) {
   assert(
-    mappingMatrix.entries.some((entry) => entry.agentVolumesField === field),
+    mappingMatrix.entries.some((entry: JsonValue) => entry.agentVolumesField === field),
     `mapping matrix missing ${field}`
   );
 }
@@ -2612,7 +2687,7 @@ for (const entry of mappingMatrix.entries) {
     `mapping matrix entry ${entry.agentVolumesField} must map to at least one target`
   );
 }
-const mappingFields = mappingMatrix.entries.map((entry) => entry.agentVolumesField);
+const mappingFields = mappingMatrix.entries.map((entry: JsonValue) => entry.agentVolumesField);
 assert(new Set(mappingFields).size === mappingFields.length, 'mapping matrix agentVolumesField entries must be unique');
 assert(
   mappingFields.join('\n') === [...mappingFields].sort().join('\n'),
@@ -2657,7 +2732,7 @@ const sampleSpdxExternalDependencies = mappingSample.exports.spdxExternalDepende
 const sampleExternalDependencyPredicate = mappingSample.exports.externalDependencyDeclarationsPredicate;
 const sampleSlsa = mappingSample.exports.slsa;
 const sampleComponentPurls = new Map(
-  sampleManifest.components.map((component) => [
+  sampleManifest.components.map((component: JsonValue) => [
     component.name,
     canonicalComponentPurl(sampleVolume.name, sampleVolume.version, component),
   ])
@@ -2690,7 +2765,7 @@ assert(
   'mapping sample CycloneDX publisher must map publisher.id'
 );
 assert(
-  cyclonedxRoot.licenses?.some((licenseChoice) => licenseChoice.license?.id === sampleVolume.license),
+  cyclonedxRoot.licenses?.some((licenseChoice: JsonValue) => licenseChoice.license?.id === sampleVolume.license),
   'mapping sample CycloneDX license id must map volume.license'
 );
 findExternalReference(
@@ -2773,7 +2848,9 @@ assert(
 
 for (const component of sampleManifest.components) {
   const componentPurl = sampleComponentPurls.get(component.name);
-  const cyclonedxComponent = sampleCycloneDx.components.find((candidate) => candidate.purl === componentPurl);
+  const cyclonedxComponent = sampleCycloneDx.components.find(
+    (candidate: JsonValue) => candidate.purl === componentPurl
+  );
   assert(cyclonedxComponent, `mapping sample CycloneDX export needs component ${component.name}`);
   assert(
     cyclonedxComponent.name === component.name,
@@ -2816,14 +2893,14 @@ for (const component of sampleManifest.components) {
 }
 assert(
   sampleCycloneDx.dependencies.some(
-    (dependency) =>
+    (dependency: JsonValue) =>
       dependency.ref === sampleRelease.purl && dependency.dependsOn.includes('pkg:volume/github-provider@2.1.0')
   ),
   'mapping sample CycloneDX dependencies graph must map volume dependencies'
 );
 assert(
   sampleCycloneDx.dependencies.some(
-    (dependency) =>
+    (dependency: JsonValue) =>
       dependency.ref === sampleComponentPurls.get('summarize-paper') &&
       dependency.dependsOn.includes('pkg:volume/github-provider@2.1.0#tool/read-pr')
   ),
@@ -2837,7 +2914,7 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
     scope,
   });
   const cyclonedxExternalComponent = sampleCycloneDx.components.find(
-    (component) => component['bom-ref'] === `agent-volumes:external-dependency:${declarationKey}`
+    (component: JsonValue) => component['bom-ref'] === `agent-volumes:external-dependency:${declarationKey}`
   );
   assert(cyclonedxExternalComponent, `mapping sample CycloneDX needs external declaration ${declarationKey}`);
   assert(cyclonedxExternalComponent.isExternal === true, `mapping sample CycloneDX ${declarationKey} must be external`);
@@ -2871,7 +2948,9 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
 }
 
 assert(sampleSpdx.spdxVersion === 'SPDX-2.3', 'mapping sample SPDX export must declare SPDX-2.3');
-const spdxPackage = sampleSpdx.packages.find((spdxPackageCandidate) => spdxPackageCandidate.name === sampleVolume.name);
+const spdxPackage = sampleSpdx.packages.find(
+  (spdxPackageCandidate: JsonValue) => spdxPackageCandidate.name === sampleVolume.name
+);
 assert(spdxPackage, 'mapping sample SPDX export needs root package');
 assert(spdxPackage.versionInfo === sampleVolume.version, 'mapping sample SPDX versionInfo must map volume.version');
 assert(spdxPackage.summary === sampleVolume.description, 'mapping sample SPDX summary must map volume.description');
@@ -2884,7 +2963,9 @@ assert(
   'mapping sample SPDX licenseConcluded must map volume.license'
 );
 assert(
-  spdxPackage.checksums?.some((checksum) => checksum.algorithm === 'SHA256' && checksum.checksumValue === sampleDigest),
+  spdxPackage.checksums?.some(
+    (checksum: JsonValue) => checksum.algorithm === 'SHA256' && checksum.checksumValue === sampleDigest
+  ),
   'mapping sample SPDX checksum must bind immutable release identity'
 );
 findSpdxExternalRef(
@@ -2919,7 +3000,7 @@ assertDeepEqual(
 );
 assert(
   sampleSpdx.relationships.some(
-    (relationship) =>
+    (relationship: JsonValue) =>
       relationship.spdxElementId === 'SPDXRef-Package-research-agent-pack' &&
       relationship.relationshipType === 'DEPENDS_ON' &&
       relationship.relatedSpdxElement === 'SPDXRef-Package-github-provider'
@@ -2942,7 +3023,7 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
     scope,
   });
   const spdxExtension = sampleSpdxExternalDependencies.elements?.find(
-    (extension) => extension['av:declarationKey'] === declarationKey
+    (extension: JsonValue) => extension['av:declarationKey'] === declarationKey
   );
   assert(spdxExtension, `mapping sample SPDX needs external declaration extension ${declarationKey}`);
   assert(spdxExtension['av:purl'] === externalDependency.purl, `mapping sample SPDX ${declarationKey} purl must match`);
@@ -2964,8 +3045,10 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
     `mapping sample SPDX ${declarationKey} must deny resolved evidence`
   );
   assert(
-    !sampleSpdx.packages.some((spdxPackageCandidate) =>
-      spdxPackageCandidate.externalRefs?.some((externalRef) => externalRef.referenceLocator === externalDependency.purl)
+    !sampleSpdx.packages.some((spdxPackageCandidate: JsonValue) =>
+      spdxPackageCandidate.externalRefs?.some(
+        (externalRef: JsonValue) => externalRef.referenceLocator === externalDependency.purl
+      )
     ),
     `mapping sample SPDX ${declarationKey} must not project declaration-only dependency as Package inventory`
   );
@@ -2983,7 +3066,7 @@ assert(
 );
 assert(
   sampleExternalDependencyPredicate.subject.some(
-    (subject) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest
+    (subject: JsonValue) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest
   ),
   'mapping sample external dependency predicate subject must bind release subject'
 );
@@ -2999,7 +3082,7 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
     scope,
   });
   const predicateDeclaration = sampleExternalDependencyPredicate.predicate.declarations.find(
-    (declaration) => declaration.declarationKey === declarationKey
+    (declaration: JsonValue) => declaration.declarationKey === declarationKey
   );
   assert(predicateDeclaration, `mapping sample external dependency predicate needs declaration ${declarationKey}`);
   assert(
@@ -3038,7 +3121,9 @@ assert(
   'mapping sample SLSA export must use SLSA v1 predicate'
 );
 assert(
-  sampleSlsa.subject.some((subject) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest),
+  sampleSlsa.subject.some(
+    (subject: JsonValue) => subject.name === sampleRelease.purl && subject.digest?.sha256 === sampleDigest
+  ),
   'mapping sample SLSA subject must bind release subject'
 );
 assert(sampleSlsa.predicate.buildDefinition.buildType, 'mapping sample SLSA export must declare buildType');
@@ -3055,16 +3140,18 @@ assert(
   'mapping sample SLSA sourceRepo parameter must map provenance.source-repo'
 );
 assert(
-  sampleSlsa.predicate.materials.some((material) => material.uri === sampleManifest.provenance['source-repo']),
+  sampleSlsa.predicate.materials.some(
+    (material: JsonValue) => material.uri === sampleManifest.provenance['source-repo']
+  ),
   'mapping sample SLSA materials must include provenance.source-repo'
 );
 for (const externalDependency of sampleManifest['external-dependencies']) {
   assert(
-    !sampleSlsa.subject.some((subject) => subject.name === externalDependency.purl),
+    !sampleSlsa.subject.some((subject: JsonValue) => subject.name === externalDependency.purl),
     `mapping sample SLSA subject must omit external dependency ${externalDependency.purl}`
   );
   assert(
-    !sampleSlsa.predicate.materials.some((material) => material.uri === externalDependency.purl),
+    !sampleSlsa.predicate.materials.some((material: JsonValue) => material.uri === externalDependency.purl),
     `mapping sample SLSA materials must omit external dependency ${externalDependency.purl}`
   );
 }
@@ -3086,7 +3173,7 @@ assert(
 assert(openapi.paths['/api/v1/volumes/{name}'], 'OpenAPI document must define unscoped release upload intent path');
 assert(
   openapi.paths['/api/v1/volumes/{name}'].post.parameters.some(
-    (parameter) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
+    (parameter: JsonValue) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
   ),
   'OpenAPI unscoped release upload intent path must accept Idempotency-Key header'
 );
@@ -3100,7 +3187,7 @@ assert(
 );
 assert(
   openapi.paths['/api/v1/volumes/@{scope}/{name}'].post.parameters.some(
-    (parameter) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
+    (parameter: JsonValue) => parameter.in === 'header' && parameter.name === 'Idempotency-Key'
   ),
   'OpenAPI scoped release upload intent path must accept Idempotency-Key header'
 );
@@ -3137,7 +3224,7 @@ for (const [openapiName, schemaDefName] of [
   ['ScopeName', 'scopeName'],
   ['VolumeName', 'volumeName'],
   ['SemVer', 'semver'],
-]) {
+] as [string, string][]) {
   const openapiSchema = openapi.components?.schemas?.[openapiName];
   const jsonSchema = schemas.volume.$defs[schemaDefName];
   assert(openapiSchema, `OpenAPI document must define ${openapiName} schema`);
@@ -3158,7 +3245,7 @@ assert(
 for (const [slug, status] of problemStatusBySlug) {
   const componentName = `${slug
     .split('-')
-    .map((part) => `${part[0].toUpperCase()}${part.slice(1)}`)
+    .map((part: JsonValue) => `${part[0].toUpperCase()}${part.slice(1)}`)
     .join('')}Problem`;
   const problemSchema = openapi.components.schemas[componentName];
   assert(problemSchema, `OpenAPI ProblemDetails must define ${componentName}`);
@@ -3207,16 +3294,18 @@ for (const [responseName, response] of Object.entries(openapi.components.respons
     assertProblemDetails(example.value, `OpenAPI ${responseName} problem example ${exampleName}`);
   }
 }
-for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
-  for (const [method, operation] of Object.entries(pathItem)) {
+for (const [pathName, pathItem] of Object.entries(openapi.paths as JsonObject)) {
+  for (const [method, operation] of Object.entries(pathItem as JsonObject)) {
     if (!['get', 'post', 'put', 'patch', 'delete'].includes(method)) {
       continue;
     }
-    for (const parameter of operation.parameters ?? []) {
+    assert(operation && typeof operation === 'object', `OpenAPI ${pathName} ${method} must define an operation object`);
+    const operationObject = operation as JsonObject;
+    for (const parameter of operationObject.parameters ?? []) {
       if (parameter.in !== 'path') {
         continue;
       }
-      const expectedRefByName = {
+      const expectedRefByName: Record<string, string> = {
         name: '#/components/schemas/NameSegment',
         scope: '#/components/schemas/ScopeName',
         version: '#/components/schemas/SemVer',

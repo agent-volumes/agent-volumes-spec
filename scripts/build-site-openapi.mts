@@ -39,7 +39,7 @@ async function versionFromSpec(): Promise<string> {
   const spec = await readFile(specPath, 'utf8');
   const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
 
-  if (!match) {
+  if (!match?.[1]) {
     throw new Error('Could not find "**Version:** <version>" in agent-volumes-spec.md.');
   }
 

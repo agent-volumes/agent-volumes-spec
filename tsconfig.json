@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "lib": ["ESNext"],
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["ES2025"],
     "module": "Preserve",
     "moduleDetection": "force",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "strict": false,
-    "target": "ESNext",
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "target": "ES2025",
     "types": ["bun"],
     "verbatimModuleSyntax": true
   },
