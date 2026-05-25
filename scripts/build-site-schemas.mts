@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { readdir, readFile, mkdir, copyFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,7 +12,7 @@ const semverPattern =
 async function versionFromSpec(): Promise<string> {
   const specPath = join(repoRoot, 'agent-volumes-spec.md');
   const spec = await readFile(specPath, 'utf8');
-  const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
+  const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
 
   if (!match?.[1]) {
     throw new Error('Could not find "**Version:** <version>" in agent-volumes-spec.md.');
@@ -38,7 +38,7 @@ const outputDir = join(repoRoot, 'site', 'spec', specVersion, 'schemas');
 
 await mkdir(outputDir, { recursive: true });
 
-const schemaFiles = (await readdir(sourceDir)).filter((entry) => entry.endsWith('.json')).sort();
+const schemaFiles = (await readdir(sourceDir)).filter((entry) => entry.endsWith('.json')).toSorted();
 
 for (const schemaFile of schemaFiles) {
   await copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile));

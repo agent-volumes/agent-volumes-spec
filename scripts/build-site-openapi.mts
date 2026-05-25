@@ -37,7 +37,7 @@ function resolveCommand(command: string): string {
 async function versionFromSpec(): Promise<string> {
   const specPath = join(repoRoot, 'agent-volumes-spec.md');
   const spec = await readFile(specPath, 'utf8');
-  const match = spec.match(/^\*\*Version:\*\*\s+(.+)$/m);
+  const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
 
   if (!match?.[1]) {
     throw new Error('Could not find "**Version:** <version>" in agent-volumes-spec.md.');
