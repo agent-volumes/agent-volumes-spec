@@ -6,7 +6,7 @@ Repository-maintenance scripts for specification artifacts. This is tooling, not
 
 ```text
 scripts/
-├── validate-artifacts.mjs  # AJV + bespoke schema/fixture/OpenAPI smoke runner
+├── validate-artifacts.mts  # AJV + bespoke schema/fixture/OpenAPI smoke runner
 ├── update-changelog.sh     # Changelog check/update/print/tag helper
 └── create-release-tag.sh   # Release tag helper
 ```
@@ -15,14 +15,14 @@ scripts/
 
 | Task                         | File                     | Notes                                        |
 | ---------------------------- | ------------------------ | -------------------------------------------- |
-| Add schema/fixture invariant | `validate-artifacts.mjs` | Keep deterministic and offline               |
+| Add schema/fixture invariant | `validate-artifacts.mts` | Keep deterministic and offline               |
 | Add changelog rule           | `update-changelog.sh`    | Preserve Keep a Changelog + HE date handling |
 | Tag release                  | `create-release-tag.sh`  | Pair with curated `CHANGELOG.md` section     |
 | Check commands               | `../package.json`        | Scripts are exposed through Bun/npm          |
 
 ## VALIDATOR MAP
 
-`validate-artifacts.mjs` is large (~3k lines). Main clusters:
+`validate-artifacts.mts` is large (~3k lines). Main clusters:
 
 - AJV schema loading/compilation for `schemas/*.json`.
 - Manifest, release metadata, warning, and Problem Details assertions.

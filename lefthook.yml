@@ -52,8 +52,8 @@ pre-commit:
         - 'agent-volumes-spec.md'
         - 'openapi/**'
         - 'schemas/**'
-        - 'scripts/build-site-openapi.mjs'
-        - 'scripts/build-site-schemas.mjs'
+        - 'scripts/build-site-openapi.mts'
+        - 'scripts/build-site-schemas.mts'
         - 'package.json'
         - 'bun.lock'
       run: |
@@ -105,6 +105,17 @@ pre-commit:
         echo "🔍 Running Oxlint..."
         bun run lint:oxlint
         echo "✅ Oxlint passed!"
+    - name: Type-check TypeScript scripts
+      glob:
+        - 'scripts/**/*.mts'
+        - 'tsconfig.json'
+        - 'package.json'
+        - 'bun.lock'
+      run: |
+        set -e
+        echo "🔍 Type-checking TypeScript scripts..."
+        bun run lint:types
+        echo "✅ TypeScript type-check passed!"
     - name: Lint Markdown
       glob:
         - '**/*.md'
@@ -134,8 +145,8 @@ pre-commit:
         - 'agent-volumes-spec.md'
         - 'openapi/**'
         - 'schemas/**'
-        - 'scripts/build-site-openapi.mjs'
-        - 'scripts/build-site-schemas.mjs'
+        - 'scripts/build-site-openapi.mts'
+        - 'scripts/build-site-schemas.mts'
         - 'package.json'
         - 'bun.lock'
       run: |
@@ -161,7 +172,7 @@ pre-commit:
         - 'schemas/**'
         - 'conformance/**'
         - 'openapi/**'
-        - 'scripts/validate-artifacts.mjs'
+        - 'scripts/validate-artifacts.mts'
         - 'package.json'
         - 'bun.lock'
       run: |
