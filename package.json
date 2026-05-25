@@ -24,6 +24,7 @@
   "devDependencies": {
     "@colbymchenry/codegraph": "^0.9.4",
     "@redocly/cli": "^2.30.6",
+    "@tsconfig/bun": "^1.0.10",
     "@types/bun": "^1.3.14",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",

@@ -1,19 +1,12 @@
 {
+  "extends": "@tsconfig/bun/tsconfig.json",
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["ES2025"],
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
-    "strict": true,
     "target": "ES2025",
     "types": ["bun"],
-    "verbatimModuleSyntax": true
+    "skipLibCheck": false
   },
   "include": ["scripts/**/*.mts"]
 }
