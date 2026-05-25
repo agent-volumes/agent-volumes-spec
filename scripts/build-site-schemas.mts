@@ -38,10 +38,11 @@ const outputDir = join(repoRoot, 'site', 'spec', specVersion, 'schemas');
 
 await mkdir(outputDir, { recursive: true });
 
-const schemaFiles = (await readdir(sourceDir)).filter((entry) => entry.endsWith('.json')).toSorted();
+const sourceEntries = await readdir(sourceDir);
+const schemaFiles = sourceEntries.filter((entry) => entry.endsWith('.json')).toSorted();
 
-for (const schemaFile of schemaFiles) {
-  await copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile));
-}
+await Promise.all(
+  schemaFiles.map(async (schemaFile) => copyFile(join(sourceDir, schemaFile), join(outputDir, schemaFile)))
+);
 
 console.log(`Copied ${schemaFiles.length} schema artifacts to site/spec/${specVersion}/schemas/.`);

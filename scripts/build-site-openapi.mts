@@ -2,14 +2,21 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptDir);
 
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
+
+function resolveCommand(command: string): string {
+  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
+  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
+
+  return existsSync(localCommand) ? localCommand : command;
+}
 
 function run(command: string, args: string[]): void {
   const result = spawnSync(resolveCommand(command), args, {
@@ -25,13 +32,6 @@ function run(command: string, args: string[]): void {
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
-}
-
-function resolveCommand(command: string): string {
-  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
-  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
-
-  return existsSync(localCommand) ? localCommand : command;
 }
 
 async function versionFromSpec(): Promise<string> {

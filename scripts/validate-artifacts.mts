@@ -1,9 +1,9 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import crypto from 'node:crypto';
-import Ajv2020 from 'ajv/dist/2020.js';
 import type { ValidateFunction } from 'ajv';
+import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import YAML from 'yaml';
 
@@ -729,8 +729,7 @@ const splitTomlArray = (content: JsonValue) => {
   let token = '';
   let inString = false;
   let escaped = false;
-  for (let index = 0; index < content.length; index += 1) {
-    const character = content[index];
+  for (const character of content) {
     if (escaped) {
       token += character;
       escaped = false;
@@ -851,7 +850,7 @@ const findProperty = (properties: JsonValue, name: JsonValue, label: JsonValue) 
 
 const parseStablePropertyJson = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
   const property = findProperty(properties, name, label);
-  let parsed;
+  let parsed: JsonValue = undefined;
   try {
     parsed = JSON.parse(property.value);
   } catch (error) {
@@ -1907,7 +1906,7 @@ for (const trustCase of trustArtifactVerificationCases.cases) {
       trustCase.artifact.mediaType === trustCase.format.mediaType,
       `trust artifact case ${trustCase.name} artifact mediaType must match declared format`
     );
-    let artifactError: unknown;
+    let artifactError: unknown = undefined;
     try {
       const artifactJson = decodeFixtureArtifact(trustCase.artifact, `trust artifact case ${trustCase.name}`);
       if (trustCase.category === 'bom') {
@@ -3182,15 +3181,18 @@ for (const externalDependency of sampleManifest['external-dependencies']) {
   );
 }
 
-let openapi: JsonObject;
-try {
-  openapi = YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
-} catch (error) {
-  throw new Error(
-    `OpenAPI YAML semantic validation failed: ${error instanceof Error ? error.message : String(error)}`,
-    { cause: error }
-  );
-}
+const readOpenapi = (): JsonObject => {
+  try {
+    return YAML.parse(readText('openapi/bibliotheca.openapi.yaml'));
+  } catch (error) {
+    throw new Error(
+      `OpenAPI YAML semantic validation failed: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
+    );
+  }
+};
+
+const openapi = readOpenapi();
 assert(openapi.openapi === '3.1.1', 'OpenAPI document must declare version 3.1.1');
 assert(openapi.paths['/api/v1/search'], 'OpenAPI document must define search path');
 assert(openapi.paths['/api/v1/capabilities'], 'OpenAPI document must define capability metadata path');
