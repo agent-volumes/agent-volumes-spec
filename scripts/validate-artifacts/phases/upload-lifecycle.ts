@@ -4,7 +4,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { digestPattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const releaseUploadLifecycle = ctx.readJson("conformance/fixtures/release-upload-lifecycle.json");
   assertSpecVersion(ctx, releaseUploadLifecycle, "release upload lifecycle fixture");
   const releaseUploadFailures = new Set(
@@ -180,4 +180,4 @@ export const run = (ctx: ValidationContext) => {
       `trust upload lifecycle missing ${failureCategory}`,
     );
   }
-};
+}

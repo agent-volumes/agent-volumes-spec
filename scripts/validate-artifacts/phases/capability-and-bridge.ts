@@ -7,7 +7,7 @@ import { assertWarning } from "../assertions/warnings.ts";
 import { assert } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   ctx.validate(
     "capabilityMetadata",
     ctx.readJson("conformance/fixtures/capability-metadata.json"),
@@ -156,4 +156,4 @@ export const run = (ctx: ValidationContext) => {
   assertReservedExtensionNamespaceDrift(ctx);
   assertSiteSchemaPublicationDrift(ctx);
   assertSpdxExternalDependencyContextDrift(ctx);
-};
+}

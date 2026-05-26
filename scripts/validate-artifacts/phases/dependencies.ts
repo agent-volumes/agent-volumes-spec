@@ -21,16 +21,16 @@ import type { JsonValue, ValidationContext } from "../core/types.ts";
 const componentPurlPattern =
   /^pkg:volume\/(?:%40((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/)?((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?)(?:@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?)?#(agent|skill|command|tool|hook|mcp-server|lsp-server)\/(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
 
-const parseComponentDependencyPurl = (componentPurl: JsonValue) => {
+function parseComponentDependencyPurl(componentPurl: JsonValue): JsonValue {
   const match = componentPurl.match(componentPurlPattern);
   const [, scope, name] = match || [];
   return {
     hasVersion: !!(match && match[3]),
     parentName: scope ? `@${scope}/${name}` : name,
   };
-};
+}
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const componentDependencyCases = ctx.readJson(
     "conformance/fixtures/component-dependency-validation-cases.json",
   );
@@ -660,4 +660,4 @@ export const run = (ctx: ValidationContext) => {
       `potential exposure cases must include ${requiredIntersection}`,
     );
   }
-};
+}

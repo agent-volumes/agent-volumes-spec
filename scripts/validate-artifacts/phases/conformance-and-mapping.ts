@@ -15,7 +15,7 @@ import {
 } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const conformanceCoverage = ctx.readJson("conformance/fixtures/conformance-coverage.json");
   ctx.validate("conformanceCoverage", conformanceCoverage, "conformance coverage fixture");
   assertSpecVersion(ctx, conformanceCoverage, "conformance coverage fixture");
@@ -647,4 +647,4 @@ export const run = (ctx: ValidationContext) => {
       `mapping sample SLSA materials must omit external dependency ${externalDependency.purl}`,
     );
   }
-};
+}

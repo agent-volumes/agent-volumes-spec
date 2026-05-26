@@ -1,7 +1,7 @@
 import { assert } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext): void => {
+export function run(ctx: ValidationContext): void {
   ctx.validate(
     "trustSummary",
     ctx.readJson("conformance/fixtures/trust-summary.json"),
@@ -55,4 +55,4 @@ export const run = (ctx: ValidationContext): void => {
     trustDetailFixture.attachments.some((attachment: JsonValue) => attachment.format.profile),
     "trust detail fixture must exercise format.profile",
   );
-};
+}

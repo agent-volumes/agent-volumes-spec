@@ -7,7 +7,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const problemDetailsCases = ctx.readJson("conformance/fixtures/problem-details-cases.json");
   assertSpecVersion(ctx, problemDetailsCases, "problem details cases");
   assert(
@@ -113,4 +113,4 @@ export const run = (ctx: ValidationContext) => {
       ],
     ]),
   );
-};
+}

@@ -6,7 +6,7 @@ import { assertRouteMetadataIdentity, routeIdentityFromPath } from "../core/purl
 import { parseFixtureTomlSubset } from "../core/toml.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const manifestValidFixture = ctx.readJson("conformance/fixtures/manifest-valid-minimal.json");
   assertSpecVersion(ctx, manifestValidFixture, "minimal valid manifest fixture");
   ctx.validate(
@@ -501,4 +501,4 @@ export const run = (ctx: ValidationContext) => {
       `exact release metadata cases missing ${requiredFailure} failure`,
     );
   }
-};
+}

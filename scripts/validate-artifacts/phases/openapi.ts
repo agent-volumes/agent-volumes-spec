@@ -17,7 +17,7 @@ const readOpenapi = (ctx: ValidationContext): JsonObject => {
   }
 };
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const openapi = readOpenapi(ctx);
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
   assert(openapi.paths["/api/v1/search"], "OpenAPI document must define search path");
@@ -213,4 +213,4 @@ export const run = (ctx: ValidationContext) => {
       }
     }
   }
-};
+}

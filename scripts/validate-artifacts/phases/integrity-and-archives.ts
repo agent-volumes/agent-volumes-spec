@@ -13,21 +13,26 @@ import { gitCommitPattern } from "../core/patterns.ts";
 import { canonicalComponentPurl, canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-const isInvalidNormalizedPath = (pathValue: JsonValue) =>
-  pathValue.startsWith("/") ||
-  pathValue.split("/").some((segment: JsonValue) => segment === "." || segment === "..");
+function isInvalidNormalizedPath(pathValue: JsonValue): boolean {
+  return (
+    pathValue.startsWith("/") ||
+    pathValue.split("/").some((segment: JsonValue) => segment === "." || segment === "..")
+  );
+}
 
-const normalizeArchivePath = (pathValue: JsonValue) => path.posix.normalize(pathValue);
-const isInvalidArchivePath = (pathValue: JsonValue) => {
+function normalizeArchivePath(pathValue: JsonValue): string {
+  return path.posix.normalize(pathValue);
+}
+function isInvalidArchivePath(pathValue: JsonValue): boolean {
   const normalized = normalizeArchivePath(pathValue);
   return (
     pathValue.startsWith("/") ||
     normalized === "." ||
     pathValue.split("/").some((segment: JsonValue) => segment === "." || segment === "..")
   );
-};
+}
 
-export const run = (ctx: ValidationContext) => {
+export function run(ctx: ValidationContext): void {
   const trustArtifactVerificationCases = ctx.readJson(
     "conformance/fixtures/trust-artifact-verification-cases.json",
   );
@@ -323,4 +328,4 @@ export const run = (ctx: ValidationContext) => {
       `upstream baseline ${baseline.name} revision must be immutable`,
     );
   }
-};
+}
