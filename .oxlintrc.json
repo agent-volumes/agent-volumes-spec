@@ -18,6 +18,7 @@
     "oxc/no-async-await": "off",
     "oxc/no-optional-chaining": "off",
     "oxc/no-rest-spread-properties": "off",
+    "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
     "no-console": "off",
     "no-ternary": "off",
     "sort-imports": "off"

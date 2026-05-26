@@ -301,21 +301,33 @@ if (value == null) { ... }
 
 ### `eslint/func-style`
 
-**What it does:** Enforces function expressions over function declarations.
+**What it does:** Enforces function declarations for named function bindings while allowing arrow functions for inline callbacks and small function values.
 
-**Why maintain:** Function expressions are not hoisted, preventing ordering issues.
+**Why maintain:** The TypeScript under `scripts/` is repository-maintenance tooling: validators, assertion helpers, build helpers, and phase runners. Top-level and exported functions usually represent named procedures rather than function values, so declarations make the module's operations easier to scan and let orchestration appear before lower-level helper details.
+
+Arrow functions remain appropriate for short callbacks passed directly to collection APIs such as `.map`, `.filter`, `.some`, `.every`, and `.toSorted`. In those cases the callback is part of the surrounding expression, and naming it separately would often obscure the predicate or mapper being applied.
+
+**Configuration:** `["error", "declaration", { "allowArrowFunctions": true }]`
 
 **Incorrect:**
 
 ```typescript
-function foo() { ... }
+const assertReleaseMetadata = (metadata: JsonValue): void => {
+  /* ... */
+};
 ```
 
 **Correct:**
 
 ```typescript
-const foo = () => { ... };
+function assertReleaseMetadata(metadata: JsonValue): void {
+  /* ... */
+}
+
+const releaseNames = releases.map((release: JsonValue) => release.name);
 ```
+
+**Project style:** Use function declarations for module-level helpers, exported validators, assertion functions, build steps, and phase runners. Keep arrow functions for concise inline callbacks. If a local callback grows, is reused, or names a domain rule, promote it to a function declaration.
 
 ---
 
