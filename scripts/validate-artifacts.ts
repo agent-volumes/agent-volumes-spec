@@ -15,16 +15,16 @@ import {
   validate,
   validateExpectedFailure,
 } from "./validate-artifacts/core/schema-context.ts";
-import * as advisoryPhase from "./validate-artifacts/phases/advisory.ts";
-import * as capabilityAndBridgePhase from "./validate-artifacts/phases/capability-and-bridge.ts";
-import * as conformanceAndMappingPhase from "./validate-artifacts/phases/conformance-and-mapping.ts";
-import * as dependenciesPhase from "./validate-artifacts/phases/dependencies.ts";
-import * as integrityAndArchivesPhase from "./validate-artifacts/phases/integrity-and-archives.ts";
-import * as manifestPermissionsResolutionPhase from "./validate-artifacts/phases/manifest-permissions-resolution.ts";
-import * as openapiPhase from "./validate-artifacts/phases/openapi.ts";
-import * as problemsAndLifecyclePhase from "./validate-artifacts/phases/problems-and-lifecycle.ts";
-import * as trustPhase from "./validate-artifacts/phases/trust.ts";
-import * as uploadLifecyclePhase from "./validate-artifacts/phases/upload-lifecycle.ts";
+import { run as runAdvisoryPhase } from "./validate-artifacts/phases/advisory.ts";
+import { run as runCapabilityAndBridgePhase } from "./validate-artifacts/phases/capability-and-bridge.ts";
+import { run as runConformanceAndMappingPhase } from "./validate-artifacts/phases/conformance-and-mapping.ts";
+import { run as runDependenciesPhase } from "./validate-artifacts/phases/dependencies.ts";
+import { run as runIntegrityAndArchivesPhase } from "./validate-artifacts/phases/integrity-and-archives.ts";
+import { run as runManifestPermissionsResolutionPhase } from "./validate-artifacts/phases/manifest-permissions-resolution.ts";
+import { run as runOpenapiPhase } from "./validate-artifacts/phases/openapi.ts";
+import { run as runProblemsAndLifecyclePhase } from "./validate-artifacts/phases/problems-and-lifecycle.ts";
+import { run as runTrustPhase } from "./validate-artifacts/phases/trust.ts";
+import { run as runUploadLifecyclePhase } from "./validate-artifacts/phases/upload-lifecycle.ts";
 
 const ctx = {
   ajv,
@@ -42,20 +42,20 @@ const ctx = {
 };
 
 const phases = [
-  advisoryPhase,
-  trustPhase,
-  capabilityAndBridgePhase,
-  problemsAndLifecyclePhase,
-  uploadLifecyclePhase,
-  manifestPermissionsResolutionPhase,
-  integrityAndArchivesPhase,
-  dependenciesPhase,
-  conformanceAndMappingPhase,
-  openapiPhase,
+  runAdvisoryPhase,
+  runTrustPhase,
+  runCapabilityAndBridgePhase,
+  runProblemsAndLifecyclePhase,
+  runUploadLifecyclePhase,
+  runManifestPermissionsResolutionPhase,
+  runIntegrityAndArchivesPhase,
+  runDependenciesPhase,
+  runConformanceAndMappingPhase,
+  runOpenapiPhase,
 ];
 
 for (const phase of phases) {
-  phase.run(ctx);
+  phase(ctx);
 }
 
 assertNoUnvalidatedConformanceFixtures(ctx);
