@@ -425,24 +425,43 @@ const config = loadConfig();
 
 ---
 
-### `eslint/no-undefined`
+### `unicorn/no-null` + `eslint/no-undefined`
 
-**What it does:** Flags direct use of `undefined`.
+**What they do:** `unicorn/no-null` flags `null` values, while `eslint/no-undefined` flags direct use of the `undefined` identifier.
 
-**Why maintain:** `undefined` can be reassigned in non-strict mode. Prefer `void 0` or explicit null checks.
+**Why maintain:** Supporting both `null` and `undefined` makes parsed JSON and fixture validation harder to reason about. Oxlint's `unicorn/no-null` guidance highlights that teams often use `null` and `undefined` inconsistently, that supporting both values complicates input validation, and that `null` makes TypeScript shapes more verbose, such as `foo?: string | null` instead of `foo?: string`. Separately, `undefined` can be reassigned in non-strict mode. Use `void 0` for explicit undefined comparisons, and avoid adding new `null` checks except at external JSON boundaries that require them.
+
+At the same time, replacing `null` with a bare `undefined` would just trade one warning for another. Use omission, explicit predicates, or a domain-specific sentinel instead.
 
 **Incorrect:**
 
 ```typescript
+function routeIdentityFromPath(route: JsonValue): JsonValue {
+  const match = route.match(routePattern);
+  if (!match) {
+    return null;
+  }
+  return parseRouteMatch(match);
+}
+
 if (value === undefined) { ... }
 ```
 
 **Correct:**
 
 ```typescript
+function routeIdentityFromPath(route: JsonValue): JsonValue {
+  const match = route.match(routePattern);
+  if (!match) {
+    return false;
+  }
+  return parseRouteMatch(match);
+}
+
 if (value === void 0) { ... }
-if (value == null) { ... }
 ```
+
+**Project style:** Do not use `null` as an internal sentinel, and do not replace it with bare `undefined`. Prefer omitting optional properties, using `void 0` for explicit undefined comparisons, or returning a typed domain sentinel such as `false` when callers only need a falsy “no match” result. Keep `null` comparisons only when validating external JSON contracts that explicitly require `null`, such as problem-detail fixtures for empty response payloads.
 
 ---
 
