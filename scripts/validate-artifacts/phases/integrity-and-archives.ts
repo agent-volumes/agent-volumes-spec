@@ -160,7 +160,7 @@ export function run(ctx: ValidationContext): void {
           assertSigstoreArtifact(artifactJson, trustCase);
         }
       } catch (error) {
-        artifactErrorMessage = errorMessage(error as Error);
+        artifactErrorMessage = errorMessage(error);
       }
       if (trustCase.expected.valid) {
         assert(

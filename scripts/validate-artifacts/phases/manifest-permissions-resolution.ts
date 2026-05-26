@@ -219,18 +219,19 @@ export function run(ctx: ValidationContext): void {
     parent: JsonValue,
     child: JsonValue,
   ): boolean => {
-    if (surface === "filesystem") {
-      if (typeof parent !== "string" || !Object.hasOwn(permissionOrder.filesystem, parent)) {
-        return false;
-      }
-      return !permissionOrder.filesystem[parent as keyof typeof permissionOrder.filesystem].has(
-        child,
-      );
-    }
-    if (typeof parent !== "string" || !Object.hasOwn(permissionOrder.shell, parent)) {
+    if (typeof parent !== "string") {
       return false;
     }
-    return !permissionOrder.shell[parent as keyof typeof permissionOrder.shell].has(child);
+    if (surface === "filesystem") {
+      const filesystemPermission = Object.entries(permissionOrder.filesystem).find(
+        ([permission]) => permission === parent,
+      );
+      return Boolean(filesystemPermission && !filesystemPermission[1].has(child));
+    }
+    const shellPermission = Object.entries(permissionOrder.shell).find(
+      ([permission]) => permission === parent,
+    );
+    return Boolean(shellPermission && !shellPermission[1].has(child));
   };
   const parentFilesystem = permissionFixture.canonicalParsedData.permissions.filesystem;
   const childFilesystem =

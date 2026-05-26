@@ -44,9 +44,7 @@ export function run(ctx: ValidationContext): void {
     const declaredComponents = new Set(dependencyCase.declaredComponents);
     const parentDependencies = new Set(Object.keys(dependencyCase["volume-dependencies"]));
     const resolvedComponents = new Set(dependencyCase.resolvedComponents);
-    const requestedDependencies = Object.values(
-      dependencyCase["component-dependencies"],
-    ).flat() as string[];
+    const requestedDependencies = Object.values(dependencyCase["component-dependencies"]).flat();
     const invalidComponentPurls = requestedDependencies.filter(
       (dependency: JsonValue) => !componentPurlPattern.test(dependency),
     );
@@ -123,11 +121,13 @@ export function run(ctx: ValidationContext): void {
   }
   assert(
     componentDependencyCases.cases.some((dependencyCase: JsonValue) =>
-      (Object.values(dependencyCase["component-dependencies"]).flat() as string[]).some(
-        (dependency: JsonValue) =>
-          /^pkg:volume\/[^@#]+#/.test(dependency) ||
-          /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency),
-      ),
+      Object.values(dependencyCase["component-dependencies"])
+        .flat()
+        .some(
+          (dependency: JsonValue) =>
+            /^pkg:volume\/[^@#]+#/.test(dependency) ||
+            /^pkg:volume\/%40[^/]+\/[^@#]+#/.test(dependency),
+        ),
     ),
     "component dependency cases must include versionless authoring references",
   );

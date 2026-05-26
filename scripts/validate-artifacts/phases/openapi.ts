@@ -194,15 +194,16 @@ export function run(ctx: ValidationContext): void {
       }
     }
   }
-  for (const [pathName, pathItem] of Object.entries(openapi.paths as JsonObject)) {
-    for (const [method, operation] of Object.entries(pathItem as JsonObject)) {
+  assert(isJsonObject(openapi.paths), "OpenAPI paths must be an object");
+  for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
+    assert(isJsonObject(pathItem), `OpenAPI ${pathName} path item must be an object`);
+    for (const [method, operation] of Object.entries(pathItem)) {
       if (["get", "post", "put", "patch", "delete"].includes(method)) {
         assert(
-          operation && typeof operation === "object",
+          isJsonObject(operation),
           `OpenAPI ${pathName} ${method} must define an operation object`,
         );
-        const operationObject = operation as JsonObject;
-        for (const parameter of operationObject.parameters ?? []) {
+        for (const parameter of operation.parameters ?? []) {
           if (parameter.in === "path") {
             const expectedRefByName: Record<string, string> = {
               name: "#/components/schemas/NameSegment",
