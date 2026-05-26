@@ -1,11 +1,7 @@
 import { assert } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const assertWarning = (
-  ctx: ValidationContext,
-  warning: JsonValue,
-  label: JsonValue,
-): void => {
+export function assertWarning(ctx: ValidationContext, warning: JsonValue, label: JsonValue): void {
   ctx.validate("warning", warning, label);
   if (warning.category === "external-dependency-potential-exposure") {
     assert(
@@ -18,4 +14,4 @@ export const assertWarning = (
       `${label} potential-exposure context`,
     );
   }
-};
+}

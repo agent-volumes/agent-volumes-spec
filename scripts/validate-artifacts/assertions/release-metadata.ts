@@ -8,11 +8,11 @@ import {
 import { canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const assertReleaseMetadata = (
+export function assertReleaseMetadata(
   ctx: ValidationContext,
   metadata: JsonValue,
   label: JsonValue,
-) => {
+): void {
   ctx.validate("releaseMetadata", metadata, label);
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
@@ -50,4 +50,4 @@ export const assertReleaseMetadata = (
       `${label} external dependency must remain declaration-only`,
     );
   }
-};
+}

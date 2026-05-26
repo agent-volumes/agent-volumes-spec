@@ -2,7 +2,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-const assertProblemDetails = (ctx: ValidationContext, payload: JsonValue, label: JsonValue) => {
+function assertProblemDetails(ctx: ValidationContext, payload: JsonValue, label: JsonValue): void {
   ctx.validate("problemDetails", payload, label);
   assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
   const slug = payload.type.replace("https://agentvolumes.org/problems/", "");
@@ -13,14 +13,14 @@ const assertProblemDetails = (ctx: ValidationContext, payload: JsonValue, label:
     payload.status === problemStatusBySlug.get(slug),
     `${label} status must match problem type ${slug}`,
   );
-};
+}
 
-const assertEndpointProblemFixtures = (
+function assertEndpointProblemFixtures(
   ctx: ValidationContext,
   relativePath: JsonValue,
   label: JsonValue,
   expectedFailuresByEndpoint: JsonValue,
-) => {
+): void {
   const fixtureSet = ctx.readJson(relativePath);
   assertSpecVersion(ctx, fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
@@ -58,14 +58,14 @@ const assertEndpointProblemFixtures = (
       );
     }
   }
-};
+}
 
-const assertLifecycleMutationFixtures = (
+function assertLifecycleMutationFixtures(
   ctx: ValidationContext,
   relativePath: JsonValue,
   label: JsonValue,
   expectedFailuresByEndpoint: JsonValue,
-) => {
+): void {
   const fixtureSet = ctx.readJson(relativePath);
   assertSpecVersion(ctx, fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
@@ -137,6 +137,6 @@ const assertLifecycleMutationFixtures = (
       );
     }
   }
-};
+}
 
 export { assertEndpointProblemFixtures, assertLifecycleMutationFixtures, assertProblemDetails };

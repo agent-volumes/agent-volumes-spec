@@ -1,7 +1,7 @@
 import { assert } from "../core/assert.ts";
 import type { JsonValue } from "../core/types.ts";
 
-const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+function assertCycloneDxArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
   const component = artifactJson.metadata?.component;
   assert(
     artifactJson.bomFormat === "CycloneDX",
@@ -34,9 +34,9 @@ const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: JsonValue) 
     ),
     `trust artifact case ${trustCase.name} BOM hashes must bind immutable identity`,
   );
-};
+}
 
-const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
   assert(
     artifactJson.payloadType === "application/vnd.in-toto+json",
     `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`,
@@ -80,9 +80,9 @@ const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
     statement.predicate?.runDetails?.builder?.id,
     `trust artifact case ${trustCase.name} needs SLSA builder id`,
   );
-};
+}
 
-const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
   assert(
     artifactJson.media_type === "application/vnd.dev.sigstore.bundle.v0.3+json",
     `trust artifact case ${trustCase.name} Sigstore bundle must declare v0.3 media_type`,
@@ -124,6 +124,6 @@ const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonValue) =
       `trust artifact case ${trustCase.name} DSSE signatures are required`,
     );
   }
-};
+}
 
 export { assertCycloneDxArtifact, assertSlsaArtifact, assertSigstoreArtifact };
