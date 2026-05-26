@@ -1,4 +1,6 @@
-type JsonValue = any;
+import type Ajv2020 from "ajv/dist/2020";
+
+type JsonValue = ReturnType<typeof JSON.parse>;
 type JsonObject = Record<string, JsonValue>;
 
 interface ValidationContext {
@@ -13,7 +15,7 @@ interface ValidationContext {
   reservedExtensionNamespaces: JsonValue;
   validate: (name: string, value: JsonValue, label: string) => void;
   validateExpectedFailure: (name: string, value: JsonValue, label: string) => void;
-  ajv: any;
+  ajv: Ajv2020;
 }
 
 export { type JsonObject, type JsonValue, type ValidationContext };
