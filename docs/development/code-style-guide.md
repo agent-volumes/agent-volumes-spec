@@ -61,6 +61,40 @@ export { first, second };
 
 ---
 
+### `import/no-namespace`
+
+**What it does:** Disallows namespace imports such as `import * as phase from "./phase"`.
+
+**Why maintain:** Namespace imports hide which exports a module actually uses. Explicit imports make dependencies easier to scan, simplify refactors, and avoid pulling an entire module namespace into local scope.
+
+**Incorrect:**
+
+```typescript
+import * as advisoryPhase from "./validate-artifacts/phases/advisory.ts";
+
+const phases = [advisoryPhase];
+
+for (const phase of phases) {
+  phase.run(ctx);
+}
+```
+
+**Correct:**
+
+```typescript
+import { run as runAdvisoryPhase } from "./validate-artifacts/phases/advisory.ts";
+
+const phases = [runAdvisoryPhase];
+
+for (const phase of phases) {
+  phase(ctx);
+}
+```
+
+**Project style:** Import only the named bindings used by a script. When multiple phase modules export the same name, alias the import at the import site, such as `run as runOpenapiPhase`, instead of importing each phase as a namespace object.
+
+---
+
 ### `typescript/explicit-function-return-type`
 
 **What it does:** Requires explicit return type annotations on functions.
@@ -505,17 +539,17 @@ The following rules are intentionally disabled in `.oxlintrc.json` because they 
 
 **Why disabled:** This project uses an intentional **named export architecture**.
 
-- **10 phase modules** export `export const run = (ctx: ValidationContext) => { ... }`
+- **10 phase modules** export `run(ctx: ValidationContext): void` functions
 - **0 default exports** exist in the entire `scripts/validate-artifacts/` tree
-- The entry point imports phases via namespace imports: `import * as phaseName from "..."`
+- The entry point imports phase runners as named aliases, such as `import { run as runOpenapiPhase } from "..."`
 
 Converting to default exports would:
 
-1. Break the existing `phase.run(ctx)` call pattern
+1. Hide the shared `run` phase-runner contract behind file-local default names
 2. Create anonymous functions in stack traces
 3. Make assertions modules (which export multiple helpers) unnecessarily verbose
 
-**Project style:** Use named exports exclusively. Group them at the end of the file per `import/group-exports`.
+**Project style:** Use named exports exclusively. Group module-level helper exports at the end of the file per `import/group-exports`; exported phase runners and assertion functions can remain declarations so their public procedure names are visible at definition time.
 
 ---
 
