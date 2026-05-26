@@ -1,28 +1,24 @@
 import type { JsonValue, ValidationContext } from "./types.ts";
 
-export function assert(condition: unknown, message: string): asserts condition {
+function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
 }
 
-export const assertSpecVersion = (
-  _ctx: ValidationContext,
-  fixture: JsonValue,
-  label: JsonValue,
-) => {
+const assertSpecVersion = (_ctx: ValidationContext, fixture: JsonValue, label: JsonValue) => {
   assert(fixture.specVersion === "0.1.0-rc.1", `${label} must declare specVersion 0.1.0-rc.1`);
 };
 
-export const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
+const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
   assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
 };
 
-export const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
+const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
   assert(new Set(values).size === values.length, `${label} must be unique`);
 };
 
-export const stableJsonStringify = (value: JsonValue): string => {
+const stableJsonStringify = (value: JsonValue): string => {
   if (Array.isArray(value)) {
     return `[${value.map((item: JsonValue) => stableJsonStringify(item)).join(",")}]`;
   }
@@ -34,3 +30,5 @@ export const stableJsonStringify = (value: JsonValue): string => {
   }
   return JSON.stringify(value);
 };
+
+export { assert, assertDeepEqual, assertSpecVersion, assertUniqueStrings, stableJsonStringify };

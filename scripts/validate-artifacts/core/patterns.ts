@@ -1,14 +1,14 @@
-export const volumeNamePattern =
+const volumeNamePattern =
   /^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?\/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
-export const semverPattern =
+const semverPattern =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
-export const digestPattern = /^sha256:[a-f0-9]{64}$/;
-export const externalDependencyDeclarationKeyPattern = /^av-extdep-v1:sha256:[a-f0-9]{64}$/;
-export const gitCommitPattern = /^[a-f0-9]{40}$/;
-export const componentNamePattern = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
-export const shallowPurlPattern = /^pkg:([A-Za-z][A-Za-z0-9.+-]*)\/(.+)$/;
-export const shallowVersPattern = /^vers:([A-Za-z][A-Za-z0-9.-]*)\/(\S+)$/;
-export const coreExternalDependencyPurposes = new Set([
+const digestPattern = /^sha256:[a-f0-9]{64}$/;
+const externalDependencyDeclarationKeyPattern = /^av-extdep-v1:sha256:[a-f0-9]{64}$/;
+const gitCommitPattern = /^[a-f0-9]{40}$/;
+const componentNamePattern = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
+const shallowPurlPattern = /^pkg:([A-Za-z][A-Za-z0-9.+-]*)\/(.+)$/;
+const shallowVersPattern = /^vers:([A-Za-z][A-Za-z0-9.-]*)\/(\S+)$/;
+const coreExternalDependencyPurposes = new Set([
   "runtime",
   "build",
   "development",
@@ -19,10 +19,10 @@ export const coreExternalDependencyPurposes = new Set([
   "documentation",
   "other",
 ]);
-export const externalDependencyPurposeExtensionPattern =
+const externalDependencyPurposeExtensionPattern =
   /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$/;
-export const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
-export const problemStatusBySlug = new Map([
+const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
+const problemStatusBySlug = new Map([
   ["authentication-required", 401],
   ["authorization-failed", 403],
   ["not-found", 404],
@@ -44,7 +44,7 @@ export const problemStatusBySlug = new Map([
   ["rate-limited", 429],
 ]);
 
-export const isRecognizedSpdxExpressionShape = (expression: string) => {
+const isRecognizedSpdxExpressionShape = (expression: string) => {
   const tokenPattern =
     /\(|\)|\+|\bAND\b|\bOR\b|\bWITH\b|LicenseRef-[A-Za-z0-9.-]+|[A-Za-z0-9][A-Za-z0-9.-]*/g;
   const tokens = expression.match(tokenPattern) ?? [];
@@ -94,4 +94,20 @@ export const isRecognizedSpdxExpressionShape = (expression: string) => {
     expectOperand = false;
   }
   return tokens.length > 0 && depth === 0 && !expectOperand;
+};
+
+export {
+  componentNamePattern,
+  coreExternalDependencyPurposes,
+  digestPattern,
+  externalDependencyDeclarationKeyPattern,
+  externalDependencyPurposeExtensionPattern,
+  gitCommitPattern,
+  isRecognizedSpdxExpressionShape,
+  problemStatusBySlug,
+  problemTypePattern,
+  semverPattern,
+  shallowPurlPattern,
+  shallowVersPattern,
+  volumeNamePattern,
 };

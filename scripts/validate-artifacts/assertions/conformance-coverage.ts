@@ -5,7 +5,7 @@ import { assert, assertUniqueStrings } from "../core/assert.ts";
 import { readJsonFile } from "../core/files.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const caseNamesFromFixture = (fixture: JsonValue) => {
+const caseNamesFromFixture = (fixture: JsonValue) => {
   const names = [];
   for (const collectionName of ["cases", "fixtures"]) {
     const collection = fixture[collectionName];
@@ -21,7 +21,7 @@ export const caseNamesFromFixture = (fixture: JsonValue) => {
   return names;
 };
 
-export const resolveCoverageReference = (ctx: ValidationContext, fixtureName: JsonValue) => {
+const resolveCoverageReference = (ctx: ValidationContext, fixtureName: JsonValue) => {
   const candidates = [
     `conformance/fixtures/${fixtureName}`,
     `conformance/${fixtureName}`,
@@ -33,7 +33,7 @@ export const resolveCoverageReference = (ctx: ValidationContext, fixtureName: Js
   return candidates.find((candidate: JsonValue) => ctx.pathExists(candidate));
 };
 
-export const assertConformanceCoverageReferences = (
+const assertConformanceCoverageReferences = (
   ctx: ValidationContext,
   conformanceCoverage: JsonValue,
 ) => {
@@ -86,7 +86,7 @@ export const assertConformanceCoverageReferences = (
   }
 };
 
-export const assertNoUnvalidatedConformanceFixtures = (ctx: ValidationContext) => {
+const assertNoUnvalidatedConformanceFixtures = (ctx: ValidationContext) => {
   const fixtureDirectory = path.join(ctx.root, "conformance/fixtures");
   const fixturePaths = fs
     .readdirSync(fixtureDirectory)
@@ -99,4 +99,11 @@ export const assertNoUnvalidatedConformanceFixtures = (ctx: ValidationContext) =
       `${fixturePath} is not connected to scripts/validate-artifacts.ts`,
     );
   }
+};
+
+export {
+  assertConformanceCoverageReferences,
+  assertNoUnvalidatedConformanceFixtures,
+  caseNamesFromFixture,
+  resolveCoverageReference,
 };

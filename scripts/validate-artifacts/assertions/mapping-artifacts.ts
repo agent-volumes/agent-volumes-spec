@@ -4,17 +4,13 @@ import { assert, stableJsonStringify } from "../core/assert.ts";
 import { errorMessage } from "../core/json.ts";
 import type { JsonValue } from "../core/types.ts";
 
-export const findProperty = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
+const findProperty = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
   const property = properties?.find((candidate: JsonValue) => candidate.name === name);
   assert(property, `${label} needs ${name} property`);
   return property;
 };
 
-export const parseStablePropertyJson = (
-  properties: JsonValue,
-  name: JsonValue,
-  label: JsonValue,
-) => {
+const parseStablePropertyJson = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
   const property = findProperty(properties, name, label);
   let parsed: JsonValue = undefined;
   try {
@@ -31,7 +27,7 @@ export const parseStablePropertyJson = (
   return parsed;
 };
 
-export const findExternalReference = (
+const findExternalReference = (
   references: JsonValue,
   type: JsonValue,
   url: JsonValue,
@@ -43,7 +39,7 @@ export const findExternalReference = (
   );
 };
 
-export const findSpdxExternalRef = (
+const findSpdxExternalRef = (
   externalRefs: JsonValue,
   referenceCategory: JsonValue,
   referenceType: JsonValue,
@@ -61,7 +57,7 @@ export const findSpdxExternalRef = (
   );
 };
 
-export const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => {
+const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => {
   assert(artifact?.bytesBase64, `${label} needs artifact.bytesBase64`);
   const bytes = Buffer.from(artifact.bytesBase64, "base64");
   assert(bytes.length > 0, `${label} artifact bytes must not be empty`);
@@ -74,4 +70,12 @@ export const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => 
       cause: error,
     });
   }
+};
+
+export {
+  decodeFixtureArtifact,
+  findExternalReference,
+  findProperty,
+  findSpdxExternalRef,
+  parseStablePropertyJson,
 };

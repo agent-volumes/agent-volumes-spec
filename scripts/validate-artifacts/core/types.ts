@@ -1,7 +1,7 @@
-export type JsonValue = any;
-export type JsonObject = Record<string, JsonValue>;
+type JsonValue = any;
+type JsonObject = Record<string, JsonValue>;
 
-export interface ValidationContext {
+interface ValidationContext {
   root: string;
   readJson: (relativePath: string) => JsonValue;
   readJsonFile: (relativePath: string) => JsonValue;
@@ -15,3 +15,5 @@ export interface ValidationContext {
   validateExpectedFailure: (name: string, value: JsonValue, label: string) => void;
   ajv: any;
 }
+
+export { type JsonObject, type JsonValue, type ValidationContext };

@@ -16,7 +16,7 @@ import {
 } from "../core/schema-context.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const assertReservedExtensionNamespaceDrift = (ctx: ValidationContext) => {
+const assertReservedExtensionNamespaceDrift = (ctx: ValidationContext) => {
   assert(
     reservedExtensionNamespaces.$id ===
       "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/reserved-extension-namespaces.json",
@@ -78,7 +78,7 @@ export const assertReservedExtensionNamespaceDrift = (ctx: ValidationContext) =>
   }
 };
 
-export const assertSiteSchemaPublicationDrift = (ctx: ValidationContext) => {
+const assertSiteSchemaPublicationDrift = (ctx: ValidationContext) => {
   const schemaDirectory = path.join(ctx.root, "schemas");
   const siteSchemaDirectory = path.join(ctx.root, "site/spec/0.1.0-rc.1/schemas");
   const schemaFiles = fs
@@ -108,7 +108,7 @@ export const assertSiteSchemaPublicationDrift = (ctx: ValidationContext) => {
   );
 };
 
-export const assertSpdxExternalDependencyContextDrift = (ctx: ValidationContext) => {
+const assertSpdxExternalDependencyContextDrift = (ctx: ValidationContext) => {
   const namespace = "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#";
   const canonicalContextPath = "site/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
   const archivedContextPath =
@@ -217,4 +217,10 @@ export const assertSpdxExternalDependencyContextDrift = (ctx: ValidationContext)
     { "@id": "av:resolvedEvidence", "@type": "xsd:boolean" },
     "SPDX external dependency JSON-LD context resolvedEvidence term",
   );
+};
+
+export {
+  assertReservedExtensionNamespaceDrift,
+  assertSiteSchemaPublicationDrift,
+  assertSpdxExternalDependencyContextDrift,
 };

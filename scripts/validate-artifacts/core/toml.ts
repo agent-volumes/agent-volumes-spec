@@ -1,7 +1,7 @@
 import { assert } from "./assert.ts";
 import type { JsonObject, JsonValue } from "./types.ts";
 
-export const stripTomlComment = (line: JsonValue) => {
+const stripTomlComment = (line: JsonValue) => {
   let inString = false;
   let escaped = false;
   for (let index = 0; index < line.length; index += 1) {
@@ -25,7 +25,7 @@ export const stripTomlComment = (line: JsonValue) => {
   return line;
 };
 
-export const splitTomlArray = (content: JsonValue) => {
+const splitTomlArray = (content: JsonValue) => {
   const items = [];
   let token = "";
   let inString = false;
@@ -61,7 +61,7 @@ export const splitTomlArray = (content: JsonValue) => {
   return items;
 };
 
-export const parseTomlKey = (key: string): string => {
+const parseTomlKey = (key: string): string => {
   const trimmed = key.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
@@ -70,7 +70,7 @@ export const parseTomlKey = (key: string): string => {
   return trimmed;
 };
 
-export const parseTomlScalar = (value: string): JsonValue => {
+const parseTomlScalar = (value: string): JsonValue => {
   const trimmed = value.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
@@ -91,7 +91,7 @@ export const parseTomlScalar = (value: string): JsonValue => {
   throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
 };
 
-export const resolveTomlPath = (
+const resolveTomlPath = (
   rootObject: JsonObject,
   header: string,
   arrayTable: boolean,
@@ -129,7 +129,7 @@ export const resolveTomlPath = (
 // Fixture-scoped TOML subset parser for deterministic authored-source vectors.
 // It intentionally covers only the TOML shapes used by manifest-parse-cases.json;
 // Conforming clients still need a real TOML v1.1.0 parser.
-export const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
+const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
   const parsed: JsonObject = {};
   let current = parsed;
   const lines = source.split(/\r?\n/);
@@ -154,4 +154,13 @@ export const parseFixtureTomlSubset = (source: string, label: string): JsonObjec
     current[key] = parseTomlScalar(line.slice(assignmentIndex + 1));
   }
   return parsed;
+};
+
+export {
+  parseFixtureTomlSubset,
+  parseTomlKey,
+  parseTomlScalar,
+  resolveTomlPath,
+  splitTomlArray,
+  stripTomlComment,
 };

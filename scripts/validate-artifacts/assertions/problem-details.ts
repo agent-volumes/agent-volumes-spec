@@ -2,11 +2,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const assertProblemDetails = (
-  ctx: ValidationContext,
-  payload: JsonValue,
-  label: JsonValue,
-) => {
+const assertProblemDetails = (ctx: ValidationContext, payload: JsonValue, label: JsonValue) => {
   ctx.validate("problemDetails", payload, label);
   assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
   const slug = payload.type.replace("https://agentvolumes.org/problems/", "");
@@ -19,7 +15,7 @@ export const assertProblemDetails = (
   );
 };
 
-export const assertEndpointProblemFixtures = (
+const assertEndpointProblemFixtures = (
   ctx: ValidationContext,
   relativePath: JsonValue,
   label: JsonValue,
@@ -64,7 +60,7 @@ export const assertEndpointProblemFixtures = (
   }
 };
 
-export const assertLifecycleMutationFixtures = (
+const assertLifecycleMutationFixtures = (
   ctx: ValidationContext,
   relativePath: JsonValue,
   label: JsonValue,
@@ -146,3 +142,5 @@ export const assertLifecycleMutationFixtures = (
     }
   }
 };
+
+export { assertEndpointProblemFixtures, assertLifecycleMutationFixtures, assertProblemDetails };

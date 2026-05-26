@@ -11,7 +11,7 @@ import {
 } from "./patterns.ts";
 import type { JsonValue } from "./types.ts";
 
-export const canonicalReleasePurl = (volume: JsonValue, version: JsonValue) => {
+const canonicalReleasePurl = (volume: JsonValue, version: JsonValue) => {
   assert(volumeNamePattern.test(volume), `cannot canonicalize invalid volume name: ${volume}`);
   if (volume.startsWith("@")) {
     const [scope, name] = volume.slice(1).split("/");
@@ -20,11 +20,7 @@ export const canonicalReleasePurl = (volume: JsonValue, version: JsonValue) => {
   return `pkg:volume/${volume}@${version}`;
 };
 
-export const canonicalComponentPurl = (
-  volume: JsonValue,
-  version: JsonValue,
-  component: JsonValue,
-) => {
+const canonicalComponentPurl = (volume: JsonValue, version: JsonValue, component: JsonValue) => {
   assert(
     componentNamePattern.test(component.name),
     `cannot canonicalize invalid component name: ${component.name}`,
@@ -32,7 +28,7 @@ export const canonicalComponentPurl = (
   return `${canonicalReleasePurl(volume, version)}#${component.type}/${component.name}`;
 };
 
-export const parseExternalDependencyPurl = (purl: JsonValue) => {
+const parseExternalDependencyPurl = (purl: JsonValue) => {
   const match = purl.match(shallowPurlPattern);
   if (!match) {
     return undefined;
@@ -45,10 +41,10 @@ export const parseExternalDependencyPurl = (purl: JsonValue) => {
   };
 };
 
-export const parseVersScheme = (constraint: JsonValue) =>
+const parseVersScheme = (constraint: JsonValue) =>
   constraint.match(shallowVersPattern)?.[1].toLowerCase();
 
-export const normalizeVersConstraintForComparison = (constraint: JsonValue) => {
+const normalizeVersConstraintForComparison = (constraint: JsonValue) => {
   const match = constraint.match(shallowVersPattern);
   if (!match) {
     return constraint;
@@ -61,34 +57,34 @@ export const normalizeVersConstraintForComparison = (constraint: JsonValue) => {
     .join("|")}`;
 };
 
-export const isExternalDependencyPurpose = (purpose: JsonValue) =>
+const isExternalDependencyPurpose = (purpose: JsonValue) =>
   coreExternalDependencyPurposes.has(purpose) ||
   externalDependencyPurposeExtensionPattern.test(purpose);
 
-export const compareStrings = (left: string, right: string): number => left.localeCompare(right);
+const compareStrings = (left: string, right: string): number => left.localeCompare(right);
 
-export const externalDependencyScope = (dependency: JsonValue) =>
+const externalDependencyScope = (dependency: JsonValue) =>
   [...(dependency.components ?? [])].toSorted(compareStrings);
 
-export const externalDependencySemanticKey = (dependency: JsonValue) =>
+const externalDependencySemanticKey = (dependency: JsonValue) =>
   stableJsonStringify({
     purl: dependency.purl,
     purpose: dependency.purpose,
     scope: externalDependencyScope(dependency),
   });
 
-export const declarationKeyInput = (semanticKey: JsonValue) => ({
+const declarationKeyInput = (semanticKey: JsonValue) => ({
   purl: semanticKey.purl,
   purpose: semanticKey.purpose,
   scope: semanticKey.scope.length === 0 ? { kind: "volume" } : { components: semanticKey.scope },
 });
 
-export const declarationKeyForSemanticKey = (semanticKey: JsonValue) => {
+const declarationKeyForSemanticKey = (semanticKey: JsonValue) => {
   const input = stableJsonStringify(declarationKeyInput(semanticKey));
   return `av-extdep-v1:sha256:${crypto.createHash("sha256").update(input, "utf8").digest("hex")}`;
 };
 
-export const routeIdentityFromPath = (route: JsonValue) => {
+const routeIdentityFromPath = (route: JsonValue) => {
   const match = route.match(/^\/api\/v1\/volumes\/(?:@([^/]+)\/)?([^/]+)\/([^/]+)$/);
   if (!match) {
     return null;
@@ -100,11 +96,7 @@ export const routeIdentityFromPath = (route: JsonValue) => {
   };
 };
 
-export const assertRouteMetadataIdentity = (
-  route: JsonValue,
-  metadata: JsonValue,
-  label: JsonValue,
-) => {
+const assertRouteMetadataIdentity = (route: JsonValue, metadata: JsonValue, label: JsonValue) => {
   const identity = routeIdentityFromPath(route);
   assert(identity, `${label} needs a parseable release route`);
   assert(metadata.name === identity.name, `${label} metadata name must match route identity`);
@@ -112,4 +104,20 @@ export const assertRouteMetadataIdentity = (
     metadata.version === identity.version,
     `${label} metadata version must match route identity`,
   );
+};
+
+export {
+  assertRouteMetadataIdentity,
+  canonicalComponentPurl,
+  canonicalReleasePurl,
+  compareStrings,
+  declarationKeyForSemanticKey,
+  declarationKeyInput,
+  externalDependencyScope,
+  externalDependencySemanticKey,
+  isExternalDependencyPurpose,
+  normalizeVersConstraintForComparison,
+  parseExternalDependencyPurl,
+  parseVersScheme,
+  routeIdentityFromPath,
 };
