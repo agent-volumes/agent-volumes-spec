@@ -402,6 +402,18 @@ const fn = (options: Options) => { ... };
 
 ---
 
+### `eslint/no-underscore-dangle`
+
+**What it does:** Flags identifiers with leading or trailing underscores, a pattern historically used to mimic private members in JavaScript.
+
+**Why maintain:** Private-like names obscure intent now that JavaScript supports formal private class fields. The rule remains active so new internal identifiers such as `_internal` or `value_` are treated as style issues.
+
+**Configuration:** `["warn", { "allow": ["_type"] }]`
+
+**Project exception:** `_type` is allowed because in-toto and SLSA JSON statements use `_type` as a standardized artifact field. Do not generalize this exception to other underscore-prefixed names; prefer the external field name only when validating or mapping those artifacts.
+
+---
+
 ## Disabled Rules
 
 The following rules are intentionally disabled in `.oxlintrc.json` because they conflict with this project's architecture or runtime environment.
