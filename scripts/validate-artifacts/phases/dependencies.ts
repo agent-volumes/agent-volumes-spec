@@ -23,13 +23,10 @@ const componentPurlPattern =
 
 const parseComponentDependencyPurl = (componentPurl: JsonValue) => {
   const match = componentPurl.match(componentPurlPattern);
-  if (!match) {
-    return undefined;
-  }
-  const [, scope, name] = match;
+  const [, scope, name] = match || [];
   return {
-    hasVersion: match[3] !== undefined,
-    parentName: scope === undefined ? name : `@${scope}/${name}`,
+    hasVersion: !!(match && match[3]),
+    parentName: scope ? `@${scope}/${name}` : name,
   };
 };
 
@@ -63,12 +60,12 @@ export const run = (ctx: ValidationContext) => {
     );
     const missingParentDependencies = validRequestedDependencies.filter((dependency: JsonValue) => {
       const parsedDependency = parseComponentDependencyPurl(dependency);
-      if (parsedDependency === undefined || parsedDependency.hasVersion) {
+      if (parsedDependency.hasVersion) {
         return false;
       }
       return !parentDependencies.has(parsedDependency.parentName);
     });
-    if (dependencyCase.expected.failureCategory !== undefined) {
+    if (typeof dependencyCase.expected.failureCategory === "string") {
       assert(
         dependencyCase.expected.valid === false,
         `component dependency case ${dependencyCase.name} with a failureCategory must be invalid`,
@@ -196,7 +193,7 @@ export const run = (ctx: ValidationContext) => {
       );
       const parsedPurl = parseExternalDependencyPurl(dependency.purl);
       const versScheme = parseVersScheme(dependency.constraint);
-      if (parsedPurl) {
+      if (parsedPurl.type) {
         assert(
           !parsedPurl.hasVersion ||
             externalDependencyCase.expected.failureCategory === "invalid-external-dependency-purl",
@@ -389,7 +386,7 @@ export const run = (ctx: ValidationContext) => {
       const componentType = component.type;
       const supportedExtensions = isComponentType(componentType)
         ? supportedEntrypointExtensionMap[componentType]
-        : undefined;
+        : new Set();
       if (semanticCase.expected.valid === true && supportedExtensions) {
         assert(
           supportedExtensions.has(extension),
@@ -557,7 +554,7 @@ export const run = (ctx: ValidationContext) => {
       `potential exposure case ${exposureCase.name} needs a declaration key`,
     );
     assert(
-      advisoryMatches.every((advisoryMatch: JsonValue) => advisoryMatch !== undefined),
+      advisoryMatches.every((advisoryMatch: JsonValue) => typeof advisoryMatch !== "undefined"),
       `potential exposure case ${exposureCase.name} needs advisory match input`,
     );
     assert(

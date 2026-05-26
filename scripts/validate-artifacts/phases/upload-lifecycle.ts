@@ -58,7 +58,8 @@ export const run = (ctx: ValidationContext) => {
         `release upload lifecycle ${fixture.name} must use http-put upload instructions`,
       );
       assert(
-        fixture.payload.upload.method === undefined || fixture.payload.upload.method === "PUT",
+        typeof fixture.payload.upload.method === "undefined" ||
+          fixture.payload.upload.method === "PUT",
         `release upload lifecycle ${fixture.name} http-put method must be omitted or PUT`,
       );
       assert(
@@ -112,7 +113,8 @@ export const run = (ctx: ValidationContext) => {
         `trust upload lifecycle ${fixture.name} must use http-put upload instructions`,
       );
       assert(
-        fixture.payload.upload.method === undefined || fixture.payload.upload.method === "PUT",
+        typeof fixture.payload.upload.method === "undefined" ||
+          fixture.payload.upload.method === "PUT",
         `trust upload lifecycle ${fixture.name} http-put method must be omitted or PUT`,
       );
       assert(

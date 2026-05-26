@@ -30,14 +30,11 @@ const canonicalComponentPurl = (volume: JsonValue, version: JsonValue, component
 
 const parseExternalDependencyPurl = (purl: JsonValue) => {
   const match = purl.match(shallowPurlPattern);
-  if (!match) {
-    return undefined;
-  }
-  const [, type, remainder] = match;
+  const [, type, remainder] = match || [];
   return {
-    hasSubpath: purl.includes("#"),
-    hasVersion: /(?:^|[^?])@[^/?#]+/.test(remainder.split("?")[0]),
-    type: type.toLowerCase(),
+    hasSubpath: match ? purl.includes("#") : false,
+    hasVersion: match ? /(?:^|[^?])@[^/?#]+/.test(remainder.split("?")[0]) : false,
+    type: type ? type.toLowerCase() : "",
   };
 };
 

@@ -106,7 +106,7 @@ export const run = (ctx: ValidationContext) => {
       openapiSchema.pattern === jsonSchema.pattern,
       `OpenAPI ${openapiName}.pattern must match volume schema`,
     );
-    if (jsonSchema.maxLength !== undefined) {
+    if (typeof jsonSchema.maxLength !== "undefined") {
       assert(
         openapiSchema.maxLength === jsonSchema.maxLength,
         `OpenAPI ${openapiName}.maxLength must match volume schema`,
