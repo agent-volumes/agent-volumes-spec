@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build:site:openapi": "bun scripts/build-site-openapi.mts",
-    "build:site:schemas": "bun scripts/build-site-schemas.mts",
+    "build:site:openapi": "bun scripts/build-site-openapi.ts",
+    "build:site:schemas": "bun scripts/build-site-schemas.ts",
     "changelog:check": "scripts/update-changelog.sh --check",
     "changelog:print": "scripts/update-changelog.sh --print",
     "changelog:update": "scripts/update-changelog.sh",
@@ -26,7 +26,7 @@
     "lint:md:fix:files": "markdownlint-cli2 --fix",
     "release:changelog": "scripts/update-changelog.sh --tag",
     "release:tag": "scripts/create-release-tag.sh",
-    "validate:artifacts": "bun scripts/validate-artifacts.mts"
+    "validate:artifacts": "bun scripts/validate-artifacts.ts"
   },
   "devDependencies": {
     "@colbymchenry/codegraph": "^0.9.4",

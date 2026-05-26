@@ -13,28 +13,16 @@
   },
   "overrides": [
     {
-      "files": ["scripts/**/*.mts"],
+      "files": ["scripts/**/*.ts"],
       "rules": {
-        "func-style": "off",
-        "id-length": "off",
+        "import/no-named-export": "off",
         "import/no-nodejs-modules": "off",
-        "max-params": "off",
-        "max-statements": "off",
-        "no-console": "off",
-        "no-continue": "off",
-        "no-magic-numbers": "off",
-        "no-ternary": "off",
-        "no-underscore-dangle": "off",
-        "no-use-before-define": "off",
-        "no-undefined": "off",
+        "import/no-relative-parent-imports": "off",
+        "import/prefer-default-export": "off",
         "oxc/no-async-await": "off",
         "oxc/no-optional-chaining": "off",
         "oxc/no-rest-spread-properties": "off",
-        "sort-imports": "off",
-        "typescript/explicit-function-return-type": "off",
-        "typescript/no-explicit-any": "off",
-        "typescript/no-unsafe-type-assertion": "off",
-        "unicorn/no-null": "off"
+        "no-console": "off"
       }
     }
   ],

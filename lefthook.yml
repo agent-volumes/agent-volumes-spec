@@ -75,8 +75,8 @@ pre-commit:
         - "agent-volumes-spec.md"
         - "openapi/**"
         - "schemas/**"
-        - "scripts/build-site-openapi.mts"
-        - "scripts/build-site-schemas.mts"
+        - "scripts/build-site-openapi.ts"
+        - "scripts/build-site-schemas.ts"
         - "package.json"
         - "bun.lock"
       run: |
@@ -158,8 +158,8 @@ pre-commit:
         - "agent-volumes-spec.md"
         - "openapi/**"
         - "schemas/**"
-        - "scripts/build-site-openapi.mts"
-        - "scripts/build-site-schemas.mts"
+        - "scripts/build-site-openapi.ts"
+        - "scripts/build-site-schemas.ts"
         - "package.json"
         - "bun.lock"
       run: |
@@ -185,7 +185,7 @@ pre-commit:
         - "schemas/**"
         - "conformance/**"
         - "openapi/**"
-        - "scripts/validate-artifacts.mts"
+        - "scripts/validate-artifacts.ts"
         - "package.json"
         - "bun.lock"
       run: |

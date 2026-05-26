@@ -64,7 +64,7 @@ agent-volumes-spec/
 | Edit CI workflow          | `.github/workflows/`                    | SHA-pinning + org reusable policy   |
 | Edit Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`      | Keep drift audit + fixtures aligned |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Required before release freeze      |
-| Update artifact validator | `scripts/validate-artifacts.mts`        | Central smoke runner; 3k+ lines     |
+| Update artifact validator | `scripts/validate-artifacts.ts`         | Central smoke runner; modularized   |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
 | Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
@@ -145,11 +145,11 @@ bun run validate:artifacts
 ## NOTES
 
 - **No `src/`, `app/`, or `lib/` tree** — this is a spec repo, not an app.
-- **No standard test runner** — validation is via `scripts/validate-artifacts.mts` (AJV + bespoke logic), not Jest/Vitest/Pytest.
+- **No standard test runner** — validation is via `scripts/validate-artifacts.ts` (AJV + bespoke logic), not Jest/Vitest/Pytest.
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
 - **Site is publication-only** — `site/` content and bundled OpenAPI output must link back to canonical sources and never override spec/schema/OpenAPI/conformance artifacts.
-- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.mts` are the largest maintenance-risk files; inspect local `AGENTS.md` files before editing their subtrees.
+- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.ts` are the largest maintenance-risk entry points; inspect local `AGENTS.md` files before editing their subtrees.
 - **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
 - **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.

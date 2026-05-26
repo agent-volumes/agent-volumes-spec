@@ -6,5 +6,5 @@
     "types": ["bun"],
     "skipLibCheck": false
   },
-  "include": ["scripts/**/*.mts"]
+  "include": ["scripts/**/*.ts"]
 }
