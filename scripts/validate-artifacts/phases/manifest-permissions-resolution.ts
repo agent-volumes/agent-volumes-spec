@@ -367,13 +367,11 @@ export const run = (ctx: ValidationContext) => {
       }
     }
     if (resolverCase.exactReleaseMetadata) {
-      for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata) as [
-        string,
-        Record<string, JsonValue>,
-      ][]) {
+      for (const [key, metadata] of Object.entries(resolverCase.exactReleaseMetadata)) {
+        const releaseMetadata: JsonValue = metadata;
         assertReleaseMetadata(
           ctx,
-          metadata,
+          releaseMetadata,
           `resolver case ${resolverCase.name} exact metadata ${key}`,
         );
         if (
@@ -382,7 +380,7 @@ export const run = (ctx: ValidationContext) => {
         ) {
           assertRouteMetadataIdentity(
             resolverCase.requestRoute,
-            metadata,
+            releaseMetadata,
             `resolver case ${resolverCase.name} exact metadata ${key}`,
           );
         }
@@ -393,7 +391,7 @@ export const run = (ctx: ValidationContext) => {
             `resolver case ${resolverCase.name} needs a parseable route for identity mismatch`,
           );
           assert(
-            metadata.name !== identity.name || metadata.version !== identity.version,
+            releaseMetadata.name !== identity.name || releaseMetadata.version !== identity.version,
             `resolver case ${resolverCase.name} must exercise route/metadata identity mismatch`,
           );
         }

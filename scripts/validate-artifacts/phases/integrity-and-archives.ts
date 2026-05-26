@@ -4,13 +4,13 @@ import path from "node:path";
 import { decodeFixtureArtifact } from "../assertions/mapping-artifacts.ts";
 import {
   assertCycloneDxArtifact,
-  assertSlsaArtifact,
   assertSigstoreArtifact,
+  assertSlsaArtifact,
 } from "../assertions/trust-artifacts.ts";
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import { errorMessage } from "../core/json.ts";
 import { gitCommitPattern } from "../core/patterns.ts";
-import { canonicalReleasePurl, canonicalComponentPurl } from "../core/purl.ts";
+import { canonicalComponentPurl, canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 const isInvalidNormalizedPath = (pathValue: JsonValue) =>

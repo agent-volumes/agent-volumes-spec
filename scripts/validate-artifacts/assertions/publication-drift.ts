@@ -3,10 +3,10 @@ import path from "node:path";
 
 import {
   assert,
-  assertSpecVersion,
-  stableJsonStringify,
-  assertUniqueStrings,
   assertDeepEqual,
+  assertSpecVersion,
+  assertUniqueStrings,
+  stableJsonStringify,
 } from "../core/assert.ts";
 import { compareStrings } from "../core/purl.ts";
 import {

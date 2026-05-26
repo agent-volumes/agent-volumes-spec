@@ -1,6 +1,6 @@
 import type { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
-import Ajv2020 from "ajv/dist/2020.js";
+import Ajv2020 from "ajv/dist/2020";
 
 import { assert } from "./assert.ts";
 import { readJson, readJsonFile } from "./files.ts";
