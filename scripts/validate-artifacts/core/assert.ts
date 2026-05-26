@@ -1,10 +1,10 @@
 import type { JsonValue, ValidationContext } from "./types.ts";
 
-function assert(condition: unknown, message: string): asserts condition {
+const assert: (condition: unknown, message: string) => asserts condition = (condition, message) => {
   if (!condition) {
     throw new Error(message);
   }
-}
+};
 
 const stableJsonStringify = (value: JsonValue): string => {
   if (Array.isArray(value)) {

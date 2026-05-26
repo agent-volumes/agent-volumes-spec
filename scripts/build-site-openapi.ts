@@ -11,14 +11,14 @@ const repoRoot = dirname(scriptDir);
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
-function resolveCommand(command: string): string {
+const resolveCommand = (command: string): string => {
   const executable = process.platform === "win32" ? `${command}.cmd` : command;
   const localCommand = join(repoRoot, "node_modules", ".bin", executable);
 
   return existsSync(localCommand) ? localCommand : command;
-}
+};
 
-function run(command: string, args: string[]): void {
+const run = (command: string, args: string[]): void => {
   const result = spawnSync(resolveCommand(command), args, {
     cwd: repoRoot,
     env: process.env,
@@ -32,9 +32,9 @@ function run(command: string, args: string[]): void {
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
-}
+};
 
-async function versionFromSpec(): Promise<string> {
+const versionFromSpec = async (): Promise<string> => {
   const specPath = join(repoRoot, "agent-volumes-spec.md");
   const spec = await readFile(specPath, "utf8");
   const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
@@ -44,9 +44,9 @@ async function versionFromSpec(): Promise<string> {
   }
 
   return match[1].trim();
-}
+};
 
-function normalizeVersion(rawVersion: string): string {
+const normalizeVersion = (rawVersion: string): string => {
   const version = rawVersion.replace(/^v/, "");
 
   if (!semverPattern.test(version)) {
@@ -54,7 +54,7 @@ function normalizeVersion(rawVersion: string): string {
   }
 
   return version;
-}
+};
 
 const rawVersion = process.argv[2] ?? process.env.SPEC_VERSION ?? (await versionFromSpec());
 const specVersion = normalizeVersion(rawVersion);

@@ -9,7 +9,7 @@ const repoRoot = dirname(scriptDir);
 const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
-async function versionFromSpec(): Promise<string> {
+const versionFromSpec = async (): Promise<string> => {
   const specPath = join(repoRoot, "agent-volumes-spec.md");
   const spec = await readFile(specPath, "utf8");
   const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
@@ -19,9 +19,9 @@ async function versionFromSpec(): Promise<string> {
   }
 
   return match[1].trim();
-}
+};
 
-function normalizeVersion(rawVersion: string): string {
+const normalizeVersion = (rawVersion: string): string => {
   const version = rawVersion.replace(/^v/, "");
 
   if (!semverPattern.test(version)) {
@@ -29,7 +29,7 @@ function normalizeVersion(rawVersion: string): string {
   }
 
   return version;
-}
+};
 
 const rawVersion = process.argv[2] ?? process.env.SPEC_VERSION ?? (await versionFromSpec());
 const specVersion = normalizeVersion(rawVersion);

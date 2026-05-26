@@ -21,7 +21,7 @@ import type { JsonValue, ValidationContext } from "../core/types.ts";
 const componentPurlPattern =
   /^pkg:volume\/(?:%40((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/)?((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?)(?:@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?)?#(agent|skill|command|tool|hook|mcp-server|lsp-server)\/(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
 
-function parseComponentDependencyPurl(componentPurl: JsonValue) {
+const parseComponentDependencyPurl = (componentPurl: JsonValue) => {
   const match = componentPurl.match(componentPurlPattern);
   if (!match) {
     return undefined;
@@ -31,7 +31,7 @@ function parseComponentDependencyPurl(componentPurl: JsonValue) {
     hasVersion: match[3] !== undefined,
     parentName: scope === undefined ? name : `@${scope}/${name}`,
   };
-}
+};
 
 export const run = (ctx: ValidationContext) => {
   const componentDependencyCases = ctx.readJson(
