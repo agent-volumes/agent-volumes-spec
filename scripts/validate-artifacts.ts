@@ -1,17 +1,17 @@
 import { assertNoUnvalidatedConformanceFixtures } from "./validate-artifacts/assertions/conformance-coverage.ts";
 import {
-  root,
+  isDirectory,
+  pathExists,
   readJson,
   readJsonFile,
-  readText,
-  pathExists,
-  isDirectory,
   readJsonPaths,
+  readText,
+  root,
 } from "./validate-artifacts/core/files.ts";
 import {
   ajv,
-  schemas,
   reservedExtensionNamespaces,
+  schemas,
   validate,
   validateExpectedFailure,
 } from "./validate-artifacts/core/schema-context.ts";
@@ -27,18 +27,18 @@ import * as trustPhase from "./validate-artifacts/phases/trust.ts";
 import * as uploadLifecyclePhase from "./validate-artifacts/phases/upload-lifecycle.ts";
 
 const ctx = {
-  root,
+  ajv,
+  isDirectory,
+  pathExists,
   readJson,
   readJsonFile,
-  readText,
-  pathExists,
-  isDirectory,
   readJsonPaths,
-  schemas,
+  readText,
   reservedExtensionNamespaces,
+  root,
+  schemas,
   validate,
   validateExpectedFailure,
-  ajv,
 };
 
 const phases = [

@@ -1,5 +1,5 @@
 import { assert } from "../core/assert.ts";
-import { problemTypePattern, problemStatusBySlug } from "../core/patterns.ts";
+import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 export const assertProblemDetails = (

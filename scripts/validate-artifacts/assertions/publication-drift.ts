@@ -4,8 +4,8 @@ import path from "node:path";
 import { assert, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
 import { compareStrings } from "../core/purl.ts";
 import {
-  schemas,
   reservedExtensionNamespaces,
+  schemas,
   validateExpectedFailure,
 } from "../core/schema-context.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";

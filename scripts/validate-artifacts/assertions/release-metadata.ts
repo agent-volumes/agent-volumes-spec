@@ -1,9 +1,9 @@
 import { assert } from "../core/assert.ts";
 import {
-  volumeNamePattern,
-  semverPattern,
   digestPattern,
   externalDependencyDeclarationKeyPattern,
+  semverPattern,
+  volumeNamePattern,
 } from "../core/patterns.ts";
 import { canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";

@@ -1,16 +1,16 @@
 import { assertConformanceCoverageReferences } from "../assertions/conformance-coverage.ts";
 import {
-  findProperty,
-  parseStablePropertyJson,
   findExternalReference,
+  findProperty,
   findSpdxExternalRef,
+  parseStablePropertyJson,
 } from "../assertions/mapping-artifacts.ts";
 import { assertCycloneDxArtifact } from "../assertions/trust-artifacts.ts";
-import { assert, assertSpecVersion, assertDeepEqual, stableJsonStringify } from "../core/assert.ts";
+import { assert, assertDeepEqual, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
 import { compareStrings } from "../core/purl.ts";
 import {
-  canonicalReleasePurl,
   canonicalComponentPurl,
+  canonicalReleasePurl,
   declarationKeyForSemanticKey,
 } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";

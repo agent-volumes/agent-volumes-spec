@@ -1,15 +1,15 @@
 import { assertWarning } from "../assertions/warnings.ts";
-import { assert, assertSpecVersion, assertDeepEqual } from "../core/assert.ts";
+import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
 import { externalDependencyDeclarationKeyPattern } from "../core/patterns.ts";
 import {
-  parseExternalDependencyPurl,
-  parseVersScheme,
-  normalizeVersConstraintForComparison,
-  isExternalDependencyPurpose,
+  compareStrings,
+  declarationKeyForSemanticKey,
   externalDependencyScope,
   externalDependencySemanticKey,
-  declarationKeyForSemanticKey,
-  compareStrings,
+  isExternalDependencyPurpose,
+  normalizeVersConstraintForComparison,
+  parseExternalDependencyPurl,
+  parseVersScheme,
 } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 

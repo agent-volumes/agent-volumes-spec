@@ -1,8 +1,8 @@
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assertReleaseMetadata } from "../assertions/release-metadata.ts";
 import { assertWarning } from "../assertions/warnings.ts";
-import { assert, assertSpecVersion, assertDeepEqual } from "../core/assert.ts";
-import { routeIdentityFromPath, assertRouteMetadataIdentity } from "../core/purl.ts";
+import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
+import { assertRouteMetadataIdentity, routeIdentityFromPath } from "../core/purl.ts";
 import { parseFixtureTomlSubset } from "../core/toml.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 

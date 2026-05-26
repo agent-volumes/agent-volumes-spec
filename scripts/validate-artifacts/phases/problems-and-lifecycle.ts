@@ -1,7 +1,7 @@
 import {
-  assertProblemDetails,
   assertEndpointProblemFixtures,
   assertLifecycleMutationFixtures,
+  assertProblemDetails,
 } from "../assertions/problem-details.ts";
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug } from "../core/patterns.ts";

@@ -2,10 +2,10 @@ import crypto from "node:crypto";
 
 import { assert } from "./assert.ts";
 import {
-  volumeNamePattern,
   componentNamePattern,
   shallowPurlPattern,
   shallowVersPattern,
+  volumeNamePattern,
 } from "./patterns.ts";
 import type { JsonValue } from "./types.ts";
 
