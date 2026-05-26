@@ -1,6 +1,11 @@
+import path from "node:path";
+
 import { assertWarning } from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
-import { externalDependencyDeclarationKeyPattern } from "../core/patterns.ts";
+import {
+  externalDependencyDeclarationKeyPattern,
+  isRecognizedSpdxExpressionShape,
+} from "../core/patterns.ts";
 import {
   compareStrings,
   declarationKeyForSemanticKey,
@@ -659,7 +664,3 @@ export const run = (ctx: ValidationContext) => {
     );
   }
 };
-
-import path from "node:path";
-
-import { isRecognizedSpdxExpressionShape } from "../core/patterns.ts";

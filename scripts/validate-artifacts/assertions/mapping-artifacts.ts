@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import { assert } from "../core/assert.ts";
+import { assert, stableJsonStringify } from "../core/assert.ts";
 import { errorMessage } from "../core/json.ts";
 import type { JsonValue } from "../core/types.ts";
 
@@ -75,5 +75,3 @@ export const decodeFixtureArtifact = (artifact: JsonValue, label: JsonValue) => 
     });
   }
 };
-
-import { stableJsonStringify } from "../core/assert.ts";

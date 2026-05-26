@@ -1,8 +1,10 @@
 import crypto from "node:crypto";
 
-import { assert } from "./assert.ts";
+import { assert, stableJsonStringify } from "./assert.ts";
 import {
   componentNamePattern,
+  coreExternalDependencyPurposes,
+  externalDependencyPurposeExtensionPattern,
   shallowPurlPattern,
   shallowVersPattern,
   volumeNamePattern,
@@ -111,9 +113,3 @@ export const assertRouteMetadataIdentity = (
     `${label} metadata version must match route identity`,
   );
 };
-
-import { stableJsonStringify } from "./assert.ts";
-import {
-  coreExternalDependencyPurposes,
-  externalDependencyPurposeExtensionPattern,
-} from "./patterns.ts";

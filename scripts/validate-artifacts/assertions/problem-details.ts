@@ -1,4 +1,4 @@
-import { assert } from "../core/assert.ts";
+import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
@@ -146,5 +146,3 @@ export const assertLifecycleMutationFixtures = (
     }
   }
 };
-
-import { assertSpecVersion } from "../core/assert.ts";

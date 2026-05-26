@@ -1,7 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { assert, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
+import {
+  assert,
+  assertSpecVersion,
+  stableJsonStringify,
+  assertUniqueStrings,
+  assertDeepEqual,
+} from "../core/assert.ts";
 import { compareStrings } from "../core/purl.ts";
 import {
   reservedExtensionNamespaces,
@@ -212,5 +218,3 @@ export const assertSpdxExternalDependencyContextDrift = (ctx: ValidationContext)
     "SPDX external dependency JSON-LD context resolvedEvidence term",
   );
 };
-
-import { assertUniqueStrings, assertDeepEqual } from "../core/assert.ts";
