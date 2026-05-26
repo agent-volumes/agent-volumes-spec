@@ -8,23 +8,29 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.
 
 const readJsonPaths = new Set<string>();
 
-const normalizeRelativePath = (relativePath: string): string =>
-  relativePath.split(path.sep).join("/");
+function normalizeRelativePath(relativePath: string): string {
+  return relativePath.split(path.sep).join("/");
+}
 
-const readJsonFile = (relativePath: string): JsonValue =>
-  JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+function readJsonFile(relativePath: string): JsonValue {
+  return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+}
 
-const readJson = (relativePath: string): JsonValue => {
+function readJson(relativePath: string): JsonValue {
   readJsonPaths.add(normalizeRelativePath(relativePath));
   return readJsonFile(relativePath);
-};
+}
 
-const readText = (relativePath: string): string =>
-  fs.readFileSync(path.join(root, relativePath), "utf8");
+function readText(relativePath: string): string {
+  return fs.readFileSync(path.join(root, relativePath), "utf8");
+}
 
-const pathExists = (relativePath: string): boolean => fs.existsSync(path.join(root, relativePath));
+function pathExists(relativePath: string): boolean {
+  return fs.existsSync(path.join(root, relativePath));
+}
 
-const isDirectory = (relativePath: string): boolean =>
-  fs.statSync(path.join(root, relativePath)).isDirectory();
+function isDirectory(relativePath: string): boolean {
+  return fs.statSync(path.join(root, relativePath)).isDirectory();
+}
 
 export { isDirectory, pathExists, readJson, readJsonFile, readJsonPaths, readText, root };

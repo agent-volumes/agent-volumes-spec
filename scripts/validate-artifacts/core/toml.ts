@@ -49,16 +49,16 @@ function splitTomlArray(content: JsonValue): JsonValue[] {
   return items;
 }
 
-const parseTomlKey = (key: string): string => {
+function parseTomlKey(key: string): string {
   const trimmed = key.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
   }
   assert(/^[A-Za-z0-9_-]+$/.test(trimmed), `unsupported TOML key in fixture: ${trimmed}`);
   return trimmed;
-};
+}
 
-const parseTomlScalar = (value: string): JsonValue => {
+function parseTomlScalar(value: string): JsonValue {
   const trimmed = value.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
     return JSON.parse(trimmed);
@@ -77,13 +77,9 @@ const parseTomlScalar = (value: string): JsonValue => {
     return content ? splitTomlArray(content).map((item: string) => parseTomlScalar(item)) : [];
   }
   throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
-};
+}
 
-const resolveTomlPath = (
-  rootObject: JsonObject,
-  header: string,
-  arrayTable: boolean,
-): JsonObject => {
+function resolveTomlPath(rootObject: JsonObject, header: string, arrayTable: boolean): JsonObject {
   const pathParts = header.split(".").map((part: string) => parseTomlKey(part));
   let parent = rootObject;
   for (const part of pathParts.slice(0, -1)) {
@@ -112,12 +108,12 @@ const resolveTomlPath = (
     `TOML singleton table conflicts with array table: ${header}`,
   );
   return parent[finalPart];
-};
+}
 
 // Fixture-scoped TOML subset parser for deterministic authored-source vectors.
 // It intentionally covers only the TOML shapes used by manifest-parse-cases.json;
 // Conforming clients still need a real TOML v1.1.0 parser.
-const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
+function parseFixtureTomlSubset(source: string, label: string): JsonObject {
   const parsed: JsonObject = {};
   let current = parsed;
   const lines = source.split(/\r?\n/);
@@ -144,7 +140,7 @@ const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
     }
   }
   return parsed;
-};
+}
 
 export {
   parseFixtureTomlSubset,

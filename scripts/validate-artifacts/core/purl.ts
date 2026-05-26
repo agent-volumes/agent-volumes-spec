@@ -66,7 +66,9 @@ function isExternalDependencyPurpose(purpose: JsonValue): boolean {
   );
 }
 
-const compareStrings = (left: string, right: string): number => left.localeCompare(right);
+function compareStrings(left: string, right: string): number {
+  return left.localeCompare(right);
+}
 
 function externalDependencyScope(dependency: JsonValue): JsonValue[] {
   return [...(dependency.components ?? [])].toSorted(compareStrings);

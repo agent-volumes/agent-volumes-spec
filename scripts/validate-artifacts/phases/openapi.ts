@@ -6,7 +6,7 @@ import { problemStatusBySlug } from "../core/patterns.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
 
-const readOpenapi = (ctx: ValidationContext): JsonObject => {
+function readOpenapi(ctx: ValidationContext): JsonObject {
   try {
     return YAML.parse(ctx.readText("openapi/bibliotheca.openapi.yaml"));
   } catch (error) {
@@ -15,7 +15,7 @@ const readOpenapi = (ctx: ValidationContext): JsonObject => {
       { cause: error },
     );
   }
-};
+}
 
 export function run(ctx: ValidationContext): void {
   const openapi = readOpenapi(ctx);
