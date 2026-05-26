@@ -26,7 +26,7 @@ function parseComponentDependencyPurl(componentPurl: JsonValue): JsonValue {
   const match = componentPurl.match(componentPurlPattern);
   const [, scope, name] = match || [];
   return {
-    hasVersion: !!(match && match[3]),
+    hasVersion: Boolean(match && match[3]),
     parentName: scope ? `@${scope}/${name}` : name,
   };
 }
