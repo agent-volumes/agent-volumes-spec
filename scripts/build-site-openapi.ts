@@ -6,6 +6,8 @@ import { mkdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { EXIT_FAILURE, EXIT_SUCCESS } from "./validate-artifacts/core/numeric-constants.ts";
+
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptDir);
 
@@ -30,8 +32,8 @@ function run(command: string, args: string[]): void {
     throw result.error;
   }
 
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
+  if (result.status !== EXIT_SUCCESS) {
+    process.exit(result.status ?? EXIT_FAILURE);
   }
 }
 

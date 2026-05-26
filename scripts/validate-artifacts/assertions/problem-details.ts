@@ -1,4 +1,5 @@
 import { assert, assertSpecVersion } from "../core/assert.ts";
+import { HTTP_ACCEPTED } from "../core/numeric-constants.ts";
 import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
@@ -99,7 +100,7 @@ function assertLifecycleMutationFixtures(
         `${label} ${fixture.name} success case must be expected valid`,
       );
       assert(
-        fixture.expected.status === 202,
+        fixture.expected.status === HTTP_ACCEPTED,
         `${label} ${fixture.name} success case must expect HTTP 202`,
       );
       if (!actualSuccessesByEndpoint.has(fixture.endpoint)) {

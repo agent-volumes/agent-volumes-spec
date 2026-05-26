@@ -8,6 +8,13 @@ import {
 import { assertCycloneDxArtifact } from "../assertions/trust-artifacts.ts";
 import { assert, assertDeepEqual, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
 import {
+  EMPTY_COUNT,
+  HUMAN_LINE_NUMBER_OFFSET,
+  LISTING_ID_PAD_WIDTH,
+  REQUIRED_CONFORMANCE_REQUIREMENT_COUNT,
+  SHA256_INTEGRITY_PREFIX_LENGTH,
+} from "../core/numeric-constants.ts";
+import {
   canonicalComponentPurl,
   canonicalReleasePurl,
   compareStrings,
@@ -25,12 +32,14 @@ export function run(ctx: ValidationContext): void {
   );
   for (const id of [
     ...Array.from(
-      { length: 18 },
-      (_: JsonValue, index: JsonValue) => `AV-BIB-${String(index + 1).padStart(3, "0")}`,
+      Array.from({ length: REQUIRED_CONFORMANCE_REQUIREMENT_COUNT }).keys(),
+      (index: JsonValue) =>
+        `AV-BIB-${String(index + HUMAN_LINE_NUMBER_OFFSET).padStart(LISTING_ID_PAD_WIDTH, "0")}`,
     ),
     ...Array.from(
-      { length: 18 },
-      (_: JsonValue, index: JsonValue) => `AV-CLI-${String(index + 1).padStart(3, "0")}`,
+      Array.from({ length: REQUIRED_CONFORMANCE_REQUIREMENT_COUNT }).keys(),
+      (index: JsonValue) =>
+        `AV-CLI-${String(index + HUMAN_LINE_NUMBER_OFFSET).padStart(LISTING_ID_PAD_WIDTH, "0")}`,
     ),
   ]) {
     assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
@@ -108,13 +117,13 @@ export function run(ctx: ValidationContext): void {
             `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs Agent Volumes namespace`,
           );
           assert(
-            typeof mapping.serialization === "string" && mapping.serialization.length > 0,
+            typeof mapping.serialization === "string" && mapping.serialization.length > EMPTY_COUNT,
             `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs serialization guidance`,
           );
         }
         if (mapping.kind === "lossy") {
           assert(
-            typeof mapping.lossiness === "string" && mapping.lossiness.length > 0,
+            typeof mapping.lossiness === "string" && mapping.lossiness.length > EMPTY_COUNT,
             `mapping matrix ${entry.agentVolumesField}.${family} lossy mapping needs lossiness explanation`,
           );
         }
@@ -130,7 +139,7 @@ export function run(ctx: ValidationContext): void {
   const sampleManifest = mappingSample.sourceManifest;
   const sampleVolume = sampleManifest.volume;
   const sampleRelease = mappingSample.releaseSubject;
-  const sampleDigest = sampleRelease.integrity.slice(7);
+  const sampleDigest = sampleRelease.integrity.slice(SHA256_INTEGRITY_PREFIX_LENGTH);
   const sampleCycloneDx = mappingSample.exports.cyclonedx;
   const sampleSpdx = mappingSample.exports.spdx;
   const sampleSpdxExternalDependencies = mappingSample.exports.spdxExternalDependencies;

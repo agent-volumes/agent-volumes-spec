@@ -2,6 +2,12 @@ import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assertReleaseMetadata } from "../assertions/release-metadata.ts";
 import { assertWarning } from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
+import {
+  EMPTY_COUNT,
+  MINIMAL_CARDINALITY,
+  REQUIRED_COMPONENT_COUNT,
+  REQUIRED_VERSION_INDEX_ROWS,
+} from "../core/numeric-constants.ts";
 import { assertRouteMetadataIdentity, routeIdentityFromPath } from "../core/purl.ts";
 import { parseFixtureTomlSubset } from "../core/toml.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
@@ -34,7 +40,7 @@ export function run(ctx: ValidationContext): void {
   );
   assert(
     manifestComponentFixture.canonicalParsedData.volume.role === "component" &&
-      manifestComponentFixture.canonicalParsedData.components.length === 1,
+      manifestComponentFixture.canonicalParsedData.components.length === REQUIRED_COMPONENT_COUNT,
     "component package manifest fixture must declare exactly one component",
   );
 
@@ -49,7 +55,7 @@ export function run(ctx: ValidationContext): void {
   );
   assert(
     invalidComponentRoleFixture.canonicalParsedData.volume.role === "component" &&
-      invalidComponentRoleFixture.canonicalParsedData.components.length > 1,
+      invalidComponentRoleFixture.canonicalParsedData.components.length > MINIMAL_CARDINALITY,
     "invalid component role fixture must exercise multiple component declarations",
   );
   assert(
@@ -70,7 +76,7 @@ export function run(ctx: ValidationContext): void {
   );
   assert(
     manifestProviderFixture.canonicalParsedData.volume.role === "provider" &&
-      manifestProviderFixture.canonicalParsedData.volume.providers?.length > 0,
+      manifestProviderFixture.canonicalParsedData.volume.providers?.length > EMPTY_COUNT,
     "provider package manifest fixture must declare provider metadata",
   );
 
@@ -280,7 +286,7 @@ export function run(ctx: ValidationContext): void {
   const versionIndexFixture = ctx.readJson("conformance/fixtures/version-index.json");
   ctx.validate("versionIndex", versionIndexFixture, "version index collection fixture");
   assert(
-    versionIndexFixture.items.length >= 2,
+    versionIndexFixture.items.length >= REQUIRED_VERSION_INDEX_ROWS,
     "version index collection fixture must include multiple rows",
   );
 

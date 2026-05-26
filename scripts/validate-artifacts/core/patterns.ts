@@ -1,3 +1,17 @@
+import {
+  EMPTY_COUNT,
+  HTTP_BAD_REQUEST,
+  HTTP_CONFLICT,
+  HTTP_FORBIDDEN,
+  HTTP_GONE,
+  HTTP_NOT_FOUND,
+  HTTP_PAYLOAD_TOO_LARGE,
+  HTTP_TOO_MANY_REQUESTS,
+  HTTP_UNAUTHORIZED,
+  HTTP_UNSUPPORTED_MEDIA_TYPE,
+  INCREMENT_STEP,
+} from "./numeric-constants.ts";
+
 const volumeNamePattern =
   /^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?\/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
 const semverPattern =
@@ -23,25 +37,25 @@ const externalDependencyPurposeExtensionPattern =
   /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$/;
 const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
 const problemStatusBySlug = new Map([
-  ["authentication-required", 401],
-  ["authorization-failed", 403],
-  ["not-found", 404],
-  ["validation-failed", 400],
-  ["invalid-manifest", 400],
-  ["invalid-archive", 400],
-  ["identity-mismatch", 409],
-  ["version-conflict", 409],
-  ["digest-mismatch", 400],
-  ["subject-binding-mismatch", 400],
-  ["inconsistent-registry-state", 409],
-  ["upload-expired", 410],
-  ["missing-uploaded-bytes", 400],
-  ["invalid-upload-state", 409],
-  ["idempotency-conflict", 409],
-  ["payload-too-large", 413],
-  ["unsupported-media-type", 415],
-  ["permission-escalation", 400],
-  ["rate-limited", 429],
+  ["authentication-required", HTTP_UNAUTHORIZED],
+  ["authorization-failed", HTTP_FORBIDDEN],
+  ["not-found", HTTP_NOT_FOUND],
+  ["validation-failed", HTTP_BAD_REQUEST],
+  ["invalid-manifest", HTTP_BAD_REQUEST],
+  ["invalid-archive", HTTP_BAD_REQUEST],
+  ["identity-mismatch", HTTP_CONFLICT],
+  ["version-conflict", HTTP_CONFLICT],
+  ["digest-mismatch", HTTP_BAD_REQUEST],
+  ["subject-binding-mismatch", HTTP_BAD_REQUEST],
+  ["inconsistent-registry-state", HTTP_CONFLICT],
+  ["upload-expired", HTTP_GONE],
+  ["missing-uploaded-bytes", HTTP_BAD_REQUEST],
+  ["invalid-upload-state", HTTP_CONFLICT],
+  ["idempotency-conflict", HTTP_CONFLICT],
+  ["payload-too-large", HTTP_PAYLOAD_TOO_LARGE],
+  ["unsupported-media-type", HTTP_UNSUPPORTED_MEDIA_TYPE],
+  ["permission-escalation", HTTP_BAD_REQUEST],
+  ["rate-limited", HTTP_TOO_MANY_REQUESTS],
 ]);
 
 function isRecognizedSpdxExpressionShape(expression: string): boolean {
@@ -58,12 +72,12 @@ function isRecognizedSpdxExpressionShape(expression: string): boolean {
       if (!expectOperand) {
         return false;
       }
-      depth += 1;
+      depth += INCREMENT_STEP;
     } else if (token === ")") {
-      if (expectOperand || depth === 0) {
+      if (expectOperand || depth === EMPTY_COUNT) {
         return false;
       }
-      depth -= 1;
+      depth -= INCREMENT_STEP;
     } else if (token === "AND" || token === "OR") {
       if (expectOperand) {
         return false;
@@ -84,7 +98,7 @@ function isRecognizedSpdxExpressionShape(expression: string): boolean {
       expectOperand = false;
     }
   }
-  return tokens.length > 0 && depth === 0 && !expectOperand;
+  return tokens.length > EMPTY_COUNT && depth === EMPTY_COUNT && !expectOperand;
 }
 
 export {

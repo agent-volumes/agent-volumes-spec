@@ -2,6 +2,7 @@ import YAML from "yaml";
 
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assert } from "../core/assert.ts";
+import { FIRST_CONTENT_INDEX } from "../core/numeric-constants.ts";
 import { problemStatusBySlug } from "../core/patterns.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
@@ -121,7 +122,7 @@ export function run(ctx: ValidationContext): void {
   for (const [slug, status] of problemStatusBySlug) {
     const componentName = `${slug
       .split("-")
-      .map((part: JsonValue) => `${part[0].toUpperCase()}${part.slice(1)}`)
+      .map((part: JsonValue) => `${part[0].toUpperCase()}${part.slice(FIRST_CONTENT_INDEX)}`)
       .join("")}Problem`;
     const problemSchema = openapi.components.schemas[componentName];
     assert(problemSchema, `OpenAPI ProblemDetails must define ${componentName}`);

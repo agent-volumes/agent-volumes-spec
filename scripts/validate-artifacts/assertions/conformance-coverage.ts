@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { assert, assertUniqueStrings } from "../core/assert.ts";
 import { readJsonFile } from "../core/files.ts";
+import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 function caseNamesFromFixture(fixture: JsonValue): JsonValue[] {
@@ -68,7 +69,7 @@ function assertConformanceCoverageReferences(
         const fixture = readJsonFile(resolvedPath);
         const caseNames = caseNamesFromFixture(fixture);
         assert(
-          caseNames.length > 0,
+          caseNames.length > EMPTY_COUNT,
           `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
         );
         assertUniqueStrings(caseNames, `${coverage.fixture} case names`);

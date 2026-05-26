@@ -1,10 +1,18 @@
 import { assert } from "./assert.ts";
+import {
+  EMPTY_COUNT,
+  FIRST_CONTENT_INDEX,
+  HUMAN_LINE_NUMBER_OFFSET,
+  INCREMENT_STEP,
+  LAST_ITEM_OFFSET,
+  TOML_ASSIGNMENT_MINIMUM_INDEX,
+} from "./numeric-constants.ts";
 import type { JsonObject, JsonValue } from "./types.ts";
 
 function stripTomlComment(line: JsonValue): JsonValue {
   let inString = false;
   let escaped = false;
-  for (let index = 0; index < line.length; index += 1) {
+  for (let index = EMPTY_COUNT; index < line.length; index += INCREMENT_STEP) {
     const character = line[index];
     if (escaped) {
       escaped = false;
@@ -13,7 +21,7 @@ function stripTomlComment(line: JsonValue): JsonValue {
     } else if (character === '"') {
       inString = !inString;
     } else if (character === "#" && !inString) {
-      return line.slice(0, index);
+      return line.slice(EMPTY_COUNT, index);
     }
   }
   return line;
@@ -73,7 +81,7 @@ function parseTomlScalar(value: string): JsonValue {
     return Number(trimmed);
   }
   if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-    const content = trimmed.slice(1, -1).trim();
+    const content = trimmed.slice(FIRST_CONTENT_INDEX, LAST_ITEM_OFFSET).trim();
     return content ? splitTomlArray(content).map((item: string) => parseTomlScalar(item)) : [];
   }
   throw new Error(`unsupported TOML scalar in fixture: ${trimmed}`);
@@ -82,7 +90,7 @@ function parseTomlScalar(value: string): JsonValue {
 function resolveTomlPath(rootObject: JsonObject, header: string, arrayTable: boolean): JsonObject {
   const pathParts = header.split(".").map((part: string) => parseTomlKey(part));
   let parent = rootObject;
-  for (const part of pathParts.slice(0, -1)) {
+  for (const part of pathParts.slice(EMPTY_COUNT, LAST_ITEM_OFFSET)) {
     parent[part] ??= {};
     assert(
       !Array.isArray(parent[part]),
@@ -90,7 +98,7 @@ function resolveTomlPath(rootObject: JsonObject, header: string, arrayTable: boo
     );
     parent = parent[part];
   }
-  const finalPart = pathParts[pathParts.length - 1];
+  const finalPart = pathParts[pathParts.length - FIRST_CONTENT_INDEX];
   assert(finalPart, `unsupported empty TOML path in fixture: ${header}`);
   if (arrayTable) {
     parent[finalPart] ??= [];
@@ -117,7 +125,7 @@ function parseFixtureTomlSubset(source: string, label: string): JsonObject {
   const parsed: JsonObject = {};
   let current = parsed;
   const lines = source.split(/\r?\n/);
-  for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
+  for (let lineNumber = EMPTY_COUNT; lineNumber < lines.length; lineNumber += INCREMENT_STEP) {
     const line = stripTomlComment(lines[lineNumber]).trim();
     if (line) {
       const arrayTableMatch = line.match(/^\[\[([^\]]+)\]\]$/);
@@ -130,11 +138,11 @@ function parseFixtureTomlSubset(source: string, label: string): JsonObject {
         } else {
           const assignmentIndex = line.indexOf("=");
           assert(
-            assignmentIndex > 0,
-            `${label} has unsupported TOML line ${lineNumber + 1}: ${line}`,
+            assignmentIndex > TOML_ASSIGNMENT_MINIMUM_INDEX,
+            `${label} has unsupported TOML line ${lineNumber + HUMAN_LINE_NUMBER_OFFSET}: ${line}`,
           );
-          const key = parseTomlKey(line.slice(0, assignmentIndex));
-          current[key] = parseTomlScalar(line.slice(assignmentIndex + 1));
+          const key = parseTomlKey(line.slice(EMPTY_COUNT, assignmentIndex));
+          current[key] = parseTomlScalar(line.slice(assignmentIndex + FIRST_CONTENT_INDEX));
         }
       }
     }

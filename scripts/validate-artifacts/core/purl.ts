@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
 import { assert, stableJsonStringify } from "./assert.ts";
+import { EMPTY_COUNT, PURL_SCOPE_PREFIX_LENGTH } from "./numeric-constants.ts";
 import {
   componentNamePattern,
   coreExternalDependencyPurposes,
@@ -14,7 +15,7 @@ import type { JsonValue } from "./types.ts";
 function canonicalReleasePurl(volume: JsonValue, version: JsonValue): string {
   assert(volumeNamePattern.test(volume), `cannot canonicalize invalid volume name: ${volume}`);
   if (volume.startsWith("@")) {
-    const [scope, name] = volume.slice(1).split("/");
+    const [scope, name] = volume.slice(PURL_SCOPE_PREFIX_LENGTH).split("/");
     return `pkg:volume/%40${scope}/${name}@${version}`;
   }
   return `pkg:volume/${volume}@${version}`;
@@ -86,7 +87,10 @@ function declarationKeyInput(semanticKey: JsonValue): JsonValue {
   return {
     purl: semanticKey.purl,
     purpose: semanticKey.purpose,
-    scope: semanticKey.scope.length === 0 ? { kind: "volume" } : { components: semanticKey.scope },
+    scope:
+      semanticKey.scope.length === EMPTY_COUNT
+        ? { kind: "volume" }
+        : { components: semanticKey.scope },
   };
 }
 

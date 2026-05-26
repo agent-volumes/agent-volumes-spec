@@ -9,6 +9,10 @@ import {
 } from "../assertions/trust-artifacts.ts";
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import { errorMessage } from "../core/json.ts";
+import {
+  FILE_TREE_EXECUTABLE_FLAG,
+  FILE_TREE_NON_EXECUTABLE_FLAG,
+} from "../core/numeric-constants.ts";
 import { gitCommitPattern } from "../core/patterns.ts";
 import { canonicalComponentPurl, canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
@@ -190,7 +194,7 @@ export function run(ctx: ValidationContext): void {
           ? Buffer.from(file.contentBase64, "base64")
           : Buffer.from(file.content, "utf8");
         const recordHeader = Buffer.from(
-          `file ${file.path} ${file.executable ? 1 : 0} ${contentBytes.byteLength}\n`,
+          `file ${file.path} ${file.executable ? FILE_TREE_EXECUTABLE_FLAG : FILE_TREE_NON_EXECUTABLE_FLAG} ${contentBytes.byteLength}\n`,
           "utf8",
         );
         return canonicalInputBytes.includes(recordHeader);

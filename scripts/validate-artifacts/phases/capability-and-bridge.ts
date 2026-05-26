@@ -5,6 +5,7 @@ import {
 } from "../assertions/publication-drift.ts";
 import { assertWarning } from "../assertions/warnings.ts";
 import { assert } from "../core/assert.ts";
+import { REQUIRED_CAPABILITY_BRIDGE_PAIR_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 export function run(ctx: ValidationContext): void {
@@ -149,7 +150,7 @@ export function run(ctx: ValidationContext): void {
   }
   assert(
     new Set(bridgeStatusVariants.fixtures.map((fixture: JsonValue) => fixture.payload.status))
-      .size === 2,
+      .size === REQUIRED_CAPABILITY_BRIDGE_PAIR_COUNT,
     "bridge status variants fixture must cover distinct non-active statuses",
   );
 

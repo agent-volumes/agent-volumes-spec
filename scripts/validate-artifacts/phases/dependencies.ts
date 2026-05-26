@@ -2,6 +2,7 @@ import path from "node:path";
 
 import { assertWarning } from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
+import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import {
   externalDependencyDeclarationKeyPattern,
   isRecognizedSpdxExpressionShape,
@@ -79,43 +80,43 @@ export function run(ctx: ValidationContext): void {
     }
     if (dependencyCase.expected.failureCategory === "missing-component-dependency") {
       assert(
-        missingDependencies.length > 0,
+        missingDependencies.length > EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must contain a missing dependency`,
       );
     }
     if (dependencyCase.expected.failureCategory === "unknown-local-component") {
       assert(
-        unknownLocalComponents.length > 0,
+        unknownLocalComponents.length > EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must contain a component-dependencies key absent from declaredComponents`,
       );
     }
     if (dependencyCase.expected.failureCategory === "invalid-component-purl") {
       assert(
-        invalidComponentPurls.length > 0,
+        invalidComponentPurls.length > EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must contain an invalid component purl candidate`,
       );
     }
     if (dependencyCase.expected.failureCategory === "missing-parent-volume-dependency") {
       assert(
-        missingParentDependencies.length > 0,
+        missingParentDependencies.length > EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must contain a versionless component dependency without a parent volume dependency`,
       );
     }
     if (dependencyCase.expected.valid === true) {
       assert(
-        missingDependencies.length === 0,
+        missingDependencies.length === EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must be semantically valid`,
       );
       assert(
-        unknownLocalComponents.length === 0,
+        unknownLocalComponents.length === EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must only use declared component-dependencies keys`,
       );
       assert(
-        invalidComponentPurls.length === 0,
+        invalidComponentPurls.length === EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must only use valid component purls`,
       );
       assert(
-        missingParentDependencies.length === 0,
+        missingParentDependencies.length === EMPTY_COUNT,
         `component dependency case ${dependencyCase.name} must only use versionless references backed by parent volume dependencies`,
       );
     }
@@ -589,7 +590,7 @@ export function run(ctx: ValidationContext): void {
     }
     if (exposureCase.expected.intersection !== "intersects") {
       assert(
-        (exposureCase.expected.warnings ?? []).length === 0,
+        (exposureCase.expected.warnings ?? []).length === EMPTY_COUNT,
         `potential exposure case ${exposureCase.name} non-intersecting/indeterminate cases must not emit potential exposure warnings`,
       );
     }

@@ -1,4 +1,9 @@
 import { assert } from "../core/assert.ts";
+import {
+  CYCLONE_DX_DOCUMENT_VERSION,
+  EMPTY_COUNT,
+  SHA256_INTEGRITY_PREFIX_LENGTH,
+} from "../core/numeric-constants.ts";
 import type { JsonValue } from "../core/types.ts";
 
 function assertCycloneDxArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
@@ -16,7 +21,7 @@ function assertCycloneDxArtifact(artifactJson: JsonValue, trustCase: JsonValue):
     `trust artifact case ${trustCase.name} BOM must declare a deterministic CycloneDX serialNumber`,
   );
   assert(
-    artifactJson.version === 1,
+    artifactJson.version === CYCLONE_DX_DOCUMENT_VERSION,
     `trust artifact case ${trustCase.name} BOM must declare document version 1`,
   );
   assert(
@@ -42,7 +47,7 @@ function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void
     `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`,
   );
   assert(
-    Array.isArray(artifactJson.signatures) && artifactJson.signatures.length > 0,
+    Array.isArray(artifactJson.signatures) && artifactJson.signatures.length > EMPTY_COUNT,
     `trust artifact case ${trustCase.name} SLSA envelope needs deterministic signature material`,
   );
   for (const signature of artifactJson.signatures) {
@@ -61,14 +66,15 @@ function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void
     `trust artifact case ${trustCase.name} needs SLSA v1 predicateType`,
   );
   assert(
-    Array.isArray(statement.subject) && statement.subject.length > 0,
+    Array.isArray(statement.subject) && statement.subject.length > EMPTY_COUNT,
     `trust artifact case ${trustCase.name} SLSA statement needs at least one subject`,
   );
   assert(
     statement.subject?.some(
       (subject: JsonValue) =>
         subject.name === trustCase.subject.purl &&
-        subject.digest?.sha256 === trustCase.subject.integrity.slice(7),
+        subject.digest?.sha256 ===
+          trustCase.subject.integrity.slice(SHA256_INTEGRITY_PREFIX_LENGTH),
     ),
     `trust artifact case ${trustCase.name} SLSA subject must bind release subject`,
   );
@@ -98,7 +104,7 @@ function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): 
   );
   assert(
     Array.isArray(artifactJson.verification_material.tlog_entries) &&
-      artifactJson.verification_material.tlog_entries.length > 0,
+      artifactJson.verification_material.tlog_entries.length > EMPTY_COUNT,
     `trust artifact case ${trustCase.name} Sigstore bundle needs bundled transparency evidence`,
   );
   const hasMessageSignature = Boolean(artifactJson.message_signature);
@@ -110,7 +116,7 @@ function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): 
   if (hasMessageSignature) {
     assert(
       artifactJson.message_signature.message_digest?.digest ===
-        trustCase.subject.integrity.slice(7),
+        trustCase.subject.integrity.slice(SHA256_INTEGRITY_PREFIX_LENGTH),
       `trust artifact case ${trustCase.name} Sigstore message digest must bind release subject`,
     );
     assert(
@@ -120,7 +126,7 @@ function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): 
   }
   if (hasDsseEnvelope) {
     assert(
-      artifactJson.dsse_envelope.signatures?.length > 0,
+      artifactJson.dsse_envelope.signatures?.length > EMPTY_COUNT,
       `trust artifact case ${trustCase.name} DSSE signatures are required`,
     );
   }

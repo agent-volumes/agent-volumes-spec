@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import { assert, stableJsonStringify } from "../core/assert.ts";
 import { errorMessage } from "../core/json.ts";
+import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue } from "../core/types.ts";
 
 function findProperty(properties: JsonValue, name: JsonValue, label: JsonValue): JsonValue {
@@ -65,7 +66,7 @@ function findSpdxExternalRef(
 function decodeFixtureArtifact(artifact: JsonValue, label: JsonValue): JsonValue {
   assert(artifact?.bytesBase64, `${label} needs artifact.bytesBase64`);
   const bytes = Buffer.from(artifact.bytesBase64, "base64");
-  assert(bytes.length > 0, `${label} artifact bytes must not be empty`);
+  assert(bytes.length > EMPTY_COUNT, `${label} artifact bytes must not be empty`);
   const digest = `sha256:${crypto.createHash("sha256").update(bytes).digest("hex")}`;
   assert(digest === artifact.artifactDigest, `${label} artifactDigest must match bytes`);
   try {

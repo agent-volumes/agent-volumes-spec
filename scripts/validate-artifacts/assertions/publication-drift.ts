@@ -8,6 +8,11 @@ import {
   assertUniqueStrings,
   stableJsonStringify,
 } from "../core/assert.ts";
+import {
+  AV_PREFIX_LENGTH,
+  EMPTY_COUNT,
+  JSON_LD_CONTEXT_VERSION,
+} from "../core/numeric-constants.ts";
 import { compareStrings } from "../core/purl.ts";
 import {
   reservedExtensionNamespaces,
@@ -25,7 +30,7 @@ function assertReservedExtensionNamespaceDrift(ctx: ValidationContext): void {
   assertSpecVersion(ctx, reservedExtensionNamespaces, "reserved extension namespace artifact");
   assert(
     Array.isArray(reservedExtensionNamespaces.reserved) &&
-      reservedExtensionNamespaces.reserved.length > 0,
+      reservedExtensionNamespaces.reserved.length > EMPTY_COUNT,
     "reserved extension namespace artifact must list reserved namespaces",
   );
   assertUniqueStrings(reservedExtensionNamespaces.reserved, "reserved extension namespaces");
@@ -127,7 +132,7 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
     "SPDX external dependency JSON-LD context must define @context",
   );
   assert(
-    context["@version"] === 1.1,
+    context["@version"] === JSON_LD_CONTEXT_VERSION,
     "SPDX external dependency JSON-LD context must use JSON-LD 1.1",
   );
   assert(
@@ -151,7 +156,7 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
   );
   assert(
     Array.isArray(spdxExternalDependencyExport.elements) &&
-      spdxExternalDependencyExport.elements.length > 0,
+      spdxExternalDependencyExport.elements.length > EMPTY_COUNT,
     "mapping sample SPDX external dependency export must include elements",
   );
 
@@ -164,12 +169,12 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
 
     const typeValue = element["@type"];
     if (typeof typeValue === "string" && typeValue.startsWith("av:")) {
-      termsUsedByFixture.add(typeValue.slice(3));
+      termsUsedByFixture.add(typeValue.slice(AV_PREFIX_LENGTH));
     }
 
     for (const key of Object.keys(element)) {
       if (key.startsWith("av:")) {
-        termsUsedByFixture.add(key.slice(3));
+        termsUsedByFixture.add(key.slice(AV_PREFIX_LENGTH));
       }
     }
   }
