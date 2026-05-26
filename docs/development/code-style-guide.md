@@ -253,28 +253,31 @@ function processData(data: unknown) {
 
 ---
 
-### `eslint/no-ternary`
+### `unicorn/prefer-ternary`
 
-**What it does:** Disallows ternary expressions.
+**What it does:** Prefers ternary expressions over simple `if/else` statements when both branches are single-line.
 
-**Why maintain:** Ternaries can reduce readability, especially when nested. Prefer explicit `if/else` for clarity.
+**Why maintain:** Simple `if/else` branches for the same operation are often shorter and clearer when expressed as a ternary. The `only-single-line` option restricts this to cases where the condition and both branches fit on a single line, preventing unreadable nested or multi-line ternaries.
+
+**Configuration:** `["warn", "only-single-line"]`
 
 **Incorrect:**
 
 ```typescript
-const result = condition ? valueA : valueB;
+if (test) {
+  return a;
+} else {
+  return b;
+}
 ```
 
 **Correct:**
 
 ```typescript
-let result: string;
-if (condition) {
-  result = valueA;
-} else {
-  result = valueB;
-}
+return test ? a : b;
 ```
+
+**Note:** This rule conflicts with `eslint/no-ternary`, which unconditionally disallows all ternary expressions. We disable `no-ternary` in favor of `prefer-ternary` with the `only-single-line` option to allow concise single-line ternaries while keeping multi-line ternaries disallowed.
 
 ---
 
@@ -489,6 +492,23 @@ Both `phases/` and `assertions/` depend on `core/`, necessitating `../core/` imp
 **Why disabled:** Object spread is a standard, well-supported JavaScript feature with no compatibility concerns in this project's runtime environment.
 
 **Project style:** Object and array spread syntax is permitted.
+
+---
+
+### `eslint/no-ternary`
+
+**Why disabled:** This rule unconditionally disallows all ternary expressions, which conflicts with `unicorn/prefer-ternary`.
+
+- `eslint/no-ternary` forbids `const x = condition ? a : b;`
+- `unicorn/prefer-ternary` (with `only-single-line` option) encourages single-line ternaries like `return condition ? a : b;`
+
+These two rules are mutually exclusive. We keep `prefer-ternary` with the `only-single-line` option because:
+
+1. Single-line ternaries are concise and idiomatic for simple conditional assignments and returns
+2. The `only-single-line` option prevents unreadable nested or multi-line ternaries
+3. `if/else` remains available for complex conditional logic
+
+**Project style:** Use ternary expressions only when the condition and both branches fit on a single line. Use `if/else` for multi-line conditional logic.
 
 ---
 
