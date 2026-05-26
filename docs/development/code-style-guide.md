@@ -117,6 +117,85 @@ export const arrowFn = (): string => "test";
 
 ---
 
+### `typescript/no-unnecessary-type-assertion`
+
+**What it does:** Flags type assertions that do not change the expression's type.
+
+**Why maintain:** Redundant assertions add noise and can hide uncertainty about the validator's parsed JSON types. When TypeScript already knows the type, remove the assertion instead of repeating it.
+
+**Incorrect:**
+
+```typescript
+for (const [responseName, response] of Object.entries(openapi.components.responses) as [
+  string,
+  JsonObject,
+][]) {
+  assertProblemDetails(ctx, response.value, responseName);
+}
+```
+
+**Correct:**
+
+```typescript
+for (const [responseName, response] of Object.entries(openapi.components.responses)) {
+  assert(isJsonObject(response), `OpenAPI ${responseName} response must be an object`);
+  assertProblemDetails(ctx, response.value, responseName);
+}
+```
+
+**Project style:** Prefer removing tuple or object-entry assertions when the existing expression already carries the needed type. If the value comes from parsed JSON and the compiler cannot know its shape, add an object guard such as `isJsonObject` before property access rather than asserting the loop entry type.
+
+**Note:** Oxlint's default configuration does not flag literal `as const` assertions for this rule. Keep `as const` when it intentionally preserves a literal type.
+
+---
+
+### `typescript/no-unsafe-type-assertion`
+
+**What it does:** Flags type assertions that narrow an expression to a more specific type.
+
+**Why maintain:** Narrowing assertions bypass TypeScript's checks and can turn malformed fixtures or OpenAPI data into runtime failures. Broadening a type is safer because it makes TypeScript know less; narrowing should happen through guards, existing helper contracts, or wider expressions.
+
+**Incorrect:**
+
+```typescript
+const requestedDependencies = Object.values(
+  dependencyCase["component-dependencies"],
+).flat() as string[];
+
+artifactErrorMessage = errorMessage(error as Error);
+
+for (const [pathName, pathItem] of Object.entries(openapi.paths as JsonObject)) {
+  for (const [method, operation] of Object.entries(pathItem as JsonObject)) {
+    const operationObject = operation as JsonObject;
+    validateOperation(operationObject, pathName, method);
+  }
+}
+```
+
+**Correct:**
+
+```typescript
+const requestedDependencies = Object.values(dependencyCase["component-dependencies"]).flat();
+
+artifactErrorMessage = errorMessage(error);
+
+assert(isJsonObject(openapi.paths), "OpenAPI paths must be an object");
+for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
+  assert(isJsonObject(pathItem), `OpenAPI ${pathName} path item must be an object`);
+  for (const [method, operation] of Object.entries(pathItem)) {
+    assert(
+      isJsonObject(operation),
+      `OpenAPI ${pathName} ${method} must define an operation object`,
+    );
+    validateOperation(operation, pathName, method);
+  }
+}
+```
+
+**Project style:** For parsed JSON fixtures, OpenAPI objects, TOML-derived values, and caught errors, avoid `as` for narrowing. Use existing helpers such as `assert`, `isJsonObject`, and `errorMessage`, or keep values at their wider dynamic type when the following code already handles that shape. For keyed lookup tables, prefer a guard or `Object.entries(...).find(...)` over `key as keyof typeof table`.
+
+---
+
 ### `import/exports-last`
 
 **What it does:** Requires all export statements to appear at the end of the file.
