@@ -19,15 +19,15 @@ const stableJsonStringify = (value: JsonValue): string => {
   return JSON.stringify(value);
 };
 
-const assertSpecVersion = (_ctx: ValidationContext, fixture: JsonValue, label: JsonValue) => {
+const assertSpecVersion = (_ctx: ValidationContext, fixture: JsonValue, label: JsonValue): void => {
   assert(fixture.specVersion === "0.1.0-rc.1", `${label} must declare specVersion 0.1.0-rc.1`);
 };
 
-const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
+const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue): void => {
   assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
 };
 
-const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
+const assertUniqueStrings = (values: JsonValue, label: JsonValue): void => {
   assert(new Set(values).size === values.length, `${label} must be unique`);
 };
 

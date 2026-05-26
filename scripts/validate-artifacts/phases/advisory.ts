@@ -1,7 +1,7 @@
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export const run = (ctx: ValidationContext) => {
+export const run = (ctx: ValidationContext): void => {
   ctx.validate("advisory", ctx.readJson("conformance/fixtures/advisory.json"), "advisory fixture");
   ctx.validate(
     "advisory",
