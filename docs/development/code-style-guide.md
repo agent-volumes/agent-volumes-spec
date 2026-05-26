@@ -57,32 +57,6 @@ export { first, second };
 
 ---
 
-### `eslint/sort-imports`
-
-**What it does:** Enforces alphabetical sorting of import declarations and their members.
-
-**Why maintain:** Consistent import ordering reduces merge conflicts and makes it easier to scan for imports.
-
-**Incorrect:**
-
-```typescript
-import { b, a, c } from "foo.js";
-import e from "bar.js";
-import d from "foo.js";
-```
-
-**Correct:**
-
-```typescript
-import e from "bar.js";
-import d from "foo.js";
-import { a, b, c } from "foo.js";
-```
-
-**Note:** This rule is auto-fixable. Run `oxlint --fix` to resolve violations automatically.
-
----
-
 ### `typescript/explicit-function-return-type`
 
 **What it does:** Requires explicit return type annotations on functions.
@@ -509,6 +483,16 @@ These two rules are mutually exclusive. We keep `prefer-ternary` with the `only-
 3. `if/else` remains available for complex conditional logic
 
 **Project style:** Use ternary expressions only when the condition and both branches fit on a single line. Use `if/else` for multi-line conditional logic.
+
+---
+
+### `eslint/sort-imports`
+
+**Why disabled:** Import ordering is owned by Oxfmt via `.oxfmtrc.json` with `sortImports: true`.
+
+Oxlint's `eslint/sort-imports` rule and Oxfmt's import sorter can disagree on declaration ordering. Keeping both active causes formatter/linter churn where `bun run format:oxfmt` rewrites imports into the formatter's order and `bun run lint:oxlint` reports the same block again.
+
+**Project style:** Do not hand-sort imports to satisfy Oxlint. Run `bun run format:oxfmt` or `bun run format` and let Oxfmt produce the canonical order.
 
 ---
 

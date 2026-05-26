@@ -19,7 +19,8 @@
     "oxc/no-optional-chaining": "off",
     "oxc/no-rest-spread-properties": "off",
     "no-console": "off",
-    "no-ternary": "off"
+    "no-ternary": "off",
+    "sort-imports": "off"
   },
   "overrides": [],
   "options": {
