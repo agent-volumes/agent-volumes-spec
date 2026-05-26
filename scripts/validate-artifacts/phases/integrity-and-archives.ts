@@ -16,6 +16,7 @@ import type { JsonValue, ValidationContext } from "../core/types.ts";
 const isInvalidNormalizedPath = (pathValue: JsonValue) =>
   pathValue.startsWith("/") ||
   pathValue.split("/").some((segment: JsonValue) => segment === "." || segment === "..");
+
 const normalizeArchivePath = (pathValue: JsonValue) => path.posix.normalize(pathValue);
 const isInvalidArchivePath = (pathValue: JsonValue) => {
   const normalized = normalizeArchivePath(pathValue);
@@ -134,7 +135,7 @@ export const run = (ctx: ValidationContext) => {
         trustCase.artifact.mediaType === trustCase.format.mediaType,
         `trust artifact case ${trustCase.name} artifact mediaType must match declared format`,
       );
-      let artifactError: unknown;
+      let artifactErrorMessage = "";
       try {
         const artifactJson = decodeFixtureArtifact(
           trustCase.artifact,
@@ -150,26 +151,23 @@ export const run = (ctx: ValidationContext) => {
           assertSigstoreArtifact(artifactJson, trustCase);
         }
       } catch (error) {
-        artifactError = error;
+        artifactErrorMessage = errorMessage(error as Error);
       }
       if (trustCase.expected.valid) {
         assert(
-          !artifactError,
-          artifactError
-            ? errorMessage(artifactError)
-            : `trust artifact case ${trustCase.name} must validate`,
+          !artifactErrorMessage,
+          artifactErrorMessage || `trust artifact case ${trustCase.name} must validate`,
         );
       } else if (trustCase.expected.failureCategory === "invalid-trust-artifact") {
         assert(
-          artifactError,
+          artifactErrorMessage,
           `trust artifact case ${trustCase.name} must fail artifact validation`,
         );
       } else {
         assert(
-          !artifactError,
-          artifactError
-            ? errorMessage(artifactError)
-            : `trust artifact case ${trustCase.name} artifact validation failed`,
+          !artifactErrorMessage,
+          artifactErrorMessage ||
+            `trust artifact case ${trustCase.name} artifact validation failed`,
         );
       }
     }
