@@ -102,7 +102,7 @@ function declarationKeyForSemanticKey(semanticKey: JsonValue): string {
 function routeIdentityFromPath(route: JsonValue): JsonValue {
   const match = route.match(/^\/api\/v1\/volumes\/(?:@([^/]+)\/)?([^/]+)\/([^/]+)$/);
   if (!match) {
-    return null;
+    return false;
   }
   const [, scope, name, version] = match;
   return {
