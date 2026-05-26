@@ -1,7 +1,7 @@
 import { assert } from "../core/assert.ts";
 import type { JsonValue } from "../core/types.ts";
 
-export const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   const component = artifactJson.metadata?.component;
   assert(
     artifactJson.bomFormat === "CycloneDX",
@@ -36,7 +36,7 @@ export const assertCycloneDxArtifact = (artifactJson: JsonValue, trustCase: Json
   );
 };
 
-export const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   assert(
     artifactJson.payloadType === "application/vnd.in-toto+json",
     `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`,
@@ -82,7 +82,7 @@ export const assertSlsaArtifact = (artifactJson: JsonValue, trustCase: JsonValue
   );
 };
 
-export const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
+const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonValue) => {
   assert(
     artifactJson.media_type === "application/vnd.dev.sigstore.bundle.v0.3+json",
     `trust artifact case ${trustCase.name} Sigstore bundle must declare v0.3 media_type`,
@@ -125,3 +125,5 @@ export const assertSigstoreArtifact = (artifactJson: JsonValue, trustCase: JsonV
     );
   }
 };
+
+export { assertCycloneDxArtifact, assertSlsaArtifact, assertSigstoreArtifact };
