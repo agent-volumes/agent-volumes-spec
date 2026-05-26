@@ -103,7 +103,11 @@
         "status": 409,
         "detail": "The bibliotheca cannot reconcile release metadata with retrievable artifact bytes."
       },
-      "expected": { "outcome": "failure", "installable": false, "failureCategory": "availability-or-registry-state" }
+      "expected": {
+        "outcome": "failure",
+        "installable": false,
+        "failureCategory": "availability-or-registry-state"
+      }
     },
     {
       "name": "release-metadata-rejects-resolved-external-dependency-evidence",
@@ -150,7 +154,11 @@
           "url": "https://cdn.example.test/volumes/research-agent-pack/1.4.6.tar.gz"
         }
       },
-      "expected": { "outcome": "failure", "installable": false, "failureCategory": "non-installable-dist" }
+      "expected": {
+        "outcome": "failure",
+        "installable": false,
+        "failureCategory": "non-installable-dist"
+      }
     }
   ]
 }

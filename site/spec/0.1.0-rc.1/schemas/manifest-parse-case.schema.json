@@ -28,7 +28,9 @@
               "path": { "type": "string" },
               "warnings": {
                 "type": "array",
-                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json" }
+                "items": {
+                  "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json"
+                }
               }
             }
           }

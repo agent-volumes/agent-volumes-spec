@@ -1,6 +1,6 @@
 ---
-title: 'Tool component: function endpoints for agents'
-description: 'Define function-call tools that agents invoke programmatically during task execution, with typed inputs and outputs described in JSON or YAML.'
+title: "Tool component: function endpoints for agents"
+description: "Define function-call tools that agents invoke programmatically during task execution, with typed inputs and outputs described in JSON or YAML."
 ---
 
 A Tool component packages a function or API capability that an agent calls during task execution. When an agent decides it needs to search for papers, read a file, fetch a URL, or execute a shell command, it reaches for a tool. Tools are stateless per invocation — each call is independent — and are always agent-initiated, not user-triggered.
@@ -32,9 +32,10 @@ The portable validation minimum requires:
 - Script entrypoints must exist and be regular files. Host executability and local policy are checked at load time, not during portable validation.
 
 <Note>
-  Agent Volumes v0.1 does not standardize a full tool ABI. If your entrypoint is a JSON or YAML descriptor and it
-  includes `name` and `inputSchema` fields, those are interpreted as function-description metadata. The spec does not
-  define the complete execution contract — that remains runtime-local.
+  Agent Volumes v0.1 does not standardize a full tool ABI. If your entrypoint is a JSON or YAML
+  descriptor and it includes `name` and `inputSchema` fields, those are interpreted as
+  function-description metadata. The spec does not define the complete execution contract — that
+  remains runtime-local.
 </Note>
 
 ## Declaring a tool in `volume.toml`
@@ -128,8 +129,9 @@ filesystem = "read-write"
 ```
 
 <Warning>
-  Component permissions can only be equal to or narrower than the volume-level permissions. Declaring `shell = "allow"`
-  at the component level when the volume declares `shell = "deny"` is a validation failure.
+  Component permissions can only be equal to or narrower than the volume-level permissions.
+  Declaring `shell = "allow"` at the component level when the volume declares `shell = "deny"` is a
+  validation failure.
 </Warning>
 
 ## Complete volume example with tools

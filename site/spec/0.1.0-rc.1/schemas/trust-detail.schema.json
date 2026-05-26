@@ -73,7 +73,10 @@
               "embedded": {}
             },
             "anyOf": [
-              { "properties": { "url": { "type": "string", "format": "uri" } }, "required": ["url"] },
+              {
+                "properties": { "url": { "type": "string", "format": "uri" } },
+                "required": ["url"]
+              },
               { "properties": { "embedded": {} }, "required": ["embedded"] }
             ]
           },

@@ -5,13 +5,17 @@
       "id": "AV-BIB-001",
       "role": "bibliotheca",
       "requirement": "Accept and serve volumes with valid volume.toml manifests.",
-      "coverage": [{ "fixture": "manifest-valid-minimal.json", "area": "manifest", "coverageType": "positive" }]
+      "coverage": [
+        { "fixture": "manifest-valid-minimal.json", "area": "manifest", "coverageType": "positive" }
+      ]
     },
     {
       "id": "AV-BIB-002",
       "role": "bibliotheca",
       "requirement": "Block continued distribution of artifacts with discovered permission escalation.",
-      "coverage": [{ "fixture": "permission-escalation.json", "area": "manifest", "coverageType": "negative" }]
+      "coverage": [
+        { "fixture": "permission-escalation.json", "area": "manifest", "coverageType": "negative" }
+      ]
     },
     {
       "id": "AV-BIB-003",
@@ -19,7 +23,11 @@
       "requirement": "Implement the package operations API.",
       "coverage": [
         { "fixture": "bibliotheca.openapi.yaml", "area": "openapi", "coverageType": "openapi" },
-        { "fixture": "problem-details-cases.json", "area": "problem-details", "coverageType": "negative" },
+        {
+          "fixture": "problem-details-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        },
         { "fixture": "problem-registry.json", "area": "problem-details", "coverageType": "schema" }
       ]
     },
@@ -43,14 +51,24 @@
       "coverage": [
         { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
         { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
-        { "fixture": "tar-archive-profile-cases.json", "area": "archive", "coverageType": "algorithmic" }
+        {
+          "fixture": "tar-archive-profile-cases.json",
+          "area": "archive",
+          "coverageType": "algorithmic"
+        }
       ]
     },
     {
       "id": "AV-BIB-006",
       "role": "bibliotheca",
       "requirement": "Support the package identity scheme.",
-      "coverage": [{ "fixture": "purl-canonicalization-cases.json", "area": "identity", "coverageType": "algorithmic" }]
+      "coverage": [
+        {
+          "fixture": "purl-canonicalization-cases.json",
+          "area": "identity",
+          "coverageType": "algorithmic"
+        }
+      ]
     },
     {
       "id": "AV-BIB-007",
@@ -89,7 +107,11 @@
       "role": "bibliotheca",
       "requirement": "Treat logical purl and digest as release identities.",
       "coverage": [
-        { "fixture": "exact-release-metadata-cases.json", "area": "release-metadata", "coverageType": "positive" }
+        {
+          "fixture": "exact-release-metadata-cases.json",
+          "area": "release-metadata",
+          "coverageType": "positive"
+        }
       ]
     },
     {
@@ -111,11 +133,27 @@
       "requirement": "Expose trust metadata summary and detail views.",
       "coverage": [
         { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
-        { "fixture": "trust-summary-empty.json", "area": "trust-discovery", "coverageType": "schema" },
+        {
+          "fixture": "trust-summary-empty.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        },
         { "fixture": "trust-detail.json", "area": "trust-discovery", "coverageType": "schema" },
-        { "fixture": "trust-detail-empty.json", "area": "trust-discovery", "coverageType": "schema" },
-        { "fixture": "trust-summary-failure-cases.json", "area": "problem-details", "coverageType": "negative" },
-        { "fixture": "trust-detail-failure-cases.json", "area": "problem-details", "coverageType": "negative" }
+        {
+          "fixture": "trust-detail-empty.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "trust-summary-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "trust-detail-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        }
       ]
     },
     {
@@ -123,8 +161,16 @@
       "role": "bibliotheca",
       "requirement": "Expose two-phase release and trust uploads for write-capable bibliothecas, including the http-put portable upload profile.",
       "coverage": [
-        { "fixture": "release-upload-lifecycle.json", "area": "release-upload", "coverageType": "algorithmic" },
-        { "fixture": "trust-upload-lifecycle.json", "area": "trust-upload", "coverageType": "algorithmic" }
+        {
+          "fixture": "release-upload-lifecycle.json",
+          "area": "release-upload",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "trust-upload-lifecycle.json",
+          "area": "trust-upload",
+          "coverageType": "algorithmic"
+        }
       ]
     },
     {
@@ -135,8 +181,16 @@
         { "fixture": "advisory.json", "area": "advisory", "coverageType": "schema" },
         { "fixture": "advisory-withdrawn.json", "area": "advisory", "coverageType": "schema" },
         { "fixture": "advisory-list.json", "area": "advisory", "coverageType": "schema" },
-        { "fixture": "advisory-search-failure-cases.json", "area": "problem-details", "coverageType": "negative" },
-        { "fixture": "advisory-validation-cases.json", "area": "advisory", "coverageType": "negative" }
+        {
+          "fixture": "advisory-search-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "advisory-validation-cases.json",
+          "area": "advisory",
+          "coverageType": "negative"
+        }
       ]
     },
     {
@@ -145,7 +199,11 @@
       "requirement": "Expose dedicated capability metadata endpoint with version fields, API family, and supported upload profiles.",
       "coverage": [
         { "fixture": "capability-metadata.json", "area": "capability", "coverageType": "schema" },
-        { "fixture": "capability-metadata-unknown-tolerance.json", "area": "capability", "coverageType": "positive" },
+        {
+          "fixture": "capability-metadata-unknown-tolerance.json",
+          "area": "capability",
+          "coverageType": "positive"
+        },
         {
           "fixture": "capability-metadata-reserved-extension-rejection.json",
           "area": "capability",
@@ -163,7 +221,11 @@
       "role": "bibliotheca",
       "requirement": "Preserve append-only trust attachment status and revision semantics.",
       "coverage": [
-        { "fixture": "trust-detail-status-variants.json", "area": "trust-discovery", "coverageType": "schema" }
+        {
+          "fixture": "trust-detail-status-variants.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        }
       ]
     },
     {
@@ -182,7 +244,11 @@
       "role": "bibliotheca",
       "requirement": "Expose declaration-only external dependency metadata through exact release metadata without claiming resolved dependency evidence.",
       "coverage": [
-        { "fixture": "exact-release-metadata-cases.json", "area": "release-metadata", "coverageType": "positive" },
+        {
+          "fixture": "exact-release-metadata-cases.json",
+          "area": "release-metadata",
+          "coverageType": "positive"
+        },
         {
           "fixture": "exact-release-metadata-cases.json",
           "area": "release-metadata",
@@ -208,8 +274,16 @@
       "role": "client",
       "requirement": "Parse volume.toml and validate canonical parsed-data model rules.",
       "coverage": [
-        { "fixture": "manifest-parse-cases.json", "area": "manifest", "coverageType": "algorithmic" },
-        { "fixture": "semantic-validation-cases.json", "area": "manifest", "coverageType": "negative" },
+        {
+          "fixture": "manifest-parse-cases.json",
+          "area": "manifest",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "semantic-validation-cases.json",
+          "area": "manifest",
+          "coverageType": "negative"
+        },
         {
           "fixture": "component-dependency-validation-cases.json",
           "area": "identity",
@@ -221,13 +295,21 @@
       "id": "AV-CLI-002",
       "role": "client",
       "requirement": "Parse portable dependency range expressions.",
-      "coverage": [{ "fixture": "semver-range-cases.json", "area": "resolver", "coverageType": "algorithmic" }]
+      "coverage": [
+        { "fixture": "semver-range-cases.json", "area": "resolver", "coverageType": "algorithmic" }
+      ]
     },
     {
       "id": "AV-CLI-003",
       "role": "client",
       "requirement": "Fail on permission escalation during publish, consume, install, or load workflows.",
-      "coverage": [{ "fixture": "permission-sibling-escalation.json", "area": "manifest", "coverageType": "negative" }]
+      "coverage": [
+        {
+          "fixture": "permission-sibling-escalation.json",
+          "area": "manifest",
+          "coverageType": "negative"
+        }
+      ]
     },
     {
       "id": "AV-CLI-004",
@@ -256,7 +338,11 @@
       "role": "client",
       "requirement": "Fetch exact release metadata before installation or trust evaluation.",
       "coverage": [
-        { "fixture": "exact-release-metadata-cases.json", "area": "release-metadata", "coverageType": "schema" }
+        {
+          "fixture": "exact-release-metadata-cases.json",
+          "area": "release-metadata",
+          "coverageType": "schema"
+        }
       ]
     },
     {
@@ -266,14 +352,24 @@
       "coverage": [
         { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
         { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
-        { "fixture": "tar-archive-profile-cases.json", "area": "archive", "coverageType": "algorithmic" }
+        {
+          "fixture": "tar-archive-profile-cases.json",
+          "area": "archive",
+          "coverageType": "algorithmic"
+        }
       ]
     },
     {
       "id": "AV-CLI-008",
       "role": "client",
       "requirement": "Support scoped and scopeless volume identifiers.",
-      "coverage": [{ "fixture": "purl-canonicalization-cases.json", "area": "identity", "coverageType": "algorithmic" }]
+      "coverage": [
+        {
+          "fixture": "purl-canonicalization-cases.json",
+          "area": "identity",
+          "coverageType": "algorithmic"
+        }
+      ]
     },
     {
       "id": "AV-CLI-009",
@@ -303,14 +399,20 @@
       "id": "AV-CLI-011",
       "role": "client",
       "requirement": "Distinguish canonical trust facts from derived judgments.",
-      "coverage": [{ "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" }]
+      "coverage": [
+        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" }
+      ]
     },
     {
       "id": "AV-CLI-012",
       "role": "client",
       "requirement": "Treat explicit trust invalidation or revocation as failure by default and superseded trust attachments as stale current evidence.",
       "coverage": [
-        { "fixture": "trust-detail-status-variants.json", "area": "trust-discovery", "coverageType": "negative" },
+        {
+          "fixture": "trust-detail-status-variants.json",
+          "area": "trust-discovery",
+          "coverageType": "negative"
+        },
         {
           "fixture": "trust-artifact-verification-cases.json",
           "area": "trust-verification",
@@ -349,7 +451,11 @@
       "role": "client",
       "requirement": "Consume capability metadata without failing solely on unknown fields or values while preserving exact spec-version set semantics.",
       "coverage": [
-        { "fixture": "capability-metadata-unknown-tolerance.json", "area": "capability", "coverageType": "positive" },
+        {
+          "fixture": "capability-metadata-unknown-tolerance.json",
+          "area": "capability",
+          "coverageType": "positive"
+        },
         {
           "fixture": "capability-invalid-compatibility-cases.json",
           "area": "capability",
@@ -363,7 +469,11 @@
       "requirement": "Surface required migration warnings during bridge periods.",
       "coverage": [
         { "fixture": "bridge-metadata.json", "area": "capability", "coverageType": "schema" },
-        { "fixture": "bridge-metadata-status-variants.json", "area": "capability", "coverageType": "schema" }
+        {
+          "fixture": "bridge-metadata-status-variants.json",
+          "area": "capability",
+          "coverageType": "schema"
+        }
       ]
     },
     {
@@ -406,7 +516,11 @@
           "area": "external-dependency",
           "coverageType": "negative"
         },
-        { "fixture": "upstream-baselines.json", "area": "external-dependency", "coverageType": "schema" }
+        {
+          "fixture": "upstream-baselines.json",
+          "area": "external-dependency",
+          "coverageType": "schema"
+        }
       ]
     },
     {

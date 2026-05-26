@@ -52,7 +52,14 @@
                 },
                 "coverageType": {
                   "type": "string",
-                  "enum": ["positive", "negative", "algorithmic", "schema", "openapi", "prose-boundary"]
+                  "enum": [
+                    "positive",
+                    "negative",
+                    "algorithmic",
+                    "schema",
+                    "openapi",
+                    "prose-boundary"
+                  ]
                 }
               }
             }

@@ -1,6 +1,6 @@
 ---
-title: 'Publish a volume to a bibliotheca'
-description: 'Two-phase upload lifecycle for publishing volume packages — create an upload intent, PUT the archive bytes, then finalize to make the release available.'
+title: "Publish a volume to a bibliotheca"
+description: "Two-phase upload lifecycle for publishing volume packages — create an upload intent, PUT the archive bytes, then finalize to make the release available."
 ---
 
 Publishing a volume uses a two-phase upload lifecycle. You first create an upload intent to declare your target release and get back opaque upload instructions. You then PUT the `.tar.gz` archive bytes to the URL in those instructions. Finally, you call the finalize endpoint so the bibliotheca can validate the archive, verify the digest, and make the release available. The bibliotheca derives the target volume identity from the route — not from the request body — so you cannot override the package name by sending a different name in the body.
@@ -112,7 +112,8 @@ All publish endpoints require authentication. See [Authentication](/spec/0.1.0-r
 ## Upload intent request fields
 
 <ParamField body="version" type="string" required>
-  SemVer version string for the release you are publishing. Must not already exist as a lifecycle-marked version.
+  SemVer version string for the release you are publishing. Must not already exist as a
+  lifecycle-marked version.
 </ParamField>
 
 <ParamField body="mediaType" type="string" required>
@@ -124,12 +125,13 @@ All publish endpoints require authentication. See [Authentication](/spec/0.1.0-r
 </ParamField>
 
 <ParamField body="declaredSize" type="integer">
-  Optional declared byte length of the archive. When provided, the bibliotheca verifies the uploaded size matches.
+  Optional declared byte length of the archive. When provided, the bibliotheca verifies the uploaded
+  size matches.
 </ParamField>
 
 <ParamField body="idempotencyKey" type="string">
-  Optional idempotency key for this intent creation. You can also pass this as the `Idempotency-Key` header. If both are
-  present, they must match exactly.
+  Optional idempotency key for this intent creation. You can also pass this as the `Idempotency-Key`
+  header. If both are present, they must match exactly.
 </ParamField>
 
 ## The `http-put` upload profile
@@ -141,9 +143,9 @@ Every write-capable v0.1 bibliotheca that supports release uploads must implemen
 - `upload.headers` contains any headers you must include on the PUT request
 
 <Warning>
-  Treat `upload.url` as an opaque retrieval target. Do not parse it for release identity or authorization scope. The URL
-  may point at internal infrastructure, a CDN, a time-limited signed object-storage URL, or another backend-specific
-  staging area.
+  Treat `upload.url` as an opaque retrieval target. Do not parse it for release identity or
+  authorization scope. The URL may point at internal infrastructure, a CDN, a time-limited signed
+  object-storage URL, or another backend-specific staging area.
 </Warning>
 
 ## Upload intent lifecycle states
@@ -208,6 +210,6 @@ Idempotency-Key: my-release-1.4.0-attempt-1
 ```
 
 <Tip>
-  Use idempotency keys in CI pipelines where a network timeout might cause you to retry a request that already succeeded
-  on the server.
+  Use idempotency keys in CI pipelines where a network timeout might cause you to retry a request
+  that already succeeded on the server.
 </Tip>

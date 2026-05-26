@@ -49,16 +49,16 @@ paths:
             minimum: 0
             default: 0
       responses:
-        '200':
+        "200":
           description: Search results
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResults'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/SearchResults"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}:
     post:
       summary: Create a release upload intent for an unscoped volume
@@ -70,7 +70,7 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: header
           name: Idempotency-Key
           required: false
@@ -82,24 +82,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
+              $ref: "#/components/schemas/ReleaseUploadIntentRequest"
       responses:
-        '201':
+        "201":
           description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-upload-intent.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/uploads/{uploadId}/finalize:
     post:
       summary: Finalize a release upload for an unscoped volume
@@ -111,7 +111,7 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: uploadId
           required: true
@@ -124,30 +124,30 @@ paths:
           schema:
             type: string
       responses:
-        '201':
+        "201":
           description: Published release metadata
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-upload-finalize.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '410':
-          $ref: '#/components/responses/Gone'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}:
     post:
       summary: Create a release upload intent for a scoped volume
@@ -159,12 +159,12 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: header
           name: Idempotency-Key
           required: false
@@ -176,24 +176,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReleaseUploadIntentRequest'
+              $ref: "#/components/schemas/ReleaseUploadIntentRequest"
       responses:
-        '201':
+        "201":
           description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-upload-intent.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize:
     post:
       summary: Finalize a release upload for a scoped volume
@@ -205,12 +205,12 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: uploadId
           required: true
@@ -223,30 +223,30 @@ paths:
           schema:
             type: string
       responses:
-        '201':
+        "201":
           description: Published release metadata
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-upload-finalize.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '410':
-          $ref: '#/components/responses/Gone'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/{version}:
     get:
       summary: Fetch volume release metadata
@@ -256,27 +256,27 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-metadata.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       summary: Unpublish an unscoped volume version
       operationId: unpublishVolumeRelease
@@ -287,25 +287,25 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '202':
+        "202":
           description: Unpublish accepted or tombstoned
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/{version}:
     get:
       summary: Fetch scoped volume release metadata
@@ -315,32 +315,32 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Release metadata. Delivery metadata is subordinate to the release integrity value; clients reject resolved content whose normalized-file-tree digest does not match.
           content:
             application/json:
               schema:
                 $ref: ../schemas/release-metadata.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     delete:
       summary: Unpublish a scoped volume version
       operationId: unpublishScopedVolumeRelease
@@ -351,30 +351,30 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '202':
+        "202":
           description: Unpublish accepted or tombstoned
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/index/volumes/{name}:
     get:
       summary: Fetch resolver-facing version index rows for an unscoped volume
@@ -384,20 +384,20 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
       responses:
-        '200':
+        "200":
           description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VersionIndex'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/VersionIndex"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/index/volumes/@{scope}/{name}:
     get:
       summary: Fetch resolver-facing version index rows for a scoped volume
@@ -407,25 +407,25 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
       responses:
-        '200':
+        "200":
           description: Package-scoped version index rows. Clients still fetch exact release metadata before installation or trust evaluation.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VersionIndex'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/VersionIndex"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/{version}/trust/summary:
     get:
       summary: Trust summary for a release
@@ -435,25 +435,25 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-summary.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/{version}/trust/summary:
     get:
       summary: Trust summary for a scoped release
@@ -463,30 +463,30 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Trust summary. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `artifacts` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-summary.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/{version}/trust/detail:
     get:
       summary: Trust detail for a release
@@ -496,25 +496,25 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-detail.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/{version}/trust/uploads:
     post:
       summary: Create a trust attachment upload intent for an unscoped release
@@ -526,12 +526,12 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
         - in: header
           name: Idempotency-Key
           required: false
@@ -543,30 +543,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TrustUploadIntentRequest'
+              $ref: "#/components/schemas/TrustUploadIntentRequest"
       responses:
-        '201':
+        "201":
           description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-upload-intent.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize:
     post:
       summary: Finalize a trust attachment upload for an unscoped release
@@ -578,12 +578,12 @@ paths:
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
         - in: path
           name: uploadId
           required: true
@@ -600,32 +600,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+              $ref: "#/components/schemas/TrustUploadFinalizeRequest"
       responses:
-        '201':
+        "201":
           description: Upload finalized and trust attachment made available through trust discovery.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-upload-finalize.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '410':
-          $ref: '#/components/responses/Gone'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/{version}/trust/detail:
     get:
       summary: Trust detail for a scoped release
@@ -635,30 +635,30 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
       responses:
-        '200':
+        "200":
           description: Trust detail. If the release exists but no trust artifacts are present, returns `200 OK` with an empty `attachments` array. An empty success response does not by itself indicate successful verification, trusted status, or policy compliance.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-detail.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads:
     post:
       summary: Create a trust attachment upload intent for a scoped release
@@ -670,17 +670,17 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
         - in: header
           name: Idempotency-Key
           required: false
@@ -692,30 +692,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TrustUploadIntentRequest'
+              $ref: "#/components/schemas/TrustUploadIntentRequest"
       responses:
-        '201':
+        "201":
           description: Upload intent created. Upload instructions are opaque implementation data.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-upload-intent.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize:
     post:
       summary: Finalize a trust attachment upload for a scoped release
@@ -727,17 +727,17 @@ paths:
           name: scope
           required: true
           schema:
-            $ref: '#/components/schemas/ScopeName'
+            $ref: "#/components/schemas/ScopeName"
         - in: path
           name: name
           required: true
           schema:
-            $ref: '#/components/schemas/NameSegment'
+            $ref: "#/components/schemas/NameSegment"
         - in: path
           name: version
           required: true
           schema:
-            $ref: '#/components/schemas/SemVer'
+            $ref: "#/components/schemas/SemVer"
         - in: path
           name: uploadId
           required: true
@@ -754,32 +754,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TrustUploadFinalizeRequest'
+              $ref: "#/components/schemas/TrustUploadFinalizeRequest"
       responses:
-        '201':
+        "201":
           description: Upload finalized and trust attachment made available through trust discovery.
           content:
             application/json:
               schema:
                 $ref: ../schemas/trust-upload-finalize.schema.json
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '410':
-          $ref: '#/components/responses/Gone'
-        '413':
-          $ref: '#/components/responses/PayloadTooLarge'
-        '415':
-          $ref: '#/components/responses/UnsupportedMediaType'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/advisories:
     get:
       summary: Search advisories
@@ -790,16 +790,16 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Advisory list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdvisoryList'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/AdvisoryList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/advisories/{advisoryId}:
     get:
       summary: Fetch one advisory
@@ -811,23 +811,23 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Advisory payload
           content:
             application/json:
               schema:
                 $ref: ../schemas/advisory.schema.json
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
   /api/v1/capabilities:
     get:
       summary: Bibliotheca capability metadata
       description: Returns registry-level capability metadata, including capability schema/spec versions, HTTP API major family, and supported upload profiles such as the v0.1 `http-put` baseline.
       operationId: getCapabilityMetadata
       responses:
-        '200':
+        "200":
           description: Capability metadata
           headers:
             Cache-Control:
@@ -837,8 +837,8 @@ paths:
             application/json:
               schema:
                 $ref: ../schemas/capability-metadata.schema.json
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 components:
   securitySchemes:
     bearerAuth:
@@ -869,25 +869,25 @@ components:
       pattern: ^sha256:[a-f0-9]{64}$
     ProblemDetails:
       oneOf:
-        - $ref: '#/components/schemas/AuthenticationRequiredProblem'
-        - $ref: '#/components/schemas/AuthorizationFailedProblem'
-        - $ref: '#/components/schemas/NotFoundProblem'
-        - $ref: '#/components/schemas/ValidationFailedProblem'
-        - $ref: '#/components/schemas/InvalidManifestProblem'
-        - $ref: '#/components/schemas/InvalidArchiveProblem'
-        - $ref: '#/components/schemas/IdentityMismatchProblem'
-        - $ref: '#/components/schemas/VersionConflictProblem'
-        - $ref: '#/components/schemas/DigestMismatchProblem'
-        - $ref: '#/components/schemas/SubjectBindingMismatchProblem'
-        - $ref: '#/components/schemas/InconsistentRegistryStateProblem'
-        - $ref: '#/components/schemas/UploadExpiredProblem'
-        - $ref: '#/components/schemas/MissingUploadedBytesProblem'
-        - $ref: '#/components/schemas/InvalidUploadStateProblem'
-        - $ref: '#/components/schemas/IdempotencyConflictProblem'
-        - $ref: '#/components/schemas/PayloadTooLargeProblem'
-        - $ref: '#/components/schemas/UnsupportedMediaTypeProblem'
-        - $ref: '#/components/schemas/PermissionEscalationProblem'
-        - $ref: '#/components/schemas/RateLimitedProblem'
+        - $ref: "#/components/schemas/AuthenticationRequiredProblem"
+        - $ref: "#/components/schemas/AuthorizationFailedProblem"
+        - $ref: "#/components/schemas/NotFoundProblem"
+        - $ref: "#/components/schemas/ValidationFailedProblem"
+        - $ref: "#/components/schemas/InvalidManifestProblem"
+        - $ref: "#/components/schemas/InvalidArchiveProblem"
+        - $ref: "#/components/schemas/IdentityMismatchProblem"
+        - $ref: "#/components/schemas/VersionConflictProblem"
+        - $ref: "#/components/schemas/DigestMismatchProblem"
+        - $ref: "#/components/schemas/SubjectBindingMismatchProblem"
+        - $ref: "#/components/schemas/InconsistentRegistryStateProblem"
+        - $ref: "#/components/schemas/UploadExpiredProblem"
+        - $ref: "#/components/schemas/MissingUploadedBytesProblem"
+        - $ref: "#/components/schemas/InvalidUploadStateProblem"
+        - $ref: "#/components/schemas/IdempotencyConflictProblem"
+        - $ref: "#/components/schemas/PayloadTooLargeProblem"
+        - $ref: "#/components/schemas/UnsupportedMediaTypeProblem"
+        - $ref: "#/components/schemas/PermissionEscalationProblem"
+        - $ref: "#/components/schemas/RateLimitedProblem"
     ProblemDetailsBase:
       type: object
       additionalProperties: true
@@ -909,7 +909,7 @@ components:
           format: uri-reference
     AuthenticationRequiredProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -918,7 +918,7 @@ components:
               const: 401
     AuthorizationFailedProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -927,7 +927,7 @@ components:
               const: 403
     NotFoundProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -936,7 +936,7 @@ components:
               const: 404
     ValidationFailedProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -945,7 +945,7 @@ components:
               const: 400
     InvalidManifestProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -954,7 +954,7 @@ components:
               const: 400
     InvalidArchiveProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -963,7 +963,7 @@ components:
               const: 400
     IdentityMismatchProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -972,7 +972,7 @@ components:
               const: 409
     VersionConflictProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -981,7 +981,7 @@ components:
               const: 409
     DigestMismatchProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -990,7 +990,7 @@ components:
               const: 400
     SubjectBindingMismatchProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -999,7 +999,7 @@ components:
               const: 400
     InconsistentRegistryStateProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1008,7 +1008,7 @@ components:
               const: 409
     UploadExpiredProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1017,7 +1017,7 @@ components:
               const: 410
     MissingUploadedBytesProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1026,7 +1026,7 @@ components:
               const: 400
     InvalidUploadStateProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1035,7 +1035,7 @@ components:
               const: 409
     IdempotencyConflictProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1044,7 +1044,7 @@ components:
               const: 409
     PayloadTooLargeProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1053,7 +1053,7 @@ components:
               const: 413
     UnsupportedMediaTypeProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1062,7 +1062,7 @@ components:
               const: 415
     PermissionEscalationProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1071,7 +1071,7 @@ components:
               const: 400
     RateLimitedProblem:
       allOf:
-        - $ref: '#/components/schemas/ProblemDetailsBase'
+        - $ref: "#/components/schemas/ProblemDetailsBase"
         - type: object
           properties:
             type:
@@ -1105,12 +1105,12 @@ components:
       required: [version, mediaType]
       properties:
         version:
-          $ref: '#/components/schemas/SemVer'
+          $ref: "#/components/schemas/SemVer"
         mediaType:
           type: string
           const: application/gzip
         declaredDigest:
-          $ref: '#/components/schemas/Digest'
+          $ref: "#/components/schemas/Digest"
         declaredSize:
           type: integer
           minimum: 0
@@ -1138,9 +1138,9 @@ components:
           required: [purl, integrity]
           properties:
             purl:
-              $ref: '#/components/schemas/ReleasePurl'
+              $ref: "#/components/schemas/ReleasePurl"
             integrity:
-              $ref: '#/components/schemas/Digest'
+              $ref: "#/components/schemas/Digest"
         attachment:
           type: object
           additionalProperties: false
@@ -1166,7 +1166,7 @@ components:
                 version:
                   type: string
         declaredDigest:
-          $ref: '#/components/schemas/Digest'
+          $ref: "#/components/schemas/Digest"
         declaredSize:
           type: integer
           minimum: 0
@@ -1184,7 +1184,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             validationFailed:
               summary: Request or metadata validation failed
@@ -1227,7 +1227,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             authenticationRequired:
               value:
@@ -1239,7 +1239,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             authorizationFailed:
               value:
@@ -1251,7 +1251,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             notFound:
               value:
@@ -1263,7 +1263,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             versionConflict:
               value:
@@ -1295,7 +1295,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             uploadExpired:
               value:
@@ -1307,7 +1307,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             payloadTooLarge:
               value:
@@ -1319,7 +1319,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             unsupportedMediaType:
               value:
@@ -1331,7 +1331,7 @@ components:
       content:
         application/problem+json:
           schema:
-            $ref: '#/components/schemas/ProblemDetails'
+            $ref: "#/components/schemas/ProblemDetails"
           examples:
             rateLimited:
               value:

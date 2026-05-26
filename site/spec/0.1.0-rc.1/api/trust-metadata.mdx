@@ -1,6 +1,6 @@
 ---
-title: 'Trust metadata: summary and detail views'
-description: 'Discover trust attachments — BOMs, provenance attestations, and signatures — for a published volume release via summary and detail endpoints.'
+title: "Trust metadata: summary and detail views"
+description: "Discover trust attachments — BOMs, provenance attestations, and signatures — for a published volume release via summary and detail endpoints."
 ---
 
 The trust metadata API is the canonical discovery surface for release trust attachments. It exposes two views: a fact-first summary that tells you which categories of trust artifacts are present, and a full detail view that gives you everything you need to independently retrieve, inspect, and verify each attachment. Both views are read-only and require no authentication.
@@ -61,8 +61,8 @@ The summary view is fact-first: it reports observable facts about which trust at
 </ResponseField>
 
 <ResponseField name="judgments" type="object">
-  Optional bibliotheca-produced assessments such as verification labels or policy outcomes. These are derived judgments,
-  not canonical trust facts.
+  Optional bibliotheca-produced assessments such as verification labels or policy outcomes. These
+  are derived judgments, not canonical trust facts.
 </ResponseField>
 
 <ResponseField name="revision" type="object" required>
@@ -116,8 +116,9 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0/trust/summary
 ```
 
 <Note>
-  An empty `artifacts` array means the release exists but no trust artifacts have been attached yet. This is not a
-  failure — it means there is no current trust evidence, not that the release is missing or invalid.
+  An empty `artifacts` array means the release exists but no trust artifacts have been attached yet.
+  This is not a failure — it means there is no current trust evidence, not that the release is
+  missing or invalid.
 </Note>
 
 ## Detail view
@@ -259,8 +260,8 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0/trust/detail
 | `invalid`    | Attachment failed validation   | No — treat as failure by default                                                        |
 
 <Warning>
-  `superseded` is a freshness state, not a revocation. A superseded attachment was not necessarily compromised — it was
-  replaced. However, it does not satisfy mandatory current-state trust evidence in the baseline. If only superseded
-  evidence is available for a mandatory trust category, report a `stale-trust-evidence-only` diagnostic rather than a
-  pass or a security failure.
+  `superseded` is a freshness state, not a revocation. A superseded attachment was not necessarily
+  compromised — it was replaced. However, it does not satisfy mandatory current-state trust evidence
+  in the baseline. If only superseded evidence is available for a mandatory trust category, report a
+  `stale-trust-evidence-only` diagnostic rather than a pass or a security failure.
 </Warning>

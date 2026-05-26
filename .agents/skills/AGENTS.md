@@ -38,8 +38,8 @@ Dev skills use a simpler frontmatter than catalog skills (no `domain`/`subdomain
 ```yaml
 ---
 name: skill-name # required, kebab-case, max 64 chars
-description: '...' # required, max 1024 chars
-license: 'See LICENSE.txt' # optional
+description: "..." # required, max 1024 chars
+license: "See LICENSE.txt" # optional
 ---
 ```
 

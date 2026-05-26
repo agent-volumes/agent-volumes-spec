@@ -1,7 +1,7 @@
 ---
-title: 'Agent Volumes core concepts and terminology'
-description: 'The essential vocabulary for working with Agent Volumes: volumes, bibliothecas, manifests, identity, component types, publishers, trust, and package roles.'
-sidebarTitle: 'Core concepts'
+title: "Agent Volumes core concepts and terminology"
+description: "The essential vocabulary for working with Agent Volumes: volumes, bibliothecas, manifests, identity, component types, publishers, trust, and package roles."
+sidebarTitle: "Core concepts"
 ---
 
 Agent Volumes introduces a precise vocabulary to describe how agent components are packaged, identified, distributed, and verified. Understanding these concepts helps you author correct manifests, reason about package identity, and integrate with the trust model. This page defines each term and shows where it appears in practice.
@@ -44,8 +44,8 @@ Bibliothecas implement the [Agent Volumes Registry API](/spec/0.1.0-rc.1/api/ove
 Any compliant server can act as a bibliotheca. The **Alexandria** bibliotheca is the reference implementation maintained by Windlass.
 
 <Note>
-  Bibliothecas define their own policies for scope governance, moderation, and pricing. These policies are local to each
-  registry and are not standardized by the Agent Volumes specification.
+  Bibliothecas define their own policies for scope governance, moderation, and pricing. These
+  policies are local to each registry and are not standardized by the Agent Volumes specification.
 </Note>
 
 </Accordion>
@@ -113,9 +113,10 @@ pkg:volume/%40acme/research-agent-pack@1.4.0#agent/literature-reviewer
 The subpath format is `<type>/<componentName>`, where `type` is one of the seven component type identifiers.
 
 <Info>
-  In user-facing contexts such as manifests, search results, and display, the decoded form `@acme/research-agent-pack`
-  is used. In portable payloads such as BOM entries and provenance subjects, the encoded purl form
-  `pkg:volume/%40acme/...` is used. These two forms are not byte-for-byte interchangeable.
+  In user-facing contexts such as manifests, search results, and display, the decoded form
+  `@acme/research-agent-pack` is used. In portable payloads such as BOM entries and provenance
+  subjects, the encoded purl form `pkg:volume/%40acme/...` is used. These two forms are not
+  byte-for-byte interchangeable.
 </Info>
 
 </Accordion>
@@ -189,9 +190,9 @@ The four categories of trust attachment are:
 Trust attachments are uploaded separately from the volume content, typically as part of a CI/CD publish workflow. They are retrieved through the Registry API's trust endpoints. Security advisories are a separate advisory discovery surface, not a trust attachment category.
 
 <Info>
-  Bibliothecas may compute **derived judgments** — verification labels or policy outcomes — based on the trust
-  attachments they hold. Derived judgments are not canonical trust facts; the raw attachments are the authoritative
-  record.
+  Bibliothecas may compute **derived judgments** — verification labels or policy outcomes — based on
+  the trust attachments they hold. Derived judgments are not canonical trust facts; the raw
+  attachments are the authoritative record.
 </Info>
 
 </Accordion>

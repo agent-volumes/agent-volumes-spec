@@ -1,13 +1,13 @@
 ---
-title: 'Security advisories for volume packages'
-description: 'How security advisories work in Agent Volumes: structure, severity levels, affected version ranges, event-based version history, and the discovery API.'
+title: "Security advisories for volume packages"
+description: "How security advisories work in Agent Volumes: structure, severity levels, affected version ranges, event-based version history, and the discovery API."
 ---
 
 Security advisories in Agent Volumes are package-facing records that describe known vulnerabilities in published volumes. They are expressed in terms of volume identity and affected version history, not in terms of individual release artifacts. Unlike trust attachments — which are bound to a specific release subject — advisories target a volume across a range of versions and are updated over time as patches become available.
 
 <Note>
-  Advisories are not release-bound trust attachments. They live on a separate discovery surface and use different
-  semantics from BOMs, provenance attestations, and signatures.
+  Advisories are not release-bound trust attachments. They live on a separate discovery surface and
+  use different semantics from BOMs, provenance attestations, and signatures.
 </Note>
 
 ## Advisory structure
@@ -124,8 +124,8 @@ An advisory may include informational `componentImpact` metadata that names spec
 ```
 
 <Warning>
-  Component impact metadata is **informational only**. It does not change the normative volume-level target of the
-  advisory. Do not use it to conclude that only specific components are affected.
+  Component impact metadata is **informational only**. It does not change the normative volume-level
+  target of the advisory. Do not use it to conclude that only specific components are affected.
 </Warning>
 
 ## Advisory relationships
@@ -221,9 +221,10 @@ GET /api/v1/advisories?volume=@acme/research-agent-pack
 ```
 
 <Info>
-  Advisory read and discovery behavior is part of the v0.1 core interoperability contract and must be supported by all
-  conforming bibliothecas. Advisory **write** operations — creating, updating, withdrawing, and moderating advisories —
-  are bibliotheca-local in v0.1 and are not standardized by the spec.
+  Advisory read and discovery behavior is part of the v0.1 core interoperability contract and must
+  be supported by all conforming bibliothecas. Advisory **write** operations — creating, updating,
+  withdrawing, and moderating advisories — are bibliotheca-local in v0.1 and are not standardized by
+  the spec.
 </Info>
 
 ## Checking advisories during install
@@ -231,7 +232,7 @@ GET /api/v1/advisories?volume=@acme/research-agent-pack
 A conforming client should check for advisories on install. If an advisory affects the version you are about to install, surface the advisory details to the user before proceeding. The spec does not mandate a specific blocking policy — blocking decisions based on severity, affected range, or relationship type remain local policy — but advisories must be discoverable and surfaced.
 
 <Tip>
-  Scanner findings are not advisory records. A bibliotheca may create an advisory based on scanner output under local
-  policy, but the portable contract is the advisory read model only. Do not expect scanner results to appear directly as
-  advisories without bibliotheca-side curation.
+  Scanner findings are not advisory records. A bibliotheca may create an advisory based on scanner
+  output under local policy, but the portable contract is the advisory read model only. Do not
+  expect scanner results to appear directly as advisories without bibliotheca-side curation.
 </Tip>

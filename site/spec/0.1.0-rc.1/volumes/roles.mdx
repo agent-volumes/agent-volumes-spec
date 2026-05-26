@@ -1,6 +1,6 @@
 ---
-title: 'Package roles: component, plugin, provider, meta'
-description: 'Understand the four volume roles — component, plugin, provider, and meta — and how to choose the right one based on what your package exports.'
+title: "Package roles: component, plugin, provider, meta"
+description: "Understand the four volume roles — component, plugin, provider, and meta — and how to choose the right one based on what your package exports."
 ---
 
 Every volume declares a primary role using the `role` field in `[volume]`. The role communicates the package's intended shape to tooling, bibliothecas, and consumers: how many components it exports, whether it integrates with external services, and whether it's primarily a dependency bundle. Choosing the right role also keeps your package discoverable — search filters and compatibility checks use the role as a signal. You can combine roles using the `secondary-roles` field when your volume genuinely spans multiple concerns.
@@ -12,15 +12,16 @@ Every volume declares a primary role using the `role` field in `[volume]`. The r
     One primary component. The simplest role — use it for focused, single-purpose packages.
   </Card>
   <Card title="plugin" icon="plug">
-    Multiple components extending a runtime in a specific domain. Use it when you're bundling related capabilities
-    together.
+    Multiple components extending a runtime in a specific domain. Use it when you're bundling
+    related capabilities together.
   </Card>
   <Card title="provider" icon="link">
-    Integrations with external services. Use it when your package wraps an API or service (GitHub, Slack, Postgres,
-    etc.).
+    Integrations with external services. Use it when your package wraps an API or service (GitHub,
+    Slack, Postgres, etc.).
   </Card>
   <Card title="meta" icon="layer-group">
-    A dependency bundle with no mandatory exported components. Use it to group and re-export a curated set of volumes.
+    A dependency bundle with no mandatory exported components. Use it to group and re-export a
+    curated set of volumes.
   </Card>
 </CardGroup>
 
@@ -50,8 +51,8 @@ description = "Intercepts tool calls to enforce review policy"
 ```
 
 <Note>
-  The spec enforces the one-component constraint for `role = "component"` packages. A validator will reject the manifest
-  if you declare more than one `[[components]]` entry under this role.
+  The spec enforces the one-component constraint for `role = "component"` packages. A validator will
+  reject the manifest if you declare more than one `[[components]]` entry under this role.
 </Note>
 
 ## `plugin` — multiple components in a specific domain
@@ -137,9 +138,9 @@ network = "read-write"
 ```
 
 <Tip>
-  You can combine `provider` as a secondary role when your plugin also integrates with external services. For example,
-  `role = "plugin"` with `secondary-roles = ["provider"]` is valid when the package both bundles multiple components and
-  wraps an external API.
+  You can combine `provider` as a secondary role when your plugin also integrates with external
+  services. For example, `role = "plugin"` with `secondary-roles = ["provider"]` is valid when the
+  package both bundles multiple components and wraps an external API.
 </Tip>
 
 ## `meta` — dependency bundle
@@ -167,9 +168,10 @@ id = "acme"
 ```
 
 <Note>
-  A `meta` package has no mandatory `[[components]]` entries. Its `[dependencies]` participate in ordinary dependency
-  resolution and single-version enforcement like any other volume dependency. The v0.1 core does not assign special
-  normative semantics to the full transitive dependency closure of `role = "meta"` packages.
+  A `meta` package has no mandatory `[[components]]` entries. Its `[dependencies]` participate in
+  ordinary dependency resolution and single-version enforcement like any other volume dependency.
+  The v0.1 core does not assign special normative semantics to the full transitive dependency
+  closure of `role = "meta"` packages.
 </Note>
 
 ## Combining roles with `secondary-roles`

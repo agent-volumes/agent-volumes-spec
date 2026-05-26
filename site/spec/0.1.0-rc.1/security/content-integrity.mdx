@@ -1,6 +1,6 @@
 ---
-title: 'Content integrity and SHA-256 digest verification'
-description: 'How Agent Volumes uses normalized file-tree SHA-256 digests to guarantee that release content has not been tampered with between publish and install.'
+title: "Content integrity and SHA-256 digest verification"
+description: "How Agent Volumes uses normalized file-tree SHA-256 digests to guarantee that release content has not been tampered with between publish and install."
 ---
 
 Content integrity in Agent Volumes is not a hash of a tarball or a transport artifact. It is a hash of the **normalized file tree** — a canonical, deterministic representation of every file in a release, computed the same way regardless of how the release was packaged or delivered. This means that a CDN-hosted archive and a Git-backed release of the same volume version produce identical integrity values, and any modification to any file — even a single byte — produces a different digest.
@@ -68,8 +68,8 @@ Where:
 - `<raw-content-bytes>` is the file content exactly as present in the release, including binary bytes and original line endings
 
 <Warning>
-  Do not rewrite line endings during digest construction. The spec requires that line endings be hashed exactly as
-  present in the normalized release file content.
+  Do not rewrite line endings during digest construction. The spec requires that line endings be
+  hashed exactly as present in the normalized release file content.
 </Warning>
 
 A complete example for a two-file release:
@@ -136,8 +136,9 @@ After downloading a release, verify it before installation or trust evaluation:
 </Steps>
 
 <Note>
-  Bibliothecas compute and store the `integrity` value during the release finalization step, before the release becomes
-  available for download. You should never receive a release from a conforming bibliotheca without an `integrity` value.
+  Bibliothecas compute and store the `integrity` value during the release finalization step, before
+  the release becomes available for download. You should never receive a release from a conforming
+  bibliotheca without an `integrity` value.
 </Note>
 
 ## CDN and Git-backed delivery
@@ -146,15 +147,16 @@ The delivery mechanism does not change the release subject or the integrity chec
 
 <Tabs>
   <Tab title="CDN-backed releases">
-    The release metadata includes a `dist.url` pointing to a `.tar.gz` archive. Download the archive, extract the
-    regular files, apply the normalization rules, and verify the computed digest against `integrity`. HTTP redirects,
-    CDN caching, and backend storage choices are all transparent to the integrity check.
+    The release metadata includes a `dist.url` pointing to a `.tar.gz` archive. Download the
+    archive, extract the regular files, apply the normalization rules, and verify the computed
+    digest against `integrity`. HTTP redirects, CDN caching, and backend storage choices are all
+    transparent to the integrity check.
   </Tab>
   <Tab title="Git-backed releases">
-    The release metadata includes a source repository URL and a concrete Git reference (not a branch name or mutable
-    tag). Materialize the regular files from that reference, exclude VCS administrative directories, apply the same
-    normalization rules, and verify the digest. The immutable content identity must match even though the delivery path
-    is different.
+    The release metadata includes a source repository URL and a concrete Git reference (not a branch
+    name or mutable tag). Materialize the regular files from that reference, exclude VCS
+    administrative directories, apply the same normalization rules, and verify the digest. The
+    immutable content identity must match even though the delivery path is different.
   </Tab>
 </Tabs>
 

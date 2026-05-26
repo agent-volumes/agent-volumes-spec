@@ -51,7 +51,15 @@
     "externalDependencyDeclaration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["declarationKey", "purl", "constraint", "purpose", "scope", "declarationOnly", "resolvedEvidence"],
+      "required": [
+        "declarationKey",
+        "purl",
+        "constraint",
+        "purpose",
+        "scope",
+        "declarationOnly",
+        "resolvedEvidence"
+      ],
       "properties": {
         "declarationKey": { "$ref": "#/$defs/externalDependencyDeclarationKey" },
         "purl": { "type": "string", "pattern": "^pkg:" },

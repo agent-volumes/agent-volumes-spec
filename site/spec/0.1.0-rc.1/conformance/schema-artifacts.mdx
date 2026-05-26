@@ -1,7 +1,7 @@
 ---
-title: 'Schema artifact inventory'
-description: 'Inventory of Agent Volumes v0.1 JSON Schema companion artifacts, schema families, versioning rules, and validation expectations.'
-sidebarTitle: 'Schema artifacts'
+title: "Schema artifact inventory"
+description: "Inventory of Agent Volumes v0.1 JSON Schema companion artifacts, schema families, versioning rules, and validation expectations."
+sidebarTitle: "Schema artifacts"
 ---
 
 Agent Volumes publishes machine-readable companion artifacts under `schemas/` for clients, bibliothecas, validators, exporters, and conformance runners. This page is a publication-layer inventory. The prose specification remains the final normative authority, and `schemas/README.md` remains the source artifact for this inventory.
@@ -48,16 +48,20 @@ npm run lint:openapi
 ```
 
 <Note>
-  The public site summarizes the schema families for readers. Use the repository artifacts for validation and release
-  review: `schemas/README.md`, the individual `schemas/*.json` files, and the fixture mappings under
-  `conformance/fixtures/`.
+  The public site summarizes the schema families for readers. Use the repository artifacts for
+  validation and release review: `schemas/README.md`, the individual `schemas/*.json` files, and the
+  fixture mappings under `conformance/fixtures/`.
 </Note>
 
 <CardGroup cols={2}>
   <Card title="Conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
     See how fixture files map to schema validation units and deterministic evaluators.
   </Card>
-  <Card title="Requirement inventory" icon="list-check" href="/spec/0.1.0-rc.1/conformance/requirements">
+  <Card
+    title="Requirement inventory"
+    icon="list-check"
+    href="/spec/0.1.0-rc.1/conformance/requirements"
+  >
     Connect schema and fixture coverage to role-scoped `AV-BIB-*` and `AV-CLI-*` requirements.
   </Card>
 </CardGroup>

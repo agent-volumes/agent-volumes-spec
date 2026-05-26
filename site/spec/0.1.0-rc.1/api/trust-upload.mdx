@@ -1,6 +1,6 @@
 ---
-title: 'Upload trust attachments for a release'
-description: 'Two-phase upload lifecycle for attaching BOMs, provenance attestations, and signatures to a published release — create an intent, PUT bytes, then finalize.'
+title: "Upload trust attachments for a release"
+description: "Two-phase upload lifecycle for attaching BOMs, provenance attestations, and signatures to a published release — create an intent, PUT bytes, then finalize."
 ---
 
 Trust attachments are append-only records associated with a published release subject. You upload them through the same two-phase lifecycle used for release archives: create an upload intent, PUT the attachment bytes to the returned URL, then finalize so the bibliotheca can verify the digest, validate subject binding, and make the attachment available through trust discovery. Authentication is required for all trust upload operations.
@@ -234,6 +234,7 @@ A failed, expired, or conflicting upload will never silently create an active tr
 After a successful finalize, the attachment appears in the trust detail view with `status.state = "active"`. From that point on, the attachment follows the same append-only lifecycle as all trust attachments — it can transition to `revoked`, `superseded`, or `invalid`, but it is never deleted.
 
 <Note>
-  Trust attachments are append-only. Previously published attachments are never silently replaced or deleted — they
-  remain in the append-only record and are represented through status metadata changes.
+  Trust attachments are append-only. Previously published attachments are never silently replaced or
+  deleted — they remain in the append-only record and are represented through status metadata
+  changes.
 </Note>

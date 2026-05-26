@@ -1,6 +1,6 @@
 ---
-title: 'Bibliotheca capability metadata'
-description: 'GET /api/v1/capabilities — discover registry-wide features including scope policy, delivery modes, supported APIs, and upload profiles.'
+title: "Bibliotheca capability metadata"
+description: "GET /api/v1/capabilities — discover registry-wide features including scope policy, delivery modes, supported APIs, and upload profiles."
 ---
 
 The capabilities endpoint is your primary structured discovery surface for registry-wide facts about a bibliotheca. Before your client starts making API calls, fetch capabilities to learn which API surfaces are available, what scope policy the bibliotheca enforces, which delivery modes it supports, and which upload profiles it advertises. No authentication is required.
@@ -22,13 +22,14 @@ GET /api/v1/capabilities
 </ResponseField>
 
 <ResponseField name="compatibleSpecVersions" type="string[]">
-  Explicit set of exact Agent Volumes spec versions this bibliotheca claims compatibility with. This is an exact-version
-  set, not a SemVer range expression. Treat each value as an exact string to match against.
+  Explicit set of exact Agent Volumes spec versions this bibliotheca claims compatibility with. This
+  is an exact-version set, not a SemVer range expression. Treat each value as an exact string to
+  match against.
 </ResponseField>
 
 <ResponseField name="apiVersion" type="string" required>
-  HTTP API major family advertised by this bibliotheca. The v0.1 baseline value is `"v1"`. This is not a complete spec
-  compatibility boundary on its own.
+  HTTP API major family advertised by this bibliotheca. The v0.1 baseline value is `"v1"`. This is
+  not a complete spec compatibility boundary on its own.
 </ResponseField>
 
 <ResponseField name="scopePolicy" type="object" required>
@@ -51,8 +52,8 @@ GET /api/v1/capabilities
 </ResponseField>
 
 <ResponseField name="deliveryModes" type="string[]" required>
-  Delivery modes supported by this bibliotheca. Known v0.1 baseline values: `cdn` (hosted archive delivery) and `git`
-  (Git-backed source delivery). Unknown values are ignored by baseline clients.
+  Delivery modes supported by this bibliotheca. Known v0.1 baseline values: `cdn` (hosted archive
+  delivery) and `git` (Git-backed source delivery). Unknown values are ignored by baseline clients.
 </ResponseField>
 
 <ResponseField name="apis" type="object" required>
@@ -91,10 +92,11 @@ GET /api/v1/capabilities
 </ResponseField>
 
 <ResponseField name="extensions" type="object">
-  Reserved extension container for non-core capability fields. Extension data is partitioned by namespace keys. Keys
-  follow the same naming rules as Agent Volumes name segments: lowercase ASCII letters, digits, and hyphens, with no
-  leading hyphen, trailing hyphen, or consecutive hyphens. The namespace keys `agent-volumes`, `core`, and `spec` are
-  reserved for the specification and cannot be used for ordinary extensions.
+  Reserved extension container for non-core capability fields. Extension data is partitioned by
+  namespace keys. Keys follow the same naming rules as Agent Volumes name segments: lowercase ASCII
+  letters, digits, and hyphens, with no leading hyphen, trailing hyphen, or consecutive hyphens. The
+  namespace keys `agent-volumes`, `core`, and `spec` are reserved for the specification and cannot
+  be used for ordinary extensions.
 </ResponseField>
 
 <ResponseField name="cache" type="object">
@@ -175,11 +177,12 @@ During a bridge period, clients surface migration warnings instead of silently t
 Warning payloads use `schemas/warning.schema.json`. The base schema requires a slug-like `category`, allows optional `message`, `path`, `field`, `value`, and `context` fields, and leaves category-specific context semantics to the relevant fixture or schema. Core v0.1 warning categories include `unknown-field`, `deprecated`, `migration`, `unknown-capability-field`, `unknown-capability-value`, `yanked-version`, `stale-trust-evidence-only`, `insufficient-current-trust-evidence`, `noncanonical-entrypoint`, and `external-dependency-potential-exposure`.
 
 <Tip>
-  Fetch capabilities once at startup and cache the response according to the `cache` hints. Capability metadata changes
-  infrequently — there is no need to re-fetch it on every operation.
+  Fetch capabilities once at startup and cache the response according to the `cache` hints.
+  Capability metadata changes infrequently — there is no need to re-fetch it on every operation.
 </Tip>
 
 <Note>
-  When `apis.releaseUploads` or `apis.trustUploads` is `true`, the `uploadProfiles` object is required and must include
-  `"http-put"` for the corresponding upload surface. This is a conformance requirement, not just a recommendation.
+  When `apis.releaseUploads` or `apis.trustUploads` is `true`, the `uploadProfiles` object is
+  required and must include `"http-put"` for the corresponding upload surface. This is a conformance
+  requirement, not just a recommendation.
 </Note>

@@ -12,39 +12,39 @@ updates:
   # Bun/NPM ecosystem - root development tooling for linting, formatting, and schema validation.
   # Uses package.json with bun.lock for deterministic dependency resolution.
   # Dependabot manages Bun lockfiles through the npm ecosystem.
-  - package-ecosystem: 'npm'
-    directory: '/'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'Asia/Seoul'
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
     open-pull-requests-limit: 10
     groups:
       # Group minor and patch updates for low-risk development tooling.
       # Major updates remain separate for explicit review.
       dev-dependencies:
         patterns:
-          - '@redocly/cli'
-          - 'ajv'
-          - 'ajv-formats'
-          - 'lefthook'
-          - 'markdownlint-cli2'
-          - 'prettier'
-          - 'yaml'
+          - "@redocly/cli"
+          - "ajv"
+          - "ajv-formats"
+          - "lefthook"
+          - "markdownlint-cli2"
+          - "prettier"
+          - "yaml"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
     commit-message:
-      prefix: 'chore'
-      prefix-development: 'chore(dev)'
-      include: 'scope'
+      prefix: "chore"
+      prefix-development: "chore(dev)"
+      include: "scope"
     labels:
-      - 'dependencies'
-      - 'javascript'
-    versioning-strategy: 'auto'
+      - "dependencies"
+      - "javascript"
+    versioning-strategy: "auto"
     allow:
-      - dependency-type: 'direct'
+      - dependency-type: "direct"
     # Cooldown: NPM/Bun development dependencies per dependency-security.md.
     # Patch: 1-3 days | Minor: 3-7 days | Major: 14-21 days
     cooldown:
@@ -55,43 +55,43 @@ updates:
 
   # GitHub Actions - workflow actions are SHA-pinned where required by org policy.
   # Reusable workflows from agent-volumes/.github may stay on @main per org exception.
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'Asia/Seoul'
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
     open-pull-requests-limit: 10
     groups:
       # Group GitHub official actions together.
       github-actions:
         patterns:
-          - 'actions/*'
+          - "actions/*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
       # Group step-security actions such as harden-runner.
       step-security-actions:
         patterns:
-          - 'step-security/*'
+          - "step-security/*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
       # Keep OpenSSF Scorecard updates grouped if inline usage is added later.
       scorecard-actions:
         patterns:
-          - 'ossf/scorecard-action'
+          - "ossf/scorecard-action"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
     commit-message:
-      prefix: 'ci'
-      include: 'scope'
+      prefix: "ci"
+      include: "scope"
     labels:
-      - 'dependencies'
-      - 'github-actions'
-      - 'security'
+      - "dependencies"
+      - "github-actions"
+      - "security"
     # Cooldown: GitHub Actions only supports default-days, not SemVer cooldown.
     cooldown:
       default-days: 3

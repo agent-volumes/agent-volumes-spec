@@ -120,7 +120,7 @@ async function fetchUser(id) {
 try {
   const user = await fetchUser(id);
 } catch (error) {
-  console.log('Error'); // Which error? From where?
+  console.log("Error"); // Which error? From where?
 }
 ```
 
@@ -131,7 +131,7 @@ try {
 class UserNotFoundError extends Error {
   constructor(userId: string) {
     super(`User ${userId} not found`);
-    this.name = 'UserNotFoundError';
+    this.name = "UserNotFoundError";
   }
 }
 
@@ -143,7 +143,7 @@ async function fetchUser(id: string): Promise<User> {
       signal: AbortSignal.timeout(5000),
     });
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof DOMException && error.name === "TimeoutError") {
       throw new Error(`Timeout fetching user ${id}`);
     }
     throw new Error(`Network error fetching user ${id}: ${error}`);
@@ -171,8 +171,8 @@ try {
   if (error instanceof UserNotFoundError) {
     showNotFoundMessage();
   } else {
-    logger.error('Failed to load user:', error);
-    showErrorMessage('Unable to load user. Please try again.');
+    logger.error("Failed to load user:", error);
+    showErrorMessage("Unable to load user. Please try again.");
   }
 }
 ```

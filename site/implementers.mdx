@@ -1,35 +1,36 @@
 ---
-title: 'Implement Agent Volumes'
-description: 'A practical starting point for building experimental Agent Volumes clients, bibliothecas, validators, and exporters from the v0.1.0-rc.1 artifacts.'
-sidebarTitle: 'Implementers'
+title: "Implement Agent Volumes"
+description: "A practical starting point for building experimental Agent Volumes clients, bibliothecas, validators, and exporters from the v0.1.0-rc.1 artifacts."
+sidebarTitle: "Implementers"
 ---
 
 Use this page when you are building tooling against Agent Volumes `v0.1.0-rc.1`. It summarizes the implementation path and links to the canonical artifacts you need to validate behavior.
 
 <Tip>
-  This page is an overview. The prose specification, schema artifacts, OpenAPI contract, and conformance fixtures remain
-  canonical. The repository [Implementers
-  Guide](https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md) is the source document for this
-  orientation.
+  This page is an overview. The prose specification, schema artifacts, OpenAPI contract, and
+  conformance fixtures remain canonical. The repository [Implementers
+  Guide](https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md) is the
+  source document for this orientation.
 </Tip>
 
 ## What you can build
 
 <CardGroup cols={2}>
   <Card title="Client" icon="terminal">
-    Validate manifests, resolve versions, download releases, verify content integrity, inspect trust metadata, and load
-    supported component entrypoints.
+    Validate manifests, resolve versions, download releases, verify content integrity, inspect trust
+    metadata, and load supported component entrypoints.
   </Card>
   <Card title="Bibliotheca" icon="server">
-    Publish, index, serve, and expose release metadata, version indexes, trust metadata, advisories, and capability
-    metadata.
+    Publish, index, serve, and expose release metadata, version indexes, trust metadata, advisories,
+    and capability metadata.
   </Card>
   <Card title="Validator or exporter" icon="flask">
-    Evaluate schema-backed fixtures, produce conformance reports, and export BOM/provenance mapping artifacts.
+    Evaluate schema-backed fixtures, produce conformance reports, and export BOM/provenance mapping
+    artifacts.
   </Card>
   <Card title="Runtime adapter" icon="puzzle-piece">
-    Map validated Agent Volumes components into a runtime-specific execution model without changing the portable package
-    contract.
+    Map validated Agent Volumes components into a runtime-specific execution model without changing
+    the portable package contract.
   </Card>
 </CardGroup>
 
@@ -109,9 +110,15 @@ Then map implementation tests to fixture families in [Conformance fixtures](/spe
     icon="book-open"
     href="https://github.com/agent-volumes/agent-volumes-spec/blob/main/IMPLEMENTERS.md"
   >
-    Open the repository implementers guide with the full client, bibliotheca, fixture, and ordering checklist.
+    Open the repository implementers guide with the full client, bibliotheca, fixture, and ordering
+    checklist.
   </Card>
-  <Card title="Use the conformance fixtures" icon="flask" href="/spec/0.1.0-rc.1/conformance/fixtures">
-    Start with deterministic offline fixtures before adding hosted service or trust-root policy tests.
+  <Card
+    title="Use the conformance fixtures"
+    icon="flask"
+    href="/spec/0.1.0-rc.1/conformance/fixtures"
+  >
+    Start with deterministic offline fixtures before adding hosted service or trust-root policy
+    tests.
   </Card>
 </CardGroup>

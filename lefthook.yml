@@ -19,21 +19,21 @@ pre-commit:
   jobs:
     - name: Lint and format specification files
       glob:
-        - '**/*.md'
-        - '**/*.mdx'
-        - '**/*.json'
-        - '**/*.yaml'
-        - '**/*.yml'
-        - '**/*.js'
-        - '**/*.jsx'
-        - '**/*.mjs'
-        - '**/*.cjs'
-        - '**/*.ts'
-        - '**/*.tsx'
-        - '**/*.mts'
-        - '**/*.cts'
-        - '**/*.mdc'
-        - '.prettierrc'
+        - "**/*.md"
+        - "**/*.mdx"
+        - "**/*.json"
+        - "**/*.yaml"
+        - "**/*.yml"
+        - "**/*.js"
+        - "**/*.jsx"
+        - "**/*.mjs"
+        - "**/*.cjs"
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/*.mts"
+        - "**/*.cts"
+        - "**/*.mdc"
+        - ".prettierrc"
       run: |
         set -e
         echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
@@ -49,13 +49,13 @@ pre-commit:
         echo "✅ Pre-commit checks completed!"
     - name: Regenerate site publication artifacts
       glob:
-        - 'agent-volumes-spec.md'
-        - 'openapi/**'
-        - 'schemas/**'
-        - 'scripts/build-site-openapi.mts'
-        - 'scripts/build-site-schemas.mts'
-        - 'package.json'
-        - 'bun.lock'
+        - "agent-volumes-spec.md"
+        - "openapi/**"
+        - "schemas/**"
+        - "scripts/build-site-openapi.mts"
+        - "scripts/build-site-schemas.mts"
+        - "package.json"
+        - "bun.lock"
       run: |
         set -e
         echo "📚 Rebuilding Mintlify OpenAPI publication artifact..."
@@ -67,21 +67,21 @@ pre-commit:
         echo "✅ Publication artifacts regenerated!"
     - name: Check repository formatting
       glob:
-        - '**/*.md'
-        - '**/*.mdx'
-        - '**/*.json'
-        - '**/*.yaml'
-        - '**/*.yml'
-        - '**/*.js'
-        - '**/*.jsx'
-        - '**/*.mjs'
-        - '**/*.cjs'
-        - '**/*.ts'
-        - '**/*.tsx'
-        - '**/*.mts'
-        - '**/*.cts'
-        - '**/*.mdc'
-        - '.prettierrc'
+        - "**/*.md"
+        - "**/*.mdx"
+        - "**/*.json"
+        - "**/*.yaml"
+        - "**/*.yml"
+        - "**/*.js"
+        - "**/*.jsx"
+        - "**/*.mjs"
+        - "**/*.cjs"
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/*.mts"
+        - "**/*.cts"
+        - "**/*.mdc"
+        - ".prettierrc"
       run: |
         set -e
         echo "✨ Checking repository formatting..."
@@ -89,18 +89,18 @@ pre-commit:
         echo "✅ Repository formatting check passed!"
     - name: Lint JavaScript and TypeScript with Oxlint
       glob:
-        - '**/*.js'
-        - '**/*.jsx'
-        - '**/*.mjs'
-        - '**/*.cjs'
-        - '**/*.ts'
-        - '**/*.tsx'
-        - '**/*.mts'
-        - '**/*.cts'
-        - '.oxlintrc.json'
-        - 'package.json'
-        - 'bun.lock'
-        - 'tsconfig.json'
+        - "**/*.js"
+        - "**/*.jsx"
+        - "**/*.mjs"
+        - "**/*.cjs"
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/*.mts"
+        - "**/*.cts"
+        - ".oxlintrc.json"
+        - "package.json"
+        - "bun.lock"
+        - "tsconfig.json"
       run: |
         set -e
         echo "🔍 Running Oxlint..."
@@ -108,10 +108,10 @@ pre-commit:
         echo "✅ Oxlint passed!"
     - name: Lint Markdown
       glob:
-        - '**/*.md'
-        - '**/*.mdx'
-        - '**/*.mdc'
-        - '.markdownlint-cli2.jsonc'
+        - "**/*.md"
+        - "**/*.mdx"
+        - "**/*.mdc"
+        - ".markdownlint-cli2.jsonc"
       run: |
         set -e
         echo "🔍 Running markdownlint..."
@@ -119,11 +119,11 @@ pre-commit:
         echo "✅ Markdown lint passed!"
     - name: Lint OpenAPI specification
       glob:
-        - 'openapi/**'
-        - 'schemas/**'
-        - 'redocly.yaml'
-        - 'package.json'
-        - 'bun.lock'
+        - "openapi/**"
+        - "schemas/**"
+        - "redocly.yaml"
+        - "package.json"
+        - "bun.lock"
       run: |
         set -e
         echo "🔍 Running Redocly lint..."
@@ -131,14 +131,14 @@ pre-commit:
         echo "✅ OpenAPI lint passed!"
     - name: Validate Mintlify documentation site
       glob:
-        - 'site/**'
-        - 'agent-volumes-spec.md'
-        - 'openapi/**'
-        - 'schemas/**'
-        - 'scripts/build-site-openapi.mts'
-        - 'scripts/build-site-schemas.mts'
-        - 'package.json'
-        - 'bun.lock'
+        - "site/**"
+        - "agent-volumes-spec.md"
+        - "openapi/**"
+        - "schemas/**"
+        - "scripts/build-site-openapi.mts"
+        - "scripts/build-site-schemas.mts"
+        - "package.json"
+        - "bun.lock"
       run: |
         set -e
         echo "🌐 Validating Mintlify documentation site..."
@@ -146,11 +146,11 @@ pre-commit:
         echo "✅ Mintlify site validation passed!"
     - name: Validate changelog structure
       glob:
-        - 'CHANGELOG.md'
-        - 'cliff.toml'
-        - 'package.json'
-        - 'bun.lock'
-        - 'scripts/**'
+        - "CHANGELOG.md"
+        - "cliff.toml"
+        - "package.json"
+        - "bun.lock"
+        - "scripts/**"
       run: |
         set -e
         echo "🔍 Validating changelog structure..."
@@ -158,13 +158,13 @@ pre-commit:
         echo "✅ Changelog validation passed!"
     - name: Validate specification artifacts
       glob:
-        - 'agent-volumes-spec.md'
-        - 'schemas/**'
-        - 'conformance/**'
-        - 'openapi/**'
-        - 'scripts/validate-artifacts.mts'
-        - 'package.json'
-        - 'bun.lock'
+        - "agent-volumes-spec.md"
+        - "schemas/**"
+        - "conformance/**"
+        - "openapi/**"
+        - "scripts/validate-artifacts.mts"
+        - "package.json"
+        - "bun.lock"
       run: |
         set -e
         echo "🔍 Running artifact validation..."

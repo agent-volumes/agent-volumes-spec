@@ -1,9 +1,9 @@
 ---
 name: Release evidence
 about: Track per-version release-freeze evidence for OpenAPI/prose drift and artifact validation.
-title: '[release-evidence] <version-or-tag>'
+title: "[release-evidence] <version-or-tag>"
 labels: documentation
-assignees: ''
+assignees: ""
 ---
 
 ## Release evidence for `<version-or-tag>`

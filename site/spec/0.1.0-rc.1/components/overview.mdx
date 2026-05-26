@@ -1,6 +1,6 @@
 ---
-title: 'Agent Volumes component types overview'
-description: 'Overview of all seven component types — Agent, Skill, Command, Tool, Hook, MCP Server, and LSP Server — with the export model and directory layout.'
+title: "Agent Volumes component types overview"
+description: "Overview of all seven component types — Agent, Skill, Command, Tool, Hook, MCP Server, and LSP Server — with the export model and directory layout."
 ---
 
 A component is a functional unit that an agent runtime loads and executes from a volume. Agent Volumes defines seven component types, each with distinct semantics, entrypoint formats, and execution models. When you publish a volume, you declare which components it exports in `volume.toml`, and any compatible runtime can discover and load them.
@@ -21,29 +21,31 @@ A component is a functional unit that an agent runtime loads and executes from a
 
 <CardGroup cols={2}>
   <Card title="Agent" icon="robot" href="/spec/0.1.0-rc.1/components/agent">
-    An autonomous runtime actor that receives a goal and independently decides how to accomplish it using tools, skills,
-    and other agents.
+    An autonomous runtime actor that receives a goal and independently decides how to accomplish it
+    using tools, skills, and other agents.
   </Card>
   <Card title="Skill" icon="graduation-cap" href="/spec/0.1.0-rc.1/components/skill">
-    Reusable instructional knowledge loaded into agent context. The runtime interprets and applies it — skills are not
-    executed as code.
+    Reusable instructional knowledge loaded into agent context. The runtime interprets and applies
+    it — skills are not executed as code.
   </Card>
   <Card title="Command" icon="terminal" href="/spec/0.1.0-rc.1/components/command">
     A user-invokable action triggered by a slash command pattern such as `/review` or `/summarize`.
   </Card>
   <Card title="Tool" icon="wrench" href="/spec/0.1.0-rc.1/components/tool">
-    A function or API endpoint that an agent calls programmatically during task execution. Has typed inputs and outputs.
+    A function or API endpoint that an agent calls programmatically during task execution. Has typed
+    inputs and outputs.
   </Card>
   <Card title="Hook" icon="webhook" href="/spec/0.1.0-rc.1/components/hook">
-    A lifecycle event handler that fires automatically at defined points in the agent runtime — session start, tool use,
-    compaction, and more.
+    A lifecycle event handler that fires automatically at defined points in the agent runtime —
+    session start, tool use, compaction, and more.
   </Card>
   <Card title="MCP Server" icon="server" href="/spec/0.1.0-rc.1/components/mcp-server">
-    A Model Context Protocol service packaged as a distributable volume component. Runs as a long-running process.
+    A Model Context Protocol service packaged as a distributable volume component. Runs as a
+    long-running process.
   </Card>
   <Card title="LSP Server" icon="code" href="/spec/0.1.0-rc.1/components/lsp-server">
-    A Language Server Protocol service that provides code intelligence and editor integration when loaded by a
-    compatible runtime.
+    A Language Server Protocol service that provides code intelligence and editor integration when
+    loaded by a compatible runtime.
   </Card>
 </CardGroup>
 
@@ -116,6 +118,6 @@ When a runtime or validator loads a component, it follows a three-level preceden
 The minimum a portable validator checks before passing a component to a runtime adapter is type-specific. For Markdown-based types, the entrypoint must exist and have a supported extension. For JSON-based types (`mcp-server`, `lsp-server`), the file must exist, be valid JSON, and parse to an object. For `command`, the frontmatter must include a valid `trigger`. For `hook`, the descriptor must declare a canonical lifecycle event and a valid hook type.
 
 <Note>
-  Entrypoint paths must be relative to the volume root. Absolute paths, paths containing `..` segments, and paths that
-  resolve outside the volume root are all validation failures.
+  Entrypoint paths must be relative to the volume root. Absolute paths, paths containing `..`
+  segments, and paths that resolve outside the volume root are all validation failures.
 </Note>

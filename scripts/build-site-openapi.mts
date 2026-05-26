@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
-import { existsSync } from 'node:fs';
-import { mkdir, readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from "node:fs";
+import { mkdir, readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptDir);
@@ -12,8 +12,8 @@ const semverPattern =
   /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\+([0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*))?$/;
 
 function resolveCommand(command: string): string {
-  const executable = process.platform === 'win32' ? `${command}.cmd` : command;
-  const localCommand = join(repoRoot, 'node_modules', '.bin', executable);
+  const executable = process.platform === "win32" ? `${command}.cmd` : command;
+  const localCommand = join(repoRoot, "node_modules", ".bin", executable);
 
   return existsSync(localCommand) ? localCommand : command;
 }
@@ -22,7 +22,7 @@ function run(command: string, args: string[]): void {
   const result = spawnSync(resolveCommand(command), args, {
     cwd: repoRoot,
     env: process.env,
-    stdio: 'inherit',
+    stdio: "inherit",
   });
 
   if (result.error) {
@@ -35,8 +35,8 @@ function run(command: string, args: string[]): void {
 }
 
 async function versionFromSpec(): Promise<string> {
-  const specPath = join(repoRoot, 'agent-volumes-spec.md');
-  const spec = await readFile(specPath, 'utf8');
+  const specPath = join(repoRoot, "agent-volumes-spec.md");
+  const spec = await readFile(specPath, "utf8");
   const match = /^\*\*Version:\*\*\s+(.+)$/m.exec(spec);
 
   if (!match?.[1]) {
@@ -47,7 +47,7 @@ async function versionFromSpec(): Promise<string> {
 }
 
 function normalizeVersion(rawVersion: string): string {
-  const version = rawVersion.replace(/^v/, '');
+  const version = rawVersion.replace(/^v/, "");
 
   if (!semverPattern.test(version)) {
     throw new Error(`Invalid version: '${rawVersion}'. Expected SemVer, such as 0.1.0-rc.1.`);
@@ -58,9 +58,16 @@ function normalizeVersion(rawVersion: string): string {
 
 const rawVersion = process.argv[2] ?? process.env.SPEC_VERSION ?? (await versionFromSpec());
 const specVersion = normalizeVersion(rawVersion);
-const outputPath = join('site', 'spec', specVersion, 'api-reference', 'bibliotheca.openapi.json');
+const outputPath = join("site", "spec", specVersion, "api-reference", "bibliotheca.openapi.json");
 
 await mkdir(join(repoRoot, dirname(outputPath)), { recursive: true });
 
-run('redocly', ['bundle', 'openapi/bibliotheca.openapi.yaml', '--output', outputPath, '--ext', 'json']);
-run('prettier', ['--write', outputPath]);
+run("redocly", [
+  "bundle",
+  "openapi/bibliotheca.openapi.yaml",
+  "--output",
+  outputPath,
+  "--ext",
+  "json",
+]);
+run("prettier", ["--write", outputPath]);

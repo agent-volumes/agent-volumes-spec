@@ -31,7 +31,11 @@
       "name": "component-entrypoint-missing-file",
       "area": "manifest",
       "payload": {
-        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/missing/SKILL.md" },
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./skills/missing/SKILL.md"
+        },
         "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"]
       },
       "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
@@ -49,7 +53,11 @@
       "name": "hook-entrypoint-unsupported-event",
       "area": "manifest",
       "payload": {
-        "component": { "type": "hook", "name": "before-review", "entrypoint": "./hooks/before-review.yaml" },
+        "component": {
+          "type": "hook",
+          "name": "before-review",
+          "entrypoint": "./hooks/before-review.yaml"
+        },
         "hook": { "event": "BeforeReview", "type": "command" }
       },
       "expected": { "valid": false, "failureCategory": "unsupported-hook-event" }
@@ -58,7 +66,11 @@
       "name": "mcp-entrypoint-must-be-json",
       "area": "manifest",
       "payload": {
-        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./mcp/research.yaml" }
+        "component": {
+          "type": "mcp-server",
+          "name": "research-mcp",
+          "entrypoint": "./mcp/research.yaml"
+        }
       },
       "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
     },
@@ -74,7 +86,11 @@
       "name": "agent-entrypoint-portable-markdown-frontmatter",
       "area": "manifest",
       "payload": {
-        "component": { "type": "agent", "name": "review-agent", "entrypoint": "./agents/review/AGENT.md" },
+        "component": {
+          "type": "agent",
+          "name": "review-agent",
+          "entrypoint": "./agents/review/AGENT.md"
+        },
         "releaseFiles": ["volume.toml", "agents/review/AGENT.md"],
         "frontmatter": { "description": "Reviews pull requests", "tools": ["tool/read-pr"] }
       },
@@ -84,7 +100,11 @@
       "name": "skill-entrypoint-portable-skill-markdown",
       "area": "manifest",
       "payload": {
-        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./skills/summarize-paper/SKILL.md"
+        },
         "releaseFiles": ["volume.toml", "skills/summarize-paper/SKILL.md"],
         "frontmatter": { "description": "Summarize academic papers" }
       },
@@ -94,7 +114,11 @@
       "name": "skill-entrypoint-missing-description-frontmatter",
       "area": "manifest",
       "payload": {
-        "component": { "type": "skill", "name": "summarize-paper", "entrypoint": "./skills/summarize-paper/SKILL.md" },
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./skills/summarize-paper/SKILL.md"
+        },
         "frontmatter": {}
       },
       "expected": { "valid": false, "failureCategory": "missing-skill-description" }
@@ -147,7 +171,11 @@
       "name": "hook-entrypoint-portable-yaml-event",
       "area": "manifest",
       "payload": {
-        "component": { "type": "hook", "name": "before-tool", "entrypoint": "./hooks/before-tool.yaml" },
+        "component": {
+          "type": "hook",
+          "name": "before-tool",
+          "entrypoint": "./hooks/before-tool.yaml"
+        },
         "hook": { "event": "PreToolUse", "type": "command" }
       },
       "expected": { "valid": true }
@@ -156,7 +184,11 @@
       "name": "lsp-entrypoint-portable-json-descriptor",
       "area": "manifest",
       "payload": {
-        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "component": {
+          "type": "lsp-server",
+          "name": "typescript-lsp",
+          "entrypoint": "./lsp/typescript.json"
+        },
         "descriptor": { "command": "typescript-language-server", "args": ["--stdio"] }
       },
       "expected": { "valid": true }
@@ -165,7 +197,11 @@
       "name": "lsp-entrypoint-must-be-json-object",
       "area": "manifest",
       "payload": {
-        "component": { "type": "lsp-server", "name": "typescript-lsp", "entrypoint": "./lsp/typescript.json" },
+        "component": {
+          "type": "lsp-server",
+          "name": "typescript-lsp",
+          "entrypoint": "./lsp/typescript.json"
+        },
         "descriptor": ["typescript-language-server", "--stdio"]
       },
       "expected": { "valid": false, "failureCategory": "invalid-lsp-descriptor" }
@@ -174,11 +210,17 @@
       "name": "mcp-entrypoint-noncanonical-filename-warning",
       "area": "warning",
       "payload": {
-        "component": { "type": "mcp-server", "name": "research-mcp", "entrypoint": "./config/research-mcp.json" }
+        "component": {
+          "type": "mcp-server",
+          "name": "research-mcp",
+          "entrypoint": "./config/research-mcp.json"
+        }
       },
       "expected": {
         "valid": true,
-        "warnings": [{ "category": "noncanonical-entrypoint", "path": "./config/research-mcp.json" }]
+        "warnings": [
+          { "category": "noncanonical-entrypoint", "path": "./config/research-mcp.json" }
+        ]
       }
     },
     {

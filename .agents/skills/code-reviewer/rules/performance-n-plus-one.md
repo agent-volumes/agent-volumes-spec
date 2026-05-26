@@ -104,7 +104,7 @@ const posts = await Post.findAll({
   include: [
     {
       model: User,
-      as: 'author',
+      as: "author",
     },
   ],
 });
@@ -129,7 +129,7 @@ const posts = await prisma.post.findMany({
 
 ```javascript
 // ✅ Using DataLoader to batch queries
-const DataLoader = require('dataloader');
+const DataLoader = require("dataloader");
 
 const userLoader = new DataLoader(async (userIds) => {
   // Called once with all user IDs: [1, 2, 3, 4, ...]

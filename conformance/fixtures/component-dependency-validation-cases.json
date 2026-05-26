@@ -30,7 +30,10 @@
         "@acme/search-pack": "^1.0.0"
       },
       "component-dependencies": {
-        "review-agent": ["pkg:volume/github-provider#tool/read-pr", "pkg:volume/%40acme/search-pack#skill/code-search"]
+        "review-agent": [
+          "pkg:volume/github-provider#tool/read-pr",
+          "pkg:volume/%40acme/search-pack#skill/code-search"
+        ]
       },
       "resolvedComponents": [
         "pkg:volume/github-provider#tool/read-pr",

@@ -81,7 +81,7 @@ A server should handle errors gracefully.
 ```typescript
 // TypeScript schema is source of truth
 export interface InitializeRequest {
-  method: 'initialize';
+  method: "initialize";
   params: {
     protocolVersion: string;
     capabilities: ClientCapabilities;
@@ -349,7 +349,7 @@ Expected: 200 OK with manifest body
 
 ```javascript
 // Schema tests register the same dialect
-const dialect = 'https://spec.openapis.org/oas/3.1/dialect/base';
+const dialect = "https://spec.openapis.org/oas/3.1/dialect/base";
 // Used by both validation and conformance
 ```
 

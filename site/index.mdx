@@ -1,7 +1,7 @@
 ---
-title: 'Introduction to Agent Volumes'
-description: 'Agent Volumes is the open standard for packaging, distributing, and verifying components for AI agent runtimes — skills, tools, hooks, MCP servers, and more.'
-sidebarTitle: 'Introduction'
+title: "Introduction to Agent Volumes"
+description: "Agent Volumes is the open standard for packaging, distributing, and verifying components for AI agent runtimes — skills, tools, hooks, MCP servers, and more."
+sidebarTitle: "Introduction"
 ---
 
 <img
@@ -10,7 +10,7 @@ sidebarTitle: 'Introduction'
   alt="Agent Volumes Organization logo banner"
   width="1000"
   height="250"
-  style={{ width: '100%', height: 'auto' }}
+  style={{ width: "100%", height: "auto" }}
 />
 <img
   className="hidden dark:block"
@@ -18,7 +18,7 @@ sidebarTitle: 'Introduction'
   alt="Agent Volumes Organization logo banner"
   width="1000"
   height="250"
-  style={{ width: '100%', height: 'auto' }}
+  style={{ width: "100%", height: "auto" }}
 />
 
 Agent Volumes defines a runtime-neutral packaging and distribution standard for AI agent components. AI agent runtimes — Claude Code, Codex, Gemini CLI, Cursor, and others — increasingly rely on skills, tools, hooks, MCP servers, and LSP servers to extend their capabilities. Agent Volumes gives those components a shared package format, identity model, versioning model, and verification path.
@@ -60,17 +60,19 @@ shelf add research-agent-pack
 
 <CardGroup cols={3}>
   <Card title="Fragmentation" icon="puzzle-piece">
-    Each runtime defines its own component layout. Developers rewrite the same skill, tool, or MCP server for every
-    runtime they want to support. Agent Volumes gives you one package format that compatible runtimes can consume.
+    Each runtime defines its own component layout. Developers rewrite the same skill, tool, or MCP
+    server for every runtime they want to support. Agent Volumes gives you one package format that
+    compatible runtimes can consume.
   </Card>
   <Card title="No supply chain identity" icon="fingerprint">
-    Agent components have no standard identifier, versioning model, or provenance chain. Organizations cannot audit what
-    runs inside their agent systems. Agent Volumes assigns every volume and component a globally unique, purl-compatible
-    identifier.
+    Agent components have no standard identifier, versioning model, or provenance chain.
+    Organizations cannot audit what runs inside their agent systems. Agent Volumes assigns every
+    volume and component a globally unique, purl-compatible identifier.
   </Card>
   <Card title="No shared trust model" icon="shield-check">
-    Without content integrity verification or publisher identity, every installation is an implicit trust decision with
-    no revocation or advisory mechanism. Agent Volumes treats supply chain integrity as a first-class concern.
+    Without content integrity verification or publisher identity, every installation is an implicit
+    trust decision with no revocation or advisory mechanism. Agent Volumes treats supply chain
+    integrity as a first-class concern.
   </Card>
 </CardGroup>
 
@@ -90,33 +92,33 @@ Volumes that export components use one or more of seven component types:
 
 <CardGroup cols={2}>
   <Card title="Agent" icon="robot">
-    An autonomous runtime actor with a system prompt, tool bindings, and the ability to make multi-step decisions
-    independently.
+    An autonomous runtime actor with a system prompt, tool bindings, and the ability to make
+    multi-step decisions independently.
   </Card>
   <Card title="Skill" icon="graduation-cap">
-    Instructional knowledge loaded into an agent's context. Teaches the runtime how to perform a specific task without
-    executing code directly.
+    Instructional knowledge loaded into an agent's context. Teaches the runtime how to perform a
+    specific task without executing code directly.
   </Card>
   <Card title="Command" icon="terminal">
-    A user-invokable slash command, such as `/review`. Triggered explicitly by the user, not called programmatically by
-    the agent.
+    A user-invokable slash command, such as `/review`. Triggered explicitly by the user, not called
+    programmatically by the agent.
   </Card>
   <Card title="Tool" icon="wrench">
-    A function-call endpoint the agent calls programmatically during task execution. Has defined inputs and outputs and
-    is stateless per invocation.
+    A function-call endpoint the agent calls programmatically during task execution. Has defined
+    inputs and outputs and is stateless per invocation.
   </Card>
   <Card title="Hook" icon="bolt">
-    A lifecycle event handler triggered automatically by the runtime at specific points, such as `PreToolUse`,
-    `SessionStart`, or `FileChanged`.
+    A lifecycle event handler triggered automatically by the runtime at specific points, such as
+    `PreToolUse`, `SessionStart`, or `FileChanged`.
   </Card>
   <Card title="MCP Server" icon="server">
-    A service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/). Runs as a
-    long-running process communicating over stdio, SSE, or streamable HTTP.
+    A service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/).
+    Runs as a long-running process communicating over stdio, SSE, or streamable HTTP.
   </Card>
   <Card title="LSP Server" icon="code">
     A service endpoint implementing the [Language Server
-    Protocol](https://microsoft.github.io/language-server-protocol/). Provides code intelligence for language-aware
-    runtime operations.
+    Protocol](https://microsoft.github.io/language-server-protocol/). Provides code intelligence for
+    language-aware runtime operations.
   </Card>
 </CardGroup>
 
@@ -137,8 +139,8 @@ The **shelf** CLI is the reference client implementation maintained by Windlass.
 The **Alexandria** bibliotheca is the reference registry implementation, also maintained by Windlass. It is intended to demonstrate [the Agent Volumes Registry API](/spec/latest/api/overview), including package operations, version discovery, trust upload, and capability metadata endpoints.
 
 <Note>
-  shelf and Alexandria are downstream implementation projects, not governance artifacts of the Agent Volumes
-  Organization. They demonstrate the specification in practice but do not define it.
+  shelf and Alexandria are downstream implementation projects, not governance artifacts of the Agent
+  Volumes Organization. They demonstrate the specification in practice but do not define it.
 </Note>
 
 ## Related standards
@@ -166,15 +168,19 @@ Agent Volumes builds on and integrates with established standards rather than re
     Read the frozen `volume.toml` manifest reference for `v0.1.0-rc.1`.
   </Card>
   <Card title="Implementers guide" icon="terminal" href="/implementers">
-    Build an experimental client, bibliotheca, validator, exporter, or runtime adapter from the canonical artifacts.
+    Build an experimental client, bibliotheca, validator, exporter, or runtime adapter from the
+    canonical artifacts.
   </Card>
   <Card title="Contributors" icon="people-group" href="/contributors">
-    Learn how to propose specification changes, route issues, report vulnerabilities, and participate respectfully.
+    Learn how to propose specification changes, route issues, report vulnerabilities, and
+    participate respectfully.
   </Card>
   <Card title="Component types" icon="cubes" href="/spec/0.1.0-rc.1/components/overview">
-    Learn about agents, skills, commands, tools, hooks, MCP servers, and LSP servers in the release archive.
+    Learn about agents, skills, commands, tools, hooks, MCP servers, and LSP servers in the release
+    archive.
   </Card>
   <Card title="Conformance" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
-    Use the archived fixture corpus and role-scoped requirements without treating them as certification.
+    Use the archived fixture corpus and role-scoped requirements without treating them as
+    certification.
   </Card>
 </CardGroup>

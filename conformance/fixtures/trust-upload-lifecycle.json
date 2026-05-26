@@ -44,7 +44,11 @@
         },
         "attachment": {
           "category": "bom",
-          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
         },
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
@@ -69,7 +73,11 @@
         },
         "attachment": {
           "category": "bom",
-          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
         },
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
@@ -94,7 +102,11 @@
         },
         "attachment": {
           "category": "bom",
-          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
         },
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,
@@ -119,7 +131,11 @@
         },
         "attachment": {
           "category": "bom",
-          "format": { "family": "cyclonedx", "mediaType": "application/vnd.cyclonedx+json", "version": "1.7" }
+          "format": {
+            "family": "cyclonedx",
+            "mediaType": "application/vnd.cyclonedx+json",
+            "version": "1.7"
+          }
         },
         "declaredDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "declaredSize": 4096,

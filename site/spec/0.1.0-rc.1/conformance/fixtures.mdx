@@ -1,7 +1,7 @@
 ---
-title: 'Conformance fixtures and test vectors'
-description: 'How to use the Agent Volumes conformance fixture corpus to validate your client or bibliotheca implementation against the v0.1 normative test suite.'
-sidebarTitle: 'Fixtures'
+title: "Conformance fixtures and test vectors"
+description: "How to use the Agent Volumes conformance fixture corpus to validate your client or bibliotheca implementation against the v0.1 normative test suite."
+sidebarTitle: "Fixtures"
 ---
 
 The Agent Volumes conformance fixture corpus is a set of normative test inputs and expected outputs that cover every major surface of the v0.1 specification. Fixtures are deterministic and offline — they do not require a deployed bibliotheca, live Sigstore/Rekor services, network access, or a universal trust-root policy. You run them against your own implementation and produce a conformance report that records which cases passed and which failed.
@@ -20,65 +20,73 @@ The fixture corpus is organized into families, each covering a distinct area of 
 
 <CardGroup cols={2}>
   <Card title="Manifest validation" icon="file-check">
-    `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json` — valid, invalid, and warning cases
-    for `volume.toml` parsing and semantic checks.
+    `manifest-*.json`, `manifest-parse-cases.json`, `semantic-validation-cases.json` — valid,
+    invalid, and warning cases for `volume.toml` parsing and semantic checks.
   </Card>
   <Card title="Permission validation" icon="shield-exclamation">
-    `permission-escalation.json`, `permission-sibling-escalation.json` — component permission escalation rejection
-    cases.
+    `permission-escalation.json`, `permission-sibling-escalation.json` — component permission
+    escalation rejection cases.
   </Card>
   <Card title="Dependency and resolver behavior" icon="diagram-project">
-    `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`, `version-index.json` — SemVer
-    range grammar accept/reject cases and resolver lifecycle behavior.
+    `semver-range-cases.json`, `resolver-cases.json`, `version-index-row-cases.json`,
+    `version-index.json` — SemVer range grammar accept/reject cases and resolver lifecycle behavior.
   </Card>
   <Card title="External dependency declarations" icon="link">
-    `external-dependency-validation-cases.json`, `external-dependency-potential-exposure-cases.json`,
+    `external-dependency-validation-cases.json`,
+    `external-dependency-potential-exposure-cases.json`,
     `external-dependency-potential-exposure-warning-context-invalid.json`,
-    `manifest-invalid-external-dependency-*.json`, `../upstream-baselines.json`, `upstream-baselines-invalid.json`,
-    `../purl-vers-compatibility-exceptions.json`, and `purl-vers-compatibility-exceptions-invalid.json` — PURL/VERS
-    validation, declaration keys, upstream baseline compatibility, and potential-exposure warning contexts.
+    `manifest-invalid-external-dependency-*.json`, `../upstream-baselines.json`,
+    `upstream-baselines-invalid.json`, `../purl-vers-compatibility-exceptions.json`, and
+    `purl-vers-compatibility-exceptions-invalid.json` — PURL/VERS validation, declaration keys,
+    upstream baseline compatibility, and potential-exposure warning contexts.
   </Card>
   <Card title="Package identity" icon="tag">
-    `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json` — purl serialization and canonical
-    identity cases.
+    `purl-canonicalization-cases.json`, `component-dependency-validation-cases.json` — purl
+    serialization and canonical identity cases.
   </Card>
   <Card title="Archive and integrity" icon="box">
-    `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` — normalized file-tree digest
-    golden vectors and archive profile validation.
+    `tar-archive-profile-cases.json`, `digest-vectors.json`, `digest-invalid-cases.json` —
+    normalized file-tree digest golden vectors and archive profile validation.
   </Card>
   <Card title="Release metadata and upload" icon="upload">
-    `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`, `lifecycle-mutation-cases.json` — release
-    lifecycle states, unpublish and mutation endpoint behavior, and the `http-put` portable upload profile.
+    `exact-release-metadata-cases.json`, `release-upload-lifecycle.json`,
+    `lifecycle-mutation-cases.json` — release lifecycle states, unpublish and mutation endpoint
+    behavior, and the `http-put` portable upload profile.
   </Card>
   <Card title="Trust discovery and upload" icon="lock">
-    `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json` — trust metadata payloads, append-only
-    status variants, and upload lifecycle.
+    `trust-summary*.json`, `trust-detail*.json`, `trust-upload-lifecycle.json` — trust metadata
+    payloads, append-only status variants, and upload lifecycle.
   </Card>
   <Card title="Trust artifact verification" icon="certificate">
-    `trust-artifact-verification-cases.json` — portable objective artifact facts, lifecycle behavior, and superseded
-    stale-evidence cases.
+    `trust-artifact-verification-cases.json` — portable objective artifact facts, lifecycle
+    behavior, and superseded stale-evidence cases.
   </Card>
   <Card title="Advisories" icon="triangle-exclamation">
-    `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`, `advisory-search-failure-cases.json`,
-    `advisory-validation-cases.json` — advisory payloads, validation cases, and read/discovery failure mappings.
+    `advisory.json`, `advisory-withdrawn.json`, `advisory-list.json`,
+    `advisory-search-failure-cases.json`, `advisory-validation-cases.json` — advisory payloads,
+    validation cases, and read/discovery failure mappings.
   </Card>
   <Card title="Capability and extensions" icon="puzzle-piece">
-    `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`, `bridge-metadata*.json` — capability
-    metadata exact version sets, API family, upload profiles, and unknown field tolerance.
+    `capability-metadata*.json`, `capability-invalid-compatibility-cases.json`,
+    `bridge-metadata*.json` — capability metadata exact version sets, API family, upload profiles,
+    and unknown field tolerance.
   </Card>
   <Card title="BOM/provenance export mapping" icon="map">
-    `mapping-matrix.json`, `mapping-sample.json` — round-trip-safe CycloneDX, SPDX, and SLSA output mappings.
+    `mapping-matrix.json`, `mapping-sample.json` — round-trip-safe CycloneDX, SPDX, and SLSA output
+    mappings.
   </Card>
   <Card title="Errors and warnings" icon="circle-exclamation">
-    `problem-details-cases.json`, `problem-registry.json` — RFC 9457 Problem Details taxonomy, the portable problem
-    type/status set, and warning payload compatibility through `schemas/warning.schema.json`.
+    `problem-details-cases.json`, `problem-registry.json` — RFC 9457 Problem Details taxonomy, the
+    portable problem type/status set, and warning payload compatibility through
+    `schemas/warning.schema.json`.
   </Card>
   <Card title="Search and catalog" icon="magnifying-glass">
-    `search-results.json`, `catalog-search-failure-cases.json` — catalog search response payload shape and search
-    failure mappings.
+    `search-results.json`, `catalog-search-failure-cases.json` — catalog search response payload
+    shape and search failure mappings.
   </Card>
   <Card title="Requirement traceability" icon="list-check">
-    `conformance-coverage.json` — maps `AV-BIB-*` and `AV-CLI-*` requirement IDs to fixture families.
+    `conformance-coverage.json` — maps `AV-BIB-*` and `AV-CLI-*` requirement IDs to fixture
+    families.
   </Card>
 </CardGroup>
 
@@ -87,8 +95,9 @@ The fixture corpus is organized into families, each covering a distinct area of 
 The `digest-vectors.json` file contains golden vectors for the normalized file-tree integrity algorithm. Your implementation must reproduce these digest values byte-for-byte. Use `digest-invalid-cases.json` to confirm your implementation rejects malformed or mismatched digest inputs.
 
 <Warning>
-  Digest vectors are algorithmic, not schema-only. A schema pass alone does not confirm that your digest construction is
-  correct — you must evaluate the expected output against your computed result.
+  Digest vectors are algorithmic, not schema-only. A schema pass alone does not confirm that your
+  digest construction is correct — you must evaluate the expected output against your computed
+  result.
 </Warning>
 
 ## BOM and provenance mapping fixtures
@@ -123,8 +132,8 @@ When your runner finishes evaluating the fixture corpus, output a report using `
 Keep result IDs stable across repeated runs of the same fixture corpus so reports can be diffed and compared by tooling.
 
 <Note>
-  A conformance report is a statement about the artifact and vector surface only. It is not a product certification
-  badge and does not imply live registry interoperability.
+  A conformance report is a statement about the artifact and vector surface only. It is not a
+  product certification badge and does not imply live registry interoperability.
 </Note>
 
 ## Coverage map
@@ -173,17 +182,26 @@ Keep result IDs stable across repeated runs of the same fixture corpus so report
 </Steps>
 
 <Tip>
-  Trust artifact verification fixtures cover portable, objective artifact facts and lifecycle behavior. If your
-  implementation validates real signatures, you can add local cryptographic test roots or offline Sigstore/SLSA samples
-  — but those local trust-root policies are outside the v0.1 portable fixture contract. Unsupported trust artifact
-  formats must remain unverified rather than successfully verified.
+  Trust artifact verification fixtures cover portable, objective artifact facts and lifecycle
+  behavior. If your implementation validates real signatures, you can add local cryptographic test
+  roots or offline Sigstore/SLSA samples — but those local trust-root policies are outside the v0.1
+  portable fixture contract. Unsupported trust artifact formats must remain unverified rather than
+  successfully verified.
 </Tip>
 
 <CardGroup cols={2}>
-  <Card title="Conformance overview" icon="circle-check" href="/spec/0.1.0-rc.1/conformance/overview">
+  <Card
+    title="Conformance overview"
+    icon="circle-check"
+    href="/spec/0.1.0-rc.1/conformance/overview"
+  >
     Claim labels, minimum viable requirements, and prototype-local choices.
   </Card>
-  <Card title="Supply chain security" icon="shield-check" href="/spec/0.1.0-rc.1/security/supply-chain">
+  <Card
+    title="Supply chain security"
+    icon="shield-check"
+    href="/spec/0.1.0-rc.1/security/supply-chain"
+  >
     Content integrity, publisher identity, and the trust model your implementation must support.
   </Card>
 </CardGroup>

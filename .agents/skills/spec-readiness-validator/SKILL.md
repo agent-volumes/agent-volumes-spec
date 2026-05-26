@@ -1,6 +1,6 @@
 ---
 name: spec-readiness-validator
-description: 'Validate whether a specification document is implementer-ready by checking normative prose, machine-readable schemas, OpenAPI/prose drift, versioning, error semantics, security model, registry behavior, and conformance suite alignment. Use when: (1) Evaluating spec maturity before implementation, (2) Reviewing spec PRs for completeness, (3) Auditing existing specs for gaps, (4) Preparing specs for release, (5) Reviewing OpenAPI/prose drift audit checklists, or (6) Any task involving spec quality assessment or readiness evaluation.'
+description: "Validate whether a specification document is implementer-ready by checking normative prose, machine-readable schemas, OpenAPI/prose drift, versioning, error semantics, security model, registry behavior, and conformance suite alignment. Use when: (1) Evaluating spec maturity before implementation, (2) Reviewing spec PRs for completeness, (3) Auditing existing specs for gaps, (4) Preparing specs for release, (5) Reviewing OpenAPI/prose drift audit checklists, or (6) Any task involving spec quality assessment or readiness evaluation."
 ---
 
 # Spec Readiness Validator

@@ -1,6 +1,6 @@
 ---
-title: 'Volume and component identity with pkg:volume'
-description: 'How volumes and components are identified using purl-compatible pkg:volume/... identifiers, including scoped names, versions, and component subpaths.'
+title: "Volume and component identity with pkg:volume"
+description: "How volumes and components are identified using purl-compatible pkg:volume/... identifiers, including scoped names, versions, and component subpaths."
 ---
 
 Every volume and every component it exports has a globally unique identifier built on the [Package URL (purl) specification](https://github.com/package-url/purl-spec). The Agent Volumes identity scheme uses the `volume` purl type, making identifiers compatible with existing supply chain security tooling while precisely addressing the needs of agent component packaging. Understanding these identifiers helps you reference dependencies, target specific components, and work with trust and provenance tooling correctly.
@@ -41,8 +41,9 @@ The `%40` encoding is required in canonical purl strings per purl encoding rules
 
 <Warning>
   Do not treat user-facing decoded names (`@acme/research-agent-pack`) and canonical purl strings
-  (`pkg:volume/%40acme/research-agent-pack`) as byte-for-byte interchangeable. When comparing release subjects in trust
-  and supply chain workflows, parse and validate both forms against the v0.1 identity grammar before comparing.
+  (`pkg:volume/%40acme/research-agent-pack`) as byte-for-byte interchangeable. When comparing
+  release subjects in trust and supply chain workflows, parse and validate both forms against the
+  v0.1 identity grammar before comparing.
 </Warning>
 
 ## Versioned identifiers
@@ -148,19 +149,22 @@ When a client needs to resolve a volume identifier to an installable release, it
   <Step title="Check the lockfile">
     If a lockfile is present, use the pinned versions and resolved source metadata it contains.
   </Step>
-  <Step title="Interpret the manifest">Read dependency constraints and component references from `volume.toml`.</Step>
+  <Step title="Interpret the manifest">
+    Read dependency constraints and component references from `volume.toml`.
+  </Step>
   <Step title="Query configured bibliothecas">
-    Use package-scoped version indexes from configured registries to discover eligible version candidates.
+    Use package-scoped version indexes from configured registries to discover eligible version
+    candidates.
   </Step>
   <Step title="Fetch exact release metadata">
-    Retrieve the authoritative release metadata before installation or trust evaluation. Version index rows are resolver
-    inputs, not final release records.
+    Retrieve the authoritative release metadata before installation or trust evaluation. Version
+    index rows are resolver inputs, not final release records.
   </Step>
 </Steps>
 
 <Note>
-  Registry-priority policy across independently configured bibliothecas is not standardized in v0.1. Each client applies
-  its own local policy for source selection across multiple registries.
+  Registry-priority policy across independently configured bibliothecas is not standardized in v0.1.
+  Each client applies its own local policy for source selection across multiple registries.
 </Note>
 
 ### Version lifecycle states
@@ -176,6 +180,6 @@ During ordinary dependency resolution, a client must only select versions in the
 | `unavailable` | Excluded            | Fails or reports availability error |
 
 <Warning>
-  When you install a `yanked` version because it is exactly pinned or already in a lockfile, your tooling must surface a
-  warning before proceeding.
+  When you install a `yanked` version because it is exactly pinned or already in a lockfile, your
+  tooling must surface a warning before proceeding.
 </Warning>

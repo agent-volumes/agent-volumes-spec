@@ -1,9 +1,9 @@
 {
-  "proseWrap": "preserve",
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "printWidth": 120,
+  "printWidth": 100,
   "tabWidth": 2,
+  "proseWrap": "preserve",
+  "trailingComma": "all",
+  "endOfLine": "lf",
   "overrides": [
     {
       "files": "*.mdc",

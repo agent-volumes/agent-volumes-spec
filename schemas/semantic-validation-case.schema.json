@@ -16,7 +16,10 @@
         "required": ["name", "area", "expected"],
         "properties": {
           "name": { "type": "string", "minLength": 1 },
-          "area": { "type": "string", "enum": ["manifest", "release", "trust", "resolver", "warning", "load"] },
+          "area": {
+            "type": "string",
+            "enum": ["manifest", "release", "trust", "resolver", "warning", "load"]
+          },
           "payload": {},
           "expected": {
             "type": "object",
@@ -27,7 +30,9 @@
               "failureCategory": { "type": "string" },
               "warnings": {
                 "type": "array",
-                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json" }
+                "items": {
+                  "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json"
+                }
               }
             }
           }

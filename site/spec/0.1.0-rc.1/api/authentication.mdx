@@ -1,6 +1,6 @@
 ---
-title: 'Authenticate with the Registry API'
-description: 'How to obtain a bearer token and authenticate write operations like publish and trust uploads against an Agent Volumes bibliotheca.'
+title: "Authenticate with the Registry API"
+description: "How to obtain a bearer token and authenticate write operations like publish and trust uploads against an Agent Volumes bibliotheca."
 ---
 
 The Agent Volumes Registry API uses registry-local, resource-scoped bearer tokens for protected write operations. Tokens are opaque to clients — the bibliotheca derives authorization decisions from its own local state based on the token subject, the requested action, and the target resource. Token issuance is not standardized in v0.1; consult your bibliotheca's documentation for how to obtain a token.
@@ -70,8 +70,8 @@ If the token is valid but the caller lacks the needed permission for the request
 ```
 
 <Warning>
-  A `401` means authentication failed — the token itself is the problem. A `403` means authentication succeeded but the
-  token lacks permission for this specific operation or resource.
+  A `401` means authentication failed — the token itself is the problem. A `403` means
+  authentication succeeded but the token lacks permission for this specific operation or resource.
 </Warning>
 
 ## Authenticated request example
@@ -91,6 +91,6 @@ Content-Type: application/json
 ```
 
 <Note>
-  Token issuance — how you register, log in, or generate API tokens — is bibliotheca-local and is not standardized in
-  Agent Volumes v0.1.
+  Token issuance — how you register, log in, or generate API tokens — is bibliotheca-local and is
+  not standardized in Agent Volumes v0.1.
 </Note>

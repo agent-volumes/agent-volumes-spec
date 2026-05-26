@@ -115,7 +115,10 @@
       "required": ["declarationKey", "purl", "constraint", "purpose"],
       "properties": {
         "declarationKey": { "$ref": "#/$defs/externalDependencyDeclarationKey" },
-        "purl": { "type": "string", "pattern": "^pkg:(?!volume(?:/|$))[A-Za-z][A-Za-z0-9.+-]*/[^@#]+(?:\\?[^#]+)?$" },
+        "purl": {
+          "type": "string",
+          "pattern": "^pkg:(?!volume(?:/|$))[A-Za-z][A-Za-z0-9.+-]*/[^@#]+(?:\\?[^#]+)?$"
+        },
         "constraint": { "type": "string", "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$" },
         "purpose": {
           "type": "string",
@@ -138,7 +141,10 @@
         },
         "components": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$" },
+          "items": {
+            "type": "string",
+            "pattern": "^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$"
+          },
           "minItems": 1,
           "uniqueItems": true
         }

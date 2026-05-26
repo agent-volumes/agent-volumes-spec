@@ -1,7 +1,7 @@
 ---
-title: 'Contribute to the Agent Volumes specification'
-description: 'Route specification feedback, pull requests, security reports, and community conduct concerns for the Agent Volumes specification project.'
-sidebarTitle: 'Contributors'
+title: "Contribute to the Agent Volumes specification"
+description: "Route specification feedback, pull requests, security reports, and community conduct concerns for the Agent Volumes specification project."
+sidebarTitle: "Contributors"
 ---
 
 Agent Volumes depends on implementers, reviewers, security researchers, documentation contributors, and standards participants. You can help by testing the current release candidate, finding ambiguous requirements, proposing clearer language, or building tools that expose gaps in the specification.
@@ -13,9 +13,9 @@ This page summarizes the organization-wide contribution, security, and community
 - [CODE_OF_CONDUCT.md](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 
 <Note>
-  The public documentation site is an orientation layer. The canonical specification sources remain the repository
-  artifacts, including `agent-volumes-spec.md`, `schemas/`, `openapi/`, `conformance/`, and the organization policies
-  linked above.
+  The public documentation site is an orientation layer. The canonical specification sources remain
+  the repository artifacts, including `agent-volumes-spec.md`, `schemas/`, `openapi/`,
+  `conformance/`, and the organization policies linked above.
 </Note>
 
 ## Choose the right contribution path
@@ -23,37 +23,46 @@ This page summarizes the organization-wide contribution, security, and community
 <Warning>
   Security vulnerabilities must be reported privately through [GitHub Security
   Advisories](https://github.com/agent-volumes/agent-volumes-spec/security/advisories/) or
-  [security@agentvolumes.org](mailto:security@agentvolumes.org). Do not include exploit details, reproduction steps, or
-  sensitive impact analysis in public GitHub Issues or Discussions.
+  [security@agentvolumes.org](mailto:security@agentvolumes.org). Do not include exploit details,
+  reproduction steps, or sensitive impact analysis in public GitHub Issues or Discussions.
 </Warning>
 
 <CardGroup cols={2}>
-  <Card title="Report a spec issue" icon="bug" href="https://github.com/agent-volumes/agent-volumes-spec/issues">
-    Use GitHub Issues for problems, ambiguities, missing requirements, broken links, and proposed changes to the
-    specification repository.
+  <Card
+    title="Report a spec issue"
+    icon="bug"
+    href="https://github.com/agent-volumes/agent-volumes-spec/issues"
+  >
+    Use GitHub Issues for problems, ambiguities, missing requirements, broken links, and proposed
+    changes to the specification repository.
   </Card>
   <Card
     title="Discuss open design questions"
     icon="comments"
     href="https://github.com/agent-volumes/agent-volumes-spec/discussions"
   >
-    Use GitHub Discussions for broader design questions, early feedback, and topics that need exploration before a
-    concrete proposal.
+    Use GitHub Discussions for broader design questions, early feedback, and topics that need
+    exploration before a concrete proposal.
   </Card>
   <Card title="Build from the artifacts" icon="terminal" href="/implementers">
-    Implementers can use the guide for clients, bibliothecas, validators, exporters, and runtime adapters, then report
-    interoperability feedback.
+    Implementers can use the guide for clients, bibliothecas, validators, exporters, and runtime
+    adapters, then report interoperability feedback.
   </Card>
-  <Card title="Report a vulnerability" icon="shield-exclamation" href="#report-security-issues-privately">
-    Use private security reporting channels for vulnerabilities. Do not open a public issue for security-sensitive
-    findings.
+  <Card
+    title="Report a vulnerability"
+    icon="shield-exclamation"
+    href="#report-security-issues-privately"
+  >
+    Use private security reporting channels for vulnerabilities. Do not open a public issue for
+    security-sensitive findings.
   </Card>
   <Card
     title="List adoption or evaluation"
     icon="building"
     href="https://github.com/agent-volumes/agent-volumes-spec/blob/main/ADOPTERS.md"
   >
-    Projects evaluating or adopting the standard can open an issue or pull request against `ADOPTERS.md`.
+    Projects evaluating or adopting the standard can open an issue or pull request against
+    `ADOPTERS.md`.
   </Card>
 </CardGroup>
 
@@ -63,20 +72,21 @@ Specification changes follow a lightweight proposal process:
 
 <Steps>
   <Step title="Open an issue for material changes">
-    Describe the problem, the proposed change, and the affected sections or artifacts. Open an issue first for new
-    sections, new component types, behavioral changes, or modifications to normative requirements.
+    Describe the problem, the proposed change, and the affected sections or artifacts. Open an issue
+    first for new sections, new component types, behavioral changes, or modifications to normative
+    requirements.
   </Step>
   <Step title="Discuss the proposal">
-    Work with maintainers and community members to refine the scope. Use discussion to separate normative requirements
-    from implementation-local choices.
+    Work with maintainers and community members to refine the scope. Use discussion to separate
+    normative requirements from implementation-local choices.
   </Step>
   <Step title="Submit a pull request">
-    Target `main`, because the project follows trunk-based development. All work happens from a fork rather than a
-    branch on the main repository.
+    Target `main`, because the project follows trunk-based development. All work happens from a fork
+    rather than a branch on the main repository.
   </Step>
   <Step title="Respond to review">
-    Specification changes require maintainer review. Update prose, schemas, OpenAPI, conformance fixtures, or supporting
-    documentation together when the change crosses artifact boundaries.
+    Specification changes require maintainer review. Update prose, schemas, OpenAPI, conformance
+    fixtures, or supporting documentation together when the change crosses artifact boundaries.
   </Step>
 </Steps>
 
@@ -120,8 +130,9 @@ Do not open a public issue for a security vulnerability. Use one of these privat
 Include the affected repository and version or commit, the vulnerability impact, reproduction steps or proof of concept, and any suggested mitigation. The organization acknowledges reports within 3 business days, performs triage within 7 business days, and provides progress updates at least every 7 business days until closure.
 
 <Warning>
-  Avoid denial-of-service testing, social engineering, destructive testing, and public disclosure before coordinated
-  disclosure is complete. Good-faith research that follows the security policy is covered by the project's safe harbor.
+  Avoid denial-of-service testing, social engineering, destructive testing, and public disclosure
+  before coordinated disclosure is complete. Good-faith research that follows the security policy is
+  covered by the project's safe harbor.
 </Warning>
 
 ## Participate respectfully

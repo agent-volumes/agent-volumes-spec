@@ -1,6 +1,6 @@
 ---
-title: 'MCP Server component: Model Context Protocol'
-description: 'Package Model Context Protocol servers as distributable volumes so any MCP-compatible agent runtime can discover, install, and run them.'
+title: "MCP Server component: Model Context Protocol"
+description: "Package Model Context Protocol servers as distributable volumes so any MCP-compatible agent runtime can discover, install, and run them."
 ---
 
 An MCP Server component packages a service endpoint implementing the [Model Context Protocol](https://modelcontextprotocol.io/). By wrapping an MCP server in a volume, you make it discoverable and installable through any bibliotheca, with content integrity and provenance attached. Any MCP-compatible runtime — Claude Code, Cursor, Cline, and others — can then install and run your server through the standard Agent Volumes workflow.
@@ -18,9 +18,9 @@ The portable validation minimum requires:
 - The file parses to a JSON object (not an array or primitive).
 
 <Warning>
-  If your MCP server configuration is at a path other than `.mcp.json`, the runtime or validator will load it
-  successfully but emit a `noncanonical-entrypoint` warning. Use `.mcp.json` to avoid this warning and ensure consistent
-  discovery.
+  If your MCP server configuration is at a path other than `.mcp.json`, the runtime or validator
+  will load it successfully but emit a `noncanonical-entrypoint` warning. Use `.mcp.json` to avoid
+  this warning and ensure consistent discovery.
 </Warning>
 
 ## Declaring an MCP server in `volume.toml`
@@ -88,8 +88,9 @@ version = ">=2025.02"
 ```
 
 <Note>
-  Protocol version expressions are advisory metadata in Agent Volumes v0.1. A runtime that does not understand how to
-  evaluate an MCP version expression must treat it as informational rather than applying it as a hard filter.
+  Protocol version expressions are advisory metadata in Agent Volumes v0.1. A runtime that does not
+  understand how to evaluate an MCP version expression must treat it as informational rather than
+  applying it as a hard filter.
 </Note>
 
 ## Runtime compatibility
@@ -117,8 +118,9 @@ An MCP server entrypoint fails portable validation if any of these conditions ar
 Runtime-specific failures — the server cannot be launched, local policy blocks it, an allow/deny list rejects it — are load-time failures. They do not make the manifest structurally invalid.
 
 <Tip>
-  Combine your MCP server with related Tool or Skill components in the same volume. A consumer who installs the volume
-  gets both the MCP server and the additional agent-facing components in a single install.
+  Combine your MCP server with related Tool or Skill components in the same volume. A consumer who
+  installs the volume gets both the MCP server and the additional agent-facing components in a
+  single install.
 </Tip>
 
 ## Component identifier

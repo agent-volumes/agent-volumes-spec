@@ -8,9 +8,9 @@ license: Sustainable Use License 1.0
 metadata:
   domain: documentation
   subdomain: technical-docs
-  tags: 'fact-checking, accuracy, verification, javascript, documentation, quality'
-  author: 'Yunseo Kim <dev@yunseo.kim>'
-  lastUpdated: '12026-02-25'
+  tags: "fact-checking, accuracy, verification, javascript, documentation, quality"
+  author: "Yunseo Kim <dev@yunseo.kim>"
+  lastUpdated: "12026-02-25"
   provenance: adapted
 ---
 

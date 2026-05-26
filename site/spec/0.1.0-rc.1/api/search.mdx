@@ -1,7 +1,7 @@
 ---
-title: 'Search the volume catalog'
-sidebarTitle: 'Search'
-description: 'GET /api/v1/search — query the volume catalog by text, component type, runtime, provider, keyword, and publisher. Returns paginated discovery results.'
+title: "Search the volume catalog"
+sidebarTitle: "Search"
+description: "GET /api/v1/search — query the volume catalog by text, component type, runtime, provider, keyword, and publisher. Returns paginated discovery results."
 ---
 
 The search endpoint lets you discover volumes in a bibliotheca's catalog by freeform text, component type, runtime compatibility, provider, keyword, or publisher. It returns a paginated list of matching volumes. No authentication is required.
@@ -15,27 +15,29 @@ GET /api/v1/search
 ## Query parameters
 
 <ParamField query="q" type="string">
-  Freeform query text. Matches against volume names, descriptions, keywords, and other catalog metadata. Ranking and
-  text relevance are bibliotheca-local.
+  Freeform query text. Matches against volume names, descriptions, keywords, and other catalog
+  metadata. Ranking and text relevance are bibliotheca-local.
 </ParamField>
 
 <ParamField query="type" type="string">
-  Filter by component type. One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`, `lsp-server`.
+  Filter by component type. One of: `agent`, `skill`, `command`, `tool`, `hook`, `mcp-server`,
+  `lsp-server`.
 </ParamField>
 
 <ParamField query="runtime" type="string">
-  Filter by runtime compatibility metadata. Matches volumes that declare compatibility with the given runtime identifier
-  (e.g., `claude-code`, `cursor`, `opencode`). Bibliothecas evaluate this filter only for runtime version schemes they
-  understand.
+  Filter by runtime compatibility metadata. Matches volumes that declare compatibility with the
+  given runtime identifier (e.g., `claude-code`, `cursor`, `opencode`). Bibliothecas evaluate this
+  filter only for runtime version schemes they understand.
 </ParamField>
 
 <ParamField query="provider" type="string">
-  Filter by provider declaration. Matches volumes that declare integration with the given provider (e.g., `github`,
-  `slack`, `postgres`).
+  Filter by provider declaration. Matches volumes that declare integration with the given provider
+  (e.g., `github`, `slack`, `postgres`).
 </ParamField>
 
 <ParamField query="keyword" type="string">
-  Filter by keyword. Matches volumes that include the given keyword in their `volume.toml` keyword list.
+  Filter by keyword. Matches volumes that include the given keyword in their `volume.toml` keyword
+  list.
 </ParamField>
 
 <ParamField query="publisher" type="string">
@@ -113,8 +115,8 @@ GET /api/v1/search?type=mcp-server&publisher=acme
 ## Response fields
 
 <ResponseField name="items" type="object[]" required>
-  Matching catalog entries. Each item contains `name` and `latestVersion`, with optional discovery metadata such as
-  `description`, `role`, `providers`, and `components`.
+  Matching catalog entries. Each item contains `name` and `latestVersion`, with optional discovery
+  metadata such as `description`, `role`, `providers`, and `components`.
 </ResponseField>
 
 <ResponseField name="total" type="integer" required>
@@ -140,17 +142,17 @@ GET /api/v1/search?q=research&limit=10&offset=20  # page 3
 ```
 
 <Note>
-  Search result ordering and ranking are bibliotheca-local. There is no guaranteed stable global ordering across
-  bibliothecas unless a specific bibliotheca documents one.
+  Search result ordering and ranking are bibliotheca-local. There is no guaranteed stable global
+  ordering across bibliothecas unless a specific bibliotheca documents one.
 </Note>
 
 ## Important limitations
 
 <Warning>
-  Do not use search results as inputs to dependency resolution. Search results are discovery aids, not resolver inputs.
-  Always use the [version index](/spec/0.1.0-rc.1/api/version-index) for candidate selection and the
-  [fetch](/spec/0.1.0-rc.1/api/fetch) endpoint for authoritative release metadata before installation or trust
-  evaluation.
+  Do not use search results as inputs to dependency resolution. Search results are discovery aids,
+  not resolver inputs. Always use the [version index](/spec/0.1.0-rc.1/api/version-index) for
+  candidate selection and the [fetch](/spec/0.1.0-rc.1/api/fetch) endpoint for authoritative release
+  metadata before installation or trust evaluation.
 </Warning>
 
 - Search results are **not** resolver inputs. Never substitute a search response for a version index or exact release metadata during resolution.
