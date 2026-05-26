@@ -34,16 +34,39 @@ pre-commit:
         - "**/*.cts"
         - "**/*.mdc"
         - ".prettierrc"
+        - ".oxfmtrc.json"
       run: |
         set -e
+        oxfmt_files="$(mktemp)"
+        prettier_files="$(mktemp)"
+        trap 'rm -f "$oxfmt_files" "$prettier_files"' EXIT
+
         echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
         for f in {staged_files}; do
           case "$f" in
             *.md|*.mdx) bun run lint:md:fix:files -- "$f" ;;
           esac
+
+          case "$f" in
+            *.js|*.jsx|*.mjs|*.cjs|*.ts|*.tsx|*.mts|*.cts)
+              printf '%s\0' "$f" >> "$oxfmt_files"
+              ;;
+            *.md|*.mdx|*.mdc|*.json|*.yaml|*.yml|.prettierrc|.oxfmtrc.json)
+              printf '%s\0' "$f" >> "$prettier_files"
+              ;;
+          esac
         done
-        echo "✨ Running prettier --write on staged files..."
-        bun run format:files -- {staged_files}
+
+        if [ -s "$oxfmt_files" ]; then
+          echo "✨ Running oxfmt --write on staged JavaScript and TypeScript files..."
+          xargs -0 bun run format:oxfmt:files -- < "$oxfmt_files"
+        fi
+
+        if [ -s "$prettier_files" ]; then
+          echo "✨ Running prettier --write on staged non-JS/TS files..."
+          xargs -0 bun run format:prettier:files -- < "$prettier_files"
+        fi
+
         echo "📦 Re-staging fixed files..."
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"

@@ -1,9 +1,5 @@
 {
-  "printWidth": 100,
-  "tabWidth": 2,
-  "proseWrap": "preserve",
   "trailingComma": "all",
-  "endOfLine": "lf",
   "overrides": [
     {
       "files": "*.mdc",

@@ -58,6 +58,7 @@ on:
       - ".github/workflows/spec-lint-and-format.yml"
       - ".markdownlint-cli2.jsonc"
       - ".oxlintrc.json"
+      - ".oxfmtrc.json"
       - ".prettierrc"
       - "redocly.yaml"
       - "openapi/**"
@@ -115,8 +116,11 @@ jobs:
             exit 1
           fi
 
-      - name: Check formatting with Prettier
-        run: bun run format:check
+      - name: Check JavaScript and TypeScript formatting with Oxfmt
+        run: bun run format:oxfmt:check
+
+      - name: Check non-JS/TS formatting with Prettier
+        run: bun run format:prettier:check
 
       - name: Lint JavaScript and TypeScript with Oxlint
         run: bun run lint:oxlint:github
