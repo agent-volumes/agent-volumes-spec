@@ -1,7 +1,7 @@
 ---
-title: 'volume.toml manifest reference'
-sidebarTitle: 'Manifest'
-description: 'Complete reference for every field in volume.toml — the required human-authoring format at the root of every Agent Volumes package.'
+title: "volume.toml manifest reference"
+sidebarTitle: "Manifest"
+description: "Complete reference for every field in volume.toml — the required human-authoring format at the root of every Agent Volumes package."
 ---
 
 Every volume must contain a `volume.toml` file at its root. This file is the normative human-authoring format for package metadata: it declares who published the volume, what components it exports, which runtimes it targets, what permissions it needs, and which other volumes it depends on. Tooling validates manifests against a canonical parsed-data model derived from the TOML source, so the structure you write here is the source of truth for everything downstream — resolution, installation, trust, and discovery.
@@ -26,10 +26,11 @@ The `[volume]` table carries package identity and discovery metadata.
 </ParamField>
 
 <ParamField path="volume.name" type="string" required>
-  Volume identifier. Use a bare name for scopeless volumes (`my-agent`) or `@scope/name` for scoped volumes
-  (`@acme/research-pack`). Name segments must be lowercase alphanumeric with hyphens, 1–128 characters, not starting or
-  ending with a hyphen, and without consecutive hyphens. Scoped identifiers also include a scope segment up to 64
-  characters, so the full scoped `volume.name` can be longer than a bare name.
+  Volume identifier. Use a bare name for scopeless volumes (`my-agent`) or `@scope/name` for scoped
+  volumes (`@acme/research-pack`). Name segments must be lowercase alphanumeric with hyphens, 1–128
+  characters, not starting or ending with a hyphen, and without consecutive hyphens. Scoped
+  identifiers also include a scope segment up to 64 characters, so the full scoped `volume.name` can
+  be longer than a bare name.
 </ParamField>
 
 <ParamField path="volume.version" type="string" required>
@@ -72,9 +73,10 @@ The `[volume]` table carries package identity and discovery metadata.
 </ParamField>
 
 <ParamField path="volume.providers" type="string[]">
-  External services the volume integrates with at the volume level (e.g., `["github", "slack"]`). These are discovery
-  hints, not dependency declarations. See [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for common provider
-  examples and naming guidance.
+  External services the volume integrates with at the volume level (e.g., `["github", "slack"]`).
+  These are discovery hints, not dependency declarations. See
+  [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for common provider examples and naming
+  guidance.
 </ParamField>
 
 ## `[publisher]` table
@@ -82,8 +84,8 @@ The `[volume]` table carries package identity and discovery metadata.
 The `[publisher]` table is required in every `volume.toml`, including scoped volumes and `role = "meta"` volumes. It identifies the publisher entity, not their verification status — verification is managed by the bibliotheca.
 
 <ParamField path="publisher.id" type="string" required>
-  Publisher identifier. For scopeless volumes, identifies the owner of the volume name. For scoped volumes, identifies
-  the owning scope (without the `@` prefix).
+  Publisher identifier. For scopeless volumes, identifies the owner of the volume name. For scoped
+  volumes, identifies the owning scope (without the `@` prefix).
 </ParamField>
 
 ```toml
@@ -102,12 +104,14 @@ Declare every component the volume exports as an array of TOML tables. A compone
 </ParamField>
 
 <ParamField path="components[].name" type="string" required>
-  Component name. Lowercase alphanumeric with hyphens. Must be unique within the volume across all component types.
+  Component name. Lowercase alphanumeric with hyphens. Must be unique within the volume across all
+  component types.
 </ParamField>
 
 <ParamField path="components[].entrypoint" type="string" required>
-  Relative path from the volume root to the component's primary entry file (e.g., `./skills/summarize-paper/SKILL.md`).
-  Must not be absolute, must not contain `..` segments, and must resolve to a regular file.
+  Relative path from the volume root to the component's primary entry file (e.g.,
+  `./skills/summarize-paper/SKILL.md`). Must not be absolute, must not contain `..` segments, and
+  must resolve to a regular file.
 </ParamField>
 
 ### Optional fields per component
@@ -121,8 +125,8 @@ Declare every component the volume exports as an array of TOML tables. A compone
 </ParamField>
 
 <ParamField path="components[].permissions" type="object">
-  Component-specific permission overrides. Values must be narrower than or equal to the parent volume's permissions —
-  you cannot escalate permissions at the component level.
+  Component-specific permission overrides. Values must be narrower than or equal to the parent
+  volume's permissions — you cannot escalate permissions at the component level.
 </ParamField>
 
 ```toml
@@ -146,8 +150,8 @@ description = "MCP server providing research tool endpoints"
 ```
 
 <Note>
-  Component names must be unique across **all** component types within a volume. You cannot have a `skill` named
-  `search` and a `tool` named `search` in the same volume.
+  Component names must be unique across **all** component types within a volume. You cannot have a
+  `skill` named `search` and a `tool` named `search` in the same volume.
 </Note>
 
 ## `[dependencies]` table
@@ -178,22 +182,25 @@ components = ["arxiv-search"]
 ```
 
 <ParamField path="external-dependencies[].purl" type="string" required>
-  Package URL for an external ecosystem package. It must not use the `volume` purl type and must not include a PURL
-  version component or subpath. Put version intent in `constraint`.
+  Package URL for an external ecosystem package. It must not use the `volume` purl type and must not
+  include a PURL version component or subpath. Put version intent in `constraint`.
 </ParamField>
 
 <ParamField path="external-dependencies[].constraint" type="string" required>
-  VERS expression for the external package range. This is not the Agent Volumes SemVer dependency grammar.
+  VERS expression for the external package range. This is not the Agent Volumes SemVer dependency
+  grammar.
 </ParamField>
 
 <ParamField path="external-dependencies[].purpose" type="string" required>
-  Dependency use context. Core values are `runtime`, `build`, `development`, `test`, `optional`, `peer`, `source`,
-  `documentation`, and `other`. Extension values use reverse-DNS namespace syntax, such as `org.example:codegen`.
+  Dependency use context. Core values are `runtime`, `build`, `development`, `test`, `optional`,
+  `peer`, `source`, `documentation`, and `other`. Extension values use reverse-DNS namespace syntax,
+  such as `org.example:codegen`.
 </ParamField>
 
 <ParamField path="external-dependencies[].components" type="string[]">
-  Optional component scope. When present, the array must be non-empty, duplicate-free, and contain only component names
-  declared in the same manifest. Omit it for volume-wide external dependency declarations.
+  Optional component scope. When present, the array must be non-empty, duplicate-free, and contain
+  only component names declared in the same manifest. Omit it for volume-wide external dependency
+  declarations.
 </ParamField>
 
 <Tip>
@@ -215,8 +222,8 @@ Declare which components in this volume depend on specific components from other
 ```
 
 <Note>
-  A component-level dependency implies the parent volume dependency. After volume resolution, tooling verifies that the
-  referenced components exist in the resolved volume version.
+  A component-level dependency implies the parent volume dependency. After volume resolution,
+  tooling verifies that the referenced components exist in the resolved volume version.
 </Note>
 
 ## `[[runtimes]]` array
@@ -234,14 +241,14 @@ compatibility = ">=0.1.0"
 ```
 
 <ParamField path="runtimes[].name" type="string" required>
-  Runtime identifier. See [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for the full list of 18 recognized
-  runtime IDs.
+  Runtime identifier. See [Compatibility](/spec/0.1.0-rc.1/volumes/compatibility) for the full list
+  of 18 recognized runtime IDs.
 </ParamField>
 
 <ParamField path="runtimes[].compatibility" type="string" required>
-  Required advisory version expression for the runtime. This is metadata for discovery and diagnostics — not a hard
-  dependency constraint. Tooling preserves the expression as authored and only evaluates it when the runtime's version
-  scheme is explicitly understood.
+  Required advisory version expression for the runtime. This is metadata for discovery and
+  diagnostics — not a hard dependency constraint. Tooling preserves the expression as authored and
+  only evaluates it when the runtime's version scheme is explicitly understood.
 </ParamField>
 
 If you omit the `[[runtimes]]` array entirely, the volume makes no runtime-specific compatibility claim.
@@ -265,9 +272,9 @@ version = ">=3.17"
 </ParamField>
 
 <ParamField path="protocols[].version" type="string" required>
-  Required protocol version expression. Protocol ecosystems use different version schemes (date-like, short numeric,
-  SemVer-compatible), so this is advisory metadata. Tooling must not reject a manifest solely because it cannot evaluate
-  the expression.
+  Required protocol version expression. Protocol ecosystems use different version schemes
+  (date-like, short numeric, SemVer-compatible), so this is advisory metadata. Tooling must not
+  reject a manifest solely because it cannot evaluate the expression.
 </ParamField>
 
 ## `[permissions]` table
@@ -299,10 +306,10 @@ browser = "deny"
 </ParamField>
 
 <Warning>
-  Declaring a component permission that is broader than the parent volume's permission is a validation failure. For
-  example, if the volume declares `filesystem = "read"`, no component may declare `filesystem = "read-write"`. Clients
-  must fail before submission when they detect permission escalation. Bibliothecas must block affected artifacts when
-  escalation is discovered.
+  Declaring a component permission that is broader than the parent volume's permission is a
+  validation failure. For example, if the volume declares `filesystem = "read"`, no component may
+  declare `filesystem = "read-write"`. Clients must fail before submission when they detect
+  permission escalation. Bibliothecas must block affected artifacts when escalation is discovered.
 </Warning>
 
 ## `[environment]` table

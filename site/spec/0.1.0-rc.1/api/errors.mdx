@@ -1,6 +1,6 @@
 ---
-title: 'Registry API error codes and responses'
-description: 'RFC 9457 Problem Details error format and the complete list of Agent Volumes API error type slugs with HTTP status codes and meanings.'
+title: "Registry API error codes and responses"
+description: "RFC 9457 Problem Details error format and the complete list of Agent Volumes API error type slugs with HTTP status codes and meanings."
 ---
 
 All Agent Volumes Registry API error responses use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457) with the `application/problem+json` content type. Each error has a `type` URI that identifies the problem category, a human-readable `title`, and an HTTP `status` code. An optional `detail` field provides context-specific information about the specific failure. The `type` URI is the stable machine-readable identifier your client should switch on — not the `title`, which may vary.
@@ -153,6 +153,7 @@ If a `volume.toml` declares a component with permissions broader than its parent
 ```
 
 <Warning>
-  Clients must fail before submission when they detect permission escalation locally. Do not rely solely on the server
-  to catch this — validate your `volume.toml` before calling the publish endpoint.
+  Clients must fail before submission when they detect permission escalation locally. Do not rely
+  solely on the server to catch this — validate your `volume.toml` before calling the publish
+  endpoint.
 </Warning>

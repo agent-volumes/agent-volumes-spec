@@ -381,7 +381,7 @@ For each logical feature/change:
 
 ```yaml
 - group_id: 1
-  feature: 'Add Shopify discount deletion'
+  feature: "Add Shopify discount deletion"
   files:
     - errors/shopify_error.py
     - types/delete_input.py
@@ -483,7 +483,7 @@ EXECUTION_PLAN:
       target: <hash>
   new_commits:
     - files: [...]
-      message: '...'
+      message: "..."
       level: N
   requires_force_push: true | false
 ```

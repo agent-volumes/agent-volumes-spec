@@ -1,6 +1,6 @@
 ---
-title: 'Declaring dependencies in volume.toml'
-description: 'How to declare volume-level and component-level dependencies with portable SemVer range constraints, plus single-version enforcement rules.'
+title: "Declaring dependencies in volume.toml"
+description: "How to declare volume-level and component-level dependencies with portable SemVer range constraints, plus single-version enforcement rules."
 ---
 
 Agent Volumes uses `[dependencies]` for Agent Volumes package dependencies and `[component-dependencies]` for wiring specific components to components exported by those dependencies. Both tables participate in the same single-version resolution graph, so the constraints you write here directly affect how tooling resolves your package's Agent Volumes dependency tree.
@@ -101,9 +101,10 @@ Each key must be the name of a component declared in this manifest's `[[componen
 ```
 
 <Note>
-  A component-level dependency implies dependency on the containing volume, but versionless component purls still rely
-  on the parent volume's `[dependencies]` constraint to determine the resolved version. After resolution, tooling
-  verifies that the referenced components actually exist in the resolved version of that volume.
+  A component-level dependency implies dependency on the containing volume, but versionless
+  component purls still rely on the parent volume's `[dependencies]` constraint to determine the
+  resolved version. After resolution, tooling verifies that the referenced components actually exist
+  in the resolved version of that volume.
 </Note>
 
 ### Omitting versions in authoring
@@ -151,9 +152,9 @@ Rules for external dependencies:
 The semantic key is `(canonical purl, purpose, scope)`. Equivalent declarations with the same semantic key are duplicates, and declarations with the same semantic key but different normalized VERS constraints are conflicts. Stable declaration identifiers use `av-extdep-v1:sha256:<lowercase-hex>` and exclude `constraint` from the digest input.
 
 <Warning>
-  External dependency declarations are not resolved package inventory, vulnerability evidence, VEX status, scanner
-  output, or provenance material. Treat potential-exposure warnings as diagnostics that need review, not as confirmed
-  vulnerability findings.
+  External dependency declarations are not resolved package inventory, vulnerability evidence, VEX
+  status, scanner output, or provenance material. Treat potential-exposure warnings as diagnostics
+  that need review, not as confirmed vulnerability findings.
 </Warning>
 
 ## Single-version enforcement
@@ -161,9 +162,9 @@ The semantic key is `(canonical purl, purpose, scope)`. Equivalent declarations 
 The dependency graph for a resolved install must not contain multiple versions of the same volume. If two volumes in the dependency tree require incompatible version constraints for a shared dependency, the resolver rejects the graph rather than allowing version duplication.
 
 <Warning>
-  **Irreconcilable constraints are an error.** If `volume-a` requires `^1.0.0` of `shared-tool` and `volume-b` requires
-  `^2.0.0` of `shared-tool`, resolution fails. You must update one of the constraints so they can agree on a single
-  version.
+  **Irreconcilable constraints are an error.** If `volume-a` requires `^1.0.0` of `shared-tool` and
+  `volume-b` requires `^2.0.0` of `shared-tool`, resolution fails. You must update one of the
+  constraints so they can agree on a single version.
 </Warning>
 
 This rule keeps the resolved install predictable and prevents subtle behavior differences caused by two versions of the same package running side by side.

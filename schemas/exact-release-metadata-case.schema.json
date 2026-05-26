@@ -31,9 +31,13 @@
         "properties": {
           "name": { "type": "string", "minLength": 1 },
           "requestRoute": { "type": "string" },
-          "metadata": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/release-metadata.schema.json" },
+          "metadata": {
+            "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/release-metadata.schema.json"
+          },
           "invalidMetadata": { "type": "object" },
-          "problem": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/problem-details.schema.json" },
+          "problem": {
+            "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/problem-details.schema.json"
+          },
           "expected": {
             "type": "object",
             "additionalProperties": false,
@@ -45,7 +49,9 @@
               "failureCategory": { "type": "string" },
               "warnings": {
                 "type": "array",
-                "items": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json" }
+                "items": {
+                  "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/warning.schema.json"
+                }
               }
             }
           }

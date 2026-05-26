@@ -1,6 +1,6 @@
 ---
-title: 'Supply chain security in Agent Volumes'
-description: 'How Agent Volumes addresses supply chain risks through content integrity, provenance attestation, and publisher verification for AI agent packages.'
+title: "Supply chain security in Agent Volumes"
+description: "How Agent Volumes addresses supply chain risks through content integrity, provenance attestation, and publisher verification for AI agent packages."
 ---
 
 Agent Volumes is designed from the ground up to address supply chain risks that affect AI agent package ecosystems: fragmented integrity models that tie trust to transport containers rather than content, no standardized publisher identity system, and no shared trust model across bibliothecas. The v0.1 core establishes a baseline that any conforming client or bibliotheca can implement independently, without requiring a universal trust root.
@@ -11,26 +11,27 @@ The core trust baseline is built on four established standards:
 
 <CardGroup cols={2}>
   <Card title="CycloneDX" icon="shield-check" href="https://cyclonedx.org/docs/1.7/">
-    The normative BOM exchange format. Every Agent Volumes trust workflow that involves a software bill of materials
-    uses CycloneDX as the portable serialization target.
+    The normative BOM exchange format. Every Agent Volumes trust workflow that involves a software
+    bill of materials uses CycloneDX as the portable serialization target.
   </Card>
   <Card title="SLSA provenance" icon="lock" href="https://slsa.dev/provenance/v1">
-    The baseline provenance model. Trust attachments use the `https://slsa.dev/provenance/v1` predicate type to record
-    who built a release and how.
+    The baseline provenance model. Trust attachments use the `https://slsa.dev/provenance/v1`
+    predicate type to record who built a release and how.
   </Card>
   <Card title="Sigstore" icon="signature" href="https://docs.sigstore.dev/about/bundle/">
-    Baseline signing and verification. Provenance and signature artifacts use Sigstore-family bundles that carry the
-    signed subject digest, builder identity, and cryptographic evidence.
+    Baseline signing and verification. Provenance and signature artifacts use Sigstore-family
+    bundles that carry the signed subject digest, builder identity, and cryptographic evidence.
   </Card>
   <Card title="SPDX" icon="file-lines" href="https://spdx.github.io/spdx-spec/v3.0.1/">
-    Secondary export format. SPDX is a reference-compatibility target for archival, compliance-oriented, and
-    graph-oriented exchange use cases.
+    Secondary export format. SPDX is a reference-compatibility target for archival,
+    compliance-oriented, and graph-oriented exchange use cases.
   </Card>
 </CardGroup>
 
 <Note>
-  The v0.1 core does not commit to one narrower AI-BOM or ML-BOM profile beyond the generic CycloneDX baseline.
-  AI-specific BOM representation may be refined through future profiles or extensions.
+  The v0.1 core does not commit to one narrower AI-BOM or ML-BOM profile beyond the generic
+  CycloneDX baseline. AI-specific BOM representation may be refined through future profiles or
+  extensions.
 </Note>
 
 ## Layered verification process
@@ -127,7 +128,8 @@ When consuming trust metadata from a bibliotheca, apply these minimum behaviors:
 - **Distinguish facts from policy.** The trust summary view may include derived judgments such as verification labels. These are not canonical trust facts. Consume the raw objective facts from the detail view and apply your own policy locally.
 
 <Tip>
-  Scanner findings are not advisory records and not trust attachments in v0.1. A bibliotheca may create an advisory
-  based on scanner information under local policy, but the portable contract is the advisory read/discovery model only.
-  See [Security advisories](/spec/0.1.0-rc.1/security/advisories) for details.
+  Scanner findings are not advisory records and not trust attachments in v0.1. A bibliotheca may
+  create an advisory based on scanner information under local policy, but the portable contract is
+  the advisory read/discovery model only. See [Security
+  advisories](/spec/0.1.0-rc.1/security/advisories) for details.
 </Tip>

@@ -1,6 +1,6 @@
 ---
-title: 'Hook component: lifecycle event handlers'
-description: 'Intercept agent runtime lifecycle events with Hook components that run automatically at defined points — session start, tool use, compaction, and more.'
+title: "Hook component: lifecycle event handlers"
+description: "Intercept agent runtime lifecycle events with Hook components that run automatically at defined points — session start, tool use, compaction, and more."
 ---
 
 A Hook component packages logic that fires automatically when the agent runtime reaches a specific lifecycle event. Unlike Commands (user-triggered) or Tools (agent-triggered), hooks are reactive — the runtime invokes them in response to events like session start, tool use, or file changes. You don't call a hook directly; you configure it for an event and the runtime fires it when that event occurs.
@@ -195,8 +195,9 @@ A hook entrypoint fails portable validation if any of these conditions are true:
 - The `type` field declares a hook type other than `command`, `script`, or `module`.
 
 <Tip>
-  Use `PreToolUse` and `PostToolUse` hooks for cross-cutting concerns like logging and auditing. These fire for every
-  tool call, giving you a consistent observation point without modifying individual tool definitions.
+  Use `PreToolUse` and `PostToolUse` hooks for cross-cutting concerns like logging and auditing.
+  These fire for every tool call, giving you a consistent observation point without modifying
+  individual tool definitions.
 </Tip>
 
 ## Component identifier

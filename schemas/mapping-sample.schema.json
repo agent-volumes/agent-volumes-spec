@@ -7,7 +7,9 @@
   "required": ["specVersion", "sourceManifest", "releaseSubject", "exports"],
   "properties": {
     "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
-    "sourceManifest": { "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/volume.schema.json" },
+    "sourceManifest": {
+      "$ref": "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/volume.schema.json"
+    },
     "releaseSubject": {
       "type": "object",
       "additionalProperties": false,

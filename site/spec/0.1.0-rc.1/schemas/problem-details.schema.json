@@ -37,79 +37,135 @@
   },
   "allOf": [
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/authentication-required" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/authentication-required" }
+        }
+      },
       "then": { "properties": { "status": { "const": 401 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/authorization-failed" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/authorization-failed" }
+        }
+      },
       "then": { "properties": { "status": { "const": 403 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/not-found" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/not-found" } }
+      },
       "then": { "properties": { "status": { "const": 404 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/validation-failed" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/validation-failed" } }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/invalid-manifest" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/invalid-manifest" } }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/invalid-archive" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/invalid-archive" } }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/identity-mismatch" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/identity-mismatch" } }
+      },
       "then": { "properties": { "status": { "const": 409 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/version-conflict" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/version-conflict" } }
+      },
       "then": { "properties": { "status": { "const": 409 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/digest-mismatch" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/digest-mismatch" } }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/subject-binding-mismatch" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/subject-binding-mismatch" }
+        }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/inconsistent-registry-state" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/inconsistent-registry-state" }
+        }
+      },
       "then": { "properties": { "status": { "const": 409 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/upload-expired" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/upload-expired" } }
+      },
       "then": { "properties": { "status": { "const": 410 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/missing-uploaded-bytes" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/missing-uploaded-bytes" }
+        }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/invalid-upload-state" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/invalid-upload-state" }
+        }
+      },
       "then": { "properties": { "status": { "const": 409 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/idempotency-conflict" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/idempotency-conflict" }
+        }
+      },
       "then": { "properties": { "status": { "const": 409 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/payload-too-large" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/payload-too-large" } }
+      },
       "then": { "properties": { "status": { "const": 413 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/unsupported-media-type" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/unsupported-media-type" }
+        }
+      },
       "then": { "properties": { "status": { "const": 415 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/permission-escalation" } } },
+      "if": {
+        "properties": {
+          "type": { "const": "https://agentvolumes.org/problems/permission-escalation" }
+        }
+      },
       "then": { "properties": { "status": { "const": 400 } } }
     },
     {
-      "if": { "properties": { "type": { "const": "https://agentvolumes.org/problems/rate-limited" } } },
+      "if": {
+        "properties": { "type": { "const": "https://agentvolumes.org/problems/rate-limited" } }
+      },
       "then": { "properties": { "status": { "const": 429 } } }
     }
   ]

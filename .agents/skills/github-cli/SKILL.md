@@ -8,9 +8,9 @@ license: Sustainable Use License 1.0
 metadata:
   domain: devops
   subdomain: git
-  tags: 'github, cli, issues, pull-request, ci'
-  author: 'Yunseo Kim <dev@yunseo.kim>'
-  lastUpdated: '12026-02-18'
+  tags: "github, cli, issues, pull-request, ci"
+  author: "Yunseo Kim <dev@yunseo.kim>"
+  lastUpdated: "12026-02-18"
   provenance: adapted
 ---
 

@@ -5,9 +5,9 @@ license: SUL-1.0
 metadata:
   domain: devops
   subdomain: ci-cd
-  tags: 'github, automation, triage'
-  author: 'Yunseo Kim <dev@yunseo.kim>'
-  lastUpdated: '12026-03-10'
+  tags: "github, automation, triage"
+  author: "Yunseo Kim <dev@yunseo.kim>"
+  lastUpdated: "12026-03-10"
   provenance: original
 compatibility: Works in Claude Code, OpenCode, Gemini CLI, Antigravity
 allowed-tools: [Bash, Python, Read, Grep, Glob, TaskCreate, TaskUpdate, task, background_output]

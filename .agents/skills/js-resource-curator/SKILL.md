@@ -9,9 +9,9 @@ license: Sustainable Use License 1.0
 metadata:
   domain: documentation
   subdomain: technical-docs
-  tags: 'resources, links, curation, javascript, documentation, audit'
-  author: 'Yunseo Kim <dev@yunseo.kim>'
-  lastUpdated: '12026-02-25'
+  tags: "resources, links, curation, javascript, documentation, audit"
+  author: "Yunseo Kim <dev@yunseo.kim>"
+  lastUpdated: "12026-02-25"
   provenance: adapted
 ---
 

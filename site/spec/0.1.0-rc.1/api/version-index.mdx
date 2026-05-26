@@ -1,6 +1,6 @@
 ---
-title: 'Package version index for dependency resolution'
-description: 'GET /api/v1/index/volumes/{name} — machine-facing version index rows for resolver inputs and candidate selection before exact metadata fetch.'
+title: "Package version index for dependency resolution"
+description: "GET /api/v1/index/volumes/{name} — machine-facing version index rows for resolver inputs and candidate selection before exact metadata fetch."
 ---
 
 The version index is a machine-facing resolver input, not a search surface. It gives you a package-scoped collection of version rows that a resolver can use to discover eligible version candidates and prune them against dependency constraints. Each row includes the SemVer version string, integrity value, dependency declarations, lifecycle status, and a pointer to the authoritative exact release metadata endpoint. You must still fetch exact release metadata before installation or trust evaluation — the index is not authoritative on its own. No authentication is required.
@@ -129,9 +129,9 @@ During ordinary dependency resolution, select only `available` candidates. Never
 3. **Treat index/metadata conflicts as inconsistent registry state.** If version index data conflicts with exact release metadata (for example, different lifecycle states or mismatched integrity values), treat this as an inconsistent registry state error rather than silently preferring either representation.
 
 <Warning>
-  Never use version index rows as a substitute for exact release metadata during installation or trust evaluation. The
-  `integrity` value in an index row is informational. Only the `integrity` returned by the exact release metadata
-  endpoint is authoritative.
+  Never use version index rows as a substitute for exact release metadata during installation or
+  trust evaluation. The `integrity` value in an index row is informational. Only the `integrity`
+  returned by the exact release metadata endpoint is authoritative.
 </Warning>
 
 ## Relationship to search
@@ -146,6 +146,6 @@ The version index and the search endpoint serve different purposes:
 | **Use in resolution** | Yes                          | Never                            |
 
 <Note>
-  Bibliothecas update the version index promptly when publish, unpublish, yank, tombstone, blocking, or equivalent
-  version-state changes occur.
+  Bibliothecas update the version index promptly when publish, unpublish, yank, tombstone, blocking,
+  or equivalent version-state changes occur.
 </Note>

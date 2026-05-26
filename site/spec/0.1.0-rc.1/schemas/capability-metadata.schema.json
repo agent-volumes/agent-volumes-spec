@@ -5,7 +5,14 @@
   "$comment": "Unknown peer fields are tolerated for forward compatibility, but portable non-core capability fields are canonically placed under extensions.",
   "type": "object",
   "additionalProperties": true,
-  "required": ["schemaVersion", "specVersion", "apiVersion", "scopePolicy", "deliveryModes", "apis"],
+  "required": [
+    "schemaVersion",
+    "specVersion",
+    "apiVersion",
+    "scopePolicy",
+    "deliveryModes",
+    "apis"
+  ],
   "properties": {
     "schemaVersion": { "type": "string", "const": "1" },
     "specVersion": { "type": "string" },

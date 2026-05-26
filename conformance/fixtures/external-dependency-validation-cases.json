@@ -205,7 +205,10 @@
           "purpose": "runtime"
         }
       ],
-      "expected": { "valid": false, "failureCategory": "external-dependency-constraint-type-mismatch" }
+      "expected": {
+        "valid": false,
+        "failureCategory": "external-dependency-constraint-type-mismatch"
+      }
     },
     {
       "name": "reject-invalid-purpose-extension",

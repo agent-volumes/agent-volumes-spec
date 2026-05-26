@@ -1,6 +1,6 @@
 ---
-title: 'Publisher identity and verification levels'
-description: 'How publishers register with a bibliotheca and the three verification levels: unverified, verified, and trusted — and what each level means for trust.'
+title: "Publisher identity and verification levels"
+description: "How publishers register with a bibliotheca and the three verification levels: unverified, verified, and trusted — and what each level means for trust."
 ---
 
 A publisher is an entity — an individual or an organization — that publishes volumes to a bibliotheca and owns one or more scopes or scopeless package names. Publisher identity is a registry-level concept: a publisher registers with a specific bibliotheca, and the bibliotheca manages what verification level that publisher has achieved. This is distinct from the content of the volume manifest, which only carries a declarative publisher identifier.
@@ -17,8 +17,9 @@ id = "acme"
 For a scoped volume like `@acme/research-agent-pack`, the `id` identifies the owning scope. For a scopeless volume, it identifies the owner of the volume name. This field is **declarative metadata only** — it names who the publisher claims to be. Verification status is not stored in `volume.toml` and is not part of the manifest. It is managed exclusively by the bibliotheca.
 
 <Note>
-  A bibliotheca must reject a publish attempt where the authenticated publisher does not own the target namespace. The
-  `id` field in `volume.toml` does not grant any authorization — it only provides a human-readable publisher identifier.
+  A bibliotheca must reject a publish attempt where the authenticated publisher does not own the
+  target namespace. The `id` field in `volume.toml` does not grant any authorization — it only
+  provides a human-readable publisher identifier.
 </Note>
 
 ## The three verification levels
@@ -27,23 +28,25 @@ A bibliotheca assigns one of three verification levels to each registered publis
 
 <CardGroup cols={3}>
   <Card title="Unverified" icon="circle-question">
-    Email address confirmed. No additional identity signal has been established. No badge is displayed on the publisher
-    profile or package listings.
+    Email address confirmed. No additional identity signal has been established. No badge is
+    displayed on the publisher profile or package listings.
   </Card>
   <Card title="Verified" icon="circle-check">
-    GitHub account linked **or** domain DNS TXT record confirmed. The publisher has demonstrated control of a real-world
-    identity anchor. A verified badge is shown.
+    GitHub account linked **or** domain DNS TXT record confirmed. The publisher has demonstrated
+    control of a real-world identity anchor. A verified badge is shown.
   </Card>
   <Card title="Trusted" icon="shield">
-    Bibliotheca-local governance signal layered over verified status. The `trusted` level is not a canonical
-    release-scoped trust fact — it is a bibliotheca-specific signal applied at the registry level.
+    Bibliotheca-local governance signal layered over verified status. The `trusted` level is not a
+    canonical release-scoped trust fact — it is a bibliotheca-specific signal applied at the
+    registry level.
   </Card>
 </CardGroup>
 
 <Warning>
-  The `trusted` level is a bibliotheca-local governance signal. It is not itself a canonical trust artifact tied to a
-  specific release, and it does not replace provenance attestations or Sigstore-family signatures as objective
-  verification evidence. Treat it as one signal among many rather than as definitive proof.
+  The `trusted` level is a bibliotheca-local governance signal. It is not itself a canonical trust
+  artifact tied to a specific release, and it does not replace provenance attestations or
+  Sigstore-family signatures as objective verification evidence. Treat it as one signal among many
+  rather than as definitive proof.
 </Warning>
 
 ## Scopes and publisher namespaces
@@ -73,28 +76,30 @@ When consuming trust metadata from a bibliotheca, follow these principles:
 
 <Steps>
   <Step title="Start with objective facts">
-    Consume the raw trust detail view first. It exposes which trust artifact categories are present, what format they
-    are, which release subject they bind to, and what their lifecycle status is. These are facts, not judgments.
+    Consume the raw trust detail view first. It exposes which trust artifact categories are present,
+    what format they are, which release subject they bind to, and what their lifecycle status is.
+    These are facts, not judgments.
   </Step>
   <Step title="Treat derived judgments as supplemental signals">
-    A bibliotheca may expose verification labels, trust labels, or publisher badges alongside fact-first trust metadata.
-    These derived judgments are not canonical truth. Apply your own policy to determine whether they are sufficient for
-    your use case.
+    A bibliotheca may expose verification labels, trust labels, or publisher badges alongside
+    fact-first trust metadata. These derived judgments are not canonical truth. Apply your own
+    policy to determine whether they are sufficient for your use case.
   </Step>
   <Step title="Verify artifacts independently when possible">
-    For Sigstore-family signatures and SLSA provenance attestations, you can retrieve the artifact bytes and verify them
-    independently using standard tooling. Independent verification does not depend on accepting the bibliotheca's
-    derived judgment.
+    For Sigstore-family signatures and SLSA provenance attestations, you can retrieve the artifact
+    bytes and verify them independently using standard tooling. Independent verification does not
+    depend on accepting the bibliotheca's derived judgment.
   </Step>
   <Step title="Apply your own trust policy locally">
-    Builder identity allowlists, minimum verification level requirements, and publisher history are local policy inputs.
-    The v0.1 core does not mandate one universal trust policy — it mandates that you apply whatever policy you use
-    against objective, independently verifiable artifact facts.
+    Builder identity allowlists, minimum verification level requirements, and publisher history are
+    local policy inputs. The v0.1 core does not mandate one universal trust policy — it mandates
+    that you apply whatever policy you use against objective, independently verifiable artifact
+    facts.
   </Step>
 </Steps>
 
 <Tip>
-  An empty trust artifact collection for an existing release is not a failure condition by itself — it means no trust
-  artifacts have been attached yet. Whether that absence is acceptable for your use case is a policy decision, not a
-  conformance decision.
+  An empty trust artifact collection for an existing release is not a failure condition by itself —
+  it means no trust artifacts have been attached yet. Whether that absence is acceptable for your
+  use case is a policy decision, not a conformance decision.
 </Tip>

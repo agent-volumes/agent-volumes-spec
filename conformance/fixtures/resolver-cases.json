@@ -58,7 +58,10 @@
           {
             "version": "2.1.0",
             "integrity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-            "status": { "state": "yanked", "reason": "Published with incorrect dependency metadata" },
+            "status": {
+              "state": "yanked",
+              "reason": "Published with incorrect dependency metadata"
+            },
             "release": { "url": "/api/v1/volumes/github-provider/2.1.0" }
           }
         ]
@@ -163,7 +166,10 @@
           {
             "version": "2.4.0",
             "integrity": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
-            "status": { "state": "unavailable", "reason": "Artifact storage is temporarily inconsistent" },
+            "status": {
+              "state": "unavailable",
+              "reason": "Artifact storage is temporarily inconsistent"
+            },
             "release": { "url": "/api/v1/volumes/github-provider/2.4.0" }
           }
         ]

@@ -1,6 +1,6 @@
 ---
-title: 'Runtime and protocol compatibility declarations'
-description: 'How to declare which runtimes, protocols, providers, and environments your volume supports using [[runtimes]], [[protocols]], providers, and [environment].'
+title: "Runtime and protocol compatibility declarations"
+description: "How to declare which runtimes, protocols, providers, and environments your volume supports using [[runtimes]], [[protocols]], providers, and [environment]."
 ---
 
 Agent Volumes separates compatibility declarations from dependency constraints. Where dependencies pin version requirements for resolution, compatibility declarations are advisory metadata: they tell discovery systems, tooling, and consumers what execution context your volume was built for. Runtimes, protocols, providers, and environment requirements are all declared this way — they appear in `volume.toml` and are preserved and surfaced as-is by compliant tooling, which evaluates them only when it explicitly understands the corresponding version scheme.
@@ -51,9 +51,9 @@ The v0.1 specification defines 18 runtime identifiers. Adding a new identifier t
 | `semantic-kernel` | Microsoft Semantic Kernel SDK     |
 
 <Note>
-  Runtime identifiers describe the **execution host**, not the underlying AI model. `claude-code` identifies Anthropic's
-  CLI agent; it says nothing about which model that agent is configured to use. Model/provider compatibility is outside
-  the v0.1 runtime identifier model.
+  Runtime identifiers describe the **execution host**, not the underlying AI model. `claude-code`
+  identifies Anthropic's CLI agent; it says nothing about which model that agent is configured to
+  use. Model/provider compatibility is outside the v0.1 runtime identifier model.
 </Note>
 
 ## Protocol compatibility (`[[protocols]]`)
@@ -202,9 +202,9 @@ deny < write < read-write
 For `shell`: `deny < allow`. A component under a `deny` volume cannot declare `allow`.
 
 <Warning>
-  Permission escalation is a validation failure. If a component declares a permission broader than its parent volume,
-  clients must fail before submission when they detect it. Bibliothecas that discover permission escalation must block
-  the affected artifact from continued distribution.
+  Permission escalation is a validation failure. If a component declares a permission broader than
+  its parent volume, clients must fail before submission when they detect it. Bibliothecas that
+  discover permission escalation must block the affected artifact from continued distribution.
 </Warning>
 
 ### Component-level permission example

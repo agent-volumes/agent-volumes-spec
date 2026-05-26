@@ -78,7 +78,7 @@ Never insert unsanitized user input into HTML. Always escape output or use frame
 
 ```javascript
 // Dangerous!
-document.getElementById('username').innerHTML = userInput;
+document.getElementById("username").innerHTML = userInput;
 ```
 
 #### ✅ Correct
@@ -88,7 +88,7 @@ document.getElementById('username').innerHTML = userInput;
 element.textContent = userInput;
 
 // Or sanitize if HTML needed
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 element.innerHTML = DOMPurify.sanitize(userHtml);
 ```
 

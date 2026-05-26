@@ -132,7 +132,10 @@
       "properties": {
         "runtimes": {
           "type": "array",
-          "items": { "type": "string", "enum": ["node", "bun", "deno", "python", "ruby", "go", "rust"] },
+          "items": {
+            "type": "string",
+            "enum": ["node", "bun", "deno", "python", "ruby", "go", "rust"]
+          },
           "uniqueItems": true
         },
         "os": {

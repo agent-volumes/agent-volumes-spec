@@ -235,8 +235,8 @@ Create `~/.filesort.yaml` for default options:
 reverse: true
 number: 50
 ignore:
-  - '*.tmp'
-  - '__pycache__'
+  - "*.tmp"
+  - "__pycache__"
 ```
 
 ## Troubleshooting

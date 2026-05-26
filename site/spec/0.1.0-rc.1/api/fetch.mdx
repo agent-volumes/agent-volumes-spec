@@ -1,7 +1,7 @@
 ---
-title: 'Fetch volume release metadata'
-sidebarTitle: 'Fetch'
-description: 'GET /api/v1/volumes/{name}/{version} — retrieve release metadata including purl, integrity digest, lifecycle status, distribution metadata, and external dependency declarations.'
+title: "Fetch volume release metadata"
+sidebarTitle: "Fetch"
+description: "GET /api/v1/volumes/{name}/{version} — retrieve release metadata including purl, integrity digest, lifecycle status, distribution metadata, and external dependency declarations."
 ---
 
 Fetching release metadata gives you the authoritative record for a single published version of a volume. The response includes the canonical package identity, the immutable content digest, lifecycle status, optional external dependency declarations, and conditional delivery metadata for installable releases. No authentication is required.
@@ -20,7 +20,8 @@ GET /api/v1/volumes/@{scope}/{name}/{version}
 </ParamField>
 
 <ParamField path="scope" type="string">
-  Scope name for scoped volumes. Lowercase alphanumeric and hyphens, 1–64 characters. Omit for scopeless volumes.
+  Scope name for scoped volumes. Lowercase alphanumeric and hyphens, 1–64 characters. Omit for
+  scopeless volumes.
 </ParamField>
 
 <ParamField path="version" type="string" required>
@@ -30,7 +31,8 @@ GET /api/v1/volumes/@{scope}/{name}/{version}
 ## Response fields
 
 <ResponseField name="name" type="string" required>
-  Canonical full user-facing volume name. Scopeless releases use `name`; scoped releases use `@scope/name`.
+  Canonical full user-facing volume name. Scopeless releases use `name`; scoped releases use
+  `@scope/name`.
 </ResponseField>
 
 <ResponseField name="version" type="string" required>
@@ -38,8 +40,8 @@ GET /api/v1/volumes/@{scope}/{name}/{version}
 </ResponseField>
 
 <ResponseField name="purl" type="string" required>
-  Canonical `pkg:volume/...@version` identifier for this release. For scoped volumes, the scope is percent-encoded as
-  `%40`, for example `pkg:volume/%40acme/research-agent-pack@1.4.0`.
+  Canonical `pkg:volume/...@version` identifier for this release. For scoped volumes, the scope is
+  percent-encoded as `%40`, for example `pkg:volume/%40acme/research-agent-pack@1.4.0`.
 </ResponseField>
 
 <ResponseField name="integrity" type="string" required>
@@ -82,9 +84,9 @@ GET /api/v1/volumes/@{scope}/{name}/{version}
 </ResponseField>
 
 <ResponseField name="externalDependencies" type="object[]">
-  External package dependency declarations copied from the release manifest. These are audit metadata and
-  potential-exposure inputs, not resolver inputs. Each item contains `declarationKey`, `purl`, `constraint`, and
-  `purpose`; `components` is optional.
+  External package dependency declarations copied from the release manifest. These are audit
+  metadata and potential-exposure inputs, not resolver inputs. Each item contains `declarationKey`,
+  `purl`, `constraint`, and `purpose`; `components` is optional.
 </ResponseField>
 
 ## Example request and response
@@ -138,8 +140,8 @@ GET /api/v1/volumes/@acme/research-agent-pack/1.4.0
 For `blocked`, `tombstoned`, or `unavailable` releases, portable install behavior fails because no installable `dist` is available. A bibliotheca should use RFC 9457 Problem Details for failure responses, and may expose non-installable audit metadata where the API contract permits it.
 
 <Warning>
-  Always verify the downloaded archive's normalized-file-tree digest against the `integrity` field before installation
-  or trust evaluation. If they disagree, reject the release as inconsistent.
+  Always verify the downloaded archive's normalized-file-tree digest against the `integrity` field
+  before installation or trust evaluation. If they disagree, reject the release as inconsistent.
 </Warning>
 
 ## Route identity and purl matching

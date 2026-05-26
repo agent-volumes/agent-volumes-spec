@@ -101,14 +101,14 @@ User.objects.raw("SELECT * FROM users WHERE id = %s", [user_id])
 
 ```javascript
 // ✅ Using parameterized query
-const result = await client.query('SELECT * FROM users WHERE id = $1', [userId]);
+const result = await client.query("SELECT * FROM users WHERE id = $1", [userId]);
 ```
 
 ### Node.js (MySQL)
 
 ```javascript
 // ✅ Using placeholder
-const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [userId]);
+const [rows] = await connection.execute("SELECT * FROM users WHERE id = ?", [userId]);
 ```
 
 ## Additional Best Practices

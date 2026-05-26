@@ -1,6 +1,6 @@
 ---
-title: 'Skill component: reusable agent knowledge'
-description: 'Package instructional knowledge and task patterns as a Skill component that agent runtimes load into context to augment their capabilities.'
+title: "Skill component: reusable agent knowledge"
+description: "Package instructional knowledge and task patterns as a Skill component that agent runtimes load into context to augment their capabilities."
 ---
 
 A Skill component packages reusable task knowledge that teaches an agent runtime how to perform a specific type of task. Unlike a Tool (which an agent calls as a function) or an Agent (which operates autonomously), a Skill provides structured instructions and patterns that the runtime loads into its context and interprets. The runtime — not the skill itself — decides when and how to apply the knowledge.
@@ -85,8 +85,9 @@ The spec defines three behavioral properties for skills:
 - **Reference materials included**: A skill can include templates, example outputs, and reference content alongside its instructions.
 
 <Note>
-  The Agent Skills spec and Agent Volumes are designed to be compatible. The `volume.toml` manifest is a package-level
-  addition — it doesn't replace the skill's own frontmatter. Both layers coexist in a valid skill component.
+  The Agent Skills spec and Agent Volumes are designed to be compatible. The `volume.toml` manifest
+  is a package-level addition — it doesn't replace the skill's own frontmatter. Both layers coexist
+  in a valid skill component.
 </Note>
 
 ## Optional fields

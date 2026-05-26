@@ -32,8 +32,16 @@
         "affectedRange": { "type": "string", "pattern": "^vers:[A-Za-z][A-Za-z0-9.-]*/\\S+$" },
         "sourceKind": { "type": "string", "minLength": 1 },
         "sourceId": { "type": "string", "minLength": 1 },
-        "sourceIds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        "sourceIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
       }
     },
     "volume": {

@@ -2020,7 +2020,15 @@
                     "properties": {
                       "type": {
                         "type": "string",
-                        "enum": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"]
+                        "enum": [
+                          "agent",
+                          "skill",
+                          "command",
+                          "tool",
+                          "hook",
+                          "mcp-server",
+                          "lsp-server"
+                        ]
                       },
                       "name": {
                         "$ref": "#/components/schemas/componentName"
@@ -2835,7 +2843,15 @@
         "title": "Agent Volumes Trust Upload Intent",
         "type": "object",
         "additionalProperties": false,
-        "required": ["uploadId", "subject", "attachment", "declaredDigest", "upload", "expiresAt", "state"],
+        "required": [
+          "uploadId",
+          "subject",
+          "attachment",
+          "declaredDigest",
+          "upload",
+          "expiresAt",
+          "state"
+        ],
         "properties": {
           "uploadId": {
             "type": "string",
@@ -2954,7 +2970,14 @@
         "title": "Agent Volumes Trust Upload Finalize Result",
         "type": "object",
         "additionalProperties": false,
-        "required": ["uploadId", "attachmentId", "subject", "artifactDigest", "status", "detailUrl"],
+        "required": [
+          "uploadId",
+          "attachmentId",
+          "subject",
+          "artifactDigest",
+          "status",
+          "detailUrl"
+        ],
         "properties": {
           "uploadId": {
             "type": "string",
@@ -3199,7 +3222,14 @@
         "$comment": "Unknown peer fields are tolerated for forward compatibility, but portable non-core capability fields are canonically placed under extensions.",
         "type": "object",
         "additionalProperties": true,
-        "required": ["schemaVersion", "specVersion", "apiVersion", "scopePolicy", "deliveryModes", "apis"],
+        "required": [
+          "schemaVersion",
+          "specVersion",
+          "apiVersion",
+          "scopePolicy",
+          "deliveryModes",
+          "apis"
+        ],
         "properties": {
           "schemaVersion": {
             "type": "string",
@@ -3253,7 +3283,13 @@
           "apis": {
             "type": "object",
             "additionalProperties": true,
-            "required": ["trustMetadata", "versionIndex", "releaseUploads", "trustUploads", "advisories"],
+            "required": [
+              "trustMetadata",
+              "versionIndex",
+              "releaseUploads",
+              "trustUploads",
+              "advisories"
+            ],
             "properties": {
               "trustMetadata": {
                 "type": "boolean"

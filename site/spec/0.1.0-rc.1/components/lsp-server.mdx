@@ -1,6 +1,6 @@
 ---
-title: 'LSP Server component: Language Server Protocol'
-description: 'Distribute Language Server Protocol servers as Agent Volumes components for code intelligence, diagnostics, and editor integration in compatible runtimes.'
+title: "LSP Server component: Language Server Protocol"
+description: "Distribute Language Server Protocol servers as Agent Volumes components for code intelligence, diagnostics, and editor integration in compatible runtimes."
 ---
 
 An LSP Server component packages a service endpoint implementing the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/). Wrapping an LSP server in a volume makes it discoverable through a bibliotheca and installable by any runtime that supports Agent Volumes. Agent runtimes with code intelligence features — editors, coding agents, and CLI tools — can load your LSP server to get language-aware diagnostics, completions, and other code intelligence capabilities.
@@ -18,8 +18,9 @@ The portable validation minimum requires:
 - The file parses to a JSON object (not an array or primitive).
 
 <Warning>
-  If your LSP server configuration is at a path other than `.lsp.json`, the runtime or validator will load it
-  successfully but emit a `noncanonical-entrypoint` warning. Use `.lsp.json` to ensure predictable discovery.
+  If your LSP server configuration is at a path other than `.lsp.json`, the runtime or validator
+  will load it successfully but emit a `noncanonical-entrypoint` warning. Use `.lsp.json` to ensure
+  predictable discovery.
 </Warning>
 
 ## Declaring an LSP server in `volume.toml`
@@ -86,8 +87,9 @@ version = ">=3.17"
 This is advisory metadata. Runtimes that understand LSP versioning can use it to match a compatible server. Runtimes that don't understand the version expression must treat it as informational.
 
 <Note>
-  Agent Volumes v0.1 does not define one universal protocol version comparison grammar. Protocol-specific version
-  semantics remain advisory in the core spec. Protocol profiles may define stronger comparison semantics in the future.
+  Agent Volumes v0.1 does not define one universal protocol version comparison grammar.
+  Protocol-specific version semantics remain advisory in the core spec. Protocol profiles may define
+  stronger comparison semantics in the future.
 </Note>
 
 ## Runtime compatibility
@@ -141,8 +143,9 @@ An LSP server entrypoint fails portable validation if any of these conditions ar
 Runtime-specific failures — the server cannot be launched, the host platform lacks the required execution environment, local policy blocks it — are load-time failures. They do not make the manifest structurally invalid.
 
 <Tip>
-  Place your `.lsp.json` at the volume root. The canonical filename convention ensures that tooling can discover your
-  LSP server without needing to parse `volume.toml` first, enabling faster runtime integration.
+  Place your `.lsp.json` at the volume root. The canonical filename convention ensures that tooling
+  can discover your LSP server without needing to parse `volume.toml` first, enabling faster runtime
+  integration.
 </Tip>
 
 ## Component identifier

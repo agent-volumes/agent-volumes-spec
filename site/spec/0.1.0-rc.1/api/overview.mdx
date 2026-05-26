@@ -1,7 +1,7 @@
 ---
-title: 'Registry API overview and base URL'
-sidebarTitle: 'Overview'
-description: 'Overview of the Agent Volumes bibliotheca HTTP API, covering versioning, base URL, authentication, response formats, and rate limiting tiers.'
+title: "Registry API overview and base URL"
+sidebarTitle: "Overview"
+description: "Overview of the Agent Volumes bibliotheca HTTP API, covering versioning, base URL, authentication, response formats, and rate limiting tiers."
 ---
 
 The Agent Volumes Registry API is an HTTP API that bibliothecas expose for package operations, version discovery, trust metadata, advisory discovery, and capability introspection. Every operation maps to a resource under the `/api/v1/` prefix, response bodies use JSON when present, and errors follow the RFC 9457 Problem Details format. You call the same API whether you are building a client library, a CI publishing tool, or a resolver.
@@ -76,6 +76,6 @@ Package operation routes that start with `/api/v1/volumes/{name}` have scoped eq
 The normative machine-readable API contract is published as `openapi/bibliotheca.openapi.yaml` in the Agent Volumes specification repository. Companion JSON Schema artifacts for individual payload shapes are published under `schemas/` in the same repository. See section 11 (Conformance) of the specification for the full companion artifact inventory.
 
 <Note>
-  The prose specification is the final normative authority. If a companion artifact appears to conflict with the prose,
-  the prose wins.
+  The prose specification is the final normative authority. If a companion artifact appears to
+  conflict with the prose, the prose wins.
 </Note>

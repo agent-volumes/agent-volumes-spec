@@ -1,6 +1,6 @@
 ---
-title: 'Security advisory discovery API'
-description: 'GET /api/v1/advisories — list and retrieve security advisories for volumes by advisory ID or volume name. Includes severity, affected ranges, and relationships.'
+title: "Security advisory discovery API"
+description: "GET /api/v1/advisories — list and retrieve security advisories for volumes by advisory ID or volume name. Includes severity, affected ranges, and relationships."
 ---
 
 The advisory API lets you discover security advisories for volumes hosted on a bibliotheca. You can list all advisories that affect a given volume or fetch a single advisory by its local ID. Advisory records follow a structured schema compatible with OSV-style range/event semantics. No authentication is required for read operations. Advisory write operations — create, update, withdrawal — are bibliotheca-local and not standardized in v0.1.
@@ -195,12 +195,13 @@ Affected version ranges use OSV-style event sequences. Read the events in order 
 - `lastAffected: "1.3.9"` means versions up to and including `1.3.9` are affected
 
 <Note>
-  Advisory targeting in v0.1 is volume-level only. Component-level impact metadata in `componentImpact` is informational
-  and does not narrow or change the normative volume-level advisory target.
+  Advisory targeting in v0.1 is volume-level only. Component-level impact metadata in
+  `componentImpact` is informational and does not narrow or change the normative volume-level
+  advisory target.
 </Note>
 
 <Warning>
-  Scanner findings are not advisory records by themselves. A bibliotheca may create or update an advisory based on
-  scanner information under local policy, but the portable contract is the advisory read and discovery model, not
-  scanner-result interchange.
+  Scanner findings are not advisory records by themselves. A bibliotheca may create or update an
+  advisory based on scanner information under local policy, but the portable contract is the
+  advisory read and discovery model, not scanner-result interchange.
 </Warning>

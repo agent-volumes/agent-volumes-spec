@@ -1,6 +1,6 @@
 ---
-title: 'Agent component: autonomous AI agent packaging'
-description: 'Package an autonomous AI agent with its system prompt and tool bindings using the Agent component type in an Agent Volumes volume.'
+title: "Agent component: autonomous AI agent packaging"
+description: "Package an autonomous AI agent with its system prompt and tool bindings using the Agent component type in an Agent Volumes volume."
 ---
 
 An Agent component packages an autonomous runtime actor that receives a goal and independently determines how to accomplish it. Unlike a Skill (which provides knowledge) or a Command (which responds to a user trigger), an Agent is the primary decision-making unit — it can invoke tools, delegate to other agents, and maintain state across multiple steps within a session.
@@ -93,9 +93,9 @@ The Agent Volumes spec defines four behavioral properties for agents:
 - **Behavior configuration**: An agent's behavior is defined by its system prompt, available tools, and configured policies.
 
 <Note>
-  The spec defines packaging and distribution semantics, not execution semantics. How a runtime instantiates and runs an
-  agent — what model it uses, how it manages context windows, how it orchestrates tool calls — is runtime-local
-  behavior.
+  The spec defines packaging and distribution semantics, not execution semantics. How a runtime
+  instantiates and runs an agent — what model it uses, how it manages context windows, how it
+  orchestrates tool calls — is runtime-local behavior.
 </Note>
 
 ## Optional fields
@@ -125,8 +125,9 @@ network = "read"
 ```
 
 <Warning>
-  A component cannot declare permissions broader than its parent volume allows. Declaring `network = "read-write"` at
-  the component level when the volume declares `network = "read"` is a validation failure.
+  A component cannot declare permissions broader than its parent volume allows. Declaring `network =
+  "read-write"` at the component level when the volume declares `network = "read"` is a validation
+  failure.
 </Warning>
 
 ## Component identifier

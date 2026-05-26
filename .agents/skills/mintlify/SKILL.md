@@ -7,7 +7,7 @@ license: MIT
 compatibility: Requires Node.js for CLI. Works with any Git-based workflow.
 metadata:
   author: mintlify
-  version: '1.0'
+  version: "1.0"
   mintlify-proj: mintlify
 ---
 
@@ -90,8 +90,8 @@ Every page requires `title` in its frontmatter. Include `description` for SEO an
 
 ```yaml theme={null}
 ---
-title: 'Clear, descriptive title'
-description: 'Concise summary for SEO and navigation.'
+title: "Clear, descriptive title"
+description: "Concise summary for SEO and navigation."
 ---
 ```
 

@@ -12,7 +12,9 @@
             "revision": "main",
             "purpose": "Invalid unpinned upstream reference fixture.",
             "lastReviewed": "2026-05-16",
-            "artifacts": [{ "name": "purl-standard-specification", "path": "docs/standard/specification.md" }]
+            "artifacts": [
+              { "name": "purl-standard-specification", "path": "docs/standard/specification.md" }
+            ]
           }
         ]
       },

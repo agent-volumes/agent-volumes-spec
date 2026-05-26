@@ -31,7 +31,10 @@
       "allOf": [
         {
           "if": { "properties": { "kind": { "const": "extension" } }, "required": ["kind"] },
-          "then": { "properties": { "extensionNamespace": true }, "required": ["extensionNamespace"] }
+          "then": {
+            "properties": { "extensionNamespace": true },
+            "required": ["extensionNamespace"]
+          }
         },
         {
           "if": { "properties": { "kind": { "const": "lossy" } }, "required": ["kind"] },

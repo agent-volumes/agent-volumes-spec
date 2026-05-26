@@ -1,7 +1,7 @@
 name: OSV Scanner Full
 on:
   schedule:
-    - cron: '30 12 * * 1'
+    - cron: "30 12 * * 1"
   push:
     branches: [main]
 permissions:

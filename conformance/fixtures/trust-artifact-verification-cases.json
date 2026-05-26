@@ -286,7 +286,10 @@
         "purl": "pkg:volume/research-agent-pack@1.4.0",
         "integrity": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       },
-      "lifecycleStatus": { "state": "superseded", "reason": "A newer BOM attachment supersedes this evidence." },
+      "lifecycleStatus": {
+        "state": "superseded",
+        "reason": "A newer BOM attachment supersedes this evidence."
+      },
       "expected": { "valid": false, "failureCategory": "stale-trust-evidence-only" }
     },
     {

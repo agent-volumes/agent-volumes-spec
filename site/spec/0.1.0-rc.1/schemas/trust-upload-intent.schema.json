@@ -4,7 +4,15 @@
   "title": "Agent Volumes Trust Upload Intent",
   "type": "object",
   "additionalProperties": false,
-  "required": ["uploadId", "subject", "attachment", "declaredDigest", "upload", "expiresAt", "state"],
+  "required": [
+    "uploadId",
+    "subject",
+    "attachment",
+    "declaredDigest",
+    "upload",
+    "expiresAt",
+    "state"
+  ],
   "properties": {
     "uploadId": { "type": "string", "minLength": 1 },
     "subject": { "$ref": "#/$defs/releaseSubject" },
@@ -21,7 +29,10 @@
           "description": "Upload profile identifier. The v0.1 portable baseline profile is http-put."
         },
         "url": { "type": "string", "format": "uri-reference" },
-        "method": { "type": "string", "description": "HTTP method for http-put; omitted or PUT means PUT." },
+        "method": {
+          "type": "string",
+          "description": "HTTP method for http-put; omitted or PUT means PUT."
+        },
         "headers": {
           "type": "object",
           "additionalProperties": { "type": "string" }

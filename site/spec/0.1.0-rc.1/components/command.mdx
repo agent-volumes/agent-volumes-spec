@@ -1,6 +1,6 @@
 ---
-title: 'Command component: user-invocable slash commands'
-description: 'Create user-invoked slash commands that users trigger directly in their agent runtime using a defined trigger pattern like /review or /summarize.'
+title: "Command component: user-invocable slash commands"
+description: "Create user-invoked slash commands that users trigger directly in their agent runtime using a defined trigger pattern like /review or /summarize."
 ---
 
 A Command component packages a user-invokable action that fires when the user types a matching slash command in their agent runtime. Commands are explicitly user-initiated — the user types `/review`, `/summarize`, or another trigger pattern, and the runtime executes the associated command definition. This makes Commands distinct from Tools, which agents invoke programmatically.
@@ -44,8 +44,9 @@ and suggest improvements with inline code examples where appropriate.
 Valid trigger examples: `/review`, `/summarize`, `/explain`, `/fix-types`, `/run-tests`.
 
 <Warning>
-  The trigger must match `^\/[a-z0-9-]+$` exactly. Uppercase letters, spaces, underscores, and special characters other
-  than hyphens are not allowed. A command with an invalid trigger is a validation failure.
+  The trigger must match `^\/[a-z0-9-]+$` exactly. Uppercase letters, spaces, underscores, and
+  special characters other than hyphens are not allowed. A command with an invalid trigger is a
+  validation failure.
 </Warning>
 
 ## Declaring a command in `volume.toml`
