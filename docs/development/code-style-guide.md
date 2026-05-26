@@ -278,6 +278,36 @@ console.log(foo);
 
 ---
 
+### `eslint/no-implicit-coercion`
+
+**What it does:** Flags shorthand type conversions that use operators such as `!!value`, `+value`, or `"" + value` instead of explicit conversion functions.
+
+**Why maintain:** Explicit conversions make validator intent easier to read. In parsed fixture and regex-match code, `Boolean(...)`, `Number(...)`, and `String(...)` state the expected target type directly, while shorthand operators can look like incidental punctuation.
+
+**Incorrect:**
+
+```typescript
+const match = componentPurl.match(componentPurlPattern);
+
+return {
+  hasVersion: !!(match && match[3]),
+};
+```
+
+**Correct:**
+
+```typescript
+const match = componentPurl.match(componentPurlPattern);
+
+return {
+  hasVersion: Boolean(match && match[3]),
+};
+```
+
+**Project style:** Use `Boolean(value)` for boolean conversion, `Number(value)` for numeric conversion, and `String(value)` for string conversion. Prefer direct comparisons such as `items.length > 0` when that reads more clearly than converting a value just to test truthiness.
+
+---
+
 ### `eslint/no-continue`
 
 **What it does:** Disallows `continue` statements.
