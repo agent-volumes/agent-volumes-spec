@@ -151,6 +151,38 @@ export const arrowFn = (): string => "test";
 
 ---
 
+### `typescript/no-explicit-any`
+
+**What it does:** Disallows explicit use of the `any` type.
+
+**Why maintain:** `any` is TypeScript's escape hatch from the type system. It disables type checking for the annotated value and can hide real mismatches in parsed JSON, OpenAPI objects, and validator context wiring. TypeScript's `noImplicitAny` prevents inferred `any`, but it does not prevent explicit `any`; this rule closes that gap.
+
+**Incorrect:**
+
+```typescript
+type JsonValue = any;
+
+interface ValidationContext {
+  ajv: any;
+}
+```
+
+**Correct:**
+
+```typescript
+import type Ajv2020 from "ajv/dist/2020";
+
+type JsonValue = ReturnType<typeof JSON.parse>;
+
+interface ValidationContext {
+  ajv: Ajv2020;
+}
+```
+
+**Project style:** Do not use `any` for dynamic artifact data or third-party objects. For parsed JSON, derive the dynamic value type from the parser boundary, such as `ReturnType<typeof JSON.parse>`, and narrow later with guards like `isJsonObject`. For library instances, import the library's public type, such as `Ajv2020`, instead of treating the dependency as untyped. Use `unknown` only when the value is genuinely opaque and must be narrowed before use.
+
+---
+
 ### `typescript/no-unnecessary-type-assertion`
 
 **What it does:** Flags type assertions that do not change the expression's type.
