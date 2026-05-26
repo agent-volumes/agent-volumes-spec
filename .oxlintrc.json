@@ -14,6 +14,7 @@
     "import/no-nodejs-modules": "off",
     "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
+    "unicorn/no-null": ["warn", { "checkStrictEquality": false }],
     "unicorn/prefer-ternary": ["warn", "only-single-line"],
     "oxc/no-async-await": "off",
     "oxc/no-optional-chaining": "off",

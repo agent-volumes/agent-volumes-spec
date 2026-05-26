@@ -461,7 +461,7 @@ const config = loadConfig();
 
 **What they do:** `unicorn/no-null` flags `null` values, while `eslint/no-undefined` flags direct use of the `undefined` identifier.
 
-**Why maintain:** Supporting both `null` and `undefined` makes parsed JSON and fixture validation harder to reason about. Oxlint's `unicorn/no-null` guidance highlights that teams often use `null` and `undefined` inconsistently, that supporting both values complicates input validation, and that `null` makes TypeScript shapes more verbose, such as `foo?: string | null` instead of `foo?: string`. Separately, `undefined` can be reassigned in non-strict mode. Use `void 0` for explicit undefined comparisons, and avoid adding new `null` checks except at external JSON boundaries that require them.
+**Why maintain:** Supporting both `null` and `undefined` as validator-internal sentinels makes parsed artifact handling harder to reason about. Oxlint's `unicorn/no-null` guidance highlights that teams often use `null` and `undefined` inconsistently, that supporting both values complicates input validation, and that `null` makes TypeScript shapes more verbose, such as `foo?: string | null` instead of `foo?: string`. Separately, `undefined` can be reassigned in non-strict mode. Use `void 0` for explicit undefined comparisons, and avoid adding new `null` values except when an external JSON contract requires them.
 
 At the same time, replacing `null` with a bare `undefined` would just trade one warning for another. Use omission, explicit predicates, or a domain-specific sentinel instead.
 
@@ -493,7 +493,9 @@ function routeIdentityFromPath(route: JsonValue): JsonValue {
 if (value === void 0) { ... }
 ```
 
-**Project style:** Do not use `null` as an internal sentinel, and do not replace it with bare `undefined`. Prefer omitting optional properties, using `void 0` for explicit undefined comparisons, or returning a typed domain sentinel such as `false` when callers only need a falsy “no match” result. Keep `null` comparisons only when validating external JSON contracts that explicitly require `null`, such as problem-detail fixtures for empty response payloads.
+**Configuration:** `unicorn/no-null` is pinned to `checkStrictEquality: false` so validator code can keep explicit `=== null` checks at JSON contract boundaries.
+
+**Project style:** Do not use `null` as an internal sentinel, and do not replace it with bare `undefined`. Prefer omitting optional properties, using `void 0` for explicit undefined comparisons, or returning a typed domain sentinel such as `false` when callers only need a falsy “no match” result. Keep `null` values and `null` comparisons only when validating external JSON contracts that explicitly require `null`, such as problem-detail fixtures for empty response payloads.
 
 ---
 
