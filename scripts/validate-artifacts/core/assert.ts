@@ -6,18 +6,6 @@ function assert(condition: unknown, message: string): asserts condition {
   }
 }
 
-const assertSpecVersion = (_ctx: ValidationContext, fixture: JsonValue, label: JsonValue) => {
-  assert(fixture.specVersion === "0.1.0-rc.1", `${label} must declare specVersion 0.1.0-rc.1`);
-};
-
-const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
-  assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
-};
-
-const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
-  assert(new Set(values).size === values.length, `${label} must be unique`);
-};
-
 const stableJsonStringify = (value: JsonValue): string => {
   if (Array.isArray(value)) {
     return `[${value.map((item: JsonValue) => stableJsonStringify(item)).join(",")}]`;
@@ -29,6 +17,18 @@ const stableJsonStringify = (value: JsonValue): string => {
       .join(",")}}`;
   }
   return JSON.stringify(value);
+};
+
+const assertSpecVersion = (_ctx: ValidationContext, fixture: JsonValue, label: JsonValue) => {
+  assert(fixture.specVersion === "0.1.0-rc.1", `${label} must declare specVersion 0.1.0-rc.1`);
+};
+
+const assertDeepEqual = (actual: JsonValue, expected: JsonValue, label: JsonValue) => {
+  assert(stableJsonStringify(actual) === stableJsonStringify(expected), `${label} must round-trip`);
+};
+
+const assertUniqueStrings = (values: JsonValue, label: JsonValue) => {
+  assert(new Set(values).size === values.length, `${label} must be unique`);
 };
 
 export { assert, assertDeepEqual, assertSpecVersion, assertUniqueStrings, stableJsonStringify };
