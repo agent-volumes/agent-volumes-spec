@@ -169,49 +169,46 @@ export const run = (ctx: ValidationContext) => {
     JsonObject,
   ][]) {
     const problemContent = response.content?.["application/problem+json"];
-    if (!problemContent) {
-      continue;
-    }
-    assert(
-      problemContent.examples,
-      `OpenAPI ${responseName} problem response must include representative examples`,
-    );
-    for (const [exampleName, example] of Object.entries(problemContent.examples) as [
-      string,
-      JsonObject,
-    ][]) {
-      assertProblemDetails(
-        ctx,
-        example.value,
-        `OpenAPI ${responseName} problem example ${exampleName}`,
+    if (problemContent) {
+      assert(
+        problemContent.examples,
+        `OpenAPI ${responseName} problem response must include representative examples`,
       );
+      for (const [exampleName, example] of Object.entries(problemContent.examples) as [
+        string,
+        JsonObject,
+      ][]) {
+        assertProblemDetails(
+          ctx,
+          example.value,
+          `OpenAPI ${responseName} problem example ${exampleName}`,
+        );
+      }
     }
   }
   for (const [pathName, pathItem] of Object.entries(openapi.paths as JsonObject)) {
     for (const [method, operation] of Object.entries(pathItem as JsonObject)) {
-      if (!["get", "post", "put", "patch", "delete"].includes(method)) {
-        continue;
-      }
-      assert(
-        operation && typeof operation === "object",
-        `OpenAPI ${pathName} ${method} must define an operation object`,
-      );
-      const operationObject = operation as JsonObject;
-      for (const parameter of operationObject.parameters ?? []) {
-        if (parameter.in !== "path") {
-          continue;
-        }
-        const expectedRefByName: Record<string, string> = {
-          name: "#/components/schemas/NameSegment",
-          scope: "#/components/schemas/ScopeName",
-          version: "#/components/schemas/SemVer",
-        };
-        const expectedRef = expectedRefByName[parameter.name];
-        if (expectedRef) {
-          assert(
-            parameter.schema?.$ref === expectedRef,
-            `OpenAPI ${method.toUpperCase()} ${pathName} path parameter ${parameter.name} must use ${expectedRef}`,
-          );
+      if (["get", "post", "put", "patch", "delete"].includes(method)) {
+        assert(
+          operation && typeof operation === "object",
+          `OpenAPI ${pathName} ${method} must define an operation object`,
+        );
+        const operationObject = operation as JsonObject;
+        for (const parameter of operationObject.parameters ?? []) {
+          if (parameter.in === "path") {
+            const expectedRefByName: Record<string, string> = {
+              name: "#/components/schemas/NameSegment",
+              scope: "#/components/schemas/ScopeName",
+              version: "#/components/schemas/SemVer",
+            };
+            const expectedRef = expectedRefByName[parameter.name];
+            if (expectedRef) {
+              assert(
+                parameter.schema?.$ref === expectedRef,
+                `OpenAPI ${method.toUpperCase()} ${pathName} path parameter ${parameter.name} must use ${expectedRef}`,
+              );
+            }
+          }
         }
       }
     }

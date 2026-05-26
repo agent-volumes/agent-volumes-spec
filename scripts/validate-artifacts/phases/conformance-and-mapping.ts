@@ -100,25 +100,24 @@ export const run = (ctx: ValidationContext) => {
   for (const entry of mappingMatrix.entries) {
     for (const family of ["cyclonedx", "spdx", "slsa"]) {
       const mapping = entry[family];
-      if (!mapping) {
-        continue;
-      }
-      if (mapping.kind === "extension") {
-        assert(
-          mapping.extensionNamespace?.startsWith("agent-volumes") ||
-            mapping.extensionNamespace?.startsWith("https://agentvolumes.org/"),
-          `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs Agent Volumes namespace`,
-        );
-        assert(
-          typeof mapping.serialization === "string" && mapping.serialization.length > 0,
-          `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs serialization guidance`,
-        );
-      }
-      if (mapping.kind === "lossy") {
-        assert(
-          typeof mapping.lossiness === "string" && mapping.lossiness.length > 0,
-          `mapping matrix ${entry.agentVolumesField}.${family} lossy mapping needs lossiness explanation`,
-        );
+      if (mapping) {
+        if (mapping.kind === "extension") {
+          assert(
+            mapping.extensionNamespace?.startsWith("agent-volumes") ||
+              mapping.extensionNamespace?.startsWith("https://agentvolumes.org/"),
+            `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs Agent Volumes namespace`,
+          );
+          assert(
+            typeof mapping.serialization === "string" && mapping.serialization.length > 0,
+            `mapping matrix ${entry.agentVolumesField}.${family} extension mapping needs serialization guidance`,
+          );
+        }
+        if (mapping.kind === "lossy") {
+          assert(
+            typeof mapping.lossiness === "string" && mapping.lossiness.length > 0,
+            `mapping matrix ${entry.agentVolumesField}.${family} lossy mapping needs lossiness explanation`,
+          );
+        }
       }
     }
   }

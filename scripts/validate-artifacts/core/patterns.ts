@@ -59,39 +59,30 @@ const isRecognizedSpdxExpressionShape = (expression: string) => {
         return false;
       }
       depth += 1;
-      continue;
-    }
-    if (token === ")") {
+    } else if (token === ")") {
       if (expectOperand || depth === 0) {
         return false;
       }
       depth -= 1;
-      continue;
-    }
-    if (token === "AND" || token === "OR") {
+    } else if (token === "AND" || token === "OR") {
       if (expectOperand) {
         return false;
       }
       expectOperand = true;
-      continue;
-    }
-    if (token === "WITH") {
+    } else if (token === "WITH") {
       if (expectOperand) {
         return false;
       }
       expectOperand = true;
-      continue;
-    }
-    if (token === "+") {
+    } else if (token === "+") {
       if (expectOperand) {
         return false;
       }
-      continue;
-    }
-    if (!expectOperand) {
+    } else if (!expectOperand) {
       return false;
+    } else {
+      expectOperand = false;
     }
-    expectOperand = false;
   }
   return tokens.length > 0 && depth === 0 && !expectOperand;
 };

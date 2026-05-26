@@ -9,12 +9,11 @@ const caseNamesFromFixture = (fixture: JsonValue) => {
   const names = [];
   for (const collectionName of ["cases", "fixtures"]) {
     const collection = fixture[collectionName];
-    if (!Array.isArray(collection)) {
-      continue;
-    }
-    for (const item of collection) {
-      if (typeof item.name === "string") {
-        names.push(item.name);
+    if (Array.isArray(collection)) {
+      for (const item of collection) {
+        if (typeof item.name === "string") {
+          names.push(item.name);
+        }
       }
     }
   }
@@ -61,27 +60,23 @@ const assertConformanceCoverageReferences = (
           !coverage.case,
           `conformance coverage ${requirement.id} cannot name a case for directory ${coverage.fixture}`,
         );
-        continue;
+      } else if (coverage.case) {
+        assert(
+          resolvedPath.startsWith("conformance/fixtures/") && resolvedPath.endsWith(".json"),
+          `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`,
+        );
+        const fixture = readJsonFile(resolvedPath);
+        const caseNames = caseNamesFromFixture(fixture);
+        assert(
+          caseNames.length > 0,
+          `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
+        );
+        assertUniqueStrings(caseNames, `${coverage.fixture} case names`);
+        assert(
+          caseNames.includes(coverage.case),
+          `conformance coverage ${requirement.id} references missing case ${coverage.case} in ${coverage.fixture}`,
+        );
       }
-      if (!coverage.case) {
-        continue;
-      }
-
-      assert(
-        resolvedPath.startsWith("conformance/fixtures/") && resolvedPath.endsWith(".json"),
-        `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`,
-      );
-      const fixture = readJsonFile(resolvedPath);
-      const caseNames = caseNamesFromFixture(fixture);
-      assert(
-        caseNames.length > 0,
-        `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
-      );
-      assertUniqueStrings(caseNames, `${coverage.fixture} case names`);
-      assert(
-        caseNames.includes(coverage.case),
-        `conformance coverage ${requirement.id} references missing case ${coverage.case} in ${coverage.fixture}`,
-      );
     }
   }
 };

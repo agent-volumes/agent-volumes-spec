@@ -93,22 +93,19 @@ const assertLifecycleMutationFixtures = (
         actualFailuresByEndpoint.set(fixture.endpoint, new Set());
       }
       actualFailuresByEndpoint.get(fixture.endpoint).add(fixture.expected.failureCategory);
-      continue;
-    }
+    } else if (fixture.schema === "empty-response") {
+      assert(
+        fixture.expected.valid === true,
+        `${label} ${fixture.name} success case must be expected valid`,
+      );
+      assert(
+        fixture.expected.status === 202,
+        `${label} ${fixture.name} success case must expect HTTP 202`,
+      );
+      if (!actualSuccessesByEndpoint.has(fixture.endpoint)) {
+        actualSuccessesByEndpoint.set(fixture.endpoint, new Set());
+      }
 
-    assert(
-      fixture.expected.valid === true,
-      `${label} ${fixture.name} success case must be expected valid`,
-    );
-    assert(
-      fixture.expected.status === 202,
-      `${label} ${fixture.name} success case must expect HTTP 202`,
-    );
-    if (!actualSuccessesByEndpoint.has(fixture.endpoint)) {
-      actualSuccessesByEndpoint.set(fixture.endpoint, new Set());
-    }
-
-    if (fixture.schema === "empty-response") {
       assert(
         fixture.payload === null,
         `${label} ${fixture.name} empty response payload must be null`,
@@ -118,10 +115,9 @@ const assertLifecycleMutationFixtures = (
         `${label} ${fixture.name} empty response must model accepted or tombstoned lifecycle state`,
       );
       actualSuccessesByEndpoint.get(fixture.endpoint).add(fixture.expected.lifecycleState);
-      continue;
+    } else {
+      assert(false, `${label} ${fixture.name} uses unsupported schema ${fixture.schema}`);
     }
-
-    assert(false, `${label} ${fixture.name} uses unsupported schema ${fixture.schema}`);
   }
 
   for (const [endpoint, expectedFailures] of expectedFailuresByEndpoint) {

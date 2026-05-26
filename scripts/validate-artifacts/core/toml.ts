@@ -8,17 +8,11 @@ const stripTomlComment = (line: JsonValue) => {
     const character = line[index];
     if (escaped) {
       escaped = false;
-      continue;
-    }
-    if (character === "\\" && inString) {
+    } else if (character === "\\" && inString) {
       escaped = true;
-      continue;
-    }
-    if (character === '"') {
+    } else if (character === '"') {
       inString = !inString;
-      continue;
-    }
-    if (character === "#" && !inString) {
+    } else if (character === "#" && !inString) {
       return line.slice(0, index);
     }
   }
@@ -34,26 +28,20 @@ const splitTomlArray = (content: JsonValue) => {
     if (escaped) {
       token += character;
       escaped = false;
-      continue;
-    }
-    if (character === "\\" && inString) {
+    } else if (character === "\\" && inString) {
       token += character;
       escaped = true;
-      continue;
-    }
-    if (character === '"') {
+    } else if (character === '"') {
       token += character;
       inString = !inString;
-      continue;
-    }
-    if (character === "," && !inString) {
+    } else if (character === "," && !inString) {
       if (token.trim()) {
         items.push(token.trim());
       }
       token = "";
-      continue;
+    } else {
+      token += character;
     }
-    token += character;
   }
   if (token.trim()) {
     items.push(token.trim());
@@ -135,23 +123,25 @@ const parseFixtureTomlSubset = (source: string, label: string): JsonObject => {
   const lines = source.split(/\r?\n/);
   for (let lineNumber = 0; lineNumber < lines.length; lineNumber += 1) {
     const line = stripTomlComment(lines[lineNumber]).trim();
-    if (!line) {
-      continue;
+    if (line) {
+      const arrayTableMatch = line.match(/^\[\[([^\]]+)\]\]$/);
+      if (arrayTableMatch) {
+        current = resolveTomlPath(parsed, arrayTableMatch[1], true);
+      } else {
+        const tableMatch = line.match(/^\[([^\]]+)\]$/);
+        if (tableMatch) {
+          current = resolveTomlPath(parsed, tableMatch[1], false);
+        } else {
+          const assignmentIndex = line.indexOf("=");
+          assert(
+            assignmentIndex > 0,
+            `${label} has unsupported TOML line ${lineNumber + 1}: ${line}`,
+          );
+          const key = parseTomlKey(line.slice(0, assignmentIndex));
+          current[key] = parseTomlScalar(line.slice(assignmentIndex + 1));
+        }
+      }
     }
-    const arrayTableMatch = line.match(/^\[\[([^\]]+)\]\]$/);
-    if (arrayTableMatch) {
-      current = resolveTomlPath(parsed, arrayTableMatch[1], true);
-      continue;
-    }
-    const tableMatch = line.match(/^\[([^\]]+)\]$/);
-    if (tableMatch) {
-      current = resolveTomlPath(parsed, tableMatch[1], false);
-      continue;
-    }
-    const assignmentIndex = line.indexOf("=");
-    assert(assignmentIndex > 0, `${label} has unsupported TOML line ${lineNumber + 1}: ${line}`);
-    const key = parseTomlKey(line.slice(0, assignmentIndex));
-    current[key] = parseTomlScalar(line.slice(assignmentIndex + 1));
   }
   return parsed;
 };
