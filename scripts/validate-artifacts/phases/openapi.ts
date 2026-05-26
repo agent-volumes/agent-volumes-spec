@@ -18,6 +18,10 @@ function readOpenapi(ctx: ValidationContext): JsonObject {
   }
 }
 
+function isJsonObject(value: unknown): value is JsonObject {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 export function run(ctx: ValidationContext): void {
   const openapi = readOpenapi(ctx);
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
@@ -165,20 +169,23 @@ export function run(ctx: ValidationContext): void {
       .$ref === "#/components/schemas/AdvisoryList",
     "OpenAPI advisory list endpoint must use the AdvisoryList component",
   );
-  for (const [responseName, response] of Object.entries(openapi.components.responses) as [
-    string,
-    JsonObject,
-  ][]) {
+  for (const [responseName, response] of Object.entries(openapi.components.responses)) {
+    assert(isJsonObject(response), `OpenAPI ${responseName} response must be an object`);
     const problemContent = response.content?.["application/problem+json"];
     if (problemContent) {
       assert(
-        problemContent.examples,
+        isJsonObject(problemContent),
+        `OpenAPI ${responseName} problem response content must be an object`,
+      );
+      assert(
+        isJsonObject(problemContent.examples),
         `OpenAPI ${responseName} problem response must include representative examples`,
       );
-      for (const [exampleName, example] of Object.entries(problemContent.examples) as [
-        string,
-        JsonObject,
-      ][]) {
+      for (const [exampleName, example] of Object.entries(problemContent.examples)) {
+        assert(
+          isJsonObject(example),
+          `OpenAPI ${responseName} problem example ${exampleName} must be an object`,
+        );
         assertProblemDetails(
           ctx,
           example.value,
