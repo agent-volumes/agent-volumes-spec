@@ -6,10 +6,10 @@ import { assert } from "./assert.ts";
 import { readJson, readJsonFile } from "./files.ts";
 import type { JsonValue } from "./types.ts";
 
-export const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
+const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
 
-export const schemas = {
+const schemas = {
   advisory: readJson("schemas/advisory.schema.json"),
   advisoryList: readJson("schemas/advisory-list.schema.json"),
   advisoryValidationCase: readJson("schemas/advisory-validation-case.schema.json"),
@@ -59,27 +59,27 @@ for (const schema of Object.values(schemas)) {
   ajv.addSchema(schema);
 }
 
-export const validators: Record<string, ValidateFunction> = Object.fromEntries(
+const validators: Record<string, ValidateFunction> = Object.fromEntries(
   Object.entries(schemas).map(([name, schema]) => [
     name,
     ajv.getSchema(schema.$id) ?? ajv.compile(schema),
   ]),
 );
 
-export const validate = (name: string, value: JsonValue, label: string) => {
+const validate = (name: string, value: JsonValue, label: string) => {
   const validator = validators[name];
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(ok, `${label} failed ${name} schema validation: ${ajv.errorsText(validator.errors)}`);
 };
 
-export const validateExpectedFailure = (name: string, value: JsonValue, label: string) => {
+const validateExpectedFailure = (name: string, value: JsonValue, label: string) => {
   const validator = validators[name];
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(!ok, `${label} unexpectedly passed ${name} schema validation`);
 };
 
-export const reservedExtensionNamespaces = readJsonFile(
-  "schemas/reserved-extension-namespaces.json",
-);
+const reservedExtensionNamespaces = readJsonFile("schemas/reserved-extension-namespaces.json");
+
+export { ajv, reservedExtensionNamespaces, schemas, validate, validateExpectedFailure, validators };
