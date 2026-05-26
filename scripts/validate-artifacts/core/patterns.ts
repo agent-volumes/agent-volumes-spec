@@ -44,7 +44,7 @@ const problemStatusBySlug = new Map([
   ["rate-limited", 429],
 ]);
 
-const isRecognizedSpdxExpressionShape = (expression: string) => {
+function isRecognizedSpdxExpressionShape(expression: string): boolean {
   const tokenPattern =
     /\(|\)|\+|\bAND\b|\bOR\b|\bWITH\b|LicenseRef-[A-Za-z0-9.-]+|[A-Za-z0-9][A-Za-z0-9.-]*/g;
   const tokens = expression.match(tokenPattern) ?? [];
@@ -85,7 +85,7 @@ const isRecognizedSpdxExpressionShape = (expression: string) => {
     }
   }
   return tokens.length > 0 && depth === 0 && !expectOperand;
-};
+}
 
 export {
   componentNamePattern,

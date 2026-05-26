@@ -66,19 +66,19 @@ const validators: Record<string, ValidateFunction> = Object.fromEntries(
   ]),
 );
 
-const validate = (name: string, value: JsonValue, label: string) => {
+function validate(name: string, value: JsonValue, label: string): void {
   const validator = validators[name];
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(ok, `${label} failed ${name} schema validation: ${ajv.errorsText(validator.errors)}`);
-};
+}
 
-const validateExpectedFailure = (name: string, value: JsonValue, label: string) => {
+function validateExpectedFailure(name: string, value: JsonValue, label: string): void {
   const validator = validators[name];
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(!ok, `${label} unexpectedly passed ${name} schema validation`);
-};
+}
 
 const reservedExtensionNamespaces = readJsonFile("schemas/reserved-extension-namespaces.json");
 

@@ -1,7 +1,7 @@
 import { assert } from "./assert.ts";
 import type { JsonObject, JsonValue } from "./types.ts";
 
-const stripTomlComment = (line: JsonValue) => {
+function stripTomlComment(line: JsonValue): JsonValue {
   let inString = false;
   let escaped = false;
   for (let index = 0; index < line.length; index += 1) {
@@ -17,9 +17,9 @@ const stripTomlComment = (line: JsonValue) => {
     }
   }
   return line;
-};
+}
 
-const splitTomlArray = (content: JsonValue) => {
+function splitTomlArray(content: JsonValue): JsonValue[] {
   const items = [];
   let token = "";
   let inString = false;
@@ -47,7 +47,7 @@ const splitTomlArray = (content: JsonValue) => {
     items.push(token.trim());
   }
   return items;
-};
+}
 
 const parseTomlKey = (key: string): string => {
   const trimmed = key.trim();
