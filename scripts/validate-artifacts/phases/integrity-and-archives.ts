@@ -134,7 +134,7 @@ export const run = (ctx: ValidationContext) => {
         trustCase.artifact.mediaType === trustCase.format.mediaType,
         `trust artifact case ${trustCase.name} artifact mediaType must match declared format`,
       );
-      let artifactError: unknown = undefined;
+      let artifactError: unknown;
       try {
         const artifactJson = decodeFixtureArtifact(
           trustCase.artifact,

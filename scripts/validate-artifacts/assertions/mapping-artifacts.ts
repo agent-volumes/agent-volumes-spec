@@ -12,7 +12,7 @@ const findProperty = (properties: JsonValue, name: JsonValue, label: JsonValue) 
 
 const parseStablePropertyJson = (properties: JsonValue, name: JsonValue, label: JsonValue) => {
   const property = findProperty(properties, name, label);
-  let parsed: JsonValue = undefined;
+  let parsed: JsonValue;
   try {
     parsed = JSON.parse(property.value);
   } catch (error) {
