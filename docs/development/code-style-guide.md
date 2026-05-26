@@ -10,7 +10,7 @@ The following rules are active and warnings should be resolved through code chan
 
 **What it does:** Flags numeric literals that appear without context, making code harder to understand.
 
-**Why maintain:** Magic numbers obscure intent. Extracting them into named constants improves readability and makes future changes safer.
+**Why maintain:** Magic numbers obscure intent. Extracting domain-significant values into named constants improves readability and makes future changes safer.
 
 **Incorrect:**
 
@@ -29,7 +29,11 @@ const finalPrice = basePrice + basePrice * TAX_RATE;
 if (statusCode === HTTP_NOT_FOUND) { ... }
 ```
 
-**Configuration:** We use the default configuration. Consider using `ignoreArrayIndexes: true` if array index literals become noisy.
+**Configuration:** `["warn", { "ignoreArrayIndexes": true }]`
+
+**Project style:** Prefer named constants for reusable or domain-significant values, including HTTP status codes, protocol versions, prefix lengths, CLI argument indexes, JSON indentation widths, and exit codes. Inline literals are acceptable when extracting a name would reduce clarity, such as direct cardinality checks (`length > 0`, `length === 0`) or parser/index arithmetic.
+
+**Avoid broad ignores:** Do not add `ignore: [0, 1, -1]` as a blanket exception. In this repository, those values often carry domain meaning and should be reviewed case by case.
 
 ---
 

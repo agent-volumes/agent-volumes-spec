@@ -20,6 +20,7 @@
     "oxc/no-rest-spread-properties": "off",
     "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
     "no-console": "off",
+    "no-magic-numbers": ["warn", { "ignoreArrayIndexes": true }],
     "no-ternary": "off",
     "no-underscore-dangle": ["warn", { "allow": ["_type"] }],
     "sort-imports": "off"
