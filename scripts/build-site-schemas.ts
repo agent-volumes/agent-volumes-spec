@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 import { copyFile, mkdir, readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
