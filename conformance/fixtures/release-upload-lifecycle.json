@@ -125,6 +125,31 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
+      "name": "release-upload-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Release upload intents require publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}",
+      "name": "release-upload-validation-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "validation-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/validation-failed",
+        "title": "Validation failed",
+        "status": 400,
+        "detail": "The release upload intent request body is not valid."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "version-conflict" },
@@ -136,6 +161,31 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+      "name": "release-upload-finalize-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Release upload finalization requires publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+      "name": "release-upload-finalize-authorization-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated publisher cannot finalize this release upload."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-archive",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-archive" },
@@ -147,6 +197,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-manifest",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-manifest" },
@@ -158,6 +209,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-authorization-failed",
       "schema": "problem-details",
       "expected": { "failureCategory": "authorization-failed" },
@@ -169,6 +221,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-payload-too-large",
       "schema": "problem-details",
       "expected": { "failureCategory": "payload-too-large" },
@@ -180,6 +233,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-unsupported-media-type",
       "schema": "problem-details",
       "expected": { "failureCategory": "unsupported-media-type" },
@@ -191,6 +245,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-identity-mismatch",
       "schema": "problem-details",
       "expected": { "failureCategory": "identity-mismatch" },
@@ -202,6 +257,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-digest-mismatch",
       "schema": "problem-details",
       "expected": { "failureCategory": "digest-mismatch" },
@@ -213,6 +269,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-missing-bytes",
       "schema": "problem-details",
       "expected": { "failureCategory": "missing-uploaded-bytes" },
@@ -224,6 +281,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-not-found",
       "schema": "problem-details",
       "expected": { "failureCategory": "not-found" },
@@ -235,6 +293,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-state",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-upload-state" },
@@ -246,6 +305,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-idempotency-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "idempotency-conflict" },
@@ -257,6 +317,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-expired",
       "schema": "problem-details",
       "expected": { "failureCategory": "upload-expired" },

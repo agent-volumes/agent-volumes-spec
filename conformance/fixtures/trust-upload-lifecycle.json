@@ -279,6 +279,46 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
+      "name": "authentication-required-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Trust attachment upload intents require publisher authentication.",
+        "uploadId": "upload-auth-required"
+      },
+      "expected": { "valid": true, "failureCategory": "authentication-required" }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+      "name": "finalize-authentication-required-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Trust attachment upload finalization requires publisher authentication.",
+        "uploadId": "upload-finalize-auth-required"
+      },
+      "expected": { "valid": true, "failureCategory": "authentication-required" }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+      "name": "finalize-authorization-failed-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Publisher is not authorized to finalize this trust upload",
+        "status": 403,
+        "detail": "The authenticated publisher cannot finalize trust attachments for this release.",
+        "uploadId": "upload-finalize-authz-failed"
+      },
+      "expected": { "valid": true, "failureCategory": "authorization-failed" }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "digest-mismatch-failure",
       "schema": "problem-details",
       "payload": {
@@ -294,6 +334,20 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+      "name": "finalize-subject-binding-mismatch-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/subject-binding-mismatch",
+        "title": "Finalized trust attachment subject did not match the target release",
+        "status": 400,
+        "detail": "The uploaded attachment binds to a different release subject during finalization.",
+        "uploadId": "upload-finalize-subject-mismatch"
+      },
+      "expected": { "valid": true, "failureCategory": "subject-binding-mismatch" }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "expired-upload-failure",
       "schema": "problem-details",
       "payload": {
@@ -309,6 +363,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "subject-binding-mismatch-failure",
       "schema": "problem-details",
       "payload": {
@@ -324,6 +379,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "missing-uploaded-bytes-failure",
       "schema": "problem-details",
       "payload": {
@@ -339,6 +395,20 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+      "name": "finalize-idempotency-conflict-failure",
+      "schema": "problem-details",
+      "payload": {
+        "type": "https://agentvolumes.org/problems/idempotency-conflict",
+        "title": "Idempotency key conflicts with an earlier finalization request",
+        "status": 409,
+        "detail": "The idempotency key was previously used with different trust finalization metadata.",
+        "uploadId": "upload-finalize-idempotency-conflict"
+      },
+      "expected": { "valid": true, "failureCategory": "idempotency-conflict" }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "idempotency-conflict-failure",
       "schema": "problem-details",
       "payload": {
@@ -354,6 +424,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "invalid-upload-state-failure",
       "schema": "problem-details",
       "payload": {
@@ -369,6 +440,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "payload-too-large-failure",
       "schema": "problem-details",
       "payload": {
@@ -381,6 +453,7 @@
       "expected": { "valid": true, "failureCategory": "payload-too-large" }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "unsupported-media-type-failure",
       "schema": "problem-details",
       "payload": {
@@ -393,6 +466,7 @@
       "expected": { "valid": true, "failureCategory": "unsupported-media-type" }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "authorization-failed-failure",
       "schema": "problem-details",
       "payload": {
