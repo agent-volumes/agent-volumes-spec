@@ -1,6 +1,7 @@
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import { HTTP_ACCEPTED } from "../core/numeric-constants.ts";
-import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
+import { problemTypePattern } from "../core/patterns.ts";
+import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 interface ProblemFixtureAssertion {

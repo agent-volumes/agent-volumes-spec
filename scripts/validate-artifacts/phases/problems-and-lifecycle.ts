@@ -4,7 +4,7 @@ import {
   assertProblemDetails,
 } from "../assertions/problem-details.ts";
 import { assert, assertSpecVersion } from "../core/assert.ts";
-import { problemStatusBySlug } from "../core/patterns.ts";
+import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 function assertProblemDetailsCases(ctx: ValidationContext): void {

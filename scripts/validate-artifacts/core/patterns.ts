@@ -1,16 +1,4 @@
-import {
-  EMPTY_COUNT,
-  HTTP_BAD_REQUEST,
-  HTTP_CONFLICT,
-  HTTP_FORBIDDEN,
-  HTTP_GONE,
-  HTTP_NOT_FOUND,
-  HTTP_PAYLOAD_TOO_LARGE,
-  HTTP_TOO_MANY_REQUESTS,
-  HTTP_UNAUTHORIZED,
-  HTTP_UNSUPPORTED_MEDIA_TYPE,
-  INCREMENT_STEP,
-} from "./numeric-constants.ts";
+import { EMPTY_COUNT, INCREMENT_STEP } from "./numeric-constants.ts";
 
 const volumeNamePattern =
   /^(@(?!.*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?\/)?(?!.*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
@@ -36,27 +24,6 @@ const coreExternalDependencyPurposes = new Set([
 const externalDependencyPurposeExtensionPattern =
   /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$/;
 const problemTypePattern = /^https:\/\/agentvolumes\.org\/problems\/[a-z0-9-]+$/;
-const problemStatusBySlug = new Map([
-  ["authentication-required", HTTP_UNAUTHORIZED],
-  ["authorization-failed", HTTP_FORBIDDEN],
-  ["not-found", HTTP_NOT_FOUND],
-  ["validation-failed", HTTP_BAD_REQUEST],
-  ["invalid-manifest", HTTP_BAD_REQUEST],
-  ["invalid-archive", HTTP_BAD_REQUEST],
-  ["identity-mismatch", HTTP_CONFLICT],
-  ["version-conflict", HTTP_CONFLICT],
-  ["digest-mismatch", HTTP_BAD_REQUEST],
-  ["subject-binding-mismatch", HTTP_BAD_REQUEST],
-  ["inconsistent-registry-state", HTTP_CONFLICT],
-  ["upload-expired", HTTP_GONE],
-  ["missing-uploaded-bytes", HTTP_BAD_REQUEST],
-  ["invalid-upload-state", HTTP_CONFLICT],
-  ["idempotency-conflict", HTTP_CONFLICT],
-  ["payload-too-large", HTTP_PAYLOAD_TOO_LARGE],
-  ["unsupported-media-type", HTTP_UNSUPPORTED_MEDIA_TYPE],
-  ["permission-escalation", HTTP_BAD_REQUEST],
-  ["rate-limited", HTTP_TOO_MANY_REQUESTS],
-]);
 
 interface SpdxExpressionState {
   expectOperand: boolean;
@@ -140,7 +107,6 @@ export {
   externalDependencyPurposeExtensionPattern,
   gitCommitPattern,
   isRecognizedSpdxExpressionShape,
-  problemStatusBySlug,
   problemTypePattern,
   semverPattern,
   shallowPurlPattern,
