@@ -273,6 +273,12 @@
           "fixture": "external-dependency-potential-exposure-cases.json",
           "area": "external-dependency",
           "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "REQUIREMENTS.md",
+          "area": "external-dependency",
+          "coverageType": "prose-boundary",
+          "boundary": "external-dependency-discovery-surfaces"
         }
       ]
     },
@@ -407,7 +413,13 @@
       "role": "client",
       "requirement": "Distinguish canonical trust facts from derived judgments.",
       "coverage": [
-        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" }
+        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
+        {
+          "fixture": "REQUIREMENTS.md",
+          "area": "trust-discovery",
+          "coverageType": "prose-boundary",
+          "boundary": "cryptographic-trust-roots"
+        }
       ]
     },
     {
@@ -437,6 +449,12 @@
           "fixture": "trust-artifact-verification-cases.json",
           "area": "trust-verification",
           "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "REQUIREMENTS.md",
+          "area": "trust-verification",
+          "coverageType": "prose-boundary",
+          "boundary": "cryptographic-trust-roots"
         }
       ]
     },
@@ -450,6 +468,12 @@
           "area": "manifest",
           "coverageType": "positive",
           "case": "unknown-compatibility-scheme-is-advisory-not-rejection"
+        },
+        {
+          "fixture": "REQUIREMENTS.md",
+          "area": "manifest",
+          "coverageType": "prose-boundary",
+          "boundary": "runtime-adapter-behavior"
         }
       ]
     },
