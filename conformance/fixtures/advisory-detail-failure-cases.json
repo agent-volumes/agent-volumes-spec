@@ -1,0 +1,30 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "description": "Advisory detail Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "advisory-detail-not-found",
+      "endpoint": "GET /api/v1/advisories/{advisoryId}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Not found",
+        "status": 404,
+        "detail": "The requested advisory does not exist."
+      }
+    },
+    {
+      "name": "advisory-detail-rate-limited",
+      "endpoint": "GET /api/v1/advisories/{advisoryId}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The advisory detail request was rate limited."
+      }
+    }
+  ]
+}

@@ -64,6 +64,14 @@ function assertSearchProblemFixtures(ctx: ValidationContext): void {
     label: "advisory search failure cases",
     relativePath: "conformance/fixtures/advisory-search-failure-cases.json",
   });
+  assertEndpointProblemFixtures({
+    ctx,
+    expectedFailuresByEndpoint: new Map([
+      ["GET /api/v1/advisories/{advisoryId}", ["not-found", "rate-limited"]],
+    ]),
+    label: "advisory detail failure cases",
+    relativePath: "conformance/fixtures/advisory-detail-failure-cases.json",
+  });
 }
 
 function assertLifecycleProblemFixtures(ctx: ValidationContext): void {
