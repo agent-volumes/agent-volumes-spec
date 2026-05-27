@@ -6,30 +6,49 @@
       "role": "bibliotheca",
       "requirement": "Accept and serve volumes with valid volume.toml manifests.",
       "coverage": [
-        { "fixture": "manifest-valid-minimal.json", "area": "manifest", "coverageType": "positive" }
-      ]
+        {
+          "fixture": "manifest-valid-minimal.json",
+          "area": "manifest",
+          "coverageType": "positive"
+        }
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-002",
       "role": "bibliotheca",
       "requirement": "Block continued distribution of artifacts with discovered permission escalation.",
       "coverage": [
-        { "fixture": "permission-escalation.json", "area": "manifest", "coverageType": "negative" }
-      ]
+        {
+          "fixture": "permission-escalation.json",
+          "area": "manifest",
+          "coverageType": "negative"
+        }
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-003",
       "role": "bibliotheca",
       "requirement": "Implement the package operations API.",
       "coverage": [
-        { "fixture": "bibliotheca.openapi.yaml", "area": "openapi", "coverageType": "openapi" },
+        {
+          "fixture": "bibliotheca.openapi.yaml",
+          "area": "openapi",
+          "coverageType": "openapi"
+        },
         {
           "fixture": "problem-details-cases.json",
           "area": "problem-details",
           "coverageType": "negative"
         },
-        { "fixture": "problem-registry.json", "area": "problem-details", "coverageType": "schema" }
-      ]
+        {
+          "fixture": "problem-registry.json",
+          "area": "problem-details",
+          "coverageType": "schema"
+        }
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-004",
@@ -42,21 +61,31 @@
           "coverageType": "negative",
           "case": "release-upload-conflict"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-005",
       "role": "bibliotheca",
       "requirement": "Compute authoritative normalized-file-tree integrity during finalize.",
       "coverage": [
-        { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
-        { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
+        {
+          "fixture": "digest-vectors.json",
+          "area": "digest",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "digest-invalid-cases.json",
+          "area": "digest",
+          "coverageType": "negative"
+        },
         {
           "fixture": "tar-archive-profile-cases.json",
           "area": "archive",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-006",
@@ -68,28 +97,42 @@
           "area": "identity",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-007",
       "role": "bibliotheca",
       "requirement": "Expose the query-based catalog search API.",
       "coverage": [
-        { "fixture": "search-results.json", "area": "openapi", "coverageType": "schema" },
+        {
+          "fixture": "search-results.json",
+          "area": "openapi",
+          "coverageType": "schema"
+        },
         {
           "fixture": "catalog-search-failure-cases.json",
           "area": "problem-details",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-008",
       "role": "bibliotheca",
       "requirement": "Expose package-scoped version indexes synchronized with release lifecycle changes.",
       "coverage": [
-        { "fixture": "version-index.json", "area": "resolver", "coverageType": "schema" },
-        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" },
+        {
+          "fixture": "version-index.json",
+          "area": "resolver",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "version-index-row-cases.json",
+          "area": "resolver",
+          "coverageType": "schema"
+        },
         {
           "fixture": "lifecycle-mutation-cases.json",
           "area": "resolver",
@@ -100,7 +143,8 @@
           "area": "problem-details",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-009",
@@ -112,7 +156,8 @@
           "area": "release-metadata",
           "coverageType": "positive"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-010",
@@ -125,20 +170,29 @@
           "coverageType": "negative",
           "case": "version-index-release-metadata-conflict"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-011",
       "role": "bibliotheca",
       "requirement": "Expose trust metadata summary and detail views.",
       "coverage": [
-        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
+        {
+          "fixture": "trust-summary.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        },
         {
           "fixture": "trust-summary-empty.json",
           "area": "trust-discovery",
           "coverageType": "schema"
         },
-        { "fixture": "trust-detail.json", "area": "trust-discovery", "coverageType": "schema" },
+        {
+          "fixture": "trust-detail.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        },
         {
           "fixture": "trust-detail-empty.json",
           "area": "trust-discovery",
@@ -154,7 +208,8 @@
           "area": "problem-details",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-012",
@@ -171,16 +226,29 @@
           "area": "trust-upload",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-013",
       "role": "bibliotheca",
       "requirement": "Expose the advisory API.",
       "coverage": [
-        { "fixture": "advisory.json", "area": "advisory", "coverageType": "schema" },
-        { "fixture": "advisory-withdrawn.json", "area": "advisory", "coverageType": "schema" },
-        { "fixture": "advisory-list.json", "area": "advisory", "coverageType": "schema" },
+        {
+          "fixture": "advisory.json",
+          "area": "advisory",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "advisory-withdrawn.json",
+          "area": "advisory",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "advisory-list.json",
+          "area": "advisory",
+          "coverageType": "schema"
+        },
         {
           "fixture": "advisory-search-failure-cases.json",
           "area": "problem-details",
@@ -196,14 +264,19 @@
           "area": "advisory",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-014",
       "role": "bibliotheca",
       "requirement": "Expose dedicated capability metadata endpoint with version fields, API family, and supported upload profiles.",
       "coverage": [
-        { "fixture": "capability-metadata.json", "area": "capability", "coverageType": "schema" },
+        {
+          "fixture": "capability-metadata.json",
+          "area": "capability",
+          "coverageType": "schema"
+        },
         {
           "fixture": "capability-metadata-unknown-tolerance.json",
           "area": "capability",
@@ -219,7 +292,8 @@
           "area": "capability",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-015",
@@ -231,20 +305,46 @@
           "area": "trust-discovery",
           "coverageType": "schema"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-016",
       "role": "bibliotheca",
       "requirement": "Publish required machine-readable companion artifacts or equivalents.",
       "coverage": [
-        { "fixture": "schemas/", "area": "mapping", "coverageType": "schema" },
-        { "fixture": "mapping-matrix.json", "area": "mapping", "coverageType": "schema" },
-        { "fixture": "mapping-sample.json", "area": "mapping", "coverageType": "schema" },
-        { "fixture": "openapi-operation-matrix.json", "area": "openapi", "coverageType": "schema" },
-        { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" },
-        { "fixture": "conformance-report.json", "area": "mapping", "coverageType": "schema" }
-      ]
+        {
+          "fixture": "schemas/",
+          "area": "mapping",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "mapping-matrix.json",
+          "area": "mapping",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "mapping-sample.json",
+          "area": "mapping",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "openapi-operation-matrix.json",
+          "area": "openapi",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "conformance-coverage.json",
+          "area": "mapping",
+          "coverageType": "schema"
+        },
+        {
+          "fixture": "conformance-report.json",
+          "area": "mapping",
+          "coverageType": "schema"
+        }
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-017",
@@ -262,7 +362,8 @@
           "coverageType": "negative",
           "case": "release-metadata-rejects-resolved-external-dependency-evidence"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-BIB-018",
@@ -280,7 +381,8 @@
           "coverageType": "prose-boundary",
           "boundary": "external-dependency-discovery-surfaces"
         }
-      ]
+      ],
+      "specAnchor": "#11-2-conforming-bibliotheca"
     },
     {
       "id": "AV-CLI-001",
@@ -302,15 +404,21 @@
           "area": "identity",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-002",
       "role": "client",
       "requirement": "Parse portable dependency range expressions.",
       "coverage": [
-        { "fixture": "semver-range-cases.json", "area": "resolver", "coverageType": "algorithmic" }
-      ]
+        {
+          "fixture": "semver-range-cases.json",
+          "area": "resolver",
+          "coverageType": "algorithmic"
+        }
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-003",
@@ -322,7 +430,8 @@
           "area": "manifest",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-004",
@@ -335,16 +444,26 @@
           "coverageType": "negative",
           "case": "single-version-conflict"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-005",
       "role": "client",
       "requirement": "Apply portable version lifecycle semantics during resolution and exact installs.",
       "coverage": [
-        { "fixture": "resolver-cases.json", "area": "resolver", "coverageType": "algorithmic" },
-        { "fixture": "version-index-row-cases.json", "area": "resolver", "coverageType": "schema" }
-      ]
+        {
+          "fixture": "resolver-cases.json",
+          "area": "resolver",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "version-index-row-cases.json",
+          "area": "resolver",
+          "coverageType": "schema"
+        }
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-006",
@@ -356,21 +475,31 @@
           "area": "release-metadata",
           "coverageType": "schema"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-007",
       "role": "client",
       "requirement": "Verify normalized-file-tree integrity after download or source resolution.",
       "coverage": [
-        { "fixture": "digest-vectors.json", "area": "digest", "coverageType": "algorithmic" },
-        { "fixture": "digest-invalid-cases.json", "area": "digest", "coverageType": "negative" },
+        {
+          "fixture": "digest-vectors.json",
+          "area": "digest",
+          "coverageType": "algorithmic"
+        },
+        {
+          "fixture": "digest-invalid-cases.json",
+          "area": "digest",
+          "coverageType": "negative"
+        },
         {
           "fixture": "tar-archive-profile-cases.json",
           "area": "archive",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-008",
@@ -382,7 +511,8 @@
           "area": "identity",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-009",
@@ -394,7 +524,8 @@
           "area": "trust-verification",
           "coverageType": "algorithmic"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-010",
@@ -406,21 +537,27 @@
           "area": "trust-verification",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-011",
       "role": "client",
       "requirement": "Distinguish canonical trust facts from derived judgments.",
       "coverage": [
-        { "fixture": "trust-summary.json", "area": "trust-discovery", "coverageType": "schema" },
+        {
+          "fixture": "trust-summary.json",
+          "area": "trust-discovery",
+          "coverageType": "schema"
+        },
         {
           "fixture": "REQUIREMENTS.md",
           "area": "trust-discovery",
           "coverageType": "prose-boundary",
           "boundary": "cryptographic-trust-roots"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-012",
@@ -438,7 +575,8 @@
           "coverageType": "negative",
           "case": "trust-artifact-rejects-superseded-current-evidence"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-013",
@@ -456,7 +594,8 @@
           "coverageType": "prose-boundary",
           "boundary": "cryptographic-trust-roots"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-014",
@@ -475,7 +614,8 @@
           "coverageType": "prose-boundary",
           "boundary": "runtime-adapter-behavior"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-015",
@@ -492,20 +632,26 @@
           "area": "capability",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-016",
       "role": "client",
       "requirement": "Surface required migration warnings during bridge periods.",
       "coverage": [
-        { "fixture": "bridge-metadata.json", "area": "capability", "coverageType": "schema" },
+        {
+          "fixture": "bridge-metadata.json",
+          "area": "capability",
+          "coverageType": "schema"
+        },
         {
           "fixture": "bridge-metadata-status-variants.json",
           "area": "capability",
           "coverageType": "schema"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-017",
@@ -552,7 +698,8 @@
           "area": "external-dependency",
           "coverageType": "schema"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     },
     {
       "id": "AV-CLI-018",
@@ -569,7 +716,8 @@
           "area": "warning",
           "coverageType": "negative"
         }
-      ]
+      ],
+      "specAnchor": "#11-3-conforming-client"
     }
   ]
 }

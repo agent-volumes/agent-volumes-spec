@@ -172,6 +172,35 @@ function assertKnownProseBoundaryHeadings(proseBoundaryHeadings: Set<string>): v
   }
 }
 
+function headingAnchorSlug(headingLine: string): string {
+  return headingLine
+    .replace(/^#+\s*/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function extractSpecAnchors(specText: string): Set<string> {
+  const anchors = new Set<string>();
+  for (const line of specText.split("\n")) {
+    if (line.startsWith("#")) {
+      anchors.add(`#${headingAnchorSlug(line)}`);
+    }
+  }
+  return anchors;
+}
+
+function assertRequirementSpecAnchor(requirement: JsonValue, specAnchors: Set<string>): void {
+  assert(
+    typeof requirement.specAnchor === "string",
+    `conformance coverage ${requirement.id} must declare specAnchor`,
+  );
+  assert(
+    specAnchors.has(requirement.specAnchor),
+    `conformance coverage ${requirement.id} references missing spec anchor ${requirement.specAnchor}`,
+  );
+}
+
 interface CoverageReferenceAssertion {
   ctx: ValidationContext;
   proseBoundaryHeadings: Set<string>;
@@ -209,9 +238,11 @@ function assertConformanceCoverageReferences(
   const proseBoundaryHeadings = extractProseBoundaryHeadings(
     ctx.readText("conformance/REQUIREMENTS.md"),
   );
+  const specAnchors = extractSpecAnchors(ctx.readText("agent-volumes-spec.md"));
   assertKnownProseBoundaryHeadings(proseBoundaryHeadings);
 
   for (const requirement of conformanceCoverage.requirements) {
+    assertRequirementSpecAnchor(requirement, specAnchors);
     for (const coverage of requirement.coverage) {
       assertCoverageReference({
         coverage,
