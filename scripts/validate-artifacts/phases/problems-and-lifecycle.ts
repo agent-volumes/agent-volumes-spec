@@ -7,7 +7,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function run(ctx: ValidationContext): void {
+function assertProblemDetailsCases(ctx: ValidationContext): void {
   const problemDetailsCases = ctx.readJson("conformance/fixtures/problem-details-cases.json");
   assertSpecVersion(ctx, problemDetailsCases, "problem details cases");
   assert(
@@ -25,7 +25,9 @@ export function run(ctx: ValidationContext): void {
       `problem details cases missing ${slug}`,
     );
   }
+}
 
+function assertProblemRegistry(ctx: ValidationContext): void {
   const problemRegistry = ctx.readJson("conformance/fixtures/problem-registry.json");
   ctx.validate("problemRegistry", problemRegistry, "problem registry fixture");
   assertSpecVersion(ctx, problemRegistry, "problem registry fixture");
@@ -43,7 +45,9 @@ export function run(ctx: ValidationContext): void {
       `problem registry ${problem.slug} status must match`,
     );
   }
+}
 
+function assertSearchProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
     expectedFailuresByEndpoint: new Map([
@@ -60,6 +64,9 @@ export function run(ctx: ValidationContext): void {
     label: "advisory search failure cases",
     relativePath: "conformance/fixtures/advisory-search-failure-cases.json",
   });
+}
+
+function assertLifecycleProblemFixtures(ctx: ValidationContext): void {
   assertLifecycleMutationFixtures({
     ctx,
     expectedFailuresByEndpoint: new Map([
@@ -87,6 +94,9 @@ export function run(ctx: ValidationContext): void {
     label: "lifecycle mutation cases",
     relativePath: "conformance/fixtures/lifecycle-mutation-cases.json",
   });
+}
+
+function assertTrustProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
     expectedFailuresByEndpoint: new Map([
@@ -118,3 +128,13 @@ export function run(ctx: ValidationContext): void {
     relativePath: "conformance/fixtures/trust-detail-failure-cases.json",
   });
 }
+
+function run(ctx: ValidationContext): void {
+  assertProblemDetailsCases(ctx);
+  assertProblemRegistry(ctx);
+  assertSearchProblemFixtures(ctx);
+  assertLifecycleProblemFixtures(ctx);
+  assertTrustProblemFixtures(ctx);
+}
+
+export { run };

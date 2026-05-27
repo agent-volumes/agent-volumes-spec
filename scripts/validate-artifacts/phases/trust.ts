@@ -1,7 +1,7 @@
 import { assert } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function run(ctx: ValidationContext): void {
+function validateTrustFixtures(ctx: ValidationContext): void {
   ctx.validate(
     "trustSummary",
     ctx.readJson("conformance/fixtures/trust-summary.json"),
@@ -27,7 +27,9 @@ export function run(ctx: ValidationContext): void {
     ctx.readJson("conformance/fixtures/trust-detail-status-variants.json"),
     "trust detail status variants fixture",
   );
+}
 
+function assertTrustStatusVariants(ctx: ValidationContext): void {
   const trustDetailStatusVariants = ctx.readJson(
     "conformance/fixtures/trust-detail-status-variants.json",
   );
@@ -40,7 +42,9 @@ export function run(ctx: ValidationContext): void {
       `trust detail status variants fixture must include ${requiredState}`,
     );
   }
+}
 
+function assertTrustDetailFormats(ctx: ValidationContext): void {
   const trustDetailFixture = ctx.readJson("conformance/fixtures/trust-detail.json");
   const trustFormatFamilies = new Set(
     trustDetailFixture.attachments.map((attachment: JsonValue) => attachment.format.family),
@@ -56,3 +60,11 @@ export function run(ctx: ValidationContext): void {
     "trust detail fixture must exercise format.profile",
   );
 }
+
+function run(ctx: ValidationContext): void {
+  validateTrustFixtures(ctx);
+  assertTrustStatusVariants(ctx);
+  assertTrustDetailFormats(ctx);
+}
+
+export { run };

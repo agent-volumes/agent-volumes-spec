@@ -1,7 +1,7 @@
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function run(ctx: ValidationContext): void {
+function validateBaselineAdvisoryFixtures(ctx: ValidationContext): void {
   ctx.validate("advisory", ctx.readJson("conformance/fixtures/advisory.json"), "advisory fixture");
   ctx.validate(
     "advisory",
@@ -18,6 +18,9 @@ export function run(ctx: ValidationContext): void {
     ctx.readJson("conformance/fixtures/search-results.json"),
     "search results fixture",
   );
+}
+
+function assertBaselineAdvisorySemantics(ctx: ValidationContext): void {
   assert(
     ctx.readJson("conformance/fixtures/advisory-withdrawn.json").withdrawn?.at,
     "withdrawn advisory fixture must include withdrawn.at",
@@ -30,7 +33,9 @@ export function run(ctx: ValidationContext): void {
       ),
     "advisory fixture must exercise limit event semantics",
   );
+}
 
+function readAdvisoryValidationCases(ctx: ValidationContext): JsonValue {
   const advisoryValidationCases = ctx.readJson(
     "conformance/fixtures/advisory-validation-cases.json",
   );
@@ -40,6 +45,13 @@ export function run(ctx: ValidationContext): void {
     "advisory validation cases fixture",
   );
   assertSpecVersion(ctx, advisoryValidationCases, "advisory validation cases fixture");
+  return advisoryValidationCases;
+}
+
+function validateAdvisoryValidationCases(
+  ctx: ValidationContext,
+  advisoryValidationCases: JsonValue,
+): void {
   for (const advisoryCase of advisoryValidationCases.cases) {
     if (advisoryCase.expected.valid) {
       ctx.validate(
@@ -55,6 +67,9 @@ export function run(ctx: ValidationContext): void {
       );
     }
   }
+}
+
+function assertAdvisoryRelationshipCoverage(advisoryValidationCases: JsonValue): void {
   const advisoryRelationshipTypes = new Set(
     advisoryValidationCases.cases.flatMap((advisoryCase: JsonValue) =>
       (advisoryCase.payload.relationships ?? []).map(
@@ -82,3 +97,13 @@ export function run(ctx: ValidationContext): void {
     "advisory validation cases must exercise informational componentImpact metadata",
   );
 }
+
+function run(ctx: ValidationContext): void {
+  validateBaselineAdvisoryFixtures(ctx);
+  assertBaselineAdvisorySemantics(ctx);
+  const advisoryValidationCases = readAdvisoryValidationCases(ctx);
+  validateAdvisoryValidationCases(ctx, advisoryValidationCases);
+  assertAdvisoryRelationshipCoverage(advisoryValidationCases);
+}
+
+export { run };
