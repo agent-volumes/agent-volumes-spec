@@ -190,6 +190,129 @@ const SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS = new Map([
   ],
 ]);
 
+const SUCCESS_RESPONSE_SCHEMA_REFS = [
+  {
+    method: "get",
+    pathName: "/api/v1/search",
+    ref: "#/components/schemas/SearchResults",
+    status: "200",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/{name}",
+    ref: "../schemas/release-upload-intent.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/@{scope}/{name}",
+    ref: "../schemas/release-upload-intent.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+    ref: "../schemas/release-upload-finalize.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+    ref: "../schemas/release-upload-finalize.schema.json",
+    status: "201",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/{name}/{version}",
+    ref: "../schemas/release-metadata.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
+    ref: "../schemas/release-metadata.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/index/volumes/{name}",
+    ref: "#/components/schemas/VersionIndex",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/index/volumes/@{scope}/{name}",
+    ref: "#/components/schemas/VersionIndex",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/summary",
+    ref: "../schemas/trust-summary.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+    ref: "../schemas/trust-summary.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/detail",
+    ref: "../schemas/trust-detail.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
+    ref: "../schemas/trust-detail.schema.json",
+    status: "200",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads",
+    ref: "../schemas/trust-upload-intent.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+    ref: "../schemas/trust-upload-intent.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+    ref: "../schemas/trust-upload-finalize.schema.json",
+    status: "201",
+  },
+  {
+    method: "post",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+    ref: "../schemas/trust-upload-finalize.schema.json",
+    status: "201",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/advisories",
+    ref: "#/components/schemas/AdvisoryList",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/advisories/{advisoryId}",
+    ref: "../schemas/advisory.schema.json",
+    status: "200",
+  },
+  {
+    method: "get",
+    pathName: "/api/v1/capabilities",
+    ref: "../schemas/capability-metadata.schema.json",
+    status: "200",
+  },
+] as const;
+
 interface OpenapiOperation {
   method: string;
   operation: JsonObject;
@@ -512,19 +635,15 @@ function assertOpenapiStandaloneSchemaLinks(openapi: JsonObject): void {
 }
 
 function assertOpenapiEndpointSchemas(openapi: JsonObject): void {
-  assert(
-    openapi.paths["/api/v1/index/volumes/{name}"].get.responses["200"].content["application/json"]
-      .schema.$ref === "#/components/schemas/VersionIndex" &&
-      openapi.paths["/api/v1/index/volumes/@{scope}/{name}"].get.responses["200"].content[
-        "application/json"
-      ].schema.$ref === "#/components/schemas/VersionIndex",
-    "OpenAPI version index endpoints must use the VersionIndex component",
-  );
-  assert(
-    openapi.paths["/api/v1/advisories"].get.responses["200"].content["application/json"].schema
-      .$ref === "#/components/schemas/AdvisoryList",
-    "OpenAPI advisory list endpoint must use the AdvisoryList component",
-  );
+  for (const expectedSchema of SUCCESS_RESPONSE_SCHEMA_REFS) {
+    const operation = openapi.paths[expectedSchema.pathName]?.[expectedSchema.method];
+    const schemaRef =
+      operation?.responses?.[expectedSchema.status]?.content?.["application/json"]?.schema?.$ref;
+    assert(
+      schemaRef === expectedSchema.ref,
+      `OpenAPI ${expectedSchema.method.toUpperCase()} ${expectedSchema.pathName} ${expectedSchema.status} response must use ${expectedSchema.ref}`,
+    );
+  }
 }
 
 function assertProblemContentExamples(
