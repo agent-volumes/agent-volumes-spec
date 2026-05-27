@@ -42,6 +42,10 @@ validate-artifacts/
 - Every phase exports `run(ctx: ValidationContext): void`; keep side effects limited to assertions and fixture reads.
 - Use `ctx.readJson(...)` / `ctx.readText(...)` so `readJsonPaths` can prove fixture coverage.
 - Use `ctx.validate(schemaName, value, label)` and `ctx.validateExpectedFailure(...)`; do not compile one-off AJV validators.
+- Validator phases may read human-facing Markdown only when checking publication
+  presence or explicitly non-contractual references. Contract assertions must be
+  driven by machine-readable artifacts such as JSON fixtures, schemas, or the
+  OpenAPI document itself.
 - Keep `assert(...)` messages stable and specific enough to identify the fixture, case, or API operation.
 - Keep JSON inputs typed as `JsonValue` until narrowed; avoid `any`, unsafe assertions, and `null` internal sentinels.
 - Domain constants belong in `core/numeric-constants.ts` or `core/patterns.ts` when reused across phases.
@@ -49,6 +53,8 @@ validate-artifacts/
 ## ANTI-PATTERNS
 
 - Do **not** read conformance JSON fixtures outside `ctx.readJson` unless intentionally bypassing the coverage guard.
+- Do **not** parse `openapi/PROSE-DRIFT-AUDIT.md` or other human-review Markdown
+  tables as validator source data; add a machine-readable fixture instead.
 - Do **not** add network access, live registry checks, or environment-dependent behavior.
 - Do **not** encode registry-local policy as portable baseline validation.
 - Do **not** split a phase just by file length; split when there is a real artifact-family boundary.

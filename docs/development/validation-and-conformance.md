@@ -35,6 +35,20 @@ audit. OpenAPI contract changes and release-freeze work still require updating
 [`../../openapi/PROSE-DRIFT-AUDIT.md`](../../openapi/PROSE-DRIFT-AUDIT.md)
 when the checklist status or evidence changes.
 
+## Machine-readable validation inputs
+
+Automated validation uses machine-readable artifacts as its source of truth:
+JSON fixtures, JSON Schemas, OpenAPI YAML, and deterministic generated/publication
+artifacts. Human review documents, including
+[`../../openapi/PROSE-DRIFT-AUDIT.md`](../../openapi/PROSE-DRIFT-AUDIT.md), are
+not validator input contracts.
+
+When an endpoint matrix, error mapping, or other review table needs automated
+coverage, add or update a JSON fixture under `../../conformance/fixtures/` and
+validate that fixture from `scripts/validate-artifacts/`. Keep the human audit
+document aligned with the same semantics, but do not parse Markdown audit tables
+from the validator.
+
 ## Coverage expectations
 
 Major new deterministic behavior is expected to add or update conformance
@@ -56,7 +70,8 @@ failure is deterministic. Suitable regression artifacts include:
 - a new fixture case;
 - a schema example or validation case;
 - a problem details case;
-- an OpenAPI/prose drift checklist update; or
+- a machine-readable OpenAPI/API fixture plus any needed human drift checklist
+  update; or
 - a documented prose-boundary explanation when no deterministic offline vector
   is appropriate.
 

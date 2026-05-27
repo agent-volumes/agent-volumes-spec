@@ -32,11 +32,23 @@ scripts/
 
 `validate-artifacts.ts` is now the orchestration shim: it builds the shared validation context, runs phase modules in order, then calls the fixture-connectivity guard. Detailed validator rules live in `validate-artifacts/AGENTS.md`.
 
+## HUMAN REVIEW VS MACHINE VALIDATION
+
+Automated validator inputs must be machine-readable artifacts: JSON fixtures,
+JSON Schemas, OpenAPI YAML, or deterministic repository files that are intended
+for script consumption. Human review documents such as
+`../openapi/PROSE-DRIFT-AUDIT.md` are review evidence and release-freeze
+checklists, not validator contracts. Keep their content aligned with the
+machine-readable fixtures, but do not make `validate-artifacts.ts` depend on
+parsing prose tables from human-review Markdown.
+
 ## CONVENTIONS
 
 - Validators must be deterministic and offline; never require network services.
 - Fixture checks use stable fixture paths and case names so reports remain diffable.
 - New deterministic behavior should add a schema check, fixture case, coverage mapping, or documented prose-boundary exception.
+- New automated OpenAPI/API behavior checks should use machine-readable
+  fixtures, not human audit tables.
 - Prefer small helper functions near related validation blocks; `validate-artifacts/` is the hotspot.
 
 ## ANTI-PATTERNS
