@@ -241,6 +241,7 @@
         { "fixture": "schemas/", "area": "mapping", "coverageType": "schema" },
         { "fixture": "mapping-matrix.json", "area": "mapping", "coverageType": "schema" },
         { "fixture": "mapping-sample.json", "area": "mapping", "coverageType": "schema" },
+        { "fixture": "openapi-operation-matrix.json", "area": "openapi", "coverageType": "schema" },
         { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" },
         { "fixture": "conformance-report.json", "area": "mapping", "coverageType": "schema" }
       ]

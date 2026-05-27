@@ -34,6 +34,7 @@ const schemaEntries = [
   ["manifestParseCase", "schemas/manifest-parse-case.schema.json"],
   ["mappingMatrix", "schemas/mapping-matrix.schema.json"],
   ["mappingSample", "schemas/mapping-sample.schema.json"],
+  ["openapiOperationMatrix", "schemas/openapi-operation-matrix.schema.json"],
   ["problemDetails", "schemas/problem-details.schema.json"],
   ["problemRegistry", "schemas/problem-registry.schema.json"],
   ["purlVersCompatibilityExceptions", "schemas/purl-vers-compatibility-exceptions.schema.json"],
