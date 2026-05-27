@@ -4,9 +4,7 @@ import { assert, assertSpecVersion } from "../core/assert.ts";
 import { digestPattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function run(ctx: ValidationContext): void {
-  const releaseUploadLifecycle = ctx.readJson("conformance/fixtures/release-upload-lifecycle.json");
-  assertSpecVersion(ctx, releaseUploadLifecycle, "release upload lifecycle fixture");
+function assertReleaseUploadCoverage(releaseUploadLifecycle: JsonValue): void {
   const releaseUploadFailures = new Set(
     releaseUploadLifecycle.fixtures
       .filter((fixture: JsonValue) => fixture.schema === "problem-details")
@@ -42,125 +40,147 @@ export function run(ctx: ValidationContext): void {
       `release upload lifecycle missing ${failureCategory}`,
     );
   }
-  for (const fixture of releaseUploadLifecycle.fixtures) {
-    if (fixture.schema === "release-upload-intent") {
-      ctx.validate(
-        "releaseUploadIntent",
-        fixture.payload,
-        `release upload lifecycle ${fixture.name}`,
-      );
-      assert(
-        fixture.payload.mediaType === "application/gzip",
-        `release upload lifecycle ${fixture.name} must use application/gzip`,
-      );
-      assert(
-        fixture.payload.upload.instructionType === "http-put",
-        `release upload lifecycle ${fixture.name} must use http-put upload instructions`,
-      );
-      assert(
-        typeof fixture.payload.upload.method === "undefined" ||
-          fixture.payload.upload.method === "PUT",
-        `release upload lifecycle ${fixture.name} http-put method must be omitted or PUT`,
-      );
-      assert(
-        fixture.payload.upload.url,
-        `release upload lifecycle ${fixture.name} http-put upload needs a URL`,
-      );
-      if (fixture.expected.state) {
-        assert(
-          fixture.payload.state === fixture.expected.state,
-          `release upload lifecycle ${fixture.name} expected state must match payload state`,
-        );
-        assert(
-          fixture.expected.finalizable === (fixture.payload.state === "uploaded"),
-          `release upload lifecycle ${fixture.name} finalizable flag must match uploaded-only finalization rule`,
-        );
-      }
-    }
-    if (fixture.schema === "release-upload-finalize") {
-      ctx.validate(
-        "releaseUploadFinalize",
-        fixture.payload,
-        `release upload lifecycle ${fixture.name}`,
-      );
-      assertReleaseMetadata(
-        ctx,
-        fixture.payload.release,
-        `release upload lifecycle ${fixture.name} release metadata`,
-      );
-    }
-    if (fixture.schema === "problem-details") {
-      assertProblemDetails(ctx, fixture.payload, `release upload lifecycle ${fixture.name}`);
-      assert(
-        fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
-        `release upload lifecycle ${fixture.name} failureCategory must match problem type slug`,
-      );
-    }
-  }
+}
 
-  const trustUploadLifecycle = ctx.readJson("conformance/fixtures/trust-upload-lifecycle.json");
-  assertSpecVersion(ctx, trustUploadLifecycle, "trust upload lifecycle fixture");
-  const trustUploadIntentCategories = new Set();
-  const trustUploadStates = new Set();
-  const trustUploadFailures = new Set();
-  for (const fixture of trustUploadLifecycle.fixtures) {
-    if (fixture.schema === "trust-upload-intent") {
-      ctx.validate("trustUploadIntent", fixture.payload, `trust upload lifecycle ${fixture.name}`);
-      trustUploadIntentCategories.add(fixture.payload.attachment.category);
-      trustUploadStates.add(fixture.payload.state);
-      assert(
-        fixture.payload.upload.instructionType === "http-put",
-        `trust upload lifecycle ${fixture.name} must use http-put upload instructions`,
-      );
-      assert(
-        typeof fixture.payload.upload.method === "undefined" ||
-          fixture.payload.upload.method === "PUT",
-        `trust upload lifecycle ${fixture.name} http-put method must be omitted or PUT`,
-      );
-      assert(
-        fixture.payload.upload.url,
-        `trust upload lifecycle ${fixture.name} http-put upload needs a URL`,
-      );
-      if (fixture.expected.state) {
-        assert(
-          fixture.payload.state === fixture.expected.state,
-          `trust upload lifecycle ${fixture.name} expected state must match payload state`,
-        );
-        assert(
-          fixture.expected.finalizable === (fixture.payload.state === "uploaded"),
-          `trust upload lifecycle ${fixture.name} finalizable flag must match uploaded-only finalization rule`,
-        );
-      }
-    }
-    if (fixture.schema === "trust-upload-finalize") {
-      ctx.validate(
-        "trustUploadFinalize",
-        fixture.payload,
-        `trust upload lifecycle ${fixture.name}`,
-      );
-      assert(
-        digestPattern.test(fixture.payload.artifactDigest),
-        `trust upload lifecycle ${fixture.name} must preserve finalized artifact digest`,
-      );
-    }
-    if (fixture.schema === "problem-details") {
-      assertProblemDetails(ctx, fixture.payload, `trust upload lifecycle ${fixture.name}`);
-      trustUploadFailures.add(fixture.expected.failureCategory);
-      assert(
-        fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
-        `trust upload lifecycle ${fixture.name} failureCategory must match problem type slug`,
-      );
-    }
+function assertHttpPutUpload(fixture: JsonValue, label: string): void {
+  assert(
+    fixture.payload.upload.instructionType === "http-put",
+    `${label} ${fixture.name} must use http-put upload instructions`,
+  );
+  assert(
+    typeof fixture.payload.upload.method === "undefined" || fixture.payload.upload.method === "PUT",
+    `${label} ${fixture.name} http-put method must be omitted or PUT`,
+  );
+  assert(fixture.payload.upload.url, `${label} ${fixture.name} http-put upload needs a URL`);
+}
+
+function assertExpectedUploadState(fixture: JsonValue, label: string): void {
+  if (fixture.expected.state) {
+    assert(
+      fixture.payload.state === fixture.expected.state,
+      `${label} ${fixture.name} expected state must match payload state`,
+    );
+    assert(
+      fixture.expected.finalizable === (fixture.payload.state === "uploaded"),
+      `${label} ${fixture.name} finalizable flag must match uploaded-only finalization rule`,
+    );
   }
+}
+
+function assertReleaseUploadIntent(ctx: ValidationContext, fixture: JsonValue): void {
+  ctx.validate("releaseUploadIntent", fixture.payload, `release upload lifecycle ${fixture.name}`);
+  assert(
+    fixture.payload.mediaType === "application/gzip",
+    `release upload lifecycle ${fixture.name} must use application/gzip`,
+  );
+  assertHttpPutUpload(fixture, "release upload lifecycle");
+  assertExpectedUploadState(fixture, "release upload lifecycle");
+}
+
+function assertReleaseUploadFinalize(ctx: ValidationContext, fixture: JsonValue): void {
+  ctx.validate(
+    "releaseUploadFinalize",
+    fixture.payload,
+    `release upload lifecycle ${fixture.name}`,
+  );
+  assertReleaseMetadata(
+    ctx,
+    fixture.payload.release,
+    `release upload lifecycle ${fixture.name} release metadata`,
+  );
+}
+
+function assertLifecycleProblemDetails(
+  ctx: ValidationContext,
+  fixture: JsonValue,
+  label: string,
+): void {
+  assertProblemDetails(ctx, fixture.payload, `${label} ${fixture.name}`);
+  assert(
+    fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
+    `${label} ${fixture.name} failureCategory must match problem type slug`,
+  );
+}
+
+function assertReleaseUploadFixture(ctx: ValidationContext, fixture: JsonValue): void {
+  if (fixture.schema === "release-upload-intent") {
+    assertReleaseUploadIntent(ctx, fixture);
+  }
+  if (fixture.schema === "release-upload-finalize") {
+    assertReleaseUploadFinalize(ctx, fixture);
+  }
+  if (fixture.schema === "problem-details") {
+    assertLifecycleProblemDetails(ctx, fixture, "release upload lifecycle");
+  }
+}
+
+function assertReleaseUploadLifecycle(ctx: ValidationContext): void {
+  const releaseUploadLifecycle = ctx.readJson("conformance/fixtures/release-upload-lifecycle.json");
+  assertSpecVersion(ctx, releaseUploadLifecycle, "release upload lifecycle fixture");
+  assertReleaseUploadCoverage(releaseUploadLifecycle);
+  for (const fixture of releaseUploadLifecycle.fixtures) {
+    assertReleaseUploadFixture(ctx, fixture);
+  }
+}
+
+function assertTrustUploadIntent(
+  ctx: ValidationContext,
+  fixture: JsonValue,
+  coverage: JsonValue,
+): void {
+  ctx.validate("trustUploadIntent", fixture.payload, `trust upload lifecycle ${fixture.name}`);
+  coverage.categories.add(fixture.payload.attachment.category);
+  coverage.states.add(fixture.payload.state);
+  assertHttpPutUpload(fixture, "trust upload lifecycle");
+  assertExpectedUploadState(fixture, "trust upload lifecycle");
+}
+
+function assertTrustUploadFinalize(ctx: ValidationContext, fixture: JsonValue): void {
+  ctx.validate("trustUploadFinalize", fixture.payload, `trust upload lifecycle ${fixture.name}`);
+  assert(
+    digestPattern.test(fixture.payload.artifactDigest),
+    `trust upload lifecycle ${fixture.name} must preserve finalized artifact digest`,
+  );
+}
+
+function assertTrustUploadFixture(
+  ctx: ValidationContext,
+  fixture: JsonValue,
+  coverage: JsonValue,
+): void {
+  if (fixture.schema === "trust-upload-intent") {
+    assertTrustUploadIntent(ctx, fixture, coverage);
+  }
+  if (fixture.schema === "trust-upload-finalize") {
+    assertTrustUploadFinalize(ctx, fixture);
+  }
+  if (fixture.schema === "problem-details") {
+    assertLifecycleProblemDetails(ctx, fixture, "trust upload lifecycle");
+    coverage.failures.add(fixture.expected.failureCategory);
+  }
+}
+
+function collectTrustUploadCoverage(
+  ctx: ValidationContext,
+  trustUploadLifecycle: JsonValue,
+): JsonValue {
+  const coverage = { categories: new Set(), failures: new Set(), states: new Set() };
+  for (const fixture of trustUploadLifecycle.fixtures) {
+    assertTrustUploadFixture(ctx, fixture, coverage);
+  }
+  return coverage;
+}
+
+function assertTrustUploadCoverage(coverage: JsonValue): void {
   for (const requiredState of ["pending-upload", "uploading", "uploaded", "expired", "failed"]) {
     assert(
-      trustUploadStates.has(requiredState),
+      coverage.states.has(requiredState),
       `trust upload lifecycle missing ${requiredState} state`,
     );
   }
   for (const requiredTrustUploadCategory of ["bom", "provenance", "signature"]) {
     assert(
-      trustUploadIntentCategories.has(requiredTrustUploadCategory),
+      coverage.categories.has(requiredTrustUploadCategory),
       `trust upload lifecycle must include ${requiredTrustUploadCategory} intent`,
     );
   }
@@ -176,8 +196,22 @@ export function run(ctx: ValidationContext): void {
     "authorization-failed",
   ]) {
     assert(
-      trustUploadFailures.has(failureCategory),
+      coverage.failures.has(failureCategory),
       `trust upload lifecycle missing ${failureCategory}`,
     );
   }
 }
+
+function assertTrustUploadLifecycle(ctx: ValidationContext): void {
+  const trustUploadLifecycle = ctx.readJson("conformance/fixtures/trust-upload-lifecycle.json");
+  assertSpecVersion(ctx, trustUploadLifecycle, "trust upload lifecycle fixture");
+  const coverage = collectTrustUploadCoverage(ctx, trustUploadLifecycle);
+  assertTrustUploadCoverage(coverage);
+}
+
+function run(ctx: ValidationContext): void {
+  assertReleaseUploadLifecycle(ctx);
+  assertTrustUploadLifecycle(ctx);
+}
+
+export { run };
