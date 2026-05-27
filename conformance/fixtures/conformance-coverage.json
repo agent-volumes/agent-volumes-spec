@@ -187,6 +187,11 @@
           "coverageType": "negative"
         },
         {
+          "fixture": "advisory-detail-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        },
+        {
           "fixture": "advisory-validation-cases.json",
           "area": "advisory",
           "coverageType": "negative"
@@ -236,7 +241,8 @@
         { "fixture": "schemas/", "area": "mapping", "coverageType": "schema" },
         { "fixture": "mapping-matrix.json", "area": "mapping", "coverageType": "schema" },
         { "fixture": "mapping-sample.json", "area": "mapping", "coverageType": "schema" },
-        { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" }
+        { "fixture": "conformance-coverage.json", "area": "mapping", "coverageType": "schema" },
+        { "fixture": "conformance-report.json", "area": "mapping", "coverageType": "schema" }
       ]
     },
     {
