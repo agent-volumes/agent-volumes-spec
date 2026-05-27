@@ -44,23 +44,25 @@ export function run(ctx: ValidationContext): void {
     );
   }
 
-  assertEndpointProblemFixtures(
+  assertEndpointProblemFixtures({
     ctx,
-    "conformance/fixtures/catalog-search-failure-cases.json",
-    "catalog search failure cases",
-    new Map([["GET /api/v1/search", ["validation-failed", "rate-limited"]]]),
-  );
-  assertEndpointProblemFixtures(
+    expectedFailuresByEndpoint: new Map([
+      ["GET /api/v1/search", ["validation-failed", "rate-limited"]],
+    ]),
+    label: "catalog search failure cases",
+    relativePath: "conformance/fixtures/catalog-search-failure-cases.json",
+  });
+  assertEndpointProblemFixtures({
     ctx,
-    "conformance/fixtures/advisory-search-failure-cases.json",
-    "advisory search failure cases",
-    new Map([["GET /api/v1/advisories", ["validation-failed", "rate-limited"]]]),
-  );
-  assertLifecycleMutationFixtures(
+    expectedFailuresByEndpoint: new Map([
+      ["GET /api/v1/advisories", ["validation-failed", "rate-limited"]],
+    ]),
+    label: "advisory search failure cases",
+    relativePath: "conformance/fixtures/advisory-search-failure-cases.json",
+  });
+  assertLifecycleMutationFixtures({
     ctx,
-    "conformance/fixtures/lifecycle-mutation-cases.json",
-    "lifecycle mutation cases",
-    new Map([
+    expectedFailuresByEndpoint: new Map([
       [
         "DELETE /api/v1/volumes/{name}/{version}",
         [
@@ -82,12 +84,12 @@ export function run(ctx: ValidationContext): void {
         ],
       ],
     ]),
-  );
-  assertEndpointProblemFixtures(
+    label: "lifecycle mutation cases",
+    relativePath: "conformance/fixtures/lifecycle-mutation-cases.json",
+  });
+  assertEndpointProblemFixtures({
     ctx,
-    "conformance/fixtures/trust-summary-failure-cases.json",
-    "trust summary failure cases",
-    new Map([
+    expectedFailuresByEndpoint: new Map([
       [
         "GET /api/v1/volumes/{name}/{version}/trust/summary",
         ["not-found", "inconsistent-registry-state", "rate-limited"],
@@ -97,12 +99,12 @@ export function run(ctx: ValidationContext): void {
         ["not-found", "inconsistent-registry-state", "rate-limited"],
       ],
     ]),
-  );
-  assertEndpointProblemFixtures(
+    label: "trust summary failure cases",
+    relativePath: "conformance/fixtures/trust-summary-failure-cases.json",
+  });
+  assertEndpointProblemFixtures({
     ctx,
-    "conformance/fixtures/trust-detail-failure-cases.json",
-    "trust detail failure cases",
-    new Map([
+    expectedFailuresByEndpoint: new Map([
       [
         "GET /api/v1/volumes/{name}/{version}/trust/detail",
         ["not-found", "inconsistent-registry-state", "rate-limited"],
@@ -112,5 +114,7 @@ export function run(ctx: ValidationContext): void {
         ["not-found", "inconsistent-registry-state", "rate-limited"],
       ],
     ]),
-  );
+    label: "trust detail failure cases",
+    relativePath: "conformance/fixtures/trust-detail-failure-cases.json",
+  });
 }

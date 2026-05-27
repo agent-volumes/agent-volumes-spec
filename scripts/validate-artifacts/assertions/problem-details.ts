@@ -3,6 +3,13 @@ import { HTTP_ACCEPTED } from "../core/numeric-constants.ts";
 import { problemStatusBySlug, problemTypePattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
+interface ProblemFixtureAssertion {
+  ctx: ValidationContext;
+  relativePath: JsonValue;
+  label: JsonValue;
+  expectedFailuresByEndpoint: JsonValue;
+}
+
 function assertProblemDetails(ctx: ValidationContext, payload: JsonValue, label: JsonValue): void {
   ctx.validate("problemDetails", payload, label);
   assert(problemTypePattern.test(payload.type), `${label} must use Agent Volumes problem type URI`);
@@ -16,12 +23,12 @@ function assertProblemDetails(ctx: ValidationContext, payload: JsonValue, label:
   );
 }
 
-function assertEndpointProblemFixtures(
-  ctx: ValidationContext,
-  relativePath: JsonValue,
-  label: JsonValue,
-  expectedFailuresByEndpoint: JsonValue,
-): void {
+function assertEndpointProblemFixtures({
+  ctx,
+  relativePath,
+  label,
+  expectedFailuresByEndpoint,
+}: ProblemFixtureAssertion): void {
   const fixtureSet = ctx.readJson(relativePath);
   assertSpecVersion(ctx, fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
@@ -61,12 +68,12 @@ function assertEndpointProblemFixtures(
   }
 }
 
-function assertLifecycleMutationFixtures(
-  ctx: ValidationContext,
-  relativePath: JsonValue,
-  label: JsonValue,
-  expectedFailuresByEndpoint: JsonValue,
-): void {
+function assertLifecycleMutationFixtures({
+  ctx,
+  relativePath,
+  label,
+  expectedFailuresByEndpoint,
+}: ProblemFixtureAssertion): void {
   const fixtureSet = ctx.readJson(relativePath);
   assertSpecVersion(ctx, fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
