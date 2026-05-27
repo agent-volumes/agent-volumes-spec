@@ -174,12 +174,35 @@ const EXPECTED_PARAMETER_REF_BY_NAME: Record<string, string> = {
 
 const OPENAPI_OPERATION_METHODS = ["get", "post", "put", "patch", "delete"] as const;
 
+const SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS = new Map([
+  ["createScopedVolumeUploadIntent", "POST /api/v1/volumes/@{scope}/{name}"],
+  [
+    "finalizeScopedVolumeUpload",
+    "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+  ],
+  [
+    "createScopedVolumeTrustUploadIntent",
+    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+  ],
+  [
+    "finalizeScopedVolumeTrustUpload",
+    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+  ],
+]);
+
 interface OpenapiOperation {
   method: string;
   operation: JsonObject;
   operationId: string;
   pathName: string;
   security: JsonValue;
+}
+
+interface ScopedUploadFixtureEvidenceAssertion {
+  ctx: ValidationContext;
+  endpoint: string;
+  endpointFamily: JsonValue;
+  operationId: string;
 }
 
 function readOpenapi(ctx: ValidationContext): JsonObject {
@@ -250,6 +273,65 @@ function operationMatrixAuthById(openapiOperationMatrix: JsonValue): Map<string,
   return matrixAuthById;
 }
 
+function fixtureSetContainsEndpoint(fixtureSet: JsonValue, endpoint: string): boolean {
+  return (
+    Array.isArray(fixtureSet.fixtures) &&
+    fixtureSet.fixtures.some((fixture: JsonValue) => fixture.endpoint === endpoint)
+  );
+}
+
+function assertMatrixFixtureReferences(
+  ctx: ValidationContext,
+  openapiOperationMatrix: JsonValue,
+): void {
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    for (const fixturePath of endpointFamily.fixtures ?? []) {
+      assert(
+        ctx.pathExists(fixturePath),
+        `OpenAPI operation matrix ${endpointFamily.name} references missing fixture ${fixturePath}`,
+      );
+    }
+  }
+}
+
+function assertScopedUploadFixtureEvidence({
+  ctx,
+  endpoint,
+  endpointFamily,
+  operationId,
+}: ScopedUploadFixtureEvidenceAssertion): void {
+  const fixtures = endpointFamily.fixtures ?? [];
+  assert(
+    fixtures.length > EMPTY_COUNT,
+    `OpenAPI operation matrix ${operationId} must reference a fixture with scoped endpoint evidence`,
+  );
+  assert(
+    fixtures.some((fixturePath: JsonValue) =>
+      fixtureSetContainsEndpoint(ctx.readJson(fixturePath), endpoint),
+    ),
+    `OpenAPI operation matrix ${operationId} fixtures must include ${endpoint}`,
+  );
+}
+
+function assertScopedUploadOperationFixtures(
+  ctx: ValidationContext,
+  openapiOperationMatrix: JsonValue,
+): void {
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    for (const operationId of endpointFamily.operations) {
+      const scopedUploadEndpoint = SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS.get(operationId);
+      if (scopedUploadEndpoint) {
+        assertScopedUploadFixtureEvidence({
+          ctx,
+          endpoint: scopedUploadEndpoint,
+          endpointFamily,
+          operationId,
+        });
+      }
+    }
+  }
+}
+
 function operationDeclaresBearerAuth(operation: OpenapiOperation): boolean {
   if (!Array.isArray(operation.security)) {
     return false;
@@ -280,6 +362,7 @@ function assertOperationAuthBoundary(operation: OpenapiOperation, expectedAuth: 
 }
 
 function assertOperationCoverageMatrix(
+  ctx: ValidationContext,
   openapi: JsonObject,
   openapiOperationMatrix: JsonValue,
 ): void {
@@ -297,6 +380,8 @@ function assertOperationCoverageMatrix(
     );
     assertOperationAuthBoundary(operation, expectedAuth);
   }
+  assertMatrixFixtureReferences(ctx, openapiOperationMatrix);
+  assertScopedUploadOperationFixtures(ctx, openapiOperationMatrix);
 }
 
 function operationKey(method: string, pathName: string): string {
@@ -514,10 +599,14 @@ function assertPathParameterSchemas(openapi: JsonObject): void {
   }
 }
 
-function assertOpenapiDocument(openapi: JsonObject, openapiOperationMatrix: JsonValue): void {
+function assertOpenapiDocument(
+  ctx: ValidationContext,
+  openapi: JsonObject,
+  openapiOperationMatrix: JsonValue,
+): void {
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
   assertRequiredOperations(openapi);
-  assertOperationCoverageMatrix(openapi, openapiOperationMatrix);
+  assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
   assertUploadIdempotency(openapi);
   assertConflictResponses(openapi);
   assertOpenapiSchemaParity(openapi);
@@ -535,6 +624,6 @@ export function run(ctx: ValidationContext): void {
     openapiOperationMatrix,
     "OpenAPI operation matrix fixture",
   );
-  assertOpenapiDocument(openapi, openapiOperationMatrix);
+  assertOpenapiDocument(ctx, openapi, openapiOperationMatrix);
   assertProblemResponseExamples(ctx, openapi);
 }
