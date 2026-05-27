@@ -73,6 +73,50 @@ function assertConformanceSearchCoverage(conformanceCoverage: JsonValue): void {
   );
 }
 
+function countReportOutcomes(conformanceReport: JsonValue, outcome: string): number {
+  return conformanceReport.results.filter((result: JsonValue) => result.outcome === outcome).length;
+}
+
+function assertConformanceReportSummary(conformanceReport: JsonValue): void {
+  const passed = countReportOutcomes(conformanceReport, "pass");
+  const failed = countReportOutcomes(conformanceReport, "fail");
+  const skipped = countReportOutcomes(conformanceReport, "skip");
+  assert(
+    conformanceReport.summary.total === conformanceReport.results.length,
+    "conformance report summary total must match result count",
+  );
+  assert(
+    conformanceReport.summary.passed === passed &&
+      conformanceReport.summary.failed === failed &&
+      conformanceReport.summary.skipped === skipped,
+    "conformance report summary outcome counts must match results",
+  );
+  assert(
+    conformanceReport.summary.outcome === (failed > EMPTY_COUNT ? "fail" : "pass"),
+    "conformance report summary outcome must reflect failed result count",
+  );
+}
+
+function assertConformanceReportStableIds(conformanceReport: JsonValue): void {
+  const resultIds = conformanceReport.results.map((result: JsonValue) => result.id);
+  assert(
+    new Set(resultIds).size === resultIds.length,
+    "conformance report result IDs must be unique",
+  );
+  assert(
+    resultIds.every((id: JsonValue) => id === id.toLowerCase()),
+    "conformance report result IDs must remain lowercase stable slugs",
+  );
+}
+
+function validateConformanceReport(ctx: ValidationContext): void {
+  const conformanceReport = ctx.readJson("conformance/fixtures/conformance-report.json");
+  ctx.validate("conformanceReport", conformanceReport, "conformance report fixture");
+  assertSpecVersion(ctx, conformanceReport, "conformance report fixture");
+  assertConformanceReportSummary(conformanceReport);
+  assertConformanceReportStableIds(conformanceReport);
+}
+
 function validateConformanceCoverage(ctx: ValidationContext): void {
   const conformanceCoverage = ctx.readJson("conformance/fixtures/conformance-coverage.json");
   ctx.validate("conformanceCoverage", conformanceCoverage, "conformance coverage fixture");
@@ -931,6 +975,7 @@ function validateMappingSample(ctx: ValidationContext): void {
 }
 
 export function run(ctx: ValidationContext): void {
+  validateConformanceReport(ctx);
   validateConformanceCoverage(ctx);
   validateMappingMatrix(ctx);
   validateMappingSample(ctx);

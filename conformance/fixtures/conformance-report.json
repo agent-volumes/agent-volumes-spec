@@ -1,0 +1,47 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "runner": {
+    "name": "agent-volumes-fixture-runner",
+    "version": "0.1.0-rc.1",
+    "command": "bun run validate:artifacts"
+  },
+  "implementation": {
+    "name": "agent-volumes-spec-artifact-validator",
+    "version": "0.1.0-rc.1",
+    "roles": ["validator", "harness"]
+  },
+  "startedAt": "2026-05-18T00:00:00Z",
+  "finishedAt": "2026-05-18T00:00:01Z",
+  "summary": {
+    "outcome": "fail",
+    "total": 3,
+    "passed": 1,
+    "failed": 1,
+    "skipped": 1
+  },
+  "results": [
+    {
+      "id": "manifest-valid-minimal",
+      "fixture": "manifest-valid-minimal.json",
+      "area": "manifest",
+      "outcome": "pass"
+    },
+    {
+      "id": "permission-escalation/component-permission-escalation",
+      "fixture": "permission-escalation.json",
+      "case": "component-permission-escalation",
+      "area": "manifest",
+      "outcome": "fail",
+      "failureCategory": "permission-escalation",
+      "message": "Component permissions broaden the package-level permission ceiling."
+    },
+    {
+      "id": "trust-upload-lifecycle/prose-boundary-byte-transfer",
+      "fixture": "trust-upload-lifecycle.json",
+      "case": "prose-boundary-byte-transfer",
+      "area": "trust-upload",
+      "outcome": "skip",
+      "message": "Opaque byte transfer mechanics remain implementation-local."
+    }
+  ]
+}
