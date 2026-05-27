@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { assert, assertUniqueStrings } from "../core/assert.ts";
-import { readJsonFile } from "../core/files.ts";
 import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
@@ -52,16 +51,24 @@ interface ResolvedCoverageReferenceAssertion {
   coverage: JsonValue;
 }
 
-function assertCoverageFixtureCase(
-  resolvedPath: JsonValue,
-  requirement: JsonValue,
-  coverage: JsonValue,
-): void {
+interface CoverageFixtureCaseAssertion {
+  ctx: ValidationContext;
+  resolvedPath: JsonValue;
+  requirement: JsonValue;
+  coverage: JsonValue;
+}
+
+function assertCoverageFixtureCase({
+  ctx,
+  resolvedPath,
+  requirement,
+  coverage,
+}: CoverageFixtureCaseAssertion): void {
   assert(
     resolvedPath.startsWith("conformance/fixtures/") && resolvedPath.endsWith(".json"),
     `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`,
   );
-  const caseNames = caseNamesFromFixture(readJsonFile(resolvedPath));
+  const caseNames = caseNamesFromFixture(ctx.readJson(resolvedPath));
   assert(
     caseNames.length > EMPTY_COUNT,
     `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
@@ -85,7 +92,7 @@ function assertResolvedCoverageReference({
       `conformance coverage ${requirement.id} cannot name a case for directory ${coverage.fixture}`,
     );
   } else if (coverage.case) {
-    assertCoverageFixtureCase(resolvedPath, requirement, coverage);
+    assertCoverageFixtureCase({ coverage, ctx, requirement, resolvedPath });
   }
 }
 

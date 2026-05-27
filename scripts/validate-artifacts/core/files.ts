@@ -12,13 +12,26 @@ function normalizeRelativePath(relativePath: string): string {
   return relativePath.split(path.sep).join("/");
 }
 
-function readJsonFile(relativePath: string): JsonValue {
+function isConformanceJsonPath(relativePath: string): boolean {
+  return relativePath.startsWith("conformance/") && relativePath.endsWith(".json");
+}
+
+function readJsonUnchecked(relativePath: string): JsonValue {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
 }
 
+function readJsonFile(relativePath: string): JsonValue {
+  const normalizedPath = normalizeRelativePath(relativePath);
+  if (isConformanceJsonPath(normalizedPath)) {
+    throw new Error(`${normalizedPath} must be read through ctx.readJson()`);
+  }
+  return readJsonUnchecked(relativePath);
+}
+
 function readJson(relativePath: string): JsonValue {
-  readJsonPaths.add(normalizeRelativePath(relativePath));
-  return readJsonFile(relativePath);
+  const normalizedPath = normalizeRelativePath(relativePath);
+  readJsonPaths.add(normalizedPath);
+  return readJsonUnchecked(normalizedPath);
 }
 
 function readText(relativePath: string): string {

@@ -62,7 +62,7 @@ function assertCapabilityMetadataReservedNamespaceSchema(): void {
 }
 
 function assertReservedNamespaceFixtureCoverage(ctx: ValidationContext): void {
-  const reservedFixture = ctx.readJsonFile(
+  const reservedFixture = ctx.readJson(
     "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
   );
   const reservedFixtureNamespaces = Object.keys(
@@ -195,7 +195,7 @@ function assertExpectedSpdxFixtureTerms(termsUsedByFixture: Set<string>): void {
 }
 
 function assertSpdxMappingFixtureTerms(ctx: ValidationContext, namespace: string): void {
-  const mappingSampleFixture = ctx.readJsonFile("conformance/fixtures/mapping-sample.json");
+  const mappingSampleFixture = ctx.readJson("conformance/fixtures/mapping-sample.json");
   const spdxExternalDependencyExport = mappingSampleFixture.exports?.spdxExternalDependencies;
   assert(
     spdxExternalDependencyExport?.profile === namespace,
