@@ -236,21 +236,26 @@ function assertDigestVectors(ctx: ValidationContext): void {
   const digestVectors = ctx.readJson("conformance/fixtures/digest-vectors.json");
   assertSpecVersion(ctx, digestVectors, "digest vectors");
   for (const fixture of digestVectors.fixtures) {
-    const canonicalInputBytes = fixture.canonicalInputBase64
+    const declaredCanonicalInputBytes = fixture.canonicalInputBase64
       ? Buffer.from(fixture.canonicalInputBase64, "base64")
       : Buffer.from(fixture.canonicalInput, "utf8");
+    const canonicalInputBytes = Buffer.concat(
+      [...fixture.normalizedFiles]
+        .toSorted((left: JsonValue, right: JsonValue) => left.path.localeCompare(right.path))
+        .map((file: JsonValue) => {
+          const contentBytes = file.contentBase64
+            ? Buffer.from(file.contentBase64, "base64")
+            : Buffer.from(file.content, "utf8");
+          const recordHeader = Buffer.from(
+            `file ${file.path} ${file.executable ? FILE_TREE_EXECUTABLE_FLAG : FILE_TREE_NON_EXECUTABLE_FLAG} ${contentBytes.byteLength}\n`,
+            "utf8",
+          );
+          return Buffer.concat([recordHeader, contentBytes]);
+        }),
+    );
     assert(
-      fixture.normalizedFiles.every((file: JsonValue) => {
-        const contentBytes = file.contentBase64
-          ? Buffer.from(file.contentBase64, "base64")
-          : Buffer.from(file.content, "utf8");
-        const recordHeader = Buffer.from(
-          `file ${file.path} ${file.executable ? FILE_TREE_EXECUTABLE_FLAG : FILE_TREE_NON_EXECUTABLE_FLAG} ${contentBytes.byteLength}\n`,
-          "utf8",
-        );
-        return canonicalInputBytes.includes(recordHeader);
-      }),
-      `digest vector ${fixture.name} canonical input must use byte lengths from normalized files`,
+      canonicalInputBytes.equals(declaredCanonicalInputBytes),
+      `digest vector ${fixture.name} canonical input must exactly match normalized files`,
     );
     const actual = `sha256:${crypto.createHash("sha256").update(canonicalInputBytes).digest("hex")}`;
     assert(
