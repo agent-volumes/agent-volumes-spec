@@ -2,7 +2,7 @@ import YAML from "yaml";
 
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assert } from "../core/assert.ts";
-import { FIRST_CONTENT_INDEX } from "../core/numeric-constants.ts";
+import { EMPTY_COUNT, FIRST_CONTENT_INDEX } from "../core/numeric-constants.ts";
 import { problemStatusBySlug } from "../core/patterns.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
@@ -20,7 +20,15 @@ const REQUIRED_PATHS = [
     "scoped release upload finalize path",
   ],
   ["/api/v1/volumes/{name}/{version}/trust/uploads", "unscoped trust upload intent path"],
+  [
+    "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+    "unscoped trust upload finalize path",
+  ],
   ["/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads", "scoped trust upload intent path"],
+  [
+    "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+    "scoped trust upload finalize path",
+  ],
 ] as const;
 
 const CONFLICT_RESPONSE_PATHS = [
@@ -48,6 +56,15 @@ const EXPECTED_PARAMETER_REF_BY_NAME: Record<string, string> = {
 };
 
 const OPENAPI_OPERATION_METHODS = ["get", "post", "put", "patch", "delete"] as const;
+const OPERATION_MATRIX_AUTH_COLUMN = 5;
+const OPERATION_MATRIX_OPERATION_IDS_COLUMN = 6;
+
+interface OpenapiOperation {
+  method: string;
+  operationId: string;
+  pathName: string;
+  security: JsonValue;
+}
 
 function readOpenapi(ctx: ValidationContext): JsonObject {
   try {
@@ -66,6 +83,125 @@ function isJsonObject(value: unknown): value is JsonObject {
 
 function isOpenapiOperationMethod(method: string): boolean {
   return OPENAPI_OPERATION_METHODS.some((operationMethod: string) => operationMethod === method);
+}
+
+function collectOpenapiOperations(openapi: JsonObject): OpenapiOperation[] {
+  const operations: OpenapiOperation[] = [];
+  assert(isJsonObject(openapi.paths), "OpenAPI paths must be an object");
+  for (const [pathName, pathItem] of Object.entries(openapi.paths)) {
+    assert(isJsonObject(pathItem), `OpenAPI ${pathName} path item must be an object`);
+    for (const [method, operation] of Object.entries(pathItem)) {
+      if (isOpenapiOperationMethod(method)) {
+        assert(
+          isJsonObject(operation),
+          `OpenAPI ${pathName} ${method} must define an operation object`,
+        );
+        assert(
+          typeof operation.operationId === "string" && operation.operationId.length > EMPTY_COUNT,
+          `OpenAPI ${method.toUpperCase()} ${pathName} must define operationId`,
+        );
+        operations.push({
+          method,
+          operationId: operation.operationId,
+          pathName,
+          security: operation.security,
+        });
+      }
+    }
+  }
+  return operations;
+}
+
+function extractOperationIds(cell: string): string[] {
+  const operationIds: string[] = [];
+  for (const match of cell.matchAll(/`([^`]+)`/g)) {
+    const [, operationId] = match;
+    assert(typeof operationId === "string", "OpenAPI drift audit operation ID capture failed");
+    operationIds.push(operationId);
+  }
+  return operationIds;
+}
+
+function operationMatrixLines(auditText: string): string[] {
+  const [, matrixSection = ""] = auditText.split("## Operation coverage matrix");
+  const [matrixBody = ""] = matrixSection.split("## Endpoint-family drift checks");
+  return matrixBody
+    .split("\n")
+    .filter(
+      (line: string) =>
+        line.startsWith("| ") && !line.includes("---") && !line.includes("Endpoint family"),
+    );
+}
+
+function addMatrixRowOperations(matrixAuthById: Map<string, string>, line: string): void {
+  const columns = line.split("|").map((column: string) => column.trim());
+  const expectedAuth = columns[OPERATION_MATRIX_AUTH_COLUMN];
+  const operationIdCell = columns[OPERATION_MATRIX_OPERATION_IDS_COLUMN];
+  assert(
+    typeof expectedAuth === "string" && typeof operationIdCell === "string",
+    "OpenAPI drift audit operation coverage matrix rows must include auth and operation ID columns",
+  );
+  for (const operationId of extractOperationIds(operationIdCell)) {
+    assert(
+      !matrixAuthById.has(operationId),
+      `OpenAPI drift audit operation coverage matrix must list ${operationId} exactly once`,
+    );
+    matrixAuthById.set(operationId, expectedAuth);
+  }
+}
+
+function operationMatrixAuthById(auditText: string): Map<string, string> {
+  const matrixAuthById = new Map<string, string>();
+  for (const line of operationMatrixLines(auditText)) {
+    addMatrixRowOperations(matrixAuthById, line);
+  }
+  return matrixAuthById;
+}
+
+function operationDeclaresBearerAuth(operation: OpenapiOperation): boolean {
+  if (!Array.isArray(operation.security)) {
+    return false;
+  }
+  return operation.security.some(
+    (securityRequirement: JsonValue) =>
+      isJsonObject(securityRequirement) && Array.isArray(securityRequirement.bearerAuth),
+  );
+}
+
+function assertOperationAuthBoundary(operation: OpenapiOperation, expectedAuth: string): void {
+  if (expectedAuth === "Bearer") {
+    assert(
+      operationDeclaresBearerAuth(operation),
+      `OpenAPI ${operation.operationId} must declare bearerAuth per drift audit matrix`,
+    );
+    return;
+  }
+  assert(
+    expectedAuth === "Public",
+    `OpenAPI drift audit matrix must classify ${operation.operationId} auth as Public or Bearer`,
+  );
+  assert(
+    typeof operation.security === "undefined" ||
+      (Array.isArray(operation.security) && operation.security.length === EMPTY_COUNT),
+    `OpenAPI ${operation.operationId} must remain public per drift audit matrix`,
+  );
+}
+
+function assertOperationCoverageMatrix(openapi: JsonObject, auditText: string): void {
+  const operations = collectOpenapiOperations(openapi);
+  const matrixAuthById = operationMatrixAuthById(auditText);
+  assert(
+    operations.length === matrixAuthById.size,
+    "OpenAPI drift audit operation coverage matrix must contain exactly one row entry per operationId",
+  );
+  for (const operation of operations) {
+    const expectedAuth = matrixAuthById.get(operation.operationId);
+    assert(
+      typeof expectedAuth === "string",
+      `OpenAPI drift audit operation coverage matrix missing ${operation.operationId}`,
+    );
+    assertOperationAuthBoundary(operation, expectedAuth);
+  }
 }
 
 function assertRequiredPaths(openapi: JsonObject): void {
@@ -260,9 +396,10 @@ function assertPathParameterSchemas(openapi: JsonObject): void {
   }
 }
 
-function assertOpenapiDocument(openapi: JsonObject): void {
+function assertOpenapiDocument(openapi: JsonObject, auditText: string): void {
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
   assertRequiredPaths(openapi);
+  assertOperationCoverageMatrix(openapi, auditText);
   assertUploadIntentIdempotency(openapi);
   assertConflictResponses(openapi);
   assertOpenapiSchemaParity(openapi);
@@ -274,6 +411,7 @@ function assertOpenapiDocument(openapi: JsonObject): void {
 
 export function run(ctx: ValidationContext): void {
   const openapi = readOpenapi(ctx);
-  assertOpenapiDocument(openapi);
+  const auditText = ctx.readText("openapi/PROSE-DRIFT-AUDIT.md");
+  assertOpenapiDocument(openapi, auditText);
   assertProblemResponseExamples(ctx, openapi);
 }
