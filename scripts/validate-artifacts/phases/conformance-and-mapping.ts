@@ -50,7 +50,7 @@ function requiredConformanceRequirementIds(prefix: string): string[] {
 }
 
 function assertConformanceRequirementIds(conformanceCoverage: JsonValue): void {
-  const coverageRequirementIds = new Set(
+  const coverageRequirementIds = new Set<string>(
     conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id),
   );
 
@@ -60,6 +60,38 @@ function assertConformanceRequirementIds(conformanceCoverage: JsonValue): void {
   ]) {
     assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
   }
+}
+
+function extractSpecRequirementIds(specText: string): string[] {
+  const requirementIds = [];
+  for (const match of specText.matchAll(/\*\*(AV-(?:BIB|CLI)-\d{3})\*\*/g)) {
+    const [, requirementId] = match;
+    assert(requirementId, "spec conformance requirement ID capture failed");
+    requirementIds.push(requirementId);
+  }
+  return requirementIds;
+}
+
+function assertConformanceRequirementParity(
+  ctx: ValidationContext,
+  conformanceCoverage: JsonValue,
+): void {
+  const specRequirementIds = extractSpecRequirementIds(ctx.readText("agent-volumes-spec.md"));
+  assertDeepEqual(
+    [...new Set(specRequirementIds)].toSorted(compareStrings),
+    [
+      ...requiredConformanceRequirementIds("AV-BIB"),
+      ...requiredConformanceRequirementIds("AV-CLI"),
+    ],
+    "spec role-scoped conformance requirement IDs",
+  );
+  assertDeepEqual(
+    conformanceCoverage.requirements
+      .map((requirement: JsonValue) => requirement.id)
+      .toSorted(compareStrings),
+    specRequirementIds.toSorted(compareStrings),
+    "conformance coverage requirement IDs must match agent-volumes-spec.md",
+  );
 }
 
 function assertConformanceSearchCoverage(conformanceCoverage: JsonValue): void {
@@ -123,6 +155,7 @@ function validateConformanceCoverage(ctx: ValidationContext): void {
   assertSpecVersion(ctx, conformanceCoverage, "conformance coverage fixture");
   assertConformanceCoverageReferences(ctx, conformanceCoverage);
   assertConformanceRequirementIds(conformanceCoverage);
+  assertConformanceRequirementParity(ctx, conformanceCoverage);
   assertConformanceSearchCoverage(conformanceCoverage);
 }
 
