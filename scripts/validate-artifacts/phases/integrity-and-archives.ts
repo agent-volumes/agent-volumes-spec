@@ -301,7 +301,7 @@ function assertDigestInvalidCases(ctx: ValidationContext): void {
   }
 }
 
-function tarArchiveFailureCategory(archiveCase: JsonValue): string | undefined {
+function tarArchiveFailureCategory(archiveCase: JsonValue): string {
   const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) =>
     normalizeArchivePath(entry.path),
   );
@@ -316,7 +316,7 @@ function tarArchiveFailureCategory(archiveCase: JsonValue): string | undefined {
   if (archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== "file")) {
     return "non-regular-archive-entry";
   }
-  return undefined;
+  return "";
 }
 
 function assertTarArchiveCase(archiveCase: JsonValue): void {
@@ -327,7 +327,7 @@ function assertTarArchiveCase(archiveCase: JsonValue): void {
   const actualFailureCategory = tarArchiveFailureCategory(archiveCase);
   if (archiveCase.expected.valid === true) {
     assert(
-      typeof actualFailureCategory === "undefined",
+      actualFailureCategory === "",
       `tar archive case ${archiveCase.name} must satisfy the hosted archive profile`,
     );
     return;
