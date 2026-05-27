@@ -22,6 +22,35 @@ Release tags use the version string, for example `v0.1.0-rc.1` or `v1.0.0`.
 Important release tags are expected to be signed once signed-release operations
 are available for the project.
 
+## Version source and derived artifacts
+
+The current specification version is recorded in
+[`../agent-volumes-spec.md`](../agent-volumes-spec.md) as the `**Version:**`
+header. Treat that header as the repository-local source of truth for the
+current release surface. Human-facing release tags add the `v` prefix, but
+release archive paths, schema `$id` URLs, OpenAPI `info.version`, and validator
+comparisons use the SemVer value without the prefix.
+
+[`../scripts/release-version.ts`](../scripts/release-version.ts) centralizes this
+version handling for repository tooling:
+
+- artifact validation reads the prose header directly when checking current
+  release alignment, so `SPEC_VERSION` does not override validator expectations;
+- site publication builders accept an explicit CLI version, then `SPEC_VERSION`,
+  and finally the prose header when no override is provided;
+- helper-derived release paths and schema URL prefixes keep generated publication
+  artifacts aligned with the same version string.
+
+`SPEC_VERSION` is an optional environment variable consumed by
+`resolveSpecVersion()` for publication builds. It is not a repository
+configuration setting. CI may export it between workflow steps after deriving it
+from the prose header, and local maintainers may set it temporarily when invoking
+publication builders without a CLI argument.
+
+When preparing a release, update the prose header first, then regenerate and
+validate the companion artifacts. Do not hand-edit versioned publication paths or
+schema identifiers to compensate for a stale prose header.
+
 ## Release-freeze checklist
 
 Before tagging a draft, release candidate, or stable release:

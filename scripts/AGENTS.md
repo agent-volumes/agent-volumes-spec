@@ -11,6 +11,7 @@ scripts/
 │   ├── core/                       # Schema context, AJV loader, shared utilities
 │   ├── phases/                     # Validation phase orchestration
 │   └── assertions/                 # Specific assertion families (fixtures, OpenAPI, etc.)
+├── release-version.ts              # Shared spec-version resolver for builders and validators
 ├── build-site-openapi.ts           # Generates versioned OpenAPI publication artifact
 ├── build-site-schemas.ts           # Copies versioned schema publication artifacts
 ├── update-changelog.sh             # Changelog check/update/print/tag helper
@@ -24,6 +25,7 @@ scripts/
 | Add validator invariant     | `validate-artifacts/`   | Use local AGENTS.md; keep deterministic/offline                        |
 | Add changelog rule          | `update-changelog.sh`   | Preserve Keep a Changelog + HE date handling                           |
 | Tag release                 | `create-release-tag.sh` | Pair with curated `CHANGELOG.md` section                               |
+| Resolve spec version        | `release-version.ts`    | Reads prose version and derives release paths/schema URL prefixes      |
 | Build site OpenAPI artifact | `build-site-openapi.ts` | Generates `site/spec/<version>/api-reference/bibliotheca.openapi.json` |
 | Build site schema artifacts | `build-site-schemas.ts` | Copies schemas into `site/spec/<version>/schemas/`                     |
 | Check commands              | `../package.json`       | Scripts are exposed through Bun/npm                                    |
@@ -31,6 +33,40 @@ scripts/
 ## VALIDATOR MAP
 
 `validate-artifacts.ts` is now the orchestration shim: it builds the shared validation context, runs phase modules in order, then calls the fixture-connectivity guard. Detailed validator rules live in `validate-artifacts/AGENTS.md`.
+
+## RELEASE VERSION HELPER
+
+`release-version.ts` centralizes how repository-maintenance scripts read and
+derive the current specification release version. Use it instead of hardcoding
+`0.1.0-rc.1`, reconstructing `site/spec/<version>` paths, or rereading
+`agent-volumes-spec.md` from individual scripts.
+
+| Export                              | Use when                                                              | Result shape                                                 |
+| ----------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `normalizeSpecVersion(rawVersion)`  | Validating a user-provided or environment-provided version string     | SemVer without a leading `v`; throws for invalid input       |
+| `versionFromSpec()`                 | Reading the prose `**Version:**` header directly                      | Current prose version without a leading `v`                  |
+| `resolveSpecVersion(rawVersion?)`   | Building release-scoped site artifacts with CLI/env fallback behavior | CLI argument, then `SPEC_VERSION`, then prose header version |
+| `getCurrentSpecVersion()`           | Validating current-release alignment                                  | Prose header version only; ignores `SPEC_VERSION`            |
+| `getCurrentSpecVersionWithPrefix()` | Comparing or displaying the current version in tag form               | `v<version>`                                                 |
+| `getReleaseArchiveRoot()`           | Locating the current generated release archive                        | `site/spec/<version>`                                        |
+| `getSchemaIdPrefix()`               | Validating or constructing current release schema `$id` URL prefixes  | `https://agentvolumes.org/spec/<version>/`                   |
+
+`SPEC_VERSION` is an optional environment variable consumed by
+`resolveSpecVersion()` for publication builds. It is not a repository
+configuration setting. Validators derive the current release version from
+`agent-volumes-spec.md` through the current-version helpers instead.
+
+`versionFromSpec()` and `getCurrentSpecVersion()` currently return the same
+SemVer string, but they express different intent. Use `versionFromSpec()` only
+when the code specifically needs the low-level action of reading the prose
+`**Version:**` header. Use `getCurrentSpecVersion()` when validating the current
+repository release surface. That semantic wrapper keeps validator call sites
+focused on the domain rule even if the underlying source changes later.
+
+For validators, prefer `getCurrentSpecVersion()`, `getReleaseArchiveRoot()`, and
+`getSchemaIdPrefix()` so checks stay anchored to the prose header. For site
+publication builders, prefer `resolveSpecVersion(process.argv[2])` so explicit
+release builds can still target a supplied version.
 
 ## HUMAN REVIEW VS MACHINE VALIDATION
 
