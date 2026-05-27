@@ -301,16 +301,22 @@ function assertDigestInvalidCases(ctx: ValidationContext): void {
   }
 }
 
-function assertTarArchiveDuplicateCase(archiveCase: JsonValue): void {
-  if (archiveCase.expected.failureCategory === "duplicate-archive-path") {
-    const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) =>
-      normalizeArchivePath(entry.path),
-    );
-    assert(
-      new Set(normalizedPaths).size !== normalizedPaths.length,
-      `tar archive case ${archiveCase.name} must contain duplicate normalized archive paths`,
-    );
+function tarArchiveFailureCategory(archiveCase: JsonValue): string | undefined {
+  const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) =>
+    normalizeArchivePath(entry.path),
+  );
+  if (new Set(normalizedPaths).size !== normalizedPaths.length) {
+    return "duplicate-archive-path";
   }
+  for (const entry of archiveCase.archiveEntries) {
+    if (isInvalidArchivePath(entry.path)) {
+      return "invalid-archive-path";
+    }
+  }
+  if (archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== "file")) {
+    return "non-regular-archive-entry";
+  }
+  return undefined;
 }
 
 function assertTarArchiveCase(archiveCase: JsonValue): void {
@@ -318,23 +324,22 @@ function assertTarArchiveCase(archiveCase: JsonValue): void {
     Array.isArray(archiveCase.archiveEntries),
     `tar archive case ${archiveCase.name} needs archive entries`,
   );
+  const actualFailureCategory = tarArchiveFailureCategory(archiveCase);
+  if (archiveCase.expected.valid === true) {
+    assert(
+      typeof actualFailureCategory === "undefined",
+      `tar archive case ${archiveCase.name} must satisfy the hosted archive profile`,
+    );
+    return;
+  }
   if (archiveCase.expected.valid === false) {
     assert(
       typeof archiveCase.expected.failureCategory === "string",
       `tar archive case ${archiveCase.name} needs failure category`,
     );
-  }
-  if (archiveCase.expected.failureCategory === "invalid-archive-path") {
     assert(
-      archiveCase.archiveEntries.some((entry: JsonValue) => isInvalidArchivePath(entry.path)),
-      `tar archive case ${archiveCase.name} must contain an invalid archive path`,
-    );
-  }
-  assertTarArchiveDuplicateCase(archiveCase);
-  if (archiveCase.expected.failureCategory === "non-regular-archive-entry") {
-    assert(
-      archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== "file"),
-      `tar archive case ${archiveCase.name} must contain a non-regular archive entry`,
+      actualFailureCategory === archiveCase.expected.failureCategory,
+      `tar archive case ${archiveCase.name} must fail as ${archiveCase.expected.failureCategory}`,
     );
   }
 }
