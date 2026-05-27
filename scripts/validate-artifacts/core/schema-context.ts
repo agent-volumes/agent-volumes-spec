@@ -1,59 +1,89 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import type { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
 
 import { assert } from "./assert.ts";
-import { readJson, readJsonFile } from "./files.ts";
+import { readJson, readJsonFile, root } from "./files.ts";
 import type { JsonValue } from "./types.ts";
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
 
-const schemas = {
-  advisory: readJson("schemas/advisory.schema.json"),
-  advisoryList: readJson("schemas/advisory-list.schema.json"),
-  advisoryValidationCase: readJson("schemas/advisory-validation-case.schema.json"),
-  bridgeMetadata: readJson("schemas/bridge-metadata.schema.json"),
-  capabilityMetadata: readJson("schemas/capability-metadata.schema.json"),
-  componentDependencyValidationCase: readJson(
-    "schemas/component-dependency-validation-case.schema.json",
-  ),
-  conformanceCoverage: readJson("schemas/conformance-coverage.schema.json"),
-  conformanceReport: readJson("schemas/conformance-report.schema.json"),
-  exactReleaseMetadataCase: readJson("schemas/exact-release-metadata-case.schema.json"),
-  externalDependencyDeclarationsPredicate: readJson(
+const schemaEntries = [
+  ["advisory", "schemas/advisory.schema.json"],
+  ["advisoryList", "schemas/advisory-list.schema.json"],
+  ["advisoryValidationCase", "schemas/advisory-validation-case.schema.json"],
+  ["bridgeMetadata", "schemas/bridge-metadata.schema.json"],
+  ["capabilityMetadata", "schemas/capability-metadata.schema.json"],
+  ["componentDependencyValidationCase", "schemas/component-dependency-validation-case.schema.json"],
+  ["conformanceCoverage", "schemas/conformance-coverage.schema.json"],
+  ["conformanceReport", "schemas/conformance-report.schema.json"],
+  ["exactReleaseMetadataCase", "schemas/exact-release-metadata-case.schema.json"],
+  [
+    "externalDependencyDeclarationsPredicate",
     "schemas/external-dependency-declarations-predicate.schema.json",
-  ),
-  externalDependencyPotentialExposureWarningContext: readJson(
+  ],
+  [
+    "externalDependencyPotentialExposureWarningContext",
     "schemas/external-dependency-potential-exposure-warning-context.schema.json",
-  ),
-  externalDependencyValidationCase: readJson(
-    "schemas/external-dependency-validation-case.schema.json",
-  ),
-  manifestParseCase: readJson("schemas/manifest-parse-case.schema.json"),
-  mappingMatrix: readJson("schemas/mapping-matrix.schema.json"),
-  mappingSample: readJson("schemas/mapping-sample.schema.json"),
-  problemDetails: readJson("schemas/problem-details.schema.json"),
-  problemRegistry: readJson("schemas/problem-registry.schema.json"),
-  purlVersCompatibilityExceptions: readJson(
-    "schemas/purl-vers-compatibility-exceptions.schema.json",
-  ),
-  releaseMetadata: readJson("schemas/release-metadata.schema.json"),
-  releaseUploadFinalize: readJson("schemas/release-upload-finalize.schema.json"),
-  releaseUploadIntent: readJson("schemas/release-upload-intent.schema.json"),
-  searchResults: readJson("schemas/search-results.schema.json"),
-  semanticValidationCase: readJson("schemas/semantic-validation-case.schema.json"),
-  trustArtifactVerificationCase: readJson("schemas/trust-artifact-verification-case.schema.json"),
-  trustDetail: readJson("schemas/trust-detail.schema.json"),
-  trustSummary: readJson("schemas/trust-summary.schema.json"),
-  trustUploadFinalize: readJson("schemas/trust-upload-finalize.schema.json"),
-  trustUploadIntent: readJson("schemas/trust-upload-intent.schema.json"),
-  upstreamBaseline: readJson("schemas/upstream-baseline.schema.json"),
-  versionIndex: readJson("schemas/version-index.schema.json"),
-  versionIndexRow: readJson("schemas/version-index-row.schema.json"),
-  volume: readJson("schemas/volume.schema.json"),
-  warning: readJson("schemas/warning.schema.json"),
-};
+  ],
+  ["externalDependencyValidationCase", "schemas/external-dependency-validation-case.schema.json"],
+  ["manifestParseCase", "schemas/manifest-parse-case.schema.json"],
+  ["mappingMatrix", "schemas/mapping-matrix.schema.json"],
+  ["mappingSample", "schemas/mapping-sample.schema.json"],
+  ["problemDetails", "schemas/problem-details.schema.json"],
+  ["problemRegistry", "schemas/problem-registry.schema.json"],
+  ["purlVersCompatibilityExceptions", "schemas/purl-vers-compatibility-exceptions.schema.json"],
+  ["releaseMetadata", "schemas/release-metadata.schema.json"],
+  ["releaseUploadFinalize", "schemas/release-upload-finalize.schema.json"],
+  ["releaseUploadIntent", "schemas/release-upload-intent.schema.json"],
+  ["searchResults", "schemas/search-results.schema.json"],
+  ["semanticValidationCase", "schemas/semantic-validation-case.schema.json"],
+  ["trustArtifactVerificationCase", "schemas/trust-artifact-verification-case.schema.json"],
+  ["trustDetail", "schemas/trust-detail.schema.json"],
+  ["trustSummary", "schemas/trust-summary.schema.json"],
+  ["trustUploadFinalize", "schemas/trust-upload-finalize.schema.json"],
+  ["trustUploadIntent", "schemas/trust-upload-intent.schema.json"],
+  ["upstreamBaseline", "schemas/upstream-baseline.schema.json"],
+  ["versionIndex", "schemas/version-index.schema.json"],
+  ["versionIndexRow", "schemas/version-index-row.schema.json"],
+  ["volume", "schemas/volume.schema.json"],
+  ["warning", "schemas/warning.schema.json"],
+] as const;
+
+const nonSchemaArtifacts = new Set(["schemas/reserved-extension-namespaces.json"]);
+const registeredSchemaPaths = new Set<string>(
+  schemaEntries.map(([, relativePath]) => relativePath),
+);
+
+const schemas = Object.fromEntries(
+  schemaEntries.map(([name, relativePath]) => [name, readJson(relativePath)]),
+);
+
+function assertSchemaRegistryInventory(): void {
+  const schemaFiles = fs
+    .readdirSync(path.join(root, "schemas"))
+    .filter((entry: string) => entry.endsWith(".json"))
+    .map((entry: string) => `schemas/${entry}`)
+    .toSorted();
+  for (const schemaFile of schemaFiles) {
+    assert(
+      registeredSchemaPaths.has(schemaFile) || nonSchemaArtifacts.has(schemaFile),
+      `${schemaFile} must be registered in schema-context.ts or listed as a non-schema artifact`,
+    );
+  }
+  for (const schemaPath of registeredSchemaPaths) {
+    assert(
+      schemaFiles.includes(schemaPath),
+      `${schemaPath} is registered but missing from schemas/`,
+    );
+  }
+}
+
+assertSchemaRegistryInventory();
 
 for (const schema of Object.values(schemas)) {
   ajv.addSchema(schema);
