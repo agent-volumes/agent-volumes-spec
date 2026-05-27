@@ -12,6 +12,10 @@ import type { JsonValue } from "./types.ts";
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
 
+const SPEC_VERSION = "0.1.0-rc.1";
+const JSON_SCHEMA_DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema";
+const SCHEMA_ID_PREFIX = `https://agentvolumes.org/spec/${SPEC_VERSION}/`;
+
 const schemaEntries = [
   ["advisory", "schemas/advisory.schema.json"],
   ["advisoryList", "schemas/advisory-list.schema.json"],
@@ -85,6 +89,37 @@ function assertSchemaRegistryInventory(): void {
 }
 
 assertSchemaRegistryInventory();
+
+function assertRegisteredSchemaMetadata(relativePath: string, schema: JsonValue): void {
+  assert(
+    schema.$schema === JSON_SCHEMA_DRAFT_2020_12,
+    `${relativePath} must declare Draft 2020-12 $schema`,
+  );
+  assert(
+    schema.$id === `${SCHEMA_ID_PREFIX}${relativePath}`,
+    `${relativePath} must use release-scoped $id ${SCHEMA_ID_PREFIX}${relativePath}`,
+  );
+}
+
+function assertNonSchemaArtifactMetadata(relativePath: string): void {
+  const artifact = readJsonFile(relativePath);
+  assert(
+    artifact.$id === `${SCHEMA_ID_PREFIX}${relativePath}`,
+    `${relativePath} must use release-scoped $id ${SCHEMA_ID_PREFIX}${relativePath}`,
+  );
+  assert(
+    artifact.specVersion === SPEC_VERSION,
+    `${relativePath} must declare specVersion ${SPEC_VERSION}`,
+  );
+}
+
+for (const [, relativePath] of schemaEntries) {
+  assertRegisteredSchemaMetadata(relativePath, readJson(relativePath));
+}
+
+for (const artifactPath of nonSchemaArtifacts) {
+  assertNonSchemaArtifactMetadata(artifactPath);
+}
 
 for (const schema of Object.values(schemas)) {
   ajv.addSchema(schema);
