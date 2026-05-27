@@ -36,16 +36,7 @@ function isInvalidArchivePath(pathValue: JsonValue): boolean {
   );
 }
 
-export function run(ctx: ValidationContext): void {
-  const trustArtifactVerificationCases = ctx.readJson(
-    "conformance/fixtures/trust-artifact-verification-cases.json",
-  );
-  ctx.validate(
-    "trustArtifactVerificationCase",
-    trustArtifactVerificationCases,
-    "trust artifact verification cases fixture",
-  );
-  assertSpecVersion(ctx, trustArtifactVerificationCases, "trust artifact verification cases");
+function assertTrustArtifactCategories(trustArtifactVerificationCases: JsonValue): void {
   for (const trustCategory of ["bom", "provenance", "signature"]) {
     assert(
       trustArtifactVerificationCases.cases.some(
@@ -55,133 +46,193 @@ export function run(ctx: ValidationContext): void {
       `trust artifact verification cases must include valid ${trustCategory} binding`,
     );
   }
-  for (const trustCase of trustArtifactVerificationCases.cases) {
+}
+
+function assertTrustArtifactProvenance(trustCase: JsonValue): void {
+  assert(
+    trustCase.format.family === "slsa-provenance",
+    `trust artifact case ${trustCase.name} provenance must use slsa-provenance family`,
+  );
+  if (trustCase.expected.valid) {
+    assert(
+      trustCase.artifactSubject?.predicateType === "https://slsa.dev/provenance/v1",
+      `trust artifact case ${trustCase.name} valid provenance must use SLSA v1 predicate`,
+    );
+  } else if (trustCase.expected.failureCategory === "unsupported-provenance-predicate") {
+    assert(
+      trustCase.artifactSubject?.predicateType !== "https://slsa.dev/provenance/v1",
+      `trust artifact case ${trustCase.name} must exercise wrong SLSA predicate`,
+    );
+  }
+}
+
+function assertTrustArtifactSignature(trustCase: JsonValue): void {
+  assert(
+    trustCase.format.family === "sigstore-bundle",
+    `trust artifact case ${trustCase.name} signature must use sigstore-bundle family`,
+  );
+  if (trustCase.expected.valid) {
+    assert(
+      trustCase.artifactSubject?.signatureFormat === "sigstore-bundle",
+      `trust artifact case ${trustCase.name} valid signature must use sigstore-bundle format`,
+    );
+  } else if (trustCase.expected.failureCategory === "unsupported-signature-format") {
+    assert(
+      trustCase.artifactSubject?.signatureFormat !== "sigstore-bundle",
+      `trust artifact case ${trustCase.name} must exercise signature format mismatch`,
+    );
+  }
+}
+
+function assertTrustArtifactCategory(trustCase: JsonValue): void {
+  if (trustCase.category === "bom") {
+    assert(
+      trustCase.format.family === "cyclonedx" ||
+        trustCase.expected.failureCategory === "unsupported-artifact-format",
+      `trust artifact case ${trustCase.name} BOM must use cyclonedx family`,
+    );
+  }
+  if (trustCase.category === "provenance") {
+    assertTrustArtifactProvenance(trustCase);
+  }
+  if (trustCase.category === "signature") {
+    assertTrustArtifactSignature(trustCase);
+  }
+}
+
+function assertInvalidOrStaleTrustArtifactFailure(trustCase: JsonValue): void {
+  if (trustCase.expected.failureCategory === "invalid-trust-artifact") {
+    assert(
+      (trustCase.lifecycleStatus?.state === "invalid" || trustCase.artifact) &&
+        trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model invalid lifecycle or malformed artifact failures`,
+    );
+  }
+  if (trustCase.expected.failureCategory === "stale-trust-evidence-only") {
+    assert(
+      trustCase.lifecycleStatus?.state === "superseded" && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model superseded attachments as stale current evidence`,
+    );
+  }
+}
+
+function assertTrustArtifactLifecycleFailure(trustCase: JsonValue): void {
+  if (trustCase.expected.failureCategory === "missing-artifact-subject") {
+    assert(
+      !trustCase.artifactSubject?.purl || !trustCase.artifactSubject?.integrity,
+      `trust artifact case ${trustCase.name} must omit at least one artifact subject fact`,
+    );
+  }
+  if (trustCase.expected.failureCategory === "revoked-trust-artifact") {
+    assert(
+      trustCase.lifecycleStatus?.state === "revoked" && trustCase.expected.valid === false,
+      `trust artifact case ${trustCase.name} must model revoked attachments as default failures`,
+    );
+  }
+  assertInvalidOrStaleTrustArtifactFailure(trustCase);
+}
+
+function assertTrustArtifactFailureCategory(trustCase: JsonValue): void {
+  if (trustCase.expected.failureCategory === "subject-binding-mismatch") {
+    assert(
+      trustCase.artifactSubject?.integrity !== trustCase.subject.integrity ||
+        trustCase.artifactSubject?.purl !== trustCase.subject.purl,
+      `trust artifact case ${trustCase.name} must exercise subject mismatch`,
+    );
+  }
+  assertTrustArtifactLifecycleFailure(trustCase);
+}
+
+function assertValidTrustArtifactBinding(trustCase: JsonValue): void {
+  if (trustCase.expected.valid) {
+    assert(
+      trustCase.artifactSubject?.integrity === trustCase.subject.integrity,
+      `trust artifact case ${trustCase.name} valid artifact must bind immutable identity`,
+    );
+    assert(
+      trustCase.artifactSubject?.purl === trustCase.subject.purl,
+      `trust artifact case ${trustCase.name} valid artifact must bind logical identity`,
+    );
+  }
+}
+
+function trustArtifactErrorMessage(trustCase: JsonValue): string {
+  try {
+    const artifactJson = decodeFixtureArtifact(
+      trustCase.artifact,
+      `trust artifact case ${trustCase.name}`,
+    );
     if (trustCase.category === "bom") {
-      assert(
-        trustCase.format.family === "cyclonedx" ||
-          trustCase.expected.failureCategory === "unsupported-artifact-format",
-        `trust artifact case ${trustCase.name} BOM must use cyclonedx family`,
-      );
+      assertCycloneDxArtifact(artifactJson, trustCase);
     }
     if (trustCase.category === "provenance") {
-      assert(
-        trustCase.format.family === "slsa-provenance",
-        `trust artifact case ${trustCase.name} provenance must use slsa-provenance family`,
-      );
-      if (trustCase.expected.valid) {
-        assert(
-          trustCase.artifactSubject?.predicateType === "https://slsa.dev/provenance/v1",
-          `trust artifact case ${trustCase.name} valid provenance must use SLSA v1 predicate`,
-        );
-      } else if (trustCase.expected.failureCategory === "unsupported-provenance-predicate") {
-        assert(
-          trustCase.artifactSubject?.predicateType !== "https://slsa.dev/provenance/v1",
-          `trust artifact case ${trustCase.name} must exercise wrong SLSA predicate`,
-        );
-      }
+      assertSlsaArtifact(artifactJson, trustCase);
     }
     if (trustCase.category === "signature") {
-      assert(
-        trustCase.format.family === "sigstore-bundle",
-        `trust artifact case ${trustCase.name} signature must use sigstore-bundle family`,
-      );
-      if (trustCase.expected.valid) {
-        assert(
-          trustCase.artifactSubject?.signatureFormat === "sigstore-bundle",
-          `trust artifact case ${trustCase.name} valid signature must use sigstore-bundle format`,
-        );
-      } else if (trustCase.expected.failureCategory === "unsupported-signature-format") {
-        assert(
-          trustCase.artifactSubject?.signatureFormat !== "sigstore-bundle",
-          `trust artifact case ${trustCase.name} must exercise signature format mismatch`,
-        );
-      }
+      assertSigstoreArtifact(artifactJson, trustCase);
     }
-    if (trustCase.expected.failureCategory === "subject-binding-mismatch") {
-      assert(
-        trustCase.artifactSubject?.integrity !== trustCase.subject.integrity ||
-          trustCase.artifactSubject?.purl !== trustCase.subject.purl,
-        `trust artifact case ${trustCase.name} must exercise subject mismatch`,
-      );
-    }
-    if (trustCase.expected.failureCategory === "missing-artifact-subject") {
-      assert(
-        !trustCase.artifactSubject?.purl || !trustCase.artifactSubject?.integrity,
-        `trust artifact case ${trustCase.name} must omit at least one artifact subject fact`,
-      );
-    }
-    if (trustCase.expected.failureCategory === "revoked-trust-artifact") {
-      assert(
-        trustCase.lifecycleStatus?.state === "revoked" && trustCase.expected.valid === false,
-        `trust artifact case ${trustCase.name} must model revoked attachments as default failures`,
-      );
-    }
-    if (trustCase.expected.failureCategory === "invalid-trust-artifact") {
-      assert(
-        (trustCase.lifecycleStatus?.state === "invalid" || trustCase.artifact) &&
-          trustCase.expected.valid === false,
-        `trust artifact case ${trustCase.name} must model invalid lifecycle or malformed artifact failures`,
-      );
-    }
-    if (trustCase.expected.failureCategory === "stale-trust-evidence-only") {
-      assert(
-        trustCase.lifecycleStatus?.state === "superseded" && trustCase.expected.valid === false,
-        `trust artifact case ${trustCase.name} must model superseded attachments as stale current evidence`,
-      );
-    }
-    if (trustCase.expected.valid) {
-      assert(
-        trustCase.artifactSubject?.integrity === trustCase.subject.integrity,
-        `trust artifact case ${trustCase.name} valid artifact must bind immutable identity`,
-      );
-      assert(
-        trustCase.artifactSubject?.purl === trustCase.subject.purl,
-        `trust artifact case ${trustCase.name} valid artifact must bind logical identity`,
-      );
-    }
-    if (trustCase.artifact) {
-      assert(
-        trustCase.artifact.mediaType === trustCase.format.mediaType,
-        `trust artifact case ${trustCase.name} artifact mediaType must match declared format`,
-      );
-      let artifactErrorMessage = "";
-      try {
-        const artifactJson = decodeFixtureArtifact(
-          trustCase.artifact,
-          `trust artifact case ${trustCase.name}`,
-        );
-        if (trustCase.category === "bom") {
-          assertCycloneDxArtifact(artifactJson, trustCase);
-        }
-        if (trustCase.category === "provenance") {
-          assertSlsaArtifact(artifactJson, trustCase);
-        }
-        if (trustCase.category === "signature") {
-          assertSigstoreArtifact(artifactJson, trustCase);
-        }
-      } catch (error) {
-        artifactErrorMessage = errorMessage(error);
-      }
-      if (trustCase.expected.valid) {
-        assert(
-          !artifactErrorMessage,
-          artifactErrorMessage || `trust artifact case ${trustCase.name} must validate`,
-        );
-      } else if (trustCase.expected.failureCategory === "invalid-trust-artifact") {
-        assert(
-          artifactErrorMessage,
-          `trust artifact case ${trustCase.name} must fail artifact validation`,
-        );
-      } else {
-        assert(
-          !artifactErrorMessage,
-          artifactErrorMessage ||
-            `trust artifact case ${trustCase.name} artifact validation failed`,
-        );
-      }
-    }
+    return "";
+  } catch (error) {
+    return errorMessage(error);
   }
+}
 
+function assertTrustArtifactValidationOutcome(
+  trustCase: JsonValue,
+  artifactErrorMessage: string,
+): void {
+  if (trustCase.expected.valid) {
+    assert(
+      !artifactErrorMessage,
+      artifactErrorMessage || `trust artifact case ${trustCase.name} must validate`,
+    );
+  } else if (trustCase.expected.failureCategory === "invalid-trust-artifact") {
+    assert(
+      artifactErrorMessage,
+      `trust artifact case ${trustCase.name} must fail artifact validation`,
+    );
+  } else {
+    assert(
+      !artifactErrorMessage,
+      artifactErrorMessage || `trust artifact case ${trustCase.name} artifact validation failed`,
+    );
+  }
+}
+
+function assertTrustArtifactPayload(trustCase: JsonValue): void {
+  if (trustCase.artifact) {
+    assert(
+      trustCase.artifact.mediaType === trustCase.format.mediaType,
+      `trust artifact case ${trustCase.name} artifact mediaType must match declared format`,
+    );
+    assertTrustArtifactValidationOutcome(trustCase, trustArtifactErrorMessage(trustCase));
+  }
+}
+
+function assertTrustArtifactCase(trustCase: JsonValue): void {
+  assertTrustArtifactCategory(trustCase);
+  assertTrustArtifactFailureCategory(trustCase);
+  assertValidTrustArtifactBinding(trustCase);
+  assertTrustArtifactPayload(trustCase);
+}
+
+function assertTrustArtifactVerificationCases(ctx: ValidationContext): void {
+  const trustArtifactVerificationCases = ctx.readJson(
+    "conformance/fixtures/trust-artifact-verification-cases.json",
+  );
+  ctx.validate(
+    "trustArtifactVerificationCase",
+    trustArtifactVerificationCases,
+    "trust artifact verification cases fixture",
+  );
+  assertSpecVersion(ctx, trustArtifactVerificationCases, "trust artifact verification cases");
+  assertTrustArtifactCategories(trustArtifactVerificationCases);
+  for (const trustCase of trustArtifactVerificationCases.cases) {
+    assertTrustArtifactCase(trustCase);
+  }
+}
+
+function assertDigestVectors(ctx: ValidationContext): void {
   const digestVectors = ctx.readJson("conformance/fixtures/digest-vectors.json");
   assertSpecVersion(ctx, digestVectors, "digest vectors");
   for (const fixture of digestVectors.fixtures) {
@@ -207,75 +258,93 @@ export function run(ctx: ValidationContext): void {
       `digest vector ${fixture.name} expected ${fixture.expectedIntegrity} but computed ${actual}`,
     );
   }
+}
 
+function assertDigestInvalidCase(digestCase: JsonValue): void {
+  if (digestCase.expected.failureCategory === "invalid-path") {
+    assert(
+      digestCase.normalizedFiles.some((file: JsonValue) => isInvalidNormalizedPath(file.path)),
+      `digest invalid case ${digestCase.name} must contain an invalid path`,
+    );
+  }
+  if (digestCase.expected.failureCategory === "duplicate-path") {
+    const paths = digestCase.normalizedFiles.map((file: JsonValue) => file.path);
+    assert(
+      new Set(paths).size !== paths.length,
+      `digest invalid case ${digestCase.name} must contain duplicate normalized paths`,
+    );
+  }
+  if (digestCase.expected.failureCategory === "non-regular-file") {
+    assert(
+      digestCase.normalizedFiles.some(
+        (file: JsonValue) => file.entryType && file.entryType !== "file",
+      ),
+      `digest invalid case ${digestCase.name} must contain a non-regular entry`,
+    );
+  }
+  assert(
+    digestCase.expected.valid === false,
+    `digest invalid case ${digestCase.name} must be expected invalid`,
+  );
+}
+
+function assertDigestInvalidCases(ctx: ValidationContext): void {
   const digestInvalidCases = ctx.readJson("conformance/fixtures/digest-invalid-cases.json");
   assertSpecVersion(ctx, digestInvalidCases, "digest invalid cases");
   for (const digestCase of digestInvalidCases.cases) {
-    if (digestCase.expected.failureCategory === "invalid-path") {
-      assert(
-        digestCase.normalizedFiles.some((file: JsonValue) => isInvalidNormalizedPath(file.path)),
-        `digest invalid case ${digestCase.name} must contain an invalid path`,
-      );
-    }
-    if (digestCase.expected.failureCategory === "duplicate-path") {
-      const paths = digestCase.normalizedFiles.map((file: JsonValue) => file.path);
-      assert(
-        new Set(paths).size !== paths.length,
-        `digest invalid case ${digestCase.name} must contain duplicate normalized paths`,
-      );
-    }
-    if (digestCase.expected.failureCategory === "non-regular-file") {
-      assert(
-        digestCase.normalizedFiles.some(
-          (file: JsonValue) => file.entryType && file.entryType !== "file",
-        ),
-        `digest invalid case ${digestCase.name} must contain a non-regular entry`,
-      );
-    }
+    assertDigestInvalidCase(digestCase);
+  }
+}
+
+function assertTarArchiveDuplicateCase(archiveCase: JsonValue): void {
+  if (archiveCase.expected.failureCategory === "duplicate-archive-path") {
+    const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) =>
+      normalizeArchivePath(entry.path),
+    );
     assert(
-      digestCase.expected.valid === false,
-      `digest invalid case ${digestCase.name} must be expected invalid`,
+      new Set(normalizedPaths).size !== normalizedPaths.length,
+      `tar archive case ${archiveCase.name} must contain duplicate normalized archive paths`,
     );
   }
+}
 
+function assertTarArchiveCase(archiveCase: JsonValue): void {
+  assert(
+    Array.isArray(archiveCase.archiveEntries),
+    `tar archive case ${archiveCase.name} needs archive entries`,
+  );
+  if (archiveCase.expected.valid === false) {
+    assert(
+      typeof archiveCase.expected.failureCategory === "string",
+      `tar archive case ${archiveCase.name} needs failure category`,
+    );
+  }
+  if (archiveCase.expected.failureCategory === "invalid-archive-path") {
+    assert(
+      archiveCase.archiveEntries.some((entry: JsonValue) => isInvalidArchivePath(entry.path)),
+      `tar archive case ${archiveCase.name} must contain an invalid archive path`,
+    );
+  }
+  assertTarArchiveDuplicateCase(archiveCase);
+  if (archiveCase.expected.failureCategory === "non-regular-archive-entry") {
+    assert(
+      archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== "file"),
+      `tar archive case ${archiveCase.name} must contain a non-regular archive entry`,
+    );
+  }
+}
+
+function assertTarArchiveProfileCases(ctx: ValidationContext): void {
   const tarArchiveProfileCases = ctx.readJson(
     "conformance/fixtures/tar-archive-profile-cases.json",
   );
   assertSpecVersion(ctx, tarArchiveProfileCases, "tar archive profile cases");
   for (const archiveCase of tarArchiveProfileCases.cases) {
-    assert(
-      Array.isArray(archiveCase.archiveEntries),
-      `tar archive case ${archiveCase.name} needs archive entries`,
-    );
-    if (archiveCase.expected.valid === false) {
-      assert(
-        typeof archiveCase.expected.failureCategory === "string",
-        `tar archive case ${archiveCase.name} needs failure category`,
-      );
-    }
-    if (archiveCase.expected.failureCategory === "invalid-archive-path") {
-      assert(
-        archiveCase.archiveEntries.some((entry: JsonValue) => isInvalidArchivePath(entry.path)),
-        `tar archive case ${archiveCase.name} must contain an invalid archive path`,
-      );
-    }
-    if (archiveCase.expected.failureCategory === "duplicate-archive-path") {
-      const normalizedPaths = archiveCase.archiveEntries.map((entry: JsonValue) =>
-        normalizeArchivePath(entry.path),
-      );
-      assert(
-        new Set(normalizedPaths).size !== normalizedPaths.length,
-        `tar archive case ${archiveCase.name} must contain duplicate normalized archive paths`,
-      );
-    }
-    if (archiveCase.expected.failureCategory === "non-regular-archive-entry") {
-      assert(
-        archiveCase.archiveEntries.some((entry: JsonValue) => entry.entryType !== "file"),
-        `tar archive case ${archiveCase.name} must contain a non-regular archive entry`,
-      );
-    }
+    assertTarArchiveCase(archiveCase);
   }
+}
 
+function assertPurlCanonicalizationCases(ctx: ValidationContext): void {
   const purlCanonicalizationCases = ctx.readJson(
     "conformance/fixtures/purl-canonicalization-cases.json",
   );
@@ -299,10 +368,9 @@ export function run(ctx: ValidationContext): void {
       );
     }
   }
+}
 
-  const upstreamBaselines = ctx.readJson("conformance/upstream-baselines.json");
-  ctx.validate("upstreamBaseline", upstreamBaselines, "upstream PURL/VERS baselines");
-  assertSpecVersion(ctx, upstreamBaselines, "upstream PURL/VERS baselines");
+function assertInvalidUpstreamBaselines(ctx: ValidationContext): void {
   const invalidUpstreamBaselines = ctx.readJson(
     "conformance/fixtures/upstream-baselines-invalid.json",
   );
@@ -318,6 +386,9 @@ export function run(ctx: ValidationContext): void {
       `invalid upstream baseline case ${invalidBaselineCase.name} must fail`,
     );
   }
+}
+
+function assertRequiredUpstreamBaselines(upstreamBaselines: JsonValue): void {
   assert(
     upstreamBaselines.baselines.some((baseline: JsonValue) => baseline.name === "package-url-spec"),
     "upstream baselines must include Package URL spec",
@@ -326,10 +397,31 @@ export function run(ctx: ValidationContext): void {
     upstreamBaselines.baselines.some((baseline: JsonValue) => baseline.name === "vers-spec"),
     "upstream baselines must include VERS spec",
   );
+}
+
+function assertUpstreamBaselineRevisions(upstreamBaselines: JsonValue): void {
   for (const baseline of upstreamBaselines.baselines) {
     assert(
       gitCommitPattern.test(baseline.revision),
       `upstream baseline ${baseline.name} revision must be immutable`,
     );
   }
+}
+
+function assertUpstreamBaselines(ctx: ValidationContext): void {
+  const upstreamBaselines = ctx.readJson("conformance/upstream-baselines.json");
+  ctx.validate("upstreamBaseline", upstreamBaselines, "upstream PURL/VERS baselines");
+  assertSpecVersion(ctx, upstreamBaselines, "upstream PURL/VERS baselines");
+  assertInvalidUpstreamBaselines(ctx);
+  assertRequiredUpstreamBaselines(upstreamBaselines);
+  assertUpstreamBaselineRevisions(upstreamBaselines);
+}
+
+export function run(ctx: ValidationContext): void {
+  assertTrustArtifactVerificationCases(ctx);
+  assertDigestVectors(ctx);
+  assertDigestInvalidCases(ctx);
+  assertTarArchiveProfileCases(ctx);
+  assertPurlCanonicalizationCases(ctx);
+  assertUpstreamBaselines(ctx);
 }
