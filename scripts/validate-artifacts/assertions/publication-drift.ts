@@ -21,7 +21,7 @@ import {
 } from "../core/schema-context.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-function assertReservedExtensionNamespaceDrift(ctx: ValidationContext): void {
+function assertReservedNamespaceArtifactShape(ctx: ValidationContext): void {
   assert(
     reservedExtensionNamespaces.$id ===
       "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/reserved-extension-namespaces.json",
@@ -34,7 +34,9 @@ function assertReservedExtensionNamespaceDrift(ctx: ValidationContext): void {
     "reserved extension namespace artifact must list reserved namespaces",
   );
   assertUniqueStrings(reservedExtensionNamespaces.reserved, "reserved extension namespaces");
+}
 
+function assertCapabilityMetadataReservedNamespaceSchema(): void {
   const extensionPropertyNames = schemas.capabilityMetadata.properties.extensions.propertyNames;
   const namespacePattern = extensionPropertyNames.allOf.find(
     (subschema: JsonValue) => typeof subschema.pattern === "string",
@@ -57,7 +59,9 @@ function assertReservedExtensionNamespaceDrift(ctx: ValidationContext): void {
       stableJsonStringify([...reservedExtensionNamespaces.reserved].toSorted(compareStrings)),
     "capability metadata schema reserved namespace enum must match reserved-extension-namespaces.json",
   );
+}
 
+function assertReservedNamespaceFixtureCoverage(ctx: ValidationContext): void {
   const reservedFixture = ctx.readJsonFile(
     "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
   );
@@ -113,20 +117,19 @@ function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
   );
 }
 
-function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void {
-  const namespace = "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#";
+function readSpdxExternalDependencyContext(ctx: ValidationContext): JsonValue {
   const canonicalContextPath = "site/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
   const archivedContextPath =
     "site/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
-  const contextArtifact = ctx.readJsonFile(canonicalContextPath);
-
   assert(
     fs.readFileSync(path.join(ctx.root, canonicalContextPath), "utf8") ===
       fs.readFileSync(path.join(ctx.root, archivedContextPath), "utf8"),
     "SPDX external dependency canonical JSON-LD context must match release archive copy",
   );
-  const context = contextArtifact["@context"];
+  return ctx.readJsonFile(canonicalContextPath);
+}
 
+function assertSpdxContextHeader(context: JsonValue, namespace: string): void {
   assert(
     context && typeof context === "object",
     "SPDX external dependency JSON-LD context must define @context",
@@ -147,38 +150,33 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
     context.xsd === "http://www.w3.org/2001/XMLSchema#",
     "SPDX external dependency JSON-LD context must define xsd",
   );
+}
 
-  const mappingSampleFixture = ctx.readJsonFile("conformance/fixtures/mapping-sample.json");
-  const spdxExternalDependencyExport = mappingSampleFixture.exports?.spdxExternalDependencies;
-  assert(
-    spdxExternalDependencyExport?.profile === namespace,
-    "mapping sample SPDX external dependency profile must match JSON-LD context namespace",
-  );
-  assert(
-    Array.isArray(spdxExternalDependencyExport.elements) &&
-      spdxExternalDependencyExport.elements.length > EMPTY_COUNT,
-    "mapping sample SPDX external dependency export must include elements",
-  );
+function collectSpdxElementTerms(termsUsedByFixture: Set<string>, element: JsonValue): void {
+  const typeValue = element["@type"];
+  if (typeof typeValue === "string" && typeValue.startsWith("av:")) {
+    termsUsedByFixture.add(typeValue.slice(AV_PREFIX_LENGTH));
+  }
+  for (const key of Object.keys(element)) {
+    if (key.startsWith("av:")) {
+      termsUsedByFixture.add(key.slice(AV_PREFIX_LENGTH));
+    }
+  }
+}
 
+function collectSpdxTermsUsedByFixture(elements: JsonValue[], namespace: string): Set<string> {
   const termsUsedByFixture = new Set<string>();
-  for (const element of spdxExternalDependencyExport.elements) {
+  for (const element of elements) {
     assert(
       element["@context"]?.av === namespace,
       "mapping sample SPDX element av prefix must match JSON-LD context",
     );
-
-    const typeValue = element["@type"];
-    if (typeof typeValue === "string" && typeValue.startsWith("av:")) {
-      termsUsedByFixture.add(typeValue.slice(AV_PREFIX_LENGTH));
-    }
-
-    for (const key of Object.keys(element)) {
-      if (key.startsWith("av:")) {
-        termsUsedByFixture.add(key.slice(AV_PREFIX_LENGTH));
-      }
-    }
+    collectSpdxElementTerms(termsUsedByFixture, element);
   }
+  return termsUsedByFixture;
+}
 
+function assertExpectedSpdxFixtureTerms(termsUsedByFixture: Set<string>): void {
   const expectedTerms = [
     "ExternalDependencyDeclaration",
     "constraint",
@@ -194,7 +192,27 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
     expectedTerms.toSorted(compareStrings),
     "SPDX external dependency JSON-LD context fixture terms",
   );
+}
 
+function assertSpdxMappingFixtureTerms(ctx: ValidationContext, namespace: string): void {
+  const mappingSampleFixture = ctx.readJsonFile("conformance/fixtures/mapping-sample.json");
+  const spdxExternalDependencyExport = mappingSampleFixture.exports?.spdxExternalDependencies;
+  assert(
+    spdxExternalDependencyExport?.profile === namespace,
+    "mapping sample SPDX external dependency profile must match JSON-LD context namespace",
+  );
+  assert(
+    Array.isArray(spdxExternalDependencyExport.elements) &&
+      spdxExternalDependencyExport.elements.length > EMPTY_COUNT,
+    "mapping sample SPDX external dependency export must include elements",
+  );
+
+  assertExpectedSpdxFixtureTerms(
+    collectSpdxTermsUsedByFixture(spdxExternalDependencyExport.elements, namespace),
+  );
+}
+
+function assertSpdxContextTerms(context: JsonValue): void {
   for (const term of [
     "ExternalDependencyDeclaration",
     "constraint",
@@ -222,6 +240,22 @@ function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void 
     { "@id": "av:resolvedEvidence", "@type": "xsd:boolean" },
     "SPDX external dependency JSON-LD context resolvedEvidence term",
   );
+}
+
+function assertReservedExtensionNamespaceDrift(ctx: ValidationContext): void {
+  assertReservedNamespaceArtifactShape(ctx);
+  assertCapabilityMetadataReservedNamespaceSchema();
+  assertReservedNamespaceFixtureCoverage(ctx);
+}
+
+function assertSpdxExternalDependencyContextDrift(ctx: ValidationContext): void {
+  const namespace = "https://agentvolumes.org/ns/spdx/external-dependency-declarations/v0.1#";
+  const contextArtifact = readSpdxExternalDependencyContext(ctx);
+  const context = contextArtifact["@context"];
+
+  assertSpdxContextHeader(context, namespace);
+  assertSpdxMappingFixtureTerms(ctx, namespace);
+  assertSpdxContextTerms(context);
 }
 
 export {

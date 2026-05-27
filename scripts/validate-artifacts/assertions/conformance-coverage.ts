@@ -33,6 +33,84 @@ function resolveCoverageReference(ctx: ValidationContext, fixtureName: JsonValue
   return candidates.find((candidate: JsonValue) => ctx.pathExists(candidate));
 }
 
+function assertUniqueCoverageTuple(
+  seenCoverageTuples: Set<string>,
+  requirement: JsonValue,
+  coverage: JsonValue,
+): void {
+  const tuple = `${requirement.id}:${coverage.fixture}:${coverage.case ?? ""}:${coverage.area}:${
+    coverage.coverageType ?? ""
+  }`;
+  assert(!seenCoverageTuples.has(tuple), `conformance coverage duplicate tuple ${tuple}`);
+  seenCoverageTuples.add(tuple);
+}
+
+interface ResolvedCoverageReferenceAssertion {
+  ctx: ValidationContext;
+  resolvedPath: JsonValue;
+  requirement: JsonValue;
+  coverage: JsonValue;
+}
+
+function assertCoverageFixtureCase(
+  resolvedPath: JsonValue,
+  requirement: JsonValue,
+  coverage: JsonValue,
+): void {
+  assert(
+    resolvedPath.startsWith("conformance/fixtures/") && resolvedPath.endsWith(".json"),
+    `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`,
+  );
+  const caseNames = caseNamesFromFixture(readJsonFile(resolvedPath));
+  assert(
+    caseNames.length > EMPTY_COUNT,
+    `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
+  );
+  assertUniqueStrings(caseNames, `${coverage.fixture} case names`);
+  assert(
+    caseNames.includes(coverage.case),
+    `conformance coverage ${requirement.id} references missing case ${coverage.case} in ${coverage.fixture}`,
+  );
+}
+
+function assertResolvedCoverageReference({
+  ctx,
+  resolvedPath,
+  requirement,
+  coverage,
+}: ResolvedCoverageReferenceAssertion): void {
+  if (ctx.isDirectory(resolvedPath)) {
+    assert(
+      !coverage.case,
+      `conformance coverage ${requirement.id} cannot name a case for directory ${coverage.fixture}`,
+    );
+  } else if (coverage.case) {
+    assertCoverageFixtureCase(resolvedPath, requirement, coverage);
+  }
+}
+
+interface CoverageReferenceAssertion {
+  ctx: ValidationContext;
+  seenCoverageTuples: Set<string>;
+  requirement: JsonValue;
+  coverage: JsonValue;
+}
+
+function assertCoverageReference({
+  ctx,
+  seenCoverageTuples,
+  requirement,
+  coverage,
+}: CoverageReferenceAssertion): void {
+  assertUniqueCoverageTuple(seenCoverageTuples, requirement, coverage);
+  const resolvedPath = resolveCoverageReference(ctx, coverage.fixture);
+  assert(
+    resolvedPath,
+    `conformance coverage ${requirement.id} references missing fixture ${coverage.fixture}`,
+  );
+  assertResolvedCoverageReference({ coverage, ctx, requirement, resolvedPath });
+}
+
 function assertConformanceCoverageReferences(
   ctx: ValidationContext,
   conformanceCoverage: JsonValue,
@@ -41,43 +119,11 @@ function assertConformanceCoverageReferences(
     (requirement: JsonValue) => requirement.id,
   );
   assertUniqueStrings(requirementIds, "conformance coverage requirement IDs");
-  const seenCoverageTuples = new Set();
+  const seenCoverageTuples = new Set<string>();
 
   for (const requirement of conformanceCoverage.requirements) {
     for (const coverage of requirement.coverage) {
-      const tuple = `${requirement.id}:${coverage.fixture}:${coverage.case ?? ""}:${coverage.area}:${
-        coverage.coverageType ?? ""
-      }`;
-      assert(!seenCoverageTuples.has(tuple), `conformance coverage duplicate tuple ${tuple}`);
-      seenCoverageTuples.add(tuple);
-
-      const resolvedPath = resolveCoverageReference(ctx, coverage.fixture);
-      assert(
-        resolvedPath,
-        `conformance coverage ${requirement.id} references missing fixture ${coverage.fixture}`,
-      );
-      if (ctx.isDirectory(resolvedPath)) {
-        assert(
-          !coverage.case,
-          `conformance coverage ${requirement.id} cannot name a case for directory ${coverage.fixture}`,
-        );
-      } else if (coverage.case) {
-        assert(
-          resolvedPath.startsWith("conformance/fixtures/") && resolvedPath.endsWith(".json"),
-          `conformance coverage ${requirement.id} case ${coverage.case} must reference a JSON fixture file`,
-        );
-        const fixture = readJsonFile(resolvedPath);
-        const caseNames = caseNamesFromFixture(fixture);
-        assert(
-          caseNames.length > EMPTY_COUNT,
-          `conformance coverage ${requirement.id} references case ${coverage.case} in non-case fixture ${coverage.fixture}`,
-        );
-        assertUniqueStrings(caseNames, `${coverage.fixture} case names`);
-        assert(
-          caseNames.includes(coverage.case),
-          `conformance coverage ${requirement.id} references missing case ${coverage.case} in ${coverage.fixture}`,
-        );
-      }
+      assertCoverageReference({ coverage, ctx, requirement, seenCoverageTuples });
     }
   }
 }
