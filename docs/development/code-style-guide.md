@@ -2,9 +2,9 @@
 
 This document defines the code style standards for the `scripts/` directory in this repository, based on [Oxlint](https://oxc.rs/docs/guide/usage/linter) rules. It serves as a reference for contributors and maintainers.
 
-## Active Rules (Warnings to Fix)
+## Active Rules
 
-The following rules are active and warnings should be resolved through code changes.
+The following rules are active and lint findings should be resolved through code changes. Rules that protect type safety, module boundaries, and maintainable control flow are enforced as errors; rules that remain advisory are kept as warnings in `.oxlintrc.json`.
 
 ### `eslint/no-magic-numbers`
 
