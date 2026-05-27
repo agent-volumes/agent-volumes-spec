@@ -7,29 +7,146 @@ import { problemStatusBySlug } from "../core/patterns.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
 
-const REQUIRED_PATHS = [
-  ["/api/v1/search", "search path"],
-  ["/api/v1/capabilities", "capability metadata path"],
-  ["/api/v1/index/volumes/{name}", "unscoped version index path"],
-  ["/api/v1/index/volumes/@{scope}/{name}", "scoped version index path"],
-  ["/api/v1/volumes/{name}", "unscoped release upload intent path"],
-  ["/api/v1/volumes/{name}/uploads/{uploadId}/finalize", "unscoped release upload finalize path"],
-  ["/api/v1/volumes/@{scope}/{name}", "scoped release upload intent path"],
-  [
-    "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
-    "scoped release upload finalize path",
-  ],
-  ["/api/v1/volumes/{name}/{version}/trust/uploads", "unscoped trust upload intent path"],
-  [
-    "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    "unscoped trust upload finalize path",
-  ],
-  ["/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads", "scoped trust upload intent path"],
-  [
-    "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    "scoped trust upload finalize path",
-  ],
+const REQUIRED_OPERATIONS = [
+  { auth: "Public", method: "get", operationId: "searchVolumes", pathName: "/api/v1/search" },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "createVolumeUploadIntent",
+    pathName: "/api/v1/volumes/{name}",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "finalizeVolumeUpload",
+    pathName: "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "createScopedVolumeUploadIntent",
+    pathName: "/api/v1/volumes/@{scope}/{name}",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "finalizeScopedVolumeUpload",
+    pathName: "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getVolumeRelease",
+    pathName: "/api/v1/volumes/{name}/{version}",
+  },
+  {
+    auth: "Bearer",
+    method: "delete",
+    operationId: "unpublishVolumeRelease",
+    pathName: "/api/v1/volumes/{name}/{version}",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getScopedVolumeRelease",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
+  },
+  {
+    auth: "Bearer",
+    method: "delete",
+    operationId: "unpublishScopedVolumeRelease",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getVolumeVersionIndex",
+    pathName: "/api/v1/index/volumes/{name}",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getScopedVolumeVersionIndex",
+    pathName: "/api/v1/index/volumes/@{scope}/{name}",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getVolumeTrustSummary",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/summary",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getScopedVolumeTrustSummary",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getVolumeTrustDetail",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/detail",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "createVolumeTrustUploadIntent",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "finalizeVolumeTrustUpload",
+    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getScopedVolumeTrustDetail",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "createScopedVolumeTrustUploadIntent",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+  },
+  {
+    auth: "Bearer",
+    method: "post",
+    operationId: "finalizeScopedVolumeTrustUpload",
+    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "searchAdvisories",
+    pathName: "/api/v1/advisories",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getAdvisory",
+    pathName: "/api/v1/advisories/{advisoryId}",
+  },
+  {
+    auth: "Public",
+    method: "get",
+    operationId: "getCapabilityMetadata",
+    pathName: "/api/v1/capabilities",
+  },
 ] as const;
+
+const IDEMPOTENCY_OPERATIONS = new Set([
+  "createVolumeUploadIntent",
+  "finalizeVolumeUpload",
+  "createScopedVolumeUploadIntent",
+  "finalizeScopedVolumeUpload",
+  "createVolumeTrustUploadIntent",
+  "finalizeVolumeTrustUpload",
+  "createScopedVolumeTrustUploadIntent",
+  "finalizeScopedVolumeTrustUpload",
+]);
 
 const CONFLICT_RESPONSE_PATHS = [
   "/api/v1/index/volumes/{name}",
@@ -61,6 +178,7 @@ const OPERATION_MATRIX_OPERATION_IDS_COLUMN = 6;
 
 interface OpenapiOperation {
   method: string;
+  operation: JsonObject;
   operationId: string;
   pathName: string;
   security: JsonValue;
@@ -102,6 +220,7 @@ function collectOpenapiOperations(openapi: JsonObject): OpenapiOperation[] {
         );
         operations.push({
           method,
+          operation,
           operationId: operation.operationId,
           pathName,
           security: operation.security,
@@ -204,25 +323,48 @@ function assertOperationCoverageMatrix(openapi: JsonObject, auditText: string): 
   }
 }
 
-function assertRequiredPaths(openapi: JsonObject): void {
-  for (const [pathName, label] of REQUIRED_PATHS) {
-    assert(openapi.paths[pathName], `OpenAPI document must define ${label}`);
+function operationKey(method: string, pathName: string): string {
+  return `${method.toUpperCase()} ${pathName}`;
+}
+
+function assertRequiredOperations(openapi: JsonObject): void {
+  const operationsByKey = new Map(
+    collectOpenapiOperations(openapi).map((operation: OpenapiOperation) => [
+      operationKey(operation.method, operation.pathName),
+      operation,
+    ]),
+  );
+  for (const requiredOperation of REQUIRED_OPERATIONS) {
+    const operation = operationsByKey.get(
+      operationKey(requiredOperation.method, requiredOperation.pathName),
+    );
+    assert(
+      operation,
+      `OpenAPI document must define ${requiredOperation.method.toUpperCase()} ${requiredOperation.pathName}`,
+    );
+    assert(
+      operation.operationId === requiredOperation.operationId,
+      `OpenAPI ${operationKey(requiredOperation.method, requiredOperation.pathName)} must use operationId ${requiredOperation.operationId}`,
+    );
+    assertOperationAuthBoundary(operation, requiredOperation.auth);
   }
 }
 
-function assertUploadIntentIdempotency(openapi: JsonObject): void {
-  assert(
-    openapi.paths["/api/v1/volumes/{name}"].post.parameters.some(
-      (parameter: JsonValue) => parameter.in === "header" && parameter.name === "Idempotency-Key",
-    ),
-    "OpenAPI unscoped release upload intent path must accept Idempotency-Key header",
+function operationHasIdempotencyHeader(operation: OpenapiOperation): boolean {
+  return (operation.operation.parameters ?? []).some(
+    (parameter: JsonValue) => parameter.in === "header" && parameter.name === "Idempotency-Key",
   );
-  assert(
-    openapi.paths["/api/v1/volumes/@{scope}/{name}"].post.parameters.some(
-      (parameter: JsonValue) => parameter.in === "header" && parameter.name === "Idempotency-Key",
-    ),
-    "OpenAPI scoped release upload intent path must accept Idempotency-Key header",
-  );
+}
+
+function assertUploadIdempotency(openapi: JsonObject): void {
+  for (const operation of collectOpenapiOperations(openapi)) {
+    if (IDEMPOTENCY_OPERATIONS.has(operation.operationId)) {
+      assert(
+        operationHasIdempotencyHeader(operation),
+        `OpenAPI ${operation.operationId} must accept Idempotency-Key header`,
+      );
+    }
+  }
 }
 
 function assertConflictResponses(openapi: JsonObject): void {
@@ -398,9 +540,9 @@ function assertPathParameterSchemas(openapi: JsonObject): void {
 
 function assertOpenapiDocument(openapi: JsonObject, auditText: string): void {
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
-  assertRequiredPaths(openapi);
+  assertRequiredOperations(openapi);
   assertOperationCoverageMatrix(openapi, auditText);
-  assertUploadIntentIdempotency(openapi);
+  assertUploadIdempotency(openapi);
   assertConflictResponses(openapi);
   assertOpenapiSchemaParity(openapi);
   assertProblemDetailsComponents(openapi);
