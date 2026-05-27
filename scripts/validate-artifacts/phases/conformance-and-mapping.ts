@@ -951,6 +951,24 @@ function assertSlsaOmitsExternalDependency(
     ),
     `mapping sample SLSA materials must omit external dependency ${externalDependency.purl}`,
   );
+  assert(
+    !(sampleSlsa.predicate.resolvedDependencies ?? []).some(
+      (dependency: JsonValue) => dependency.uri === externalDependency.purl,
+    ),
+    `mapping sample SLSA resolvedDependencies must omit external dependency ${externalDependency.purl}`,
+  );
+  assert(
+    !(sampleSlsa.predicate.byproducts ?? []).some(
+      (byproduct: JsonValue) => byproduct.uri === externalDependency.purl,
+    ),
+    `mapping sample SLSA byproducts must omit external dependency ${externalDependency.purl}`,
+  );
+  assert(
+    !stableJsonStringify(sampleSlsa.predicate.buildDefinition.internalParameters ?? {}).includes(
+      externalDependency.purl,
+    ),
+    `mapping sample SLSA internalParameters must omit external dependency ${externalDependency.purl}`,
+  );
 }
 
 function assertSlsaExternalDependencyOmissions(sample: MappingSampleContext): void {
