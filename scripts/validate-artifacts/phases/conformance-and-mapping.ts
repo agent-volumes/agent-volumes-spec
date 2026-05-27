@@ -194,24 +194,24 @@ export function run(ctx: ValidationContext): void {
     ),
     "mapping sample CycloneDX license id must map volume.license",
   );
-  findExternalReference(
-    cyclonedxRoot.externalReferences,
-    "website",
-    sampleVolume.homepage,
-    "mapping sample CycloneDX root",
-  );
-  findExternalReference(
-    cyclonedxRoot.externalReferences,
-    "vcs",
-    sampleVolume.repository,
-    "mapping sample CycloneDX root",
-  );
-  findExternalReference(
-    cyclonedxRoot.externalReferences,
-    "documentation",
-    sampleVolume.documentation,
-    "mapping sample CycloneDX root",
-  );
+  findExternalReference({
+    label: "mapping sample CycloneDX root",
+    references: cyclonedxRoot.externalReferences,
+    type: "website",
+    url: sampleVolume.homepage,
+  });
+  findExternalReference({
+    label: "mapping sample CycloneDX root",
+    references: cyclonedxRoot.externalReferences,
+    type: "vcs",
+    url: sampleVolume.repository,
+  });
+  findExternalReference({
+    label: "mapping sample CycloneDX root",
+    references: cyclonedxRoot.externalReferences,
+    type: "documentation",
+    url: sampleVolume.documentation,
+  });
   assertDeepEqual(
     parseStablePropertyJson(
       cyclonedxRoot.properties,
@@ -446,27 +446,27 @@ export function run(ctx: ValidationContext): void {
     ),
     "mapping sample SPDX checksum must bind immutable release identity",
   );
-  findSpdxExternalRef(
-    spdxPackage.externalRefs,
-    "PACKAGE-MANAGER",
-    "purl",
-    sampleRelease.purl,
-    "mapping sample SPDX root package",
-  );
-  findSpdxExternalRef(
-    spdxPackage.externalRefs,
-    "OTHER",
-    "agent-volumes:documentation",
-    sampleVolume.documentation,
-    "mapping sample SPDX root package",
-  );
-  findSpdxExternalRef(
-    spdxPackage.externalRefs,
-    "OTHER",
-    "agent-volumes:vcs",
-    sampleVolume.repository,
-    "mapping sample SPDX root package",
-  );
+  findSpdxExternalRef({
+    externalRefs: spdxPackage.externalRefs,
+    label: "mapping sample SPDX root package",
+    referenceCategory: "PACKAGE-MANAGER",
+    referenceLocator: sampleRelease.purl,
+    referenceType: "purl",
+  });
+  findSpdxExternalRef({
+    externalRefs: spdxPackage.externalRefs,
+    label: "mapping sample SPDX root package",
+    referenceCategory: "OTHER",
+    referenceLocator: sampleVolume.documentation,
+    referenceType: "agent-volumes:documentation",
+  });
+  findSpdxExternalRef({
+    externalRefs: spdxPackage.externalRefs,
+    label: "mapping sample SPDX root package",
+    referenceCategory: "OTHER",
+    referenceLocator: sampleVolume.repository,
+    referenceType: "agent-volumes:vcs",
+  });
   assertDeepEqual(
     JSON.parse(spdxPackage.comment),
     {

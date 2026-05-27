@@ -5,6 +5,21 @@ import { errorMessage } from "../core/json.ts";
 import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue } from "../core/types.ts";
 
+interface ExternalReferenceLookup {
+  references: JsonValue;
+  type: JsonValue;
+  url: JsonValue;
+  label: JsonValue;
+}
+
+interface SpdxExternalReferenceLookup {
+  externalRefs: JsonValue;
+  referenceCategory: JsonValue;
+  referenceType: JsonValue;
+  referenceLocator: JsonValue;
+  label: JsonValue;
+}
+
 function findProperty(properties: JsonValue, name: JsonValue, label: JsonValue): JsonValue {
   const property = properties?.find((candidate: JsonValue) => candidate.name === name);
   assert(property, `${label} needs ${name} property`);
@@ -33,25 +48,20 @@ function parseStablePropertyJson(
   return parsed;
 }
 
-function findExternalReference(
-  references: JsonValue,
-  type: JsonValue,
-  url: JsonValue,
-  label: JsonValue,
-): void {
+function findExternalReference({ references, type, url, label }: ExternalReferenceLookup): void {
   assert(
     references?.some((reference: JsonValue) => reference.type === type && reference.url === url),
     `${label} needs ${type} external reference ${url}`,
   );
 }
 
-function findSpdxExternalRef(
-  externalRefs: JsonValue,
-  referenceCategory: JsonValue,
-  referenceType: JsonValue,
-  referenceLocator: JsonValue,
-  label: JsonValue,
-): void {
+function findSpdxExternalRef({
+  externalRefs,
+  referenceCategory,
+  referenceType,
+  referenceLocator,
+  label,
+}: SpdxExternalReferenceLookup): void {
   assert(
     externalRefs?.some(
       (reference: JsonValue) =>
