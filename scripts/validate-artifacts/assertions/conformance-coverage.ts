@@ -143,9 +143,25 @@ function assertNoUnvalidatedConformanceFixtures(ctx: ValidationContext): void {
   }
 }
 
+function assertNoUnvalidatedRootConformanceArtifacts(ctx: ValidationContext): void {
+  const conformanceDirectory = path.join(ctx.root, "conformance");
+  const conformanceArtifactPaths = fs
+    .readdirSync(conformanceDirectory)
+    .filter((entry: JsonValue) => entry.endsWith(".json"))
+    .map((entry: JsonValue) => `conformance/${entry}`)
+    .toSorted();
+  for (const artifactPath of conformanceArtifactPaths) {
+    assert(
+      ctx.readJsonPaths.has(artifactPath),
+      `${artifactPath} is not connected to scripts/validate-artifacts.ts`,
+    );
+  }
+}
+
 export {
   assertConformanceCoverageReferences,
   assertNoUnvalidatedConformanceFixtures,
+  assertNoUnvalidatedRootConformanceArtifacts,
   caseNamesFromFixture,
   resolveCoverageReference,
 };

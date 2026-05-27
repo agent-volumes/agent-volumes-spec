@@ -1,4 +1,7 @@
-import { assertNoUnvalidatedConformanceFixtures } from "./validate-artifacts/assertions/conformance-coverage.ts";
+import {
+  assertNoUnvalidatedConformanceFixtures,
+  assertNoUnvalidatedRootConformanceArtifacts,
+} from "./validate-artifacts/assertions/conformance-coverage.ts";
 import {
   isDirectory,
   pathExists,
@@ -59,5 +62,6 @@ for (const phase of phases) {
 }
 
 assertNoUnvalidatedConformanceFixtures(ctx);
+assertNoUnvalidatedRootConformanceArtifacts(ctx);
 
 console.log("Artifact validation passed.");
