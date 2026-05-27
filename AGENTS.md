@@ -1,8 +1,8 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-19T00:00:00+09:00
-**Commit:** ff9fcf1
-**Branch:** release/0.1.0-rc1
+**Generated:** 2026-05-27T00:00:00+09:00
+**Commit:** 1b13571
+**Branch:** refactor/validate-artifacts-modularization
 
 ## OVERVIEW
 
@@ -37,6 +37,9 @@ These documents contain critical context that cannot be inferred from this repos
 
 ```text
 agent-volumes-spec/
+├── .editorconfig              # Repository-wide editor baseline
+├── .prettierrc                # Prettier config for docs/data artifacts
+├── .oxfmtrc.json              # Oxfmt config for JS/TS-family files
 ├── agent-volumes-spec.md      # Normative prose specification (v0.1.0-rc.1)
 ├── CHANGELOG.md               # Curated Keep a Changelog release history
 ├── IMPLEMENTERS.md            # Implementation guide for prototype builders
@@ -44,7 +47,8 @@ agent-volumes-spec/
 ├── conformance/               # Offline conformance fixtures + runner contract
 ├── openapi/                   # Bibliotheca API contract + prose drift audit
 ├── docs/                      # Project process, readiness, security, release docs
-│   └── docs/decisions/        # 154 ADRs (architecture decision records)
+│   ├── docs/development/      # Validation workflow + TypeScript style guide
+│   └── docs/decisions/        # 158 ADRs (architecture decision records)
 ├── site/                      # Mintlify source for public agentvolumes.org docs
 ├── .github/workflows/         # CI + org reusable security workflow consumers
 ├── .agents/skills/            # Contributor dev tooling (NOT distributable)
@@ -58,37 +62,32 @@ agent-volumes-spec/
 | Edit spec prose           | `agent-volumes-spec.md`                 | Single-file monolithic spec         |
 | Add/change schema         | `schemas/` + `conformance/fixtures/`    | Must update both + coverage         |
 | Add conformance case      | `conformance/fixtures/`                 | Follow fixture family naming        |
-| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0154     |
+| Check ADR history         | `docs/decisions/`                       | Sequential numbering, 0001–0158     |
 | Edit process docs         | `docs/`                                 | Non-normative policy/readiness docs |
 | Edit public docs site     | `site/`                                 | Publication layer, not canonical    |
 | Edit CI workflow          | `.github/workflows/`                    | SHA-pinning + org reusable policy   |
 | Edit Bibliotheca API      | `openapi/bibliotheca.openapi.yaml`      | Keep drift audit + fixtures aligned |
 | Prose ↔ OpenAPI alignment | `openapi/PROSE-DRIFT-AUDIT.md`          | Required before release freeze      |
-| Update artifact validator | `scripts/validate-artifacts.ts`         | Central smoke runner; modularized   |
+| Update artifact validator | `scripts/validate-artifacts/`           | Modular phase/core/assertion runner |
 | Release history           | `CHANGELOG.md`                          | Curated release notes               |
 | Implementation guidance   | `IMPLEMENTERS.md`                       | Maps normative artifacts to tasks   |
 | Dev skill scaffolding     | `.agents/skills/skill-creator/scripts/` | `init_skill.py`, `package_skill.py` |
 
 ## CONVENTIONS
 
-**Formatting (Prettier)** — `.prettierrc`
-
-- `singleQuote: true`, `trailingComma: "es5"`, `printWidth: 120`, `proseWrap: "preserve"`
-- Applies to: `md`, `json`, `yaml`, `yml`, `mjs`
+- **EditorConfig** (`.editorconfig`): repository-wide baseline is UTF-8, LF line endings, two-space indentation, final newline insertion, trailing-whitespace trimming, and `max_line_length = 100`.
+- **Oxfmt** (`.oxfmtrc.json`): JS/TS-family files use `trailingComma: "all"` and `sortImports: true`; line endings, indentation, and max line length come from `.editorconfig`.
+- **Prettier** (`.prettierrc`): formats `md`, `mdx`, `json`, `yaml`, `yml`, `mdc`, `.prettierrc`, and `.oxfmtrc.json`; repo config sets only `trailingComma: "all"` plus an `*.mdc` Markdown parser override.
 
 - Date notation: Human-readable documents intentionally use five-digit Human Era / Holocene Era (HE) dates such as `12026`; these are not Gregorian typos and must not be normalized to four-digit years. Machine-readable artifacts use the date and timestamp formats required by their schemas or external standards.
 
-**Markdown lint** — `.markdownlint-cli2.jsonc`
+**Linting** — Three tools, no ESLint:
 
-- Dash-only lists (`MD004.style = "dash"`)
-- Duplicate headings blocked among siblings only (`MD024.siblings_only = true`)
-- Horizontal rules must be `---` (`MD035.style = "---"`)
-- 20+ rules disabled; ignores `node_modules/**` and `.agents/skills/**`
+- **Oxlint** (`.oxlintrc.json`): TypeScript-aware, bans `any`, unsafe assertions, import cycles (maxDepth 3), complexity rules
+- **TypeScript style guide** (`docs/development/code-style-guide.md`): required reference before editing `scripts/` TypeScript; explains active Oxlint rules and project exceptions for named exports, acyclic imports, parsed JSON typing, unsafe assertions, `null`/`undefined`, function declarations, and import sorting.
+- **Markdownlint** (`.markdownlint-cli2.jsonc`): Dash-only lists (`MD004.style = "dash"`), sibling-only duplicate headings (`MD024.siblings_only = true`), `---` horizontal rules (`MD035.style = "---"`), 20+ rules disabled; ignores `node_modules/**`, `site/**`, and `.agents/skills/**`
+- **Redocly** (`redocly.yaml`): Extends `recommended` + `spec`; downgrades to warnings: `no-ambiguous-paths`, `no-enum-type-mismatch`, `no-invalid-media-type-examples`, `spec-strict-refs`
 
-**OpenAPI lint** — `redocly.yaml`
-
-- Extends `recommended` + `spec`
-- Downgrades to warnings: `no-ambiguous-paths`, `no-enum-type-mismatch`, `no-invalid-media-type-examples`, `spec-strict-refs`
 - OpenAPI 3.1.1 uses JSON Schema 2020-12, external `../schemas/*` refs, scoped/unscoped route pairs, bearer auth only on protected writes, and closed RFC 9457 problem responses.
 
 **Git hooks** — `lefthook.yml`
@@ -99,9 +98,10 @@ agent-volumes-spec/
 
 **CI** — `.github/workflows/`
 
-- `spec-lint-and-format.yml`: path-filtered, installs Bun, rebuilds the Mintlify OpenAPI publication artifact, runs lint/format/site/artifact validation
+- `spec-lint-and-format.yml`: path-filtered, installs Bun with `--frozen-lockfile --ignore-scripts`, rebuilds Mintlify OpenAPI/schema publication artifacts, fails on generated artifact drift, runs lint/format/site/artifact validation
 - Security workflows delegate to org reusable workflows (`agent-volumes/.github` @main) — the **sole SHA-pinning exception**
-- Uses `harden-runner` and pinned action SHAs for non-reusable workflows
+- Uses `harden-runner` with `egress-policy: audit` and pinned action SHAs for non-reusable workflows
+- `GIT_MASTER=1` normalizes git-sensitive script behavior in CI
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
@@ -132,7 +132,10 @@ bunx lefthook install
 bun run lint:md
 bun run lint:md:fix
 bun run lint:openapi
+bun run lint:oxlint
+bun run lint:oxlint:fix
 bun run build:site:openapi -- <version>
+bun run build:site:schemas -- <version>
 bun run lint:site
 bun run format
 bun run format:check
@@ -140,6 +143,10 @@ bun run changelog:check
 
 # Validate all artifacts (schemas, fixtures, OpenAPI)
 bun run validate:artifacts
+
+# Release helpers
+bun run release:changelog
+bun run release:tag
 ```
 
 ## NOTES
@@ -149,10 +156,11 @@ bun run validate:artifacts
 - **No local CONTRIBUTING.md** — org-wide CONTRIBUTING.md lives in `agent-volumes/.github`.
 - **Schema ↔ prose lockstep** — schema artifacts are version-aligned with `agent-volumes-spec.md`. Material schema changes are normative draft changes.
 - **Site is publication-only** — `site/` content and bundled OpenAPI output must link back to canonical sources and never override spec/schema/OpenAPI/conformance artifacts.
-- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts.ts` are the largest maintenance-risk entry points; inspect local `AGENTS.md` files before editing their subtrees.
+- **Hotspots** — `agent-volumes-spec.md`, `openapi/bibliotheca.openapi.yaml`, and `scripts/validate-artifacts/` are the largest maintenance-risk entry points; inspect local `AGENTS.md` files before editing their subtrees.
 - **Changelog before tags** — release tags require a curated `CHANGELOG.md` entry for the target version; `git-cliff` output is only a draft.
 - **Org context** — see [`agent-volumes/.github`](https://github.com/agent-volumes/.github) for reusable workflows, SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and the centralized PR template.
 - **SHA pinning exception** — reusable workflows from `agent-volumes/.github` may use `@main`; all other actions must be SHA-pinned.
+- **Validator modularization** — `scripts/validate-artifacts.ts` orchestrates `scripts/validate-artifacts/` submodules (phases, core, assertions); check `scripts/validate-artifacts/AGENTS.md` before editing validator internals.
 
 <!-- CODEGRAPH_START -->
 
