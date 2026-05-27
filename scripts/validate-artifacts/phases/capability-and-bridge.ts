@@ -1,3 +1,4 @@
+import { getCurrentSpecVersion } from "../../release-version.ts";
 import {
   assertReservedExtensionNamespaceDrift,
   assertSiteSchemaPublicationDrift,
@@ -9,7 +10,7 @@ import { REQUIRED_CAPABILITY_BRIDGE_PAIR_COUNT } from "../core/numeric-constants
 import { semverPattern } from "../core/patterns.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-const currentSpecVersion = "0.1.0-rc.1";
+const currentSpecVersion = getCurrentSpecVersion();
 
 function validateCapabilityMetadata(ctx: ValidationContext): JsonValue {
   ctx.validate(
@@ -22,8 +23,8 @@ function validateCapabilityMetadata(ctx: ValidationContext): JsonValue {
 
 function assertCapabilityMetadataVersions(capabilityMetadata: JsonValue): void {
   assert(
-    capabilityMetadata.specVersion === "0.1.0-rc.1",
-    "capability metadata fixture must declare specVersion 0.1.0-rc.1",
+    capabilityMetadata.specVersion === currentSpecVersion,
+    `capability metadata fixture must declare specVersion ${currentSpecVersion}`,
   );
   assert(
     capabilityMetadata.schemaVersion === "1",
@@ -35,10 +36,10 @@ function assertCapabilityMetadataVersions(capabilityMetadata: JsonValue): void {
   );
   assert(
     Array.isArray(capabilityMetadata.compatibleSpecVersions) &&
-      capabilityMetadata.compatibleSpecVersions.includes("0.1.0-rc.1") &&
+      capabilityMetadata.compatibleSpecVersions.includes(currentSpecVersion) &&
       new Set(capabilityMetadata.compatibleSpecVersions).size ===
         capabilityMetadata.compatibleSpecVersions.length,
-    "capability metadata fixture must declare unique exact compatibleSpecVersions including 0.1.0-rc.1",
+    `capability metadata fixture must declare unique exact compatibleSpecVersions including ${currentSpecVersion}`,
   );
 }
 
@@ -79,8 +80,8 @@ function assertCapabilityUnknownTolerance(ctx: ValidationContext): void {
     "conformance/fixtures/capability-metadata-unknown-tolerance.json",
   );
   assert(
-    capabilityUnknownToleranceFixture.canonicalParsedData.specVersion === "0.1.0-rc.1",
-    "capability metadata unknown tolerance fixture must declare specVersion 0.1.0-rc.1",
+    capabilityUnknownToleranceFixture.canonicalParsedData.specVersion === currentSpecVersion,
+    `capability metadata unknown tolerance fixture must declare specVersion ${currentSpecVersion}`,
   );
   ctx.validate(
     "capabilityMetadata",

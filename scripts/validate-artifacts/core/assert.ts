@@ -1,4 +1,7 @@
+import { getCurrentSpecVersion } from "../../release-version.ts";
 import type { JsonValue, ValidationContext } from "./types.ts";
+
+const currentSpecVersion = getCurrentSpecVersion();
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -20,7 +23,10 @@ function stableJsonStringify(value: JsonValue): string {
 }
 
 function assertSpecVersion(_ctx: ValidationContext, fixture: JsonValue, label: JsonValue): void {
-  assert(fixture.specVersion === "0.1.0-rc.1", `${label} must declare specVersion 0.1.0-rc.1`);
+  assert(
+    fixture.specVersion === currentSpecVersion,
+    `${label} must declare specVersion ${currentSpecVersion}`,
+  );
 }
 
 function assertDeepEqual(actual: JsonValue, expected: JsonValue, label: JsonValue): void {

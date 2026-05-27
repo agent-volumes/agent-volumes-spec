@@ -2,6 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
+  getCurrentSpecVersion,
+  getReleaseArchiveRoot,
+  getSchemaIdPrefix,
+} from "../../release-version.ts";
+import {
   assert,
   assertDeepEqual,
   assertSpecVersion,
@@ -21,11 +26,15 @@ import {
 } from "../core/schema-context.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
+const currentSpecVersion = getCurrentSpecVersion();
+const releaseArchiveRoot = getReleaseArchiveRoot();
+const schemaIdPrefix = getSchemaIdPrefix();
+
 function assertReservedNamespaceArtifactShape(ctx: ValidationContext): void {
   assert(
     reservedExtensionNamespaces.$id ===
-      "https://agentvolumes.org/spec/0.1.0-rc.1/schemas/reserved-extension-namespaces.json",
-    "reserved extension namespace artifact must use the rc.1 schema ID",
+      `${schemaIdPrefix}schemas/reserved-extension-namespaces.json`,
+    `reserved extension namespace artifact must use the ${currentSpecVersion} schema ID`,
   );
   assertSpecVersion(ctx, reservedExtensionNamespaces, "reserved extension namespace artifact");
   assert(
@@ -89,7 +98,7 @@ function assertReservedNamespaceFixtureCoverage(ctx: ValidationContext): void {
 
 function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
   const schemaDirectory = path.join(ctx.root, "schemas");
-  const siteSchemaDirectory = path.join(ctx.root, "site/spec/0.1.0-rc.1/schemas");
+  const siteSchemaDirectory = path.join(ctx.root, releaseArchiveRoot, "schemas");
   const schemaFiles = fs
     .readdirSync(schemaDirectory)
     .filter((entry: JsonValue) => entry.endsWith(".json"))
@@ -119,8 +128,7 @@ function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
 
 function readSpdxExternalDependencyContext(ctx: ValidationContext): JsonValue {
   const canonicalContextPath = "site/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
-  const archivedContextPath =
-    "site/spec/0.1.0-rc.1/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
+  const archivedContextPath = `${releaseArchiveRoot}/contexts/spdx-external-dependency-declarations-v0.1.jsonld`;
   assert(
     fs.readFileSync(path.join(ctx.root, canonicalContextPath), "utf8") ===
       fs.readFileSync(path.join(ctx.root, archivedContextPath), "utf8"),

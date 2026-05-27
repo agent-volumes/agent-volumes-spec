@@ -1,11 +1,14 @@
 import YAML from "yaml";
 
+import { getCurrentSpecVersion } from "../../release-version.ts";
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assert } from "../core/assert.ts";
 import { EMPTY_COUNT, FIRST_CONTENT_INDEX } from "../core/numeric-constants.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
+
+const currentSpecVersion = getCurrentSpecVersion();
 
 const IDEMPOTENCY_OPERATIONS = new Set([
   "createVolumeUploadIntent",
@@ -593,6 +596,10 @@ function assertOpenapiDocument(
   openapiOperationMatrix: JsonValue,
 ): void {
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
+  assert(
+    openapi.info?.version === currentSpecVersion,
+    `OpenAPI document must declare info.version ${currentSpecVersion}`,
+  );
   assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
   assertUploadIdempotency(openapi);
   assertConflictResponses(openapi);

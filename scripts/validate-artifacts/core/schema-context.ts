@@ -5,6 +5,7 @@ import type { ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
 
+import { getCurrentSpecVersion, getSchemaIdPrefix } from "../../release-version.ts";
 import { assert } from "./assert.ts";
 import { readJson, readJsonFile, root } from "./files.ts";
 import type { JsonValue } from "./types.ts";
@@ -12,10 +13,10 @@ import type { JsonValue } from "./types.ts";
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
 addFormats(ajv);
 
-const SPEC_VERSION = "0.1.0-rc.1";
 const JSON_SCHEMA_DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema";
 const JSON_SCHEMA_FILE_SUFFIX = ".schema.json";
-const SCHEMA_ID_PREFIX = `https://agentvolumes.org/spec/${SPEC_VERSION}/`;
+const currentSpecVersion = getCurrentSpecVersion();
+const schemaIdPrefix = getSchemaIdPrefix();
 
 const schemaEntries = [
   ["advisory", "schemas/advisory.schema.json"],
@@ -101,8 +102,8 @@ function assertRegisteredSchemaMetadata(relativePath: string, schema: JsonValue)
     `${relativePath} must declare Draft 2020-12 $schema`,
   );
   assert(
-    schema.$id === `${SCHEMA_ID_PREFIX}${relativePath}`,
-    `${relativePath} must use release-scoped $id ${SCHEMA_ID_PREFIX}${relativePath}`,
+    schema.$id === `${schemaIdPrefix}${relativePath}`,
+    `${relativePath} must use release-scoped $id ${schemaIdPrefix}${relativePath}`,
   );
 }
 
@@ -113,12 +114,12 @@ function assertNonSchemaArtifactMetadata(relativePath: string): void {
   );
   const artifact = readJsonFile(relativePath);
   assert(
-    artifact.$id === `${SCHEMA_ID_PREFIX}${relativePath}`,
-    `${relativePath} must use release-scoped $id ${SCHEMA_ID_PREFIX}${relativePath}`,
+    artifact.$id === `${schemaIdPrefix}${relativePath}`,
+    `${relativePath} must use release-scoped $id ${schemaIdPrefix}${relativePath}`,
   );
   assert(
-    artifact.specVersion === SPEC_VERSION,
-    `${relativePath} must declare specVersion ${SPEC_VERSION}`,
+    artifact.specVersion === currentSpecVersion,
+    `${relativePath} must declare specVersion ${currentSpecVersion}`,
   );
 }
 
