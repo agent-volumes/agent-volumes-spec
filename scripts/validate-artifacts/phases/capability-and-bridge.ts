@@ -8,13 +8,16 @@ import { assert } from "../core/assert.ts";
 import { REQUIRED_CAPABILITY_BRIDGE_PAIR_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function run(ctx: ValidationContext): void {
+function validateCapabilityMetadata(ctx: ValidationContext): JsonValue {
   ctx.validate(
     "capabilityMetadata",
     ctx.readJson("conformance/fixtures/capability-metadata.json"),
     "capability metadata fixture",
   );
-  const capabilityMetadata = ctx.readJson("conformance/fixtures/capability-metadata.json");
+  return ctx.readJson("conformance/fixtures/capability-metadata.json");
+}
+
+function assertCapabilityMetadataVersions(capabilityMetadata: JsonValue): void {
   assert(
     capabilityMetadata.specVersion === "0.1.0-rc.1",
     "capability metadata fixture must declare specVersion 0.1.0-rc.1",
@@ -34,6 +37,9 @@ export function run(ctx: ValidationContext): void {
         capabilityMetadata.compatibleSpecVersions.length,
     "capability metadata fixture must declare unique exact compatibleSpecVersions including 0.1.0-rc.1",
   );
+}
+
+function assertCapabilityMetadataApis(capabilityMetadata: JsonValue): void {
   for (const apiField of [
     "trustMetadata",
     "versionIndex",
@@ -63,7 +69,9 @@ export function run(ctx: ValidationContext): void {
       );
     }
   }
+}
 
+function assertCapabilityUnknownTolerance(ctx: ValidationContext): void {
   const capabilityUnknownToleranceFixture = ctx.readJson(
     "conformance/fixtures/capability-metadata-unknown-tolerance.json",
   );
@@ -104,7 +112,9 @@ export function run(ctx: ValidationContext): void {
   for (const warning of capabilityUnknownToleranceFixture.expected.warnings) {
     assertWarning(ctx, warning, "capability metadata unknown tolerance warning");
   }
+}
 
+function assertCapabilityReservedExtensions(ctx: ValidationContext): void {
   const capabilityReservedExtensionFixture = ctx.readJson(
     "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
   );
@@ -117,7 +127,9 @@ export function run(ctx: ValidationContext): void {
     capabilityReservedExtensionFixture.expected.valid === false,
     "capability metadata reserved extension fixture must be an expected failure",
   );
+}
 
+function assertCapabilityInvalidCompatibility(ctx: ValidationContext): void {
   const capabilityInvalidCompatibilityFixture = ctx.readJson(
     "conformance/fixtures/capability-invalid-compatibility-cases.json",
   );
@@ -132,7 +144,9 @@ export function run(ctx: ValidationContext): void {
       `capability metadata invalid compatibility fixture ${fixture.name} must be an expected failure`,
     );
   }
+}
 
+function assertBridgeMetadata(ctx: ValidationContext): void {
   ctx.validate(
     "bridgeMetadata",
     ctx.readJson("conformance/fixtures/bridge-metadata.json"),
@@ -153,8 +167,23 @@ export function run(ctx: ValidationContext): void {
       .size === REQUIRED_CAPABILITY_BRIDGE_PAIR_COUNT,
     "bridge status variants fixture must cover distinct non-active statuses",
   );
+}
 
+function assertPublicationDrift(ctx: ValidationContext): void {
   assertReservedExtensionNamespaceDrift(ctx);
   assertSiteSchemaPublicationDrift(ctx);
   assertSpdxExternalDependencyContextDrift(ctx);
 }
+
+function run(ctx: ValidationContext): void {
+  const capabilityMetadata = validateCapabilityMetadata(ctx);
+  assertCapabilityMetadataVersions(capabilityMetadata);
+  assertCapabilityMetadataApis(capabilityMetadata);
+  assertCapabilityUnknownTolerance(ctx);
+  assertCapabilityReservedExtensions(ctx);
+  assertCapabilityInvalidCompatibility(ctx);
+  assertBridgeMetadata(ctx);
+  assertPublicationDrift(ctx);
+}
+
+export { run };
