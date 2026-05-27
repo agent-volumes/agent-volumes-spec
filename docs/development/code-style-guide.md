@@ -95,6 +95,60 @@ for (const phase of phases) {
 
 ---
 
+### `import/no-cycle`
+
+**What it does:** Detects dependency cycles where an imported module can resolve a path back to the importing module.
+
+**Why maintain:** Cyclic dependencies make validator architecture harder to reason about and can surface as partially initialized or `undefined` imports at runtime. Keeping the dependency graph one-way also preserves the intended `scripts/validate-artifacts/` layering: entry points orchestrate phases, phases call assertion and core helpers, and shared helpers do not import back upward.
+
+**Incorrect:**
+
+```typescript
+// scripts/validate-artifacts/core/schema-context.ts
+import { readFixture } from "./files.ts";
+
+function createSchemaContext(): void {
+  readFixture();
+}
+
+export { createSchemaContext };
+
+// scripts/validate-artifacts/core/files.ts
+import { createSchemaContext } from "./schema-context.ts";
+
+function readFixture(): void {
+  createSchemaContext();
+}
+
+export { readFixture };
+```
+
+**Correct:**
+
+```typescript
+// scripts/validate-artifacts/core/files.ts
+function readFixture(): void {
+  /* ... */
+}
+
+export { readFixture };
+
+// scripts/validate-artifacts/core/schema-context.ts
+import { readFixture } from "./files.ts";
+
+function createSchemaContext(): void {
+  readFixture();
+}
+
+export { createSchemaContext };
+```
+
+**Configuration:** `["error", { "maxDepth": 3 }]`
+
+**Project style:** Preserve acyclic imports across the validation script tree. If two modules need each other, extract the shared type, constant, or helper into a lower-level `core/` module rather than importing sideways or back upward. Type-only imports are ignored by Oxlint's default `ignoreTypes: true`, but prefer keeping runtime dependencies acyclic even when type boundaries are involved.
+
+---
+
 ### `typescript/explicit-function-return-type`
 
 **What it does:** Requires explicit return type annotations on functions.
