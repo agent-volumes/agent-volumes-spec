@@ -13,6 +13,10 @@ function normalizeRelativePath(relativePath: string): string {
 }
 
 function readJsonFile(relativePath: string): JsonValue {
+  const normalizedPath = normalizeRelativePath(relativePath);
+  if (normalizedPath.startsWith("conformance/") && normalizedPath.endsWith(".json")) {
+    readJsonPaths.add(normalizedPath);
+  }
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
 }
 
