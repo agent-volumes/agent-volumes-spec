@@ -6,21 +6,24 @@ Normative offline conformance fixture set for Agent Volumes v0.1. Artifact-first
 
 ```text
 conformance/
-├── README.md              # Runner contract, claim labels, fixture mapping
-├── REQUIREMENTS.md        # Role-scoped requirement inventory + deferred topics
-└── fixtures/              # ~60 JSON fixture files
+├── README.md                                  # Runner contract, claim labels, fixture mapping
+├── REQUIREMENTS.md                            # Role-scoped requirement inventory + deferred topics
+├── purl-vers-compatibility-exceptions.json    # Portable purl/VERS compatibility exceptions
+├── upstream-baselines.json                    # External dependency upstream version baselines
+└── fixtures/                                  # ~60 JSON fixture files
 ```
 
 ## WHERE TO LOOK
 
-| Task                           | Location                                                           | Notes                                                |
-| ------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| Add manifest validation case   | `fixtures/manifest-*.json`                                         | `valid`, `invalid`, `unknown-field-warning` variants |
-| Add resolver/dependency case   | `fixtures/resolver-cases.json`, `fixtures/semver-range-cases.json` | Algorithmic vectors, not schema-only                 |
-| Add trust lifecycle case       | `fixtures/trust-upload-lifecycle.json`                             | Case payload schema per `schema` field               |
-| Add advisory case              | `fixtures/advisory*.json`                                          | Whole-file or case payload                           |
-| Check requirement traceability | `fixtures/conformance-coverage.json`                               | Maps `AV-BIB-*` / `AV-CLI-*` to fixture families     |
-| Check deferred topics          | `REQUIREMENTS.md` §Deferred                                        | Don't count as readiness gaps                        |
+| Task                           | Location                                                             | Notes                                                |
+| ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------- |
+| Add manifest validation case   | `fixtures/manifest-*.json`                                           | `valid`, `invalid`, `unknown-field-warning` variants |
+| Add resolver/dependency case   | `fixtures/resolver-cases.json`, `fixtures/semver-range-cases.json`   | Algorithmic vectors, not schema-only                 |
+| Add trust lifecycle case       | `fixtures/trust-upload-lifecycle.json`                               | Case payload schema per `schema` field               |
+| Add advisory case              | `fixtures/advisory*.json`                                            | Whole-file or case payload                           |
+| Check external dependency data | `upstream-baselines.json`, `purl-vers-compatibility-exceptions.json` | Root JSON artifacts validated with dependency cases  |
+| Check requirement traceability | `fixtures/conformance-coverage.json`                                 | Maps `AV-BIB-*` / `AV-CLI-*` to fixture families     |
+| Check deferred topics          | `REQUIREMENTS.md` §Deferred                                          | Don't count as readiness gaps                        |
 
 ## CONVENTIONS
 
