@@ -108,7 +108,9 @@ function test() {
   return;
 }
 
-const arrowFn = () => "test";
+function label() {
+  return "test";
+}
 ```
 
 **Correct:**
@@ -118,7 +120,9 @@ function test(): void {
   return;
 }
 
-const arrowFn = (): string => "test";
+function label(): string {
+  return "test";
+}
 ```
 
 ---
@@ -132,21 +136,29 @@ const arrowFn = (): string => "test";
 **Incorrect:**
 
 ```typescript
-export function test() {
+function test() {
   return;
 }
 
-export const arrowFn = () => "test";
+function label() {
+  return "test";
+}
+
+export { label, test };
 ```
 
 **Correct:**
 
 ```typescript
-export function test(): void {
+function test(): void {
   return;
 }
 
-export const arrowFn = (): string => "test";
+function label(): string {
+  return "test";
+}
+
+export { label, test };
 ```
 
 ---
@@ -387,17 +399,17 @@ function processData(data: unknown) {
 **Correct:**
 
 ```typescript
-function validateData(data: unknown) {
+function validateData(data: unknown): void {
   /* ... */
 }
-function transformData(data: unknown) {
+function transformData(data: unknown): void {
   /* ... */
 }
-function filterData(data: unknown) {
+function filterData(data: unknown): void {
   /* ... */
 }
 
-function processData(data: unknown) {
+function processData(data: unknown): void {
   validateData(data);
   transformData(data);
   filterData(data);
@@ -558,23 +570,26 @@ function processOrder(order: unknown) {
 **Correct:**
 
 ```typescript
-function isHighValueItem(item: unknown) {
-  return item.price > 100;
+const HIGH_VALUE_PRICE_THRESHOLD = 100;
+
+function isHighValueItem(item: OrderItem): boolean {
+  return item.price > HIGH_VALUE_PRICE_THRESHOLD;
 }
 
-function processInStockItem(item: unknown) {
+function processInStockItem(item: OrderItem): void {
   if (isHighValueItem(item)) {
     // handle high-value item
   }
 }
 
-function processOrder(order: unknown) {
+function processOrder(order: Order): void {
   if (order.status !== "pending") return;
   if (order.items.length === 0) return;
 
   for (const item of order.items) {
-    if (!item.inStock) continue;
-    processInStockItem(item);
+    if (item.inStock) {
+      processInStockItem(item);
+    }
   }
 }
 ```
@@ -596,8 +611,17 @@ const fn = (a, b, c, d, e) => { ... };
 **Correct:**
 
 ```typescript
-interface Options { a: string; b: string; c: string; d: string; e: string; }
-const fn = (options: Options) => { ... };
+interface Options {
+  a: string;
+  b: string;
+  c: string;
+  d: string;
+  e: string;
+}
+
+function fn(options: Options): void {
+  /* ... */
+}
 ```
 
 ---
