@@ -7,7 +7,9 @@
       "proseAnchor": "§9.3",
       "requirements": ["AV-BIB-007"],
       "auth": "Public",
-      "operations": ["searchVolumes"],
+      "operations": [
+        { "operationId": "searchVolumes", "method": "get", "pathName": "/api/v1/search" }
+      ],
       "fixtures": [
         "conformance/fixtures/search-results.json",
         "conformance/fixtures/catalog-search-failure-cases.json"
@@ -19,7 +21,18 @@
       "proseAnchor": "§9.2.1",
       "requirements": ["AV-BIB-003", "AV-BIB-004", "AV-BIB-012"],
       "auth": "Bearer",
-      "operations": ["createVolumeUploadIntent", "createScopedVolumeUploadIntent"],
+      "operations": [
+        {
+          "operationId": "createVolumeUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}"
+        },
+        {
+          "operationId": "createScopedVolumeUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}"
+        }
+      ],
       "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"]
     },
     {
@@ -28,7 +41,18 @@
       "proseAnchor": "§9.2.1",
       "requirements": ["AV-BIB-002", "AV-BIB-003", "AV-BIB-004", "AV-BIB-005", "AV-BIB-012"],
       "auth": "Bearer",
-      "operations": ["finalizeVolumeUpload", "finalizeScopedVolumeUpload"],
+      "operations": [
+        {
+          "operationId": "finalizeVolumeUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/uploads/{uploadId}/finalize"
+        },
+        {
+          "operationId": "finalizeScopedVolumeUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize"
+        }
+      ],
       "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"]
     },
     {
@@ -37,7 +61,18 @@
       "proseAnchor": "§9.2.2",
       "requirements": ["AV-BIB-003", "AV-BIB-009", "AV-BIB-010", "AV-BIB-017"],
       "auth": "Public",
-      "operations": ["getVolumeRelease", "getScopedVolumeRelease"],
+      "operations": [
+        {
+          "operationId": "getVolumeRelease",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}"
+        },
+        {
+          "operationId": "getScopedVolumeRelease",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
+        }
+      ],
       "fixtures": ["conformance/fixtures/exact-release-metadata-cases.json"]
     },
     {
@@ -46,7 +81,18 @@
       "proseAnchor": "§9.2.3",
       "requirements": ["AV-BIB-003", "AV-BIB-004", "AV-BIB-008"],
       "auth": "Bearer",
-      "operations": ["unpublishVolumeRelease", "unpublishScopedVolumeRelease"],
+      "operations": [
+        {
+          "operationId": "unpublishVolumeRelease",
+          "method": "delete",
+          "pathName": "/api/v1/volumes/{name}/{version}"
+        },
+        {
+          "operationId": "unpublishScopedVolumeRelease",
+          "method": "delete",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
+        }
+      ],
       "fixtures": ["conformance/fixtures/lifecycle-mutation-cases.json"]
     },
     {
@@ -55,7 +101,18 @@
       "proseAnchor": "§9.2.4",
       "requirements": ["AV-BIB-008", "AV-BIB-010", "AV-BIB-018"],
       "auth": "Public",
-      "operations": ["getVolumeVersionIndex", "getScopedVolumeVersionIndex"],
+      "operations": [
+        {
+          "operationId": "getVolumeVersionIndex",
+          "method": "get",
+          "pathName": "/api/v1/index/volumes/{name}"
+        },
+        {
+          "operationId": "getScopedVolumeVersionIndex",
+          "method": "get",
+          "pathName": "/api/v1/index/volumes/@{scope}/{name}"
+        }
+      ],
       "fixtures": [
         "conformance/fixtures/version-index.json",
         "conformance/fixtures/version-index-row-cases.json"
@@ -67,7 +124,18 @@
       "proseAnchor": "§9.4.1",
       "requirements": ["AV-BIB-010", "AV-BIB-011"],
       "auth": "Public",
-      "operations": ["getVolumeTrustSummary", "getScopedVolumeTrustSummary"],
+      "operations": [
+        {
+          "operationId": "getVolumeTrustSummary",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/summary"
+        },
+        {
+          "operationId": "getScopedVolumeTrustSummary",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary"
+        }
+      ],
       "fixtures": [
         "conformance/fixtures/trust-summary.json",
         "conformance/fixtures/trust-summary-empty.json",
@@ -80,7 +148,18 @@
       "proseAnchor": "§9.4.2",
       "requirements": ["AV-BIB-010", "AV-BIB-011", "AV-BIB-015"],
       "auth": "Public",
-      "operations": ["getVolumeTrustDetail", "getScopedVolumeTrustDetail"],
+      "operations": [
+        {
+          "operationId": "getVolumeTrustDetail",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/detail"
+        },
+        {
+          "operationId": "getScopedVolumeTrustDetail",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail"
+        }
+      ],
       "fixtures": [
         "conformance/fixtures/trust-detail.json",
         "conformance/fixtures/trust-detail-empty.json",
@@ -94,7 +173,18 @@
       "proseAnchor": "§9.4.3",
       "requirements": ["AV-BIB-012"],
       "auth": "Bearer",
-      "operations": ["createVolumeTrustUploadIntent", "createScopedVolumeTrustUploadIntent"],
+      "operations": [
+        {
+          "operationId": "createVolumeTrustUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads"
+        },
+        {
+          "operationId": "createScopedVolumeTrustUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads"
+        }
+      ],
       "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"]
     },
     {
@@ -103,7 +193,18 @@
       "proseAnchor": "§9.4.3",
       "requirements": ["AV-BIB-012", "AV-BIB-015"],
       "auth": "Bearer",
-      "operations": ["finalizeVolumeTrustUpload", "finalizeScopedVolumeTrustUpload"],
+      "operations": [
+        {
+          "operationId": "finalizeVolumeTrustUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize"
+        },
+        {
+          "operationId": "finalizeScopedVolumeTrustUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize"
+        }
+      ],
       "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"]
     },
     {
@@ -112,7 +213,9 @@
       "proseAnchor": "§9.5",
       "requirements": ["AV-BIB-013"],
       "auth": "Public",
-      "operations": ["searchAdvisories"],
+      "operations": [
+        { "operationId": "searchAdvisories", "method": "get", "pathName": "/api/v1/advisories" }
+      ],
       "fixtures": [
         "conformance/fixtures/advisory-list.json",
         "conformance/fixtures/advisory-search-failure-cases.json"
@@ -124,7 +227,13 @@
       "proseAnchor": "§9.5",
       "requirements": ["AV-BIB-013"],
       "auth": "Public",
-      "operations": ["getAdvisory"],
+      "operations": [
+        {
+          "operationId": "getAdvisory",
+          "method": "get",
+          "pathName": "/api/v1/advisories/{advisoryId}"
+        }
+      ],
       "fixtures": [
         "conformance/fixtures/advisory.json",
         "conformance/fixtures/advisory-withdrawn.json",
@@ -137,7 +246,13 @@
       "proseAnchor": "§9.6-§9.7",
       "requirements": ["AV-BIB-014", "AV-BIB-016"],
       "auth": "Public",
-      "operations": ["getCapabilityMetadata"],
+      "operations": [
+        {
+          "operationId": "getCapabilityMetadata",
+          "method": "get",
+          "pathName": "/api/v1/capabilities"
+        }
+      ],
       "fixtures": [
         "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
         "conformance/fixtures/capability-metadata-unknown-tolerance.json",

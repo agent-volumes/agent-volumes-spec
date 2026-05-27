@@ -31,7 +31,16 @@
           "operations": {
             "type": "array",
             "minItems": 1,
-            "items": { "type": "string", "minLength": 1 },
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["operationId", "method", "pathName"],
+              "properties": {
+                "operationId": { "type": "string", "minLength": 1 },
+                "method": { "type": "string", "enum": ["get", "post", "put", "patch", "delete"] },
+                "pathName": { "type": "string", "pattern": "^/api/v1/" }
+              }
+            },
             "uniqueItems": true
           },
           "fixtures": {

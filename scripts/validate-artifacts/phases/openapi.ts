@@ -7,136 +7,6 @@ import { problemStatusBySlug } from "../core/problem-registry.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
 
-const REQUIRED_OPERATIONS = [
-  { auth: "Public", method: "get", operationId: "searchVolumes", pathName: "/api/v1/search" },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "createVolumeUploadIntent",
-    pathName: "/api/v1/volumes/{name}",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "finalizeVolumeUpload",
-    pathName: "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "createScopedVolumeUploadIntent",
-    pathName: "/api/v1/volumes/@{scope}/{name}",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "finalizeScopedVolumeUpload",
-    pathName: "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getVolumeRelease",
-    pathName: "/api/v1/volumes/{name}/{version}",
-  },
-  {
-    auth: "Bearer",
-    method: "delete",
-    operationId: "unpublishVolumeRelease",
-    pathName: "/api/v1/volumes/{name}/{version}",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getScopedVolumeRelease",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
-  },
-  {
-    auth: "Bearer",
-    method: "delete",
-    operationId: "unpublishScopedVolumeRelease",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getVolumeVersionIndex",
-    pathName: "/api/v1/index/volumes/{name}",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getScopedVolumeVersionIndex",
-    pathName: "/api/v1/index/volumes/@{scope}/{name}",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getVolumeTrustSummary",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/summary",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getScopedVolumeTrustSummary",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getVolumeTrustDetail",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/detail",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "createVolumeTrustUploadIntent",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "finalizeVolumeTrustUpload",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getScopedVolumeTrustDetail",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "createScopedVolumeTrustUploadIntent",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
-  },
-  {
-    auth: "Bearer",
-    method: "post",
-    operationId: "finalizeScopedVolumeTrustUpload",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "searchAdvisories",
-    pathName: "/api/v1/advisories",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getAdvisory",
-    pathName: "/api/v1/advisories/{advisoryId}",
-  },
-  {
-    auth: "Public",
-    method: "get",
-    operationId: "getCapabilityMetadata",
-    pathName: "/api/v1/capabilities",
-  },
-] as const;
-
 const IDEMPOTENCY_OPERATIONS = new Set([
   "createVolumeUploadIntent",
   "finalizeVolumeUpload",
@@ -321,6 +191,13 @@ interface OpenapiOperation {
   security: JsonValue;
 }
 
+interface MatrixOperation {
+  auth: string;
+  method: string;
+  operationId: string;
+  pathName: string;
+}
+
 interface ScopedUploadFixtureEvidenceAssertion {
   ctx: ValidationContext;
   endpoint: string;
@@ -376,24 +253,32 @@ function collectOpenapiOperations(openapi: JsonObject): OpenapiOperation[] {
 }
 
 function addMatrixFamilyOperations(
-  matrixAuthById: Map<string, string>,
+  matrixOperationsById: Map<string, MatrixOperation>,
   endpointFamily: JsonValue,
 ): void {
-  for (const operationId of endpointFamily.operations) {
+  for (const operation of endpointFamily.operations) {
+    const matrixOperation = {
+      auth: endpointFamily.auth,
+      method: operation.method,
+      operationId: operation.operationId,
+      pathName: operation.pathName,
+    };
     assert(
-      !matrixAuthById.has(operationId),
-      `OpenAPI operation matrix must list ${operationId} exactly once`,
+      !matrixOperationsById.has(matrixOperation.operationId),
+      `OpenAPI operation matrix must list ${matrixOperation.operationId} exactly once`,
     );
-    matrixAuthById.set(operationId, endpointFamily.auth);
+    matrixOperationsById.set(matrixOperation.operationId, matrixOperation);
   }
 }
 
-function operationMatrixAuthById(openapiOperationMatrix: JsonValue): Map<string, string> {
-  const matrixAuthById = new Map<string, string>();
+function operationMatrixOperationsById(
+  openapiOperationMatrix: JsonValue,
+): Map<string, MatrixOperation> {
+  const matrixOperationsById = new Map<string, MatrixOperation>();
   for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
-    addMatrixFamilyOperations(matrixAuthById, endpointFamily);
+    addMatrixFamilyOperations(matrixOperationsById, endpointFamily);
   }
-  return matrixAuthById;
+  return matrixOperationsById;
 }
 
 function fixtureSetContainsEndpoint(fixtureSet: JsonValue, endpoint: string): boolean {
@@ -441,14 +326,16 @@ function assertScopedUploadOperationFixtures(
   openapiOperationMatrix: JsonValue,
 ): void {
   for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
-    for (const operationId of endpointFamily.operations) {
-      const scopedUploadEndpoint = SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS.get(operationId);
+    for (const operation of endpointFamily.operations) {
+      const scopedUploadEndpoint = SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS.get(
+        operation.operationId,
+      );
       if (scopedUploadEndpoint) {
         assertScopedUploadFixtureEvidence({
           ctx,
           endpoint: scopedUploadEndpoint,
           endpointFamily,
-          operationId,
+          operationId: operation.operationId,
         });
       }
     }
@@ -484,54 +371,36 @@ function assertOperationAuthBoundary(operation: OpenapiOperation, expectedAuth: 
   );
 }
 
+function operationKey(method: string, pathName: string): string {
+  return `${method.toUpperCase()} ${pathName}`;
+}
+
 function assertOperationCoverageMatrix(
   ctx: ValidationContext,
   openapi: JsonObject,
   openapiOperationMatrix: JsonValue,
 ): void {
   const operations = collectOpenapiOperations(openapi);
-  const matrixAuthById = operationMatrixAuthById(openapiOperationMatrix);
+  const matrixOperationsById = operationMatrixOperationsById(openapiOperationMatrix);
   assert(
-    operations.length === matrixAuthById.size,
-    "OpenAPI operation matrix must contain exactly one row entry per operationId",
+    operations.length === matrixOperationsById.size,
+    "OpenAPI operation matrix must contain exactly one operation entry per OpenAPI operationId",
   );
   for (const operation of operations) {
-    const expectedAuth = matrixAuthById.get(operation.operationId);
+    const matrixOperation = matrixOperationsById.get(operation.operationId);
     assert(
-      typeof expectedAuth === "string",
+      typeof matrixOperation !== "undefined",
       `OpenAPI operation matrix missing ${operation.operationId}`,
     );
-    assertOperationAuthBoundary(operation, expectedAuth);
+    assert(
+      operation.method === matrixOperation.method &&
+        operation.pathName === matrixOperation.pathName,
+      `OpenAPI operation matrix ${operation.operationId} must match ${operationKey(operation.method, operation.pathName)}`,
+    );
+    assertOperationAuthBoundary(operation, matrixOperation.auth);
   }
   assertMatrixFixtureReferences(ctx, openapiOperationMatrix);
   assertScopedUploadOperationFixtures(ctx, openapiOperationMatrix);
-}
-
-function operationKey(method: string, pathName: string): string {
-  return `${method.toUpperCase()} ${pathName}`;
-}
-
-function assertRequiredOperations(openapi: JsonObject): void {
-  const operationsByKey = new Map(
-    collectOpenapiOperations(openapi).map((operation: OpenapiOperation) => [
-      operationKey(operation.method, operation.pathName),
-      operation,
-    ]),
-  );
-  for (const requiredOperation of REQUIRED_OPERATIONS) {
-    const operation = operationsByKey.get(
-      operationKey(requiredOperation.method, requiredOperation.pathName),
-    );
-    assert(
-      operation,
-      `OpenAPI document must define ${requiredOperation.method.toUpperCase()} ${requiredOperation.pathName}`,
-    );
-    assert(
-      operation.operationId === requiredOperation.operationId,
-      `OpenAPI ${operationKey(requiredOperation.method, requiredOperation.pathName)} must use operationId ${requiredOperation.operationId}`,
-    );
-    assertOperationAuthBoundary(operation, requiredOperation.auth);
-  }
 }
 
 function operationHasIdempotencyHeader(operation: OpenapiOperation): boolean {
@@ -724,7 +593,6 @@ function assertOpenapiDocument(
   openapiOperationMatrix: JsonValue,
 ): void {
   assert(openapi.openapi === "3.1.1", "OpenAPI document must declare version 3.1.1");
-  assertRequiredOperations(openapi);
   assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
   assertUploadIdempotency(openapi);
   assertConflictResponses(openapi);
