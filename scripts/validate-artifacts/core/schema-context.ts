@@ -14,6 +14,7 @@ addFormats(ajv);
 
 const SPEC_VERSION = "0.1.0-rc.1";
 const JSON_SCHEMA_DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema";
+const JSON_SCHEMA_FILE_SUFFIX = ".schema.json";
 const SCHEMA_ID_PREFIX = `https://agentvolumes.org/spec/${SPEC_VERSION}/`;
 
 const schemaEntries = [
@@ -92,6 +93,10 @@ assertSchemaRegistryInventory();
 
 function assertRegisteredSchemaMetadata(relativePath: string, schema: JsonValue): void {
   assert(
+    relativePath.endsWith(JSON_SCHEMA_FILE_SUFFIX),
+    `${relativePath} must use the ${JSON_SCHEMA_FILE_SUFFIX} suffix`,
+  );
+  assert(
     schema.$schema === JSON_SCHEMA_DRAFT_2020_12,
     `${relativePath} must declare Draft 2020-12 $schema`,
   );
@@ -102,6 +107,10 @@ function assertRegisteredSchemaMetadata(relativePath: string, schema: JsonValue)
 }
 
 function assertNonSchemaArtifactMetadata(relativePath: string): void {
+  assert(
+    !relativePath.endsWith(JSON_SCHEMA_FILE_SUFFIX),
+    `${relativePath} must not use the ${JSON_SCHEMA_FILE_SUFFIX} suffix`,
+  );
   const artifact = readJsonFile(relativePath);
   assert(
     artifact.$id === `${SCHEMA_ID_PREFIX}${relativePath}`,
