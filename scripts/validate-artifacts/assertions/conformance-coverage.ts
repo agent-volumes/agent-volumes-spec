@@ -5,6 +5,17 @@ import { assert, assertUniqueStrings } from "../core/assert.ts";
 import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
+const PROSE_BOUNDARY_FIXTURE = "REQUIREMENTS.md";
+
+const PROSE_BOUNDARY_HEADINGS = [
+  "live-registry-behavior",
+  "local-authorization-policy",
+  "runtime-adapter-behavior",
+  "cryptographic-trust-roots",
+  "search-ranking-and-catalog-ordering",
+  "external-dependency-discovery-surfaces",
+];
+
 function caseNamesFromFixture(fixture: JsonValue): JsonValue[] {
   const names = [];
   for (const collectionName of ["cases", "fixtures"]) {
@@ -96,8 +107,74 @@ function assertResolvedCoverageReference({
   }
 }
 
+function assertProseBoundaryReference(
+  requirement: JsonValue,
+  coverage: JsonValue,
+  proseBoundaryHeadings: Set<string>,
+): void {
+  if (coverage.coverageType !== "prose-boundary") {
+    assert(
+      !coverage.boundary,
+      `conformance coverage ${requirement.id} boundary is only valid for prose-boundary coverage`,
+    );
+    return;
+  }
+
+  assert(
+    coverage.fixture === PROSE_BOUNDARY_FIXTURE,
+    `conformance coverage ${requirement.id} prose-boundary coverage must reference REQUIREMENTS.md`,
+  );
+  assert(
+    coverage.boundary,
+    `conformance coverage ${requirement.id} prose-boundary coverage must name a boundary`,
+  );
+  assert(
+    proseBoundaryHeadings.has(coverage.boundary),
+    `conformance coverage ${requirement.id} references missing prose boundary ${coverage.boundary}`,
+  );
+}
+
+function proseBoundaryHeadingSlug(headingLine: string): string {
+  return headingLine
+    .replace(/^- \*\*/, "")
+    .replace(/\*\*:.*$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function isProseBoundaryListItem(line: string, inProseBoundarySection: boolean): boolean {
+  return inProseBoundarySection && line.startsWith("- **");
+}
+
+function extractProseBoundaryHeadings(requirementsText: string): Set<string> {
+  const headings = new Set<string>();
+  let inProseBoundarySection = false;
+  for (const line of requirementsText.split("\n")) {
+    if (line === "## Prose-boundary behavior") {
+      inProseBoundarySection = true;
+    } else if (inProseBoundarySection && line.startsWith("## ")) {
+      break;
+    } else if (isProseBoundaryListItem(line, inProseBoundarySection)) {
+      headings.add(proseBoundaryHeadingSlug(line));
+    }
+  }
+  return headings;
+}
+
+function assertKnownProseBoundaryHeadings(proseBoundaryHeadings: Set<string>): void {
+  assertUniqueStrings([...proseBoundaryHeadings], "prose-boundary headings");
+  for (const heading of PROSE_BOUNDARY_HEADINGS) {
+    assert(
+      proseBoundaryHeadings.has(heading),
+      `conformance REQUIREMENTS.md missing prose-boundary heading ${heading}`,
+    );
+  }
+}
+
 interface CoverageReferenceAssertion {
   ctx: ValidationContext;
+  proseBoundaryHeadings: Set<string>;
   seenCoverageTuples: Set<string>;
   requirement: JsonValue;
   coverage: JsonValue;
@@ -105,11 +182,13 @@ interface CoverageReferenceAssertion {
 
 function assertCoverageReference({
   ctx,
+  proseBoundaryHeadings,
   seenCoverageTuples,
   requirement,
   coverage,
 }: CoverageReferenceAssertion): void {
   assertUniqueCoverageTuple(seenCoverageTuples, requirement, coverage);
+  assertProseBoundaryReference(requirement, coverage, proseBoundaryHeadings);
   const resolvedPath = resolveCoverageReference(ctx, coverage.fixture);
   assert(
     resolvedPath,
@@ -127,10 +206,20 @@ function assertConformanceCoverageReferences(
   );
   assertUniqueStrings(requirementIds, "conformance coverage requirement IDs");
   const seenCoverageTuples = new Set<string>();
+  const proseBoundaryHeadings = extractProseBoundaryHeadings(
+    ctx.readText("conformance/REQUIREMENTS.md"),
+  );
+  assertKnownProseBoundaryHeadings(proseBoundaryHeadings);
 
   for (const requirement of conformanceCoverage.requirements) {
     for (const coverage of requirement.coverage) {
-      assertCoverageReference({ coverage, ctx, requirement, seenCoverageTuples });
+      assertCoverageReference({
+        coverage,
+        ctx,
+        proseBoundaryHeadings,
+        requirement,
+        seenCoverageTuples,
+      });
     }
   }
 }
