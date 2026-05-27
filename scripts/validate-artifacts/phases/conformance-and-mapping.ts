@@ -7,13 +7,7 @@ import {
 } from "../assertions/mapping-artifacts.ts";
 import { assertCycloneDxArtifact } from "../assertions/trust-artifacts.ts";
 import { assert, assertDeepEqual, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
-import {
-  EMPTY_COUNT,
-  HUMAN_LINE_NUMBER_OFFSET,
-  LISTING_ID_PAD_WIDTH,
-  REQUIRED_CONFORMANCE_REQUIREMENT_COUNT,
-  SHA256_INTEGRITY_PREFIX_LENGTH,
-} from "../core/numeric-constants.ts";
+import { EMPTY_COUNT, SHA256_INTEGRITY_PREFIX_LENGTH } from "../core/numeric-constants.ts";
 import {
   canonicalComponentPurl,
   canonicalReleasePurl,
@@ -41,27 +35,6 @@ interface ExternalDependencyContext {
   scope: JsonValue;
 }
 
-function requiredConformanceRequirementIds(prefix: string): string[] {
-  return Array.from(
-    Array.from({ length: REQUIRED_CONFORMANCE_REQUIREMENT_COUNT }).keys(),
-    (index: JsonValue) =>
-      `${prefix}-${String(index + HUMAN_LINE_NUMBER_OFFSET).padStart(LISTING_ID_PAD_WIDTH, "0")}`,
-  );
-}
-
-function assertConformanceRequirementIds(conformanceCoverage: JsonValue): void {
-  const coverageRequirementIds = new Set<string>(
-    conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id),
-  );
-
-  for (const id of [
-    ...requiredConformanceRequirementIds("AV-BIB"),
-    ...requiredConformanceRequirementIds("AV-CLI"),
-  ]) {
-    assert(coverageRequirementIds.has(id), `conformance coverage fixture missing ${id}`);
-  }
-}
-
 function extractSpecRequirementIds(specText: string): string[] {
   const requirementIds = [];
   for (const match of specText.matchAll(/\*\*(AV-(?:BIB|CLI)-\d{3})\*\*/g)) {
@@ -72,6 +45,28 @@ function extractSpecRequirementIds(specText: string): string[] {
   return requirementIds;
 }
 
+function coverageRequirementsById(conformanceCoverage: JsonValue): Map<string, JsonValue> {
+  return new Map(
+    conformanceCoverage.requirements.map((requirement: JsonValue) => [requirement.id, requirement]),
+  );
+}
+
+function normalizeFixtureReference(fixturePath: string): string {
+  return fixturePath.replace(/^conformance\/fixtures\//, "").replace(/^conformance\//, "");
+}
+
+function coverageFixtureNames(requirement: JsonValue): Set<string> {
+  return new Set(
+    requirement.coverage.map((coverage: JsonValue) => normalizeFixtureReference(coverage.fixture)),
+  );
+}
+
+function matrixFamilyFixtureNames(endpointFamily: JsonValue): string[] {
+  return (endpointFamily.fixtures ?? []).map((fixturePath: JsonValue) =>
+    normalizeFixtureReference(fixturePath),
+  );
+}
+
 function assertConformanceRequirementParity(
   ctx: ValidationContext,
   conformanceCoverage: JsonValue,
@@ -79,19 +74,54 @@ function assertConformanceRequirementParity(
   const specRequirementIds = extractSpecRequirementIds(ctx.readText("agent-volumes-spec.md"));
   assertDeepEqual(
     [...new Set(specRequirementIds)].toSorted(compareStrings),
-    [
-      ...requiredConformanceRequirementIds("AV-BIB"),
-      ...requiredConformanceRequirementIds("AV-CLI"),
-    ],
-    "spec role-scoped conformance requirement IDs",
+    specRequirementIds.toSorted(compareStrings),
+    "spec role-scoped conformance requirement IDs must be unique",
+  );
+  assert(
+    specRequirementIds.some((id: string) => id.startsWith("AV-BIB-")) &&
+      specRequirementIds.some((id: string) => id.startsWith("AV-CLI-")),
+    "spec role-scoped conformance requirement IDs must include bibliotheca and client IDs",
   );
   assertDeepEqual(
-    conformanceCoverage.requirements
-      .map((requirement: JsonValue) => requirement.id)
-      .toSorted(compareStrings),
-    specRequirementIds.toSorted(compareStrings),
+    conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id),
+    specRequirementIds,
     "conformance coverage requirement IDs must match agent-volumes-spec.md",
   );
+}
+
+function assertOpenapiMatrixRequirementCoverage(
+  ctx: ValidationContext,
+  conformanceCoverage: JsonValue,
+): void {
+  const openapiOperationMatrix = ctx.readJson("conformance/fixtures/openapi-operation-matrix.json");
+  const requirementsById = coverageRequirementsById(conformanceCoverage);
+
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    const familyFixtureNames = matrixFamilyFixtureNames(endpointFamily);
+    for (const requirementId of endpointFamily.requirements) {
+      const requirement = requirementsById.get(requirementId);
+      assert(
+        requirement,
+        `OpenAPI operation matrix ${endpointFamily.name} references missing requirement ${requirementId}`,
+      );
+      assert(
+        requirement.role === "bibliotheca",
+        `OpenAPI operation matrix ${endpointFamily.name} requirement ${requirementId} must be bibliotheca-scoped`,
+      );
+    }
+    assert(
+      endpointFamily.requirements.some((requirementId: JsonValue) => {
+        const requirement = requirementsById.get(requirementId);
+        return (
+          requirement &&
+          familyFixtureNames.some((fixtureName: string) =>
+            coverageFixtureNames(requirement).has(fixtureName),
+          )
+        );
+      }),
+      `OpenAPI operation matrix ${endpointFamily.name} must share fixture evidence with conformance coverage`,
+    );
+  }
 }
 
 function assertConformanceSearchCoverage(conformanceCoverage: JsonValue): void {
@@ -154,8 +184,8 @@ function validateConformanceCoverage(ctx: ValidationContext): void {
   ctx.validate("conformanceCoverage", conformanceCoverage, "conformance coverage fixture");
   assertSpecVersion(ctx, conformanceCoverage, "conformance coverage fixture");
   assertConformanceCoverageReferences(ctx, conformanceCoverage);
-  assertConformanceRequirementIds(conformanceCoverage);
   assertConformanceRequirementParity(ctx, conformanceCoverage);
+  assertOpenapiMatrixRequirementCoverage(ctx, conformanceCoverage);
   assertConformanceSearchCoverage(conformanceCoverage);
 }
 
