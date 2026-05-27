@@ -13,7 +13,19 @@ import { parseFixtureTomlSubset } from "../core/toml.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 const permissionOrder = {
+  browser: {
+    deny: new Set(["deny"]),
+    read: new Set(["deny", "read"]),
+    "read-write": new Set(["deny", "read", "write", "read-write"]),
+    write: new Set(["deny", "write"]),
+  },
   filesystem: {
+    deny: new Set(["deny"]),
+    read: new Set(["deny", "read"]),
+    "read-write": new Set(["deny", "read", "write", "read-write"]),
+    write: new Set(["deny", "write"]),
+  },
+  network: {
     deny: new Set(["deny"]),
     read: new Set(["deny", "read"]),
     "read-write": new Set(["deny", "read", "write", "read-write"]),
@@ -35,16 +47,10 @@ function isPermissionEscalation(
   if (typeof parent !== "string" || typeof child !== "string") {
     return false;
   }
-  if (surface === "filesystem") {
-    const filesystemPermission = Object.entries(permissionOrder.filesystem).find(
-      ([permission]) => permission === parent,
-    );
-    return Boolean(filesystemPermission && !filesystemPermission[1].has(child));
-  }
-  const shellPermission = Object.entries(permissionOrder.shell).find(
+  const parentPermission = Object.entries(permissionOrder[surface]).find(
     ([permission]) => permission === parent,
   );
-  return Boolean(shellPermission && !shellPermission[1].has(child));
+  return Boolean(parentPermission && !parentPermission[1].has(child));
 }
 
 function compileSemverRangeValidator(ctx: ValidationContext): (range: JsonValue) => boolean {
@@ -321,6 +327,22 @@ function validatePermissionEscalationFixtures(ctx: ValidationContext): void {
   assert(
     isPermissionEscalation("filesystem", parentFilesystem, childFilesystem),
     "permission escalation fixture must actually broaden component permissions",
+  );
+  assert(
+    isPermissionEscalation(
+      "network",
+      permissionFixture.canonicalParsedData.permissions.network,
+      permissionFixture.canonicalParsedData.components[1].permissions.network,
+    ),
+    "permission escalation fixture must exercise network permission broadening",
+  );
+  assert(
+    isPermissionEscalation(
+      "browser",
+      permissionFixture.canonicalParsedData.permissions.browser,
+      permissionFixture.canonicalParsedData.components[2].permissions.browser,
+    ),
+    "permission escalation fixture must exercise browser permission broadening",
   );
   assert(
     permissionFixture.expected.valid === false,

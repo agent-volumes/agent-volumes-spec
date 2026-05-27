@@ -27,6 +27,22 @@
         "permissions": {
           "filesystem": "read-write"
         }
+      },
+      {
+        "type": "tool",
+        "name": "write-network",
+        "entrypoint": "./tools/write-network.json",
+        "permissions": {
+          "network": "write"
+        }
+      },
+      {
+        "type": "tool",
+        "name": "drive-browser",
+        "entrypoint": "./tools/drive-browser.json",
+        "permissions": {
+          "browser": "read-write"
+        }
       }
     ]
   },
