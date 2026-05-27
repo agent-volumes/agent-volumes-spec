@@ -8,12 +8,7 @@ import {
 import { canonicalReleasePurl } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
-export function assertReleaseMetadata(
-  ctx: ValidationContext,
-  metadata: JsonValue,
-  label: JsonValue,
-): void {
-  ctx.validate("releaseMetadata", metadata, label);
+function assertReleaseIdentity(metadata: JsonValue, label: JsonValue): void {
   assert(volumeNamePattern.test(metadata.name), `${label} needs canonical full volume name`);
   assert(semverPattern.test(metadata.version), `${label} needs SemVer version`);
   assert(digestPattern.test(metadata.integrity), `${label} needs valid integrity`);
@@ -21,6 +16,9 @@ export function assertReleaseMetadata(
     metadata.purl === canonicalReleasePurl(metadata.name, metadata.version),
     `${label} purl must match canonical release identity`,
   );
+}
+
+function assertLifecycleStatus(metadata: JsonValue, label: JsonValue): void {
   assert(
     metadata.status && typeof metadata.status === "object",
     `${label} needs lifecycle status metadata`,
@@ -29,6 +27,9 @@ export function assertReleaseMetadata(
     ["available", "yanked", "tombstoned", "blocked", "unavailable"].includes(metadata.status.state),
     `${label} needs a recognized lifecycle status`,
   );
+}
+
+function assertDistributionMetadata(metadata: JsonValue, label: JsonValue): void {
   if (["available", "yanked"].includes(metadata.status.state)) {
     assert(metadata.dist && typeof metadata.dist === "object", `${label} needs dist metadata`);
     assert(["cdn", "git"].includes(metadata.dist.source), `${label} needs cdn or git dist source`);
@@ -39,6 +40,9 @@ export function assertReleaseMetadata(
       `${label} must not expose installable dist metadata for ${metadata.status.state}`,
     );
   }
+}
+
+function assertExternalDependencyDeclarations(metadata: JsonValue, label: JsonValue): void {
   for (const externalDependency of metadata.externalDependencies ?? []) {
     assert(
       externalDependencyDeclarationKeyPattern.test(externalDependency.declarationKey),
@@ -51,3 +55,17 @@ export function assertReleaseMetadata(
     );
   }
 }
+
+function assertReleaseMetadata(
+  ctx: ValidationContext,
+  metadata: JsonValue,
+  label: JsonValue,
+): void {
+  ctx.validate("releaseMetadata", metadata, label);
+  assertReleaseIdentity(metadata, label);
+  assertLifecycleStatus(metadata, label);
+  assertDistributionMetadata(metadata, label);
+  assertExternalDependencyDeclarations(metadata, label);
+}
+
+export { assertReleaseMetadata };

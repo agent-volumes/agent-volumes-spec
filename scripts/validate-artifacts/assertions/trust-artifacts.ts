@@ -41,7 +41,7 @@ function assertCycloneDxArtifact(artifactJson: JsonValue, trustCase: JsonValue):
   );
 }
 
-function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
+function assertSlsaEnvelope(artifactJson: JsonValue, trustCase: JsonValue): void {
   assert(
     artifactJson.payloadType === "application/vnd.in-toto+json",
     `trust artifact case ${trustCase.name} SLSA envelope must declare in-toto payloadType`,
@@ -56,7 +56,9 @@ function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void
       `trust artifact case ${trustCase.name} SLSA envelope signature bytes are required`,
     );
   }
-  const statement = JSON.parse(Buffer.from(artifactJson.payload, "base64").toString("utf8"));
+}
+
+function assertSlsaStatement(statement: JsonValue, trustCase: JsonValue): void {
   assert(
     statement._type === "https://in-toto.io/Statement/v1",
     `trust artifact case ${trustCase.name} needs in-toto Statement v1`,
@@ -78,6 +80,9 @@ function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void
     ),
     `trust artifact case ${trustCase.name} SLSA subject must bind release subject`,
   );
+}
+
+function assertSlsaPredicate(statement: JsonValue, trustCase: JsonValue): void {
   assert(
     statement.predicate?.buildDefinition?.buildType,
     `trust artifact case ${trustCase.name} needs SLSA buildType`,
@@ -88,7 +93,7 @@ function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void
   );
 }
 
-function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
+function assertSigstoreVerificationMaterial(artifactJson: JsonValue, trustCase: JsonValue): void {
   assert(
     artifactJson.media_type === "application/vnd.dev.sigstore.bundle.v0.3+json",
     `trust artifact case ${trustCase.name} Sigstore bundle must declare v0.3 media_type`,
@@ -107,6 +112,9 @@ function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): 
       artifactJson.verification_material.tlog_entries.length > EMPTY_COUNT,
     `trust artifact case ${trustCase.name} Sigstore bundle needs bundled transparency evidence`,
   );
+}
+
+function assertSigstoreContentForm(artifactJson: JsonValue, trustCase: JsonValue): void {
   const hasMessageSignature = Boolean(artifactJson.message_signature);
   const hasDsseEnvelope = Boolean(artifactJson.dsse_envelope);
   assert(
@@ -130,6 +138,18 @@ function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): 
       `trust artifact case ${trustCase.name} DSSE signatures are required`,
     );
   }
+}
+
+function assertSlsaArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
+  assertSlsaEnvelope(artifactJson, trustCase);
+  const statement = JSON.parse(Buffer.from(artifactJson.payload, "base64").toString("utf8"));
+  assertSlsaStatement(statement, trustCase);
+  assertSlsaPredicate(statement, trustCase);
+}
+
+function assertSigstoreArtifact(artifactJson: JsonValue, trustCase: JsonValue): void {
+  assertSigstoreVerificationMaterial(artifactJson, trustCase);
+  assertSigstoreContentForm(artifactJson, trustCase);
 }
 
 export { assertCycloneDxArtifact, assertSlsaArtifact, assertSigstoreArtifact };
