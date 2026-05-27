@@ -25,7 +25,34 @@ const releaseUploadFailuresByEndpoint = new Map([
     ],
   ],
   [
+    "POST /api/v1/volumes/@{scope}/{name}",
+    [
+      "authentication-required",
+      "authorization-failed",
+      "validation-failed",
+      "version-conflict",
+      "payload-too-large",
+      "unsupported-media-type",
+      "idempotency-conflict",
+    ],
+  ],
+  [
     "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+    [
+      "authentication-required",
+      "authorization-failed",
+      "not-found",
+      "invalid-archive",
+      "invalid-manifest",
+      "identity-mismatch",
+      "digest-mismatch",
+      "missing-uploaded-bytes",
+      "invalid-upload-state",
+      "upload-expired",
+    ],
+  ],
+  [
+    "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
     [
       "authentication-required",
       "authorization-failed",
@@ -54,7 +81,31 @@ const trustUploadFailuresByEndpoint = new Map([
     ],
   ],
   [
+    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+    [
+      "authentication-required",
+      "authorization-failed",
+      "subject-binding-mismatch",
+      "payload-too-large",
+      "unsupported-media-type",
+      "idempotency-conflict",
+    ],
+  ],
+  [
     "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+    [
+      "authentication-required",
+      "authorization-failed",
+      "digest-mismatch",
+      "upload-expired",
+      "subject-binding-mismatch",
+      "missing-uploaded-bytes",
+      "idempotency-conflict",
+      "invalid-upload-state",
+    ],
+  ],
+  [
+    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
     [
       "authentication-required",
       "authorization-failed",
