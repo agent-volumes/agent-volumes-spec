@@ -6,6 +6,10 @@
       "name": "release-upload-intent-success",
       "schema": "release-upload-intent",
       "expected": { "valid": true },
+      "request": {
+        "headerIdempotencyKey": "release-intent-key-1",
+        "bodyIdempotencyKey": "release-intent-key-1"
+      },
       "payload": {
         "uploadId": "upload-123",
         "target": {
@@ -125,6 +129,31 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
+      "name": "release-upload-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Release upload intents require publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}",
+      "name": "release-upload-validation-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "validation-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/validation-failed",
+        "title": "Validation failed",
+        "status": 400,
+        "detail": "The release upload intent request body is not valid."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "version-conflict" },
@@ -136,6 +165,31 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+      "name": "release-upload-finalize-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Release upload finalization requires publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+      "name": "release-upload-finalize-authorization-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated publisher cannot finalize this release upload."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-archive",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-archive" },
@@ -147,6 +201,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-manifest",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-manifest" },
@@ -158,6 +213,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-authorization-failed",
       "schema": "problem-details",
       "expected": { "failureCategory": "authorization-failed" },
@@ -169,6 +225,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-payload-too-large",
       "schema": "problem-details",
       "expected": { "failureCategory": "payload-too-large" },
@@ -180,6 +237,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-unsupported-media-type",
       "schema": "problem-details",
       "expected": { "failureCategory": "unsupported-media-type" },
@@ -191,6 +249,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-identity-mismatch",
       "schema": "problem-details",
       "expected": { "failureCategory": "identity-mismatch" },
@@ -202,6 +261,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-digest-mismatch",
       "schema": "problem-details",
       "expected": { "failureCategory": "digest-mismatch" },
@@ -213,6 +273,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-missing-bytes",
       "schema": "problem-details",
       "expected": { "failureCategory": "missing-uploaded-bytes" },
@@ -224,6 +285,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-not-found",
       "schema": "problem-details",
       "expected": { "failureCategory": "not-found" },
@@ -235,6 +297,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-invalid-state",
       "schema": "problem-details",
       "expected": { "failureCategory": "invalid-upload-state" },
@@ -246,9 +309,14 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}",
       "name": "release-upload-idempotency-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "idempotency-conflict" },
+      "request": {
+        "headerIdempotencyKey": "release-intent-key-1",
+        "bodyIdempotencyKey": "release-intent-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency conflict",
@@ -257,6 +325,7 @@
       }
     },
     {
+      "endpoint": "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
       "name": "release-upload-expired",
       "schema": "problem-details",
       "expected": { "failureCategory": "upload-expired" },
@@ -265,6 +334,214 @@
         "title": "Upload expired",
         "status": 410,
         "detail": "The release upload intent has expired."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Scoped release upload intents require publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-validation-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "validation-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/validation-failed",
+        "title": "Validation failed",
+        "status": 400,
+        "detail": "The scoped release upload intent request body is not valid."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-conflict",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "version-conflict" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/version-conflict",
+        "title": "Version conflict",
+        "status": 409,
+        "detail": "Version 1.4.0 already exists for the scoped package."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-authorization-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated publisher cannot publish this scoped release identity."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-payload-too-large",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "payload-too-large" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/payload-too-large",
+        "title": "Payload too large",
+        "status": 413,
+        "detail": "Uploaded scoped release bytes exceed the bibliotheca size limit."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-unsupported-media-type",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "unsupported-media-type" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/unsupported-media-type",
+        "title": "Unsupported media type",
+        "status": 415,
+        "detail": "Portable scoped release upload bytes must use the hosted .tar.gz media type."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}",
+      "name": "scoped-release-upload-idempotency-conflict",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "idempotency-conflict" },
+      "request": {
+        "headerIdempotencyKey": "scoped-release-intent-key-1",
+        "bodyIdempotencyKey": "scoped-release-intent-key-2"
+      },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/idempotency-conflict",
+        "title": "Idempotency conflict",
+        "status": 409,
+        "detail": "The idempotency key was previously used with different scoped release upload metadata."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-finalize-authentication-required",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authentication-required" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authentication-required",
+        "title": "Authentication required",
+        "status": 401,
+        "detail": "Scoped release upload finalization requires publisher authentication."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-finalize-authorization-failed",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The authenticated publisher cannot finalize this scoped release upload."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-invalid-archive",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "invalid-archive" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-archive",
+        "title": "Invalid archive",
+        "status": 400,
+        "detail": "Uploaded scoped release bytes are not a valid v0.1 hosted archive."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-invalid-manifest",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "invalid-manifest" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-manifest",
+        "title": "Invalid manifest",
+        "status": 400,
+        "detail": "Uploaded scoped release archive contains a manifest that fails v0.1 validation."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-identity-mismatch",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "identity-mismatch" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/identity-mismatch",
+        "title": "Identity mismatch",
+        "status": 409,
+        "detail": "The uploaded manifest identity does not match the scoped target upload path."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-digest-mismatch",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "digest-mismatch" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/digest-mismatch",
+        "title": "Digest mismatch",
+        "status": 400,
+        "detail": "Uploaded scoped release bytes do not match the declared uploaded-byte digest."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-missing-bytes",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "missing-uploaded-bytes" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/missing-uploaded-bytes",
+        "title": "Missing uploaded bytes",
+        "status": 400,
+        "detail": "Scoped release upload bytes must be available before finalization."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-not-found",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Upload intent not found",
+        "status": 404,
+        "detail": "The scoped release upload intent does not exist or is not visible to the caller."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-invalid-state",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "invalid-upload-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/invalid-upload-state",
+        "title": "Invalid upload state",
+        "status": 409,
+        "detail": "Only uploaded scoped release upload intents can be finalized."
+      }
+    },
+    {
+      "endpoint": "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+      "name": "scoped-release-upload-expired",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "upload-expired" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/upload-expired",
+        "title": "Upload expired",
+        "status": 410,
+        "detail": "The scoped release upload intent has expired."
       }
     }
   ]

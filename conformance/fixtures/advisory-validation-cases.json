@@ -55,6 +55,48 @@
         }
       },
       "expected": { "valid": false, "failureCategory": "invalid-advisory-relationship" }
+    },
+    {
+      "name": "range-event-fixed-before-introduced",
+      "payload": {
+        "id": { "local": "BIBSEC-12026-012" },
+        "source": { "ecosystem": "bibliotheca" },
+        "severity": "medium",
+        "published": "2026-05-01T00:00:00Z",
+        "updated": "2026-05-09T00:00:00Z",
+        "affected": {
+          "volume": "github-provider",
+          "ranges": [
+            {
+              "type": "semver",
+              "events": [{ "fixed": "1.0.0" }, { "introduced": "0" }]
+            }
+          ]
+        },
+        "summary": "Invalid range ordering coverage fixture"
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-advisory-range-events" }
+    },
+    {
+      "name": "range-event-fixed-before-lower-bound",
+      "payload": {
+        "id": { "local": "BIBSEC-12026-013" },
+        "source": { "ecosystem": "bibliotheca" },
+        "severity": "medium",
+        "published": "2026-05-01T00:00:00Z",
+        "updated": "2026-05-09T00:00:00Z",
+        "affected": {
+          "volume": "github-provider",
+          "ranges": [
+            {
+              "type": "semver",
+              "events": [{ "introduced": "2.0.0" }, { "fixed": "1.0.0" }]
+            }
+          ]
+        },
+        "summary": "Invalid range bound coverage fixture"
+      },
+      "expected": { "valid": false, "failureCategory": "invalid-advisory-range-events" }
     }
   ]
 }

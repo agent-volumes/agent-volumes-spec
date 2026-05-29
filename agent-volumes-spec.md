@@ -2084,6 +2084,7 @@ The release-candidate companion artifact inventory includes at least:
 - [`schemas/external-dependency-declarations-predicate.schema.json`](schemas/external-dependency-declarations-predicate.schema.json)
 - [`schemas/mapping-matrix.schema.json`](schemas/mapping-matrix.schema.json)
 - [`schemas/mapping-sample.schema.json`](schemas/mapping-sample.schema.json)
+- [`schemas/openapi-operation-matrix.schema.json`](schemas/openapi-operation-matrix.schema.json)
 - [`schemas/reserved-extension-namespaces.json`](schemas/reserved-extension-namespaces.json)
 - [`openapi/bibliotheca.openapi.yaml`](openapi/bibliotheca.openapi.yaml)
 - [`conformance/fixtures/`](conformance/fixtures/)

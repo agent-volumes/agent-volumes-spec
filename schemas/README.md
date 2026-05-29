@@ -23,6 +23,7 @@ bibliothecas, validators, exporters, and conformance runners.
 | Manifest and semantic cases | `manifest-parse-case.schema.json`, `semantic-validation-case.schema.json`, `component-dependency-validation-case.schema.json`                                                                              |
 | External dependencies       | `external-dependency-validation-case.schema.json`, `upstream-baseline.schema.json`, `purl-vers-compatibility-exceptions.schema.json`, `external-dependency-potential-exposure-warning-context.schema.json` |
 | BOM/provenance mapping      | `mapping-matrix.schema.json`, `mapping-sample.schema.json`, `external-dependency-declarations-predicate.schema.json`                                                                                       |
+| OpenAPI validation          | `openapi-operation-matrix.schema.json`                                                                                                                                                                     |
 | Search                      | `search-results.schema.json`                                                                                                                                                                               |
 
 ## Versioning rules

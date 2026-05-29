@@ -1,5 +1,39 @@
 {
   "specVersion": "0.1.0-rc.1",
+  "vocabularies": {
+    "componentEntrypointExtensions": {
+      "agent": [".md", ".yaml"],
+      "skill": [".md"],
+      "command": [".md"],
+      "tool": [".json", ".yaml", ".js", ".mjs", ".sh", ".py"],
+      "hook": [".md", ".yaml", ".js", ".mjs", ".sh", ".py"],
+      "mcp-server": [".json"],
+      "lsp-server": [".json"]
+    },
+    "canonicalHookEvents": [
+      "SessionStart",
+      "SessionEnd",
+      "Setup",
+      "UserPromptSubmit",
+      "Stop",
+      "StopFailure",
+      "PreToolUse",
+      "PostToolUse",
+      "PostToolUseFailure",
+      "PostToolBatch",
+      "SubagentStart",
+      "SubagentStop",
+      "TaskCreated",
+      "TaskCompleted",
+      "InstructionsLoaded",
+      "ConfigChange",
+      "CwdChanged",
+      "FileChanged",
+      "PreCompact",
+      "PostCompact"
+    ],
+    "baselineHookTypes": ["command", "script", "module"]
+  },
   "cases": [
     {
       "name": "release-file-selection-rejects-non-regular-entry",
@@ -41,6 +75,35 @@
       "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
     },
     {
+      "name": "component-entrypoint-rejects-directory-entry",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./skills/summarize-paper/SKILL.md"
+        },
+        "releaseEntries": [
+          { "path": "volume.toml", "entryType": "file" },
+          { "path": "skills/summarize-paper/SKILL.md", "entryType": "directory" }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "non-regular-archive-entry" }
+    },
+    {
+      "name": "component-entrypoint-rejects-archive-escape",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./../outside/SKILL.md"
+        },
+        "releaseEntries": [{ "path": "../outside/SKILL.md", "entryType": "file" }]
+      },
+      "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
+    },
+    {
       "name": "command-entrypoint-missing-trigger",
       "area": "manifest",
       "payload": {
@@ -75,6 +138,19 @@
       "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
     },
     {
+      "name": "mcp-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "mcp-server",
+          "name": "research-mcp",
+          "entrypoint": "./.mcp.json"
+        },
+        "descriptor": { "command": "node", "args": ["./servers/research-mcp.js"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
       "name": "invalid-spdx-license-expression",
       "area": "manifest",
       "payload": {
@@ -93,6 +169,20 @@
         },
         "releaseFiles": ["volume.toml", "agents/review/AGENT.md"],
         "frontmatter": { "description": "Reviews pull requests", "tools": ["tool/read-pr"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "agent-entrypoint-portable-yaml-definition",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "agent",
+          "name": "release-agent",
+          "entrypoint": "./agents/release/agent.yaml"
+        },
+        "releaseFiles": ["volume.toml", "agents/release/agent.yaml"],
+        "definition": { "description": "Prepares release notes", "tools": ["tool/changelog"] }
       },
       "expected": { "valid": true }
     },

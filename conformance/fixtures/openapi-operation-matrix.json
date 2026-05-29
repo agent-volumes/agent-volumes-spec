@@ -1,0 +1,472 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "endpointFamilies": [
+    {
+      "name": "Catalog search",
+      "status": "checked",
+      "proseAnchor": "§9.3",
+      "requirements": ["AV-BIB-007"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "searchVolumes",
+          "method": "get",
+          "pathName": "/api/v1/search",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/SearchResults"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/search-results.json",
+        "conformance/fixtures/catalog-search-failure-cases.json"
+      ],
+      "expectedProblems": ["validation-failed", "rate-limited"]
+    },
+    {
+      "name": "Release upload intent",
+      "status": "checked",
+      "proseAnchor": "§9.2.1",
+      "requirements": ["AV-BIB-003", "AV-BIB-004", "AV-BIB-012"],
+      "auth": "Bearer",
+      "operations": [
+        {
+          "operationId": "createVolumeUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-intent.schema.json"
+          }
+        },
+        {
+          "operationId": "createScopedVolumeUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-intent.schema.json"
+          }
+        }
+      ],
+      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "validation-failed",
+        "version-conflict",
+        "payload-too-large",
+        "unsupported-media-type",
+        "idempotency-conflict"
+      ]
+    },
+    {
+      "name": "Release upload finalize",
+      "status": "checked",
+      "proseAnchor": "§9.2.1",
+      "requirements": ["AV-BIB-002", "AV-BIB-003", "AV-BIB-004", "AV-BIB-005", "AV-BIB-012"],
+      "auth": "Bearer",
+      "operations": [
+        {
+          "operationId": "finalizeVolumeUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-finalize.schema.json"
+          }
+        },
+        {
+          "operationId": "finalizeScopedVolumeUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-finalize.schema.json"
+          }
+        }
+      ],
+      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "not-found",
+        "invalid-archive",
+        "invalid-manifest",
+        "identity-mismatch",
+        "digest-mismatch",
+        "missing-uploaded-bytes",
+        "invalid-upload-state",
+        "upload-expired"
+      ]
+    },
+    {
+      "name": "Exact release metadata",
+      "status": "checked",
+      "proseAnchor": "§9.2.2",
+      "requirements": ["AV-BIB-003", "AV-BIB-009", "AV-BIB-010", "AV-BIB-017"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getVolumeRelease",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/release-metadata.schema.json"
+          }
+        },
+        {
+          "operationId": "getScopedVolumeRelease",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/release-metadata.schema.json"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/exact-release-metadata-cases.json",
+        "conformance/fixtures/exact-release-metadata-failure-cases.json"
+      ],
+      "expectedProblems": [
+        "authorization-failed",
+        "not-found",
+        "inconsistent-registry-state",
+        "rate-limited"
+      ]
+    },
+    {
+      "name": "Unpublish / lifecycle mutation",
+      "status": "checked",
+      "proseAnchor": "§9.2.3",
+      "requirements": ["AV-BIB-003", "AV-BIB-004", "AV-BIB-008"],
+      "auth": "Bearer",
+      "operations": [
+        {
+          "operationId": "unpublishVolumeRelease",
+          "method": "delete",
+          "pathName": "/api/v1/volumes/{name}/{version}"
+        },
+        {
+          "operationId": "unpublishScopedVolumeRelease",
+          "method": "delete",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
+        }
+      ],
+      "fixtures": ["conformance/fixtures/lifecycle-mutation-cases.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "not-found",
+        "inconsistent-registry-state",
+        "rate-limited"
+      ]
+    },
+    {
+      "name": "Version index",
+      "status": "checked",
+      "proseAnchor": "§9.2.4",
+      "requirements": ["AV-BIB-008", "AV-BIB-010", "AV-BIB-018"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getVolumeVersionIndex",
+          "method": "get",
+          "pathName": "/api/v1/index/volumes/{name}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/VersionIndex"
+          }
+        },
+        {
+          "operationId": "getScopedVolumeVersionIndex",
+          "method": "get",
+          "pathName": "/api/v1/index/volumes/@{scope}/{name}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/VersionIndex"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/version-index.json",
+        "conformance/fixtures/version-index-row-cases.json",
+        "conformance/fixtures/version-index-failure-cases.json"
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
+    },
+    {
+      "name": "Trust summary",
+      "status": "checked",
+      "proseAnchor": "§9.4.1",
+      "requirements": ["AV-BIB-010", "AV-BIB-011"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getVolumeTrustSummary",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/summary",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-summary.schema.json"
+          }
+        },
+        {
+          "operationId": "getScopedVolumeTrustSummary",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-summary.schema.json"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/trust-summary.json",
+        "conformance/fixtures/trust-summary-empty.json",
+        "conformance/fixtures/trust-summary-failure-cases.json"
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
+    },
+    {
+      "name": "Trust detail",
+      "status": "checked",
+      "proseAnchor": "§9.4.2",
+      "requirements": ["AV-BIB-010", "AV-BIB-011", "AV-BIB-015"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getVolumeTrustDetail",
+          "method": "get",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/detail",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-detail.schema.json"
+          }
+        },
+        {
+          "operationId": "getScopedVolumeTrustDetail",
+          "method": "get",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-detail.schema.json"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/trust-detail.json",
+        "conformance/fixtures/trust-detail-empty.json",
+        "conformance/fixtures/trust-detail-status-variants.json",
+        "conformance/fixtures/trust-detail-failure-cases.json"
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
+    },
+    {
+      "name": "Trust upload intent",
+      "status": "checked",
+      "proseAnchor": "§9.4.3",
+      "requirements": ["AV-BIB-012"],
+      "auth": "Bearer",
+      "operations": [
+        {
+          "operationId": "createVolumeTrustUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-intent.schema.json"
+          }
+        },
+        {
+          "operationId": "createScopedVolumeTrustUploadIntent",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-intent.schema.json"
+          }
+        }
+      ],
+      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "subject-binding-mismatch",
+        "payload-too-large",
+        "unsupported-media-type",
+        "idempotency-conflict"
+      ]
+    },
+    {
+      "name": "Trust upload finalize",
+      "status": "checked",
+      "proseAnchor": "§9.4.3",
+      "requirements": ["AV-BIB-012", "AV-BIB-015"],
+      "auth": "Bearer",
+      "operations": [
+        {
+          "operationId": "finalizeVolumeTrustUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-finalize.schema.json"
+          }
+        },
+        {
+          "operationId": "finalizeScopedVolumeTrustUpload",
+          "method": "post",
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-finalize.schema.json"
+          }
+        }
+      ],
+      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "digest-mismatch",
+        "upload-expired",
+        "subject-binding-mismatch",
+        "missing-uploaded-bytes",
+        "idempotency-conflict",
+        "invalid-upload-state"
+      ]
+    },
+    {
+      "name": "Advisory search",
+      "status": "checked",
+      "proseAnchor": "§9.5",
+      "requirements": ["AV-BIB-013"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "searchAdvisories",
+          "method": "get",
+          "pathName": "/api/v1/advisories",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/AdvisoryList"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/advisory-list.json",
+        "conformance/fixtures/advisory-search-failure-cases.json"
+      ],
+      "expectedProblems": ["validation-failed", "rate-limited"]
+    },
+    {
+      "name": "Advisory detail",
+      "status": "checked",
+      "proseAnchor": "§9.5",
+      "requirements": ["AV-BIB-013"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getAdvisory",
+          "method": "get",
+          "pathName": "/api/v1/advisories/{advisoryId}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/advisory.schema.json"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/advisory.json",
+        "conformance/fixtures/advisory-withdrawn.json",
+        "conformance/fixtures/advisory-detail-failure-cases.json"
+      ],
+      "expectedProblems": ["not-found", "rate-limited"]
+    },
+    {
+      "name": "Capability metadata",
+      "status": "checked",
+      "proseAnchor": "§9.6-§9.7",
+      "requirements": ["AV-BIB-014", "AV-BIB-016"],
+      "auth": "Public",
+      "operations": [
+        {
+          "operationId": "getCapabilityMetadata",
+          "method": "get",
+          "pathName": "/api/v1/capabilities",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/capability-metadata.schema.json"
+          }
+        }
+      ],
+      "fixtures": [
+        "conformance/fixtures/capability-metadata.json",
+        "conformance/fixtures/capability-metadata-failure-cases.json",
+        "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
+        "conformance/fixtures/capability-metadata-unknown-tolerance.json",
+        "conformance/fixtures/capability-invalid-compatibility-cases.json"
+      ],
+      "expectedProblems": ["rate-limited"]
+    }
+  ]
+}

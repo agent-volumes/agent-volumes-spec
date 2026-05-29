@@ -22,6 +22,35 @@ Release tags use the version string, for example `v0.1.0-rc.1` or `v1.0.0`.
 Important release tags are expected to be signed once signed-release operations
 are available for the project.
 
+## Version source and derived artifacts
+
+The current specification version is recorded in
+[`../agent-volumes-spec.md`](../agent-volumes-spec.md) as the `**Version:**`
+header. Treat that header as the repository-local source of truth for the
+current release surface. Human-facing release tags add the `v` prefix, but
+release archive paths, schema `$id` URLs, OpenAPI `info.version`, and validator
+comparisons use the SemVer value without the prefix.
+
+[`../scripts/release-version.ts`](../scripts/release-version.ts) centralizes this
+version handling for repository tooling:
+
+- artifact validation reads the prose header directly when checking current
+  release alignment, so `SPEC_VERSION` does not override validator expectations;
+- site publication builders accept an explicit CLI version, then `SPEC_VERSION`,
+  and finally the prose header when no override is provided;
+- helper-derived release paths and schema URL prefixes keep generated publication
+  artifacts aligned with the same version string.
+
+`SPEC_VERSION` is an optional environment variable consumed by
+`resolveSpecVersion()` for publication builds. It is not a repository
+configuration setting. CI may export it between workflow steps after deriving it
+from the prose header, and local maintainers may set it temporarily when invoking
+publication builders without a CLI argument.
+
+When preparing a release, update the prose header first, then regenerate and
+validate the companion artifacts. Do not hand-edit versioned publication paths or
+schema identifiers to compensate for a stale prose header.
+
 ## Release-freeze checklist
 
 Before tagging a draft, release candidate, or stable release:
@@ -30,26 +59,34 @@ Before tagging a draft, release candidate, or stable release:
 2. Confirm schema `$id` values match the release version.
 3. Confirm repository dependencies and isolated site dependencies are installed
    with `bun install` and `(cd site && bun install)`.
-4. Run `bun run build:site:openapi -- <version>` to refresh the Mintlify
-   publication copy of the Bibliotheca OpenAPI contract for the release version.
-5. Run `bun run format:check`.
-6. Run `bun run lint:md`.
-7. Run `bun run lint:openapi`.
-8. Run `bun run lint:site`.
-9. Run `bun run validate:artifacts`.
-10. Create a release evidence issue using
+4. Run `bun run build:site:openapi -- <version>` and
+   `bun run build:site:schemas -- <version>` to refresh the Mintlify publication
+   copies for the release version.
+5. Run the `Release Publication Artifacts` workflow manually with
+   `spec-version` set to the release version. This workflow is the release-freeze
+   drift gate for `site/spec/<version>/...`; normal development pull requests do
+   not regenerate immutable release archives.
+6. Run `bun run format:check`.
+7. Run `bun run lint:md`.
+8. Run `bun run lint:openapi`.
+9. Run `bun run lint:site`.
+10. Run `bun run validate:artifacts`. For release-freeze publication drift checks,
+    use the manual workflow above or run
+    `RELEASE_PUBLICATION_DRIFT_CHECK=1 bun run validate:artifacts` locally after
+    regenerating publication artifacts.
+11. Create a release evidence issue using
     [`../.github/ISSUE_TEMPLATE/release-evidence.md`](../.github/ISSUE_TEMPLATE/release-evidence.md)
     and record Human Era / Holocene Era (HE) dates in human-readable evidence
     fields.
-11. Complete the OpenAPI/prose drift audit in
+12. Complete the OpenAPI/prose drift audit in
     [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
-12. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
+13. Confirm `conformance/fixtures/conformance-coverage.json` covers the intended
     role-scoped requirements.
-13. Confirm deferred and local-policy topics remain documented in
+14. Confirm deferred and local-policy topics remain documented in
     [`../conformance/REQUIREMENTS.md`](../conformance/REQUIREMENTS.md).
-14. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
+15. Run `bun run changelog:update` or `bun run release:changelog -- <version>`
     to generate a `CHANGELOG.md` draft.
-15. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
+16. Curate the generated `CHANGELOG.md` entry so it is human-readable and not a
     raw git history dump.
 
 ## Release notes

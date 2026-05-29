@@ -1,0 +1,411 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "artifacts": [
+    {
+      "path": "conformance/fixture-schema-map.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "fixture schema map inventory"
+    },
+    {
+      "path": "conformance/fixtures/advisory-detail-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/advisory-list.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "advisoryList",
+      "schema": "schemas/advisory-list.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/advisory-search-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/advisory-validation-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "advisoryValidationCase",
+      "schema": "schemas/advisory-validation-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/advisory-withdrawn.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "advisory",
+      "schema": "schemas/advisory.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/advisory.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "advisory",
+      "schema": "schemas/advisory.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/bridge-metadata-status-variants.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "bridgeMetadata",
+      "schema": "schemas/bridge-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/bridge-metadata.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "bridgeMetadata",
+      "schema": "schemas/bridge-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/capability-invalid-compatibility-cases.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "capabilityMetadata expected failure",
+      "schema": "schemas/capability-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/capability-metadata-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "capabilityMetadata expected failure",
+      "schema": "schemas/capability-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/capability-metadata-unknown-tolerance.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "capabilityMetadata",
+      "schema": "schemas/capability-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/capability-metadata.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "capabilityMetadata",
+      "schema": "schemas/capability-metadata.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/catalog-search-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/component-dependency-validation-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "componentDependencyValidationCase",
+      "schema": "schemas/component-dependency-validation-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/conformance-coverage.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "conformanceCoverage",
+      "schema": "schemas/conformance-coverage.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/conformance-report.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "conformanceReport",
+      "schema": "schemas/conformance-report.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/digest-invalid-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "normalized-file-tree digest evaluator"
+    },
+    {
+      "path": "conformance/fixtures/digest-vectors.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "normalized-file-tree digest evaluator"
+    },
+    {
+      "path": "conformance/fixtures/exact-release-metadata-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "exactReleaseMetadataCase",
+      "schema": "schemas/exact-release-metadata-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/exact-release-metadata-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/external-dependency-potential-exposure-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "external dependency potential-exposure evaluator"
+    },
+    {
+      "path": "conformance/fixtures/external-dependency-potential-exposure-warning-context-invalid.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "externalDependencyPotentialExposureWarningContext expected failure",
+      "schema": "schemas/external-dependency-potential-exposure-warning-context.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/external-dependency-validation-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "externalDependencyValidationCase",
+      "schema": "schemas/external-dependency-validation-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/lifecycle-mutation-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "lifecycle mutation response fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-component-role-multiple-components.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume semantic failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-duplicate-component.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume semantic failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-external-dependency-duplicate-components.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume expected failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-external-dependency-empty-components.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume expected failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-external-dependency-unknown-field.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume expected failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-name.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume expected failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-invalid-version.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume expected failure",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-parse-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "manifestParseCase",
+      "schema": "schemas/manifest-parse-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-unknown-field-warning.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-valid-component.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-valid-meta.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-valid-minimal.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/manifest-valid-provider.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "volume",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/mapping-matrix.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "mappingMatrix",
+      "schema": "schemas/mapping-matrix.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/mapping-sample.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "mappingSample",
+      "schema": "schemas/mapping-sample.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/openapi-operation-matrix.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "openapiOperationMatrix",
+      "schema": "schemas/openapi-operation-matrix.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/permission-escalation.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "permission escalation evaluator",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/permission-sibling-escalation.json",
+      "validationUnit": "wrapper-payload-schema",
+      "validator": "permission escalation evaluator",
+      "schema": "schemas/volume.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/problem-details-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problemDetails",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/problem-registry.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "problemRegistry",
+      "schema": "schemas/problem-registry.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/purl-canonicalization-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "purl canonicalization evaluator"
+    },
+    {
+      "path": "conformance/fixtures/purl-vers-compatibility-exceptions-invalid.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "purlVersCompatibilityExceptions expected failure",
+      "schema": "schemas/purl-vers-compatibility-exceptions.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/release-upload-lifecycle.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "release upload lifecycle schemas",
+      "schema": "schemas/release-upload-intent.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/resolver-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "resolver and lifecycle evaluator"
+    },
+    {
+      "path": "conformance/fixtures/search-results.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "searchResults",
+      "schema": "schemas/search-results.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/semantic-validation-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "semanticValidationCase",
+      "schema": "schemas/semantic-validation-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/semver-range-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "semver range schema evaluator"
+    },
+    {
+      "path": "conformance/fixtures/tar-archive-profile-cases.json",
+      "validationUnit": "algorithmic-vector",
+      "validator": "hosted archive transport profile evaluator"
+    },
+    {
+      "path": "conformance/fixtures/trust-artifact-verification-cases.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustArtifactVerificationCase",
+      "schema": "schemas/trust-artifact-verification-case.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-detail-empty.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustDetail",
+      "schema": "schemas/trust-detail.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-detail-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-detail-status-variants.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustDetail",
+      "schema": "schemas/trust-detail.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-detail.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustDetail",
+      "schema": "schemas/trust-detail.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-summary-empty.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustSummary",
+      "schema": "schemas/trust-summary.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-summary-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-summary.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "trustSummary",
+      "schema": "schemas/trust-summary.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/trust-upload-lifecycle.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "trust upload lifecycle schemas",
+      "schema": "schemas/trust-upload-intent.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/upstream-baselines-invalid.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "upstreamBaseline expected failure",
+      "schema": "schemas/upstream-baseline.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/version-index-failure-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "problem-details endpoint fixtures",
+      "schema": "schemas/problem-details.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/version-index-row-cases.json",
+      "validationUnit": "case-payload-schema",
+      "validator": "versionIndexRow",
+      "schema": "schemas/version-index-row.schema.json"
+    },
+    {
+      "path": "conformance/fixtures/version-index.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "versionIndex",
+      "schema": "schemas/version-index.schema.json"
+    },
+    {
+      "path": "conformance/purl-vers-compatibility-exceptions.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "purlVersCompatibilityExceptions",
+      "schema": "schemas/purl-vers-compatibility-exceptions.schema.json"
+    },
+    {
+      "path": "conformance/upstream-baselines.json",
+      "validationUnit": "whole-file-schema",
+      "validator": "upstreamBaseline",
+      "schema": "schemas/upstream-baseline.schema.json"
+    }
+  ]
+}

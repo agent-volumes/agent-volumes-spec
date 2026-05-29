@@ -1,0 +1,102 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "description": "Exact release metadata Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "exact-release-authorization-failed",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The requested release is not visible to the caller."
+      }
+    },
+    {
+      "name": "exact-release-not-found",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "The requested release does not exist or is not visible."
+      }
+    },
+    {
+      "name": "exact-release-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "Exact release metadata cannot be reconciled with the version index."
+      }
+    },
+    {
+      "name": "exact-release-rate-limited",
+      "endpoint": "GET /api/v1/volumes/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The exact release metadata request was rate limited."
+      }
+    },
+    {
+      "name": "scoped-exact-release-authorization-failed",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "authorization-failed" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/authorization-failed",
+        "title": "Authorization failed",
+        "status": 403,
+        "detail": "The requested scoped release is not visible to the caller."
+      }
+    },
+    {
+      "name": "scoped-exact-release-not-found",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Release not found",
+        "status": 404,
+        "detail": "The requested scoped release does not exist or is not visible."
+      }
+    },
+    {
+      "name": "scoped-exact-release-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "Scoped exact release metadata cannot be reconciled with the version index."
+      }
+    },
+    {
+      "name": "scoped-exact-release-rate-limited",
+      "endpoint": "GET /api/v1/volumes/@{scope}/{name}/{version}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The scoped exact release metadata request was rate limited."
+      }
+    }
+  ]
+}
