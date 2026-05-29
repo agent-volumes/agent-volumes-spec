@@ -46,7 +46,16 @@
               "properties": {
                 "operationId": { "type": "string", "minLength": 1 },
                 "method": { "type": "string", "enum": ["get", "post", "put", "patch", "delete"] },
-                "pathName": { "type": "string", "pattern": "^/api/v1/" }
+                "pathName": { "type": "string", "pattern": "^/api/v1/" },
+                "successResponse": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["status", "schemaRef"],
+                  "properties": {
+                    "status": { "type": "string", "pattern": "^2[0-9]{2}$" },
+                    "schemaRef": { "type": "string", "minLength": 1 }
+                  }
+                }
               }
             },
             "uniqueItems": true

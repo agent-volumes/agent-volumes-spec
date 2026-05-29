@@ -3,7 +3,11 @@ import YAML from "yaml";
 import { getCurrentSpecVersion } from "../../release-version.ts";
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assert } from "../core/assert.ts";
-import { EMPTY_COUNT, FIRST_CONTENT_INDEX } from "../core/numeric-constants.ts";
+import {
+  EMPTY_COUNT,
+  FIRST_CONTENT_INDEX,
+  MINIMAL_CARDINALITY,
+} from "../core/numeric-constants.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
 import { schemas } from "../core/schema-context.ts";
 import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts";
@@ -63,129 +67,6 @@ const SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS = new Map([
   ],
 ]);
 
-const SUCCESS_RESPONSE_SCHEMA_REFS = [
-  {
-    method: "get",
-    pathName: "/api/v1/search",
-    ref: "#/components/schemas/SearchResults",
-    status: "200",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/{name}",
-    ref: "../schemas/release-upload-intent.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/@{scope}/{name}",
-    ref: "../schemas/release-upload-intent.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
-    ref: "../schemas/release-upload-finalize.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
-    ref: "../schemas/release-upload-finalize.schema.json",
-    status: "201",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/{name}/{version}",
-    ref: "../schemas/release-metadata.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}",
-    ref: "../schemas/release-metadata.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/index/volumes/{name}",
-    ref: "#/components/schemas/VersionIndex",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/index/volumes/@{scope}/{name}",
-    ref: "#/components/schemas/VersionIndex",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/summary",
-    ref: "../schemas/trust-summary.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
-    ref: "../schemas/trust-summary.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/detail",
-    ref: "../schemas/trust-detail.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
-    ref: "../schemas/trust-detail.schema.json",
-    status: "200",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads",
-    ref: "../schemas/trust-upload-intent.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
-    ref: "../schemas/trust-upload-intent.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    ref: "../schemas/trust-upload-finalize.schema.json",
-    status: "201",
-  },
-  {
-    method: "post",
-    pathName: "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    ref: "../schemas/trust-upload-finalize.schema.json",
-    status: "201",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/advisories",
-    ref: "#/components/schemas/AdvisoryList",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/advisories/{advisoryId}",
-    ref: "../schemas/advisory.schema.json",
-    status: "200",
-  },
-  {
-    method: "get",
-    pathName: "/api/v1/capabilities",
-    ref: "../schemas/capability-metadata.schema.json",
-    status: "200",
-  },
-] as const;
-
 interface OpenapiOperation {
   method: string;
   operation: JsonObject;
@@ -199,6 +80,7 @@ interface MatrixOperation {
   method: string;
   operationId: string;
   pathName: string;
+  successResponse?: JsonValue;
 }
 
 interface ScopedUploadFixtureEvidenceAssertion {
@@ -265,6 +147,7 @@ function addMatrixFamilyOperations(
       method: operation.method,
       operationId: operation.operationId,
       pathName: operation.pathName,
+      successResponse: operation.successResponse,
     };
     assert(
       !matrixOperationsById.has(matrixOperation.operationId),
@@ -400,6 +283,63 @@ function assertMatrixExpectedProblems(
   }
 }
 
+function jsonSuccessResponses(operation: OpenapiOperation): JsonValue[] {
+  const successResponses = [];
+  for (const [status, response] of Object.entries(operation.operation.responses ?? {})) {
+    if (/^2[0-9][0-9]$/.test(status)) {
+      assert(
+        isJsonObject(response),
+        `OpenAPI ${operation.operationId} ${status} response must be an object`,
+      );
+      const schemaRef = response.content?.["application/json"]?.schema?.$ref;
+      if (schemaRef) {
+        successResponses.push({ schemaRef, status });
+      }
+    }
+  }
+  return successResponses;
+}
+
+function assertMatrixSuccessResponse(
+  operation: OpenapiOperation,
+  matrixOperation: MatrixOperation,
+): void {
+  const successResponses = jsonSuccessResponses(operation);
+  assert(
+    successResponses.length <= MINIMAL_CARDINALITY,
+    `OpenAPI ${operation.operationId} must expose at most one JSON success response schema`,
+  );
+  const [successResponse] = successResponses;
+  if (!successResponse) {
+    assert(
+      !matrixOperation.successResponse,
+      `OpenAPI operation matrix ${operation.operationId} must not declare successResponse without OpenAPI JSON success schema`,
+    );
+    return;
+  }
+  assert(
+    matrixOperation.successResponse,
+    `OpenAPI operation matrix ${operation.operationId} must declare JSON success response schema evidence`,
+  );
+  assert(
+    matrixOperation.successResponse.status === successResponse.status &&
+      matrixOperation.successResponse.schemaRef === successResponse.schemaRef,
+    `OpenAPI operation matrix ${operation.operationId} successResponse must match ${successResponse.status} ${successResponse.schemaRef}`,
+  );
+}
+
+function assertMatrixOperationMatches(
+  operation: OpenapiOperation,
+  matrixOperation: MatrixOperation,
+): void {
+  assert(
+    operation.method === matrixOperation.method && operation.pathName === matrixOperation.pathName,
+    `OpenAPI operation matrix ${operation.operationId} must match ${operationKey(operation.method, operation.pathName)}`,
+  );
+  assertOperationAuthBoundary(operation, matrixOperation.auth);
+  assertMatrixSuccessResponse(operation, matrixOperation);
+}
+
 function assertOperationCoverageMatrix(
   ctx: ValidationContext,
   openapi: JsonObject,
@@ -417,12 +357,7 @@ function assertOperationCoverageMatrix(
       typeof matrixOperation !== "undefined",
       `OpenAPI operation matrix missing ${operation.operationId}`,
     );
-    assert(
-      operation.method === matrixOperation.method &&
-        operation.pathName === matrixOperation.pathName,
-      `OpenAPI operation matrix ${operation.operationId} must match ${operationKey(operation.method, operation.pathName)}`,
-    );
-    assertOperationAuthBoundary(operation, matrixOperation.auth);
+    assertMatrixOperationMatches(operation, matrixOperation);
   }
   assertMatrixFixtureReferences(ctx, openapiOperationMatrix);
   assertScopedUploadOperationFixtures(ctx, openapiOperationMatrix);
@@ -528,18 +463,6 @@ function assertOpenapiStandaloneSchemaLinks(openapi: JsonObject): void {
   );
 }
 
-function assertOpenapiEndpointSchemas(openapi: JsonObject): void {
-  for (const expectedSchema of SUCCESS_RESPONSE_SCHEMA_REFS) {
-    const operation = openapi.paths[expectedSchema.pathName]?.[expectedSchema.method];
-    const schemaRef =
-      operation?.responses?.[expectedSchema.status]?.content?.["application/json"]?.schema?.$ref;
-    assert(
-      schemaRef === expectedSchema.ref,
-      `OpenAPI ${expectedSchema.method.toUpperCase()} ${expectedSchema.pathName} ${expectedSchema.status} response must use ${expectedSchema.ref}`,
-    );
-  }
-}
-
 function assertProblemContentExamples(
   ctx: ValidationContext,
   responseName: string,
@@ -637,7 +560,6 @@ function assertOpenapiDocument(
   assertOpenapiSchemaParity(openapi);
   assertProblemDetailsComponents(openapi);
   assertOpenapiStandaloneSchemaLinks(openapi);
-  assertOpenapiEndpointSchemas(openapi);
   assertPathParameterSchemas(openapi);
 }
 

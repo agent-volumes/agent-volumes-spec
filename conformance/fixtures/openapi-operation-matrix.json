@@ -11,7 +11,11 @@
         {
           "operationId": "searchVolumes",
           "method": "get",
-          "pathName": "/api/v1/search"
+          "pathName": "/api/v1/search",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/SearchResults"
+          }
         }
       ],
       "fixtures": [
@@ -30,12 +34,20 @@
         {
           "operationId": "createVolumeUploadIntent",
           "method": "post",
-          "pathName": "/api/v1/volumes/{name}"
+          "pathName": "/api/v1/volumes/{name}",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-intent.schema.json"
+          }
         },
         {
           "operationId": "createScopedVolumeUploadIntent",
           "method": "post",
-          "pathName": "/api/v1/volumes/@{scope}/{name}"
+          "pathName": "/api/v1/volumes/@{scope}/{name}",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-intent.schema.json"
+          }
         }
       ],
       "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
@@ -59,12 +71,20 @@
         {
           "operationId": "finalizeVolumeUpload",
           "method": "post",
-          "pathName": "/api/v1/volumes/{name}/uploads/{uploadId}/finalize"
+          "pathName": "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-finalize.schema.json"
+          }
         },
         {
           "operationId": "finalizeScopedVolumeUpload",
           "method": "post",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/release-upload-finalize.schema.json"
+          }
         }
       ],
       "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
@@ -91,12 +111,20 @@
         {
           "operationId": "getVolumeRelease",
           "method": "get",
-          "pathName": "/api/v1/volumes/{name}/{version}"
+          "pathName": "/api/v1/volumes/{name}/{version}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/release-metadata.schema.json"
+          }
         },
         {
           "operationId": "getScopedVolumeRelease",
           "method": "get",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/release-metadata.schema.json"
+          }
         }
       ],
       "fixtures": [
@@ -147,12 +175,20 @@
         {
           "operationId": "getVolumeVersionIndex",
           "method": "get",
-          "pathName": "/api/v1/index/volumes/{name}"
+          "pathName": "/api/v1/index/volumes/{name}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/VersionIndex"
+          }
         },
         {
           "operationId": "getScopedVolumeVersionIndex",
           "method": "get",
-          "pathName": "/api/v1/index/volumes/@{scope}/{name}"
+          "pathName": "/api/v1/index/volumes/@{scope}/{name}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/VersionIndex"
+          }
         }
       ],
       "fixtures": [
@@ -172,12 +208,20 @@
         {
           "operationId": "getVolumeTrustSummary",
           "method": "get",
-          "pathName": "/api/v1/volumes/{name}/{version}/trust/summary"
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/summary",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-summary.schema.json"
+          }
         },
         {
           "operationId": "getScopedVolumeTrustSummary",
           "method": "get",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-summary.schema.json"
+          }
         }
       ],
       "fixtures": [
@@ -197,12 +241,20 @@
         {
           "operationId": "getVolumeTrustDetail",
           "method": "get",
-          "pathName": "/api/v1/volumes/{name}/{version}/trust/detail"
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/detail",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-detail.schema.json"
+          }
         },
         {
           "operationId": "getScopedVolumeTrustDetail",
           "method": "get",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/trust-detail.schema.json"
+          }
         }
       ],
       "fixtures": [
@@ -223,12 +275,20 @@
         {
           "operationId": "createVolumeTrustUploadIntent",
           "method": "post",
-          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads"
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-intent.schema.json"
+          }
         },
         {
           "operationId": "createScopedVolumeTrustUploadIntent",
           "method": "post",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-intent.schema.json"
+          }
         }
       ],
       "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
@@ -251,12 +311,20 @@
         {
           "operationId": "finalizeVolumeTrustUpload",
           "method": "post",
-          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize"
+          "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-finalize.schema.json"
+          }
         },
         {
           "operationId": "finalizeScopedVolumeTrustUpload",
           "method": "post",
-          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize"
+          "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "successResponse": {
+            "status": "201",
+            "schemaRef": "../schemas/trust-upload-finalize.schema.json"
+          }
         }
       ],
       "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
@@ -281,7 +349,11 @@
         {
           "operationId": "searchAdvisories",
           "method": "get",
-          "pathName": "/api/v1/advisories"
+          "pathName": "/api/v1/advisories",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "#/components/schemas/AdvisoryList"
+          }
         }
       ],
       "fixtures": [
@@ -300,7 +372,11 @@
         {
           "operationId": "getAdvisory",
           "method": "get",
-          "pathName": "/api/v1/advisories/{advisoryId}"
+          "pathName": "/api/v1/advisories/{advisoryId}",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/advisory.schema.json"
+          }
         }
       ],
       "fixtures": [
@@ -320,7 +396,11 @@
         {
           "operationId": "getCapabilityMetadata",
           "method": "get",
-          "pathName": "/api/v1/capabilities"
+          "pathName": "/api/v1/capabilities",
+          "successResponse": {
+            "status": "200",
+            "schemaRef": "../schemas/capability-metadata.schema.json"
+          }
         }
       ],
       "fixtures": [
