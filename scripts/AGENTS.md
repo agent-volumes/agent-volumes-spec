@@ -56,6 +56,12 @@ derive the current specification release version. Use it instead of hardcoding
 configuration setting. Validators derive the current release version from
 `agent-volumes-spec.md` through the current-version helpers instead.
 
+`RELEASE_PUBLICATION_DRIFT_CHECK=1` enables release-freeze checks that compare
+current canonical sources against `site/spec/<version>/...` publication archive
+copies. Do not set it in normal development CI; use it only from explicit release
+verification workflows or release-tag checks after regenerating publication
+artifacts for the intended version.
+
 `versionFromSpec()` and `getCurrentSpecVersion()` currently return the same
 SemVer string, but they express different intent. Use `versionFromSpec()` only
 when the code specifically needs the low-level action of reading the prose

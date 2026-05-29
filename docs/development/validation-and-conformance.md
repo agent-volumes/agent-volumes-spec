@@ -79,11 +79,17 @@ For current release alignment, the validator derives the expected specification
 version from the `**Version:**` header in
 [`../../agent-volumes-spec.md`](../../agent-volumes-spec.md). It checks
 machine-readable release metadata such as schema `$id` prefixes, schema
-`specVersion` values, OpenAPI `info.version`, capability metadata, and generated
-publication artifact paths against that value. Environment overrides such as
-`SPEC_VERSION` are for publication builders, not for changing validator
-expectations; they are not repository configuration settings and do not replace
-the prose header as the current-release validation source.
+`specVersion` values, OpenAPI `info.version`, and capability metadata against
+that value. Environment overrides such as `SPEC_VERSION` are for publication
+builders, not for changing validator expectations; they are not repository
+configuration settings and do not replace the prose header as the current-release
+validation source.
+
+Release archive publication drift checks for `site/spec/<version>/...` run only
+when `RELEASE_PUBLICATION_DRIFT_CHECK=1` is set. Use that mode during release
+freeze verification after regenerating publication artifacts. Normal development
+validation does not compare current canonical sources against immutable published
+release archive copies.
 
 When an endpoint matrix, error mapping, or other review table needs automated
 coverage, add or update a JSON fixture under `../../conformance/fixtures/` and

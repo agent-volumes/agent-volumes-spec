@@ -29,7 +29,12 @@ Repository CI and consumers of organization-wide reusable security workflows. Wo
 - Non-reusable third-party actions must be pinned by full commit SHA.
 - Reusable workflows from `agent-volumes/.github` are the only SHA-pinning exception and may use `@main`.
 - The main workflow uses `step-security/harden-runner` with `egress-policy: audit`.
-- `spec-lint-and-format.yml` must rebuild the release-scoped OpenAPI publication artifact for the version declared in `agent-volumes-spec.md`, such as `site/spec/<version>/api-reference/bibliotheca.openapi.json`, and fail if it differs from the committed generated artifact.
+- `spec-lint-and-format.yml` is the normal development validation gate and must
+  not regenerate immutable `site/spec/<version>/...` release archives.
+- `release-publication-artifacts.yml` is the explicit release-freeze drift gate.
+  It accepts a manual `spec-version` input, rebuilds release-scoped OpenAPI and
+  schema publication artifacts for that version, and fails if those generated
+  artifacts differ from the committed release snapshot.
 
 ## ANTI-PATTERNS
 
@@ -42,7 +47,8 @@ Repository CI and consumers of organization-wide reusable security workflows. Wo
 ```bash
 bun install --frozen-lockfile
 (cd site && bun install --frozen-lockfile)
-bun run build:site:openapi
+bun run build:site:openapi -- <version>
+bun run build:site:schemas -- <version>
 bun run format:check
 bun run changelog:check
 bun run lint:md

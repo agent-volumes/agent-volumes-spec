@@ -26,7 +26,8 @@ or product conforms to Agent Volumes.
 In particular, the following checks remain **repository artifact hygiene** even
 when they are enforced by `bun run validate:artifacts`:
 
-- publication drift checks for generated or public site artifacts;
+- publication drift checks for generated or public site artifacts, including the
+  release-only checks enabled with `RELEASE_PUBLICATION_DRIFT_CHECK=1`;
 - schema `$id`, `specVersion`, and release-path alignment checks;
 - OpenAPI operation matrix parity and endpoint-family evidence connectivity;
 - conformance coverage connectivity, including fixture existence, case-name
