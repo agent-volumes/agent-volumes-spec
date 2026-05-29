@@ -642,6 +642,31 @@ function assertPositiveSemanticComponentCases(semanticValidationCases: JsonValue
   }
 }
 
+function assertSpecificPositiveSemanticComponentCases(semanticValidationCases: JsonValue): void {
+  assert(
+    semanticValidationCases.cases.some(
+      (semanticCase: JsonValue) =>
+        semanticCase.area === "manifest" &&
+        semanticCase.expected.valid === true &&
+        semanticCase.payload.component?.type === "agent" &&
+        path.posix.extname(semanticCase.payload.component.entrypoint) === ".yaml",
+    ),
+    "semantic validation cases must include positive agent YAML entrypoint coverage",
+  );
+  assert(
+    semanticValidationCases.cases.some(
+      (semanticCase: JsonValue) =>
+        semanticCase.area === "manifest" &&
+        semanticCase.expected.valid === true &&
+        semanticCase.payload.component?.type === "mcp-server" &&
+        semanticCase.payload.component.entrypoint === "./.mcp.json" &&
+        typeof semanticCase.payload.descriptor === "object" &&
+        !Array.isArray(semanticCase.payload.descriptor),
+    ),
+    "semantic validation cases must include positive canonical MCP JSON object coverage",
+  );
+}
+
 function assertSemanticWarningCoverage(semanticValidationCases: JsonValue): void {
   assert(
     semanticValidationCases.cases.some(
@@ -704,6 +729,7 @@ function assertSemanticReleaseAndTrustCoverage(semanticValidationCases: JsonValu
 function assertSemanticValidationCaseCoverage(semanticValidationCases: JsonValue): void {
   assertRequiredSemanticComponentFailures(semanticValidationCases);
   assertPositiveSemanticComponentCases(semanticValidationCases);
+  assertSpecificPositiveSemanticComponentCases(semanticValidationCases);
   assertSemanticWarningCoverage(semanticValidationCases);
   assertSemanticCompatibilityCoverage(semanticValidationCases);
   assertSemanticReleaseAndTrustCoverage(semanticValidationCases);
