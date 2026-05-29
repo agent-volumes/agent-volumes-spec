@@ -11,7 +11,13 @@ import {
   assertWarningSchemaDescribesCoreCategories,
 } from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
-import { EMPTY_COUNT, SHA256_INTEGRITY_PREFIX_LENGTH } from "../core/numeric-constants.ts";
+import {
+  CONFORMANCE_REQUIREMENT_ID_PAD_WIDTH,
+  EMPTY_COUNT,
+  INCREMENT_STEP,
+  REQUIRED_ROLE_CONFORMANCE_REQUIREMENT_COUNT,
+  SHA256_INTEGRITY_PREFIX_LENGTH,
+} from "../core/numeric-constants.ts";
 import {
   canonicalComponentPurl,
   canonicalReleasePurl,
@@ -55,6 +61,29 @@ function coverageRequirementsById(conformanceCoverage: JsonValue): Map<string, J
   );
 }
 
+function expectedConformanceRequirementIds(prefix: string, count: number): string[] {
+  return Array.from({ length: count }, (_value: unknown, index: number) => {
+    const requirementNumber = String(index + INCREMENT_STEP).padStart(
+      CONFORMANCE_REQUIREMENT_ID_PAD_WIDTH,
+      "0",
+    );
+    return `${prefix}-${requirementNumber}`;
+  });
+}
+
+function assertConformanceRequirementIdRange(specRequirementIds: string[]): void {
+  assertDeepEqual(
+    specRequirementIds.filter((id: string) => id.startsWith("AV-BIB-")),
+    expectedConformanceRequirementIds("AV-BIB", REQUIRED_ROLE_CONFORMANCE_REQUIREMENT_COUNT),
+    "spec bibliotheca conformance requirement IDs must be contiguous AV-BIB-001 through AV-BIB-018",
+  );
+  assertDeepEqual(
+    specRequirementIds.filter((id: string) => id.startsWith("AV-CLI-")),
+    expectedConformanceRequirementIds("AV-CLI", REQUIRED_ROLE_CONFORMANCE_REQUIREMENT_COUNT),
+    "spec client conformance requirement IDs must be contiguous AV-CLI-001 through AV-CLI-018",
+  );
+}
+
 function normalizeFixtureReference(fixturePath: string): string {
   return fixturePath.replace(/^conformance\/fixtures\//, "").replace(/^conformance\//, "");
 }
@@ -86,6 +115,7 @@ function assertConformanceRequirementParity(
       specRequirementIds.some((id: string) => id.startsWith("AV-CLI-")),
     "spec role-scoped conformance requirement IDs must include bibliotheca and client IDs",
   );
+  assertConformanceRequirementIdRange(specRequirementIds);
   assertDeepEqual(
     conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id),
     specRequirementIds,
