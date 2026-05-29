@@ -636,13 +636,7 @@ function assertPositiveSemanticComponentCases(semanticValidationCases: JsonValue
           semanticCase.area === "manifest" &&
           semanticCase.expected.valid === true &&
           semanticCase.payload.component?.type === componentType,
-      ) ||
-        semanticValidationCases.cases.some(
-          (semanticCase: JsonValue) =>
-            semanticCase.area === "warning" &&
-            semanticCase.expected.valid === true &&
-            semanticCase.payload.component?.type === componentType,
-        ),
+      ),
       `semantic validation cases must include positive ${componentType} component case`,
     );
   }

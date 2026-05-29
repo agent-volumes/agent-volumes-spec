@@ -75,6 +75,19 @@
       "expected": { "valid": false, "failureCategory": "unsupported-entrypoint-format" }
     },
     {
+      "name": "mcp-entrypoint-portable-json-descriptor",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "mcp-server",
+          "name": "research-mcp",
+          "entrypoint": "./.mcp.json"
+        },
+        "descriptor": { "command": "node", "args": ["./servers/research-mcp.js"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
       "name": "invalid-spdx-license-expression",
       "area": "manifest",
       "payload": {
@@ -93,6 +106,20 @@
         },
         "releaseFiles": ["volume.toml", "agents/review/AGENT.md"],
         "frontmatter": { "description": "Reviews pull requests", "tools": ["tool/read-pr"] }
+      },
+      "expected": { "valid": true }
+    },
+    {
+      "name": "agent-entrypoint-portable-yaml-definition",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "agent",
+          "name": "release-agent",
+          "entrypoint": "./agents/release/agent.yaml"
+        },
+        "releaseFiles": ["volume.toml", "agents/release/agent.yaml"],
+        "definition": { "description": "Prepares release notes", "tools": ["tool/changelog"] }
       },
       "expected": { "valid": true }
     },
