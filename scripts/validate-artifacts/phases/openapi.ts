@@ -208,6 +208,16 @@ function operationDeclaresBearerAuth(operation: OpenapiOperation): boolean {
   );
 }
 
+function assertBearerSecurityScheme(openapi: JsonObject): void {
+  const bearerAuth = openapi.components?.securitySchemes?.bearerAuth;
+  assert(isJsonObject(bearerAuth), "OpenAPI document must define bearerAuth security scheme");
+  assert(bearerAuth.type === "http", "OpenAPI bearerAuth security scheme must use http type");
+  assert(
+    bearerAuth.scheme === "bearer",
+    "OpenAPI bearerAuth security scheme must use bearer scheme",
+  );
+}
+
 function assertOperationAuthBoundary(operation: OpenapiOperation, expectedAuth: string): void {
   if (expectedAuth === "Bearer") {
     assert(
@@ -537,6 +547,7 @@ function assertOpenapiDocument(
     `OpenAPI document must declare info.version ${currentSpecVersion}`,
   );
   assertOpenapiMatrixContract(ctx, openapi, openapiOperationMatrix);
+  assertBearerSecurityScheme(openapi);
   assertOpenapiSchemaParity(openapi);
   assertProblemDetailsComponents(openapi);
   assertOpenapiStandaloneSchemaLinks(openapi);
