@@ -97,6 +97,14 @@ const positiveCompatibilityCaseNames = [
 
 const requiredExposureIntersections = ["intersects", "does-not-intersect", "indeterminate"];
 
+const versComparatorPattern =
+  /^(<|<=|>|>=|=)(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+
+const versVersionCollator = new Intl.Collator("en", {
+  numeric: true,
+  sensitivity: "case",
+});
+
 interface ComponentDependencyPurlParts {
   hasVersion: boolean;
   parentName: JsonValue;
@@ -113,6 +121,30 @@ interface ExternalDependencyValidationState {
   declaredComponents: Set<JsonValue>;
   purlVersExceptionPairs: Set<string>;
   seenSemanticKeys: Map<JsonValue, JsonValue>;
+}
+
+interface VersBound {
+  inclusive: boolean;
+  version: string;
+}
+
+interface VersRange {
+  lower: VersBound;
+  scheme: string;
+  upper: VersBound;
+}
+
+type VersIntersection = "intersects" | "does-not-intersect" | "indeterminate";
+
+interface ParsedVersComparator {
+  operator: string;
+  version: string;
+}
+
+interface ComparableVersRanges {
+  affectedRange: VersRange;
+  declarationRange: VersRange;
+  parsedPurl: JsonValue;
 }
 
 function parseComponentDependencyPurl(componentPurl: JsonValue): ComponentDependencyPurlParts {
@@ -404,12 +436,10 @@ function validateExternalDependencySemanticKey(
     sortedScope,
     `external dependency case ${externalDependencyCase.name} semantic key scope`,
   );
-  if (semanticKey.declarationKey) {
-    assert(
-      semanticKey.declarationKey === declarationKeyForSemanticKey(semanticKey),
-      `external dependency case ${externalDependencyCase.name} declaration key must match JCS input`,
-    );
-  }
+  assert(
+    semanticKey.declarationKey === declarationKeyForSemanticKey(semanticKey),
+    `external dependency case ${externalDependencyCase.name} declaration key must match JCS input`,
+  );
 }
 
 function validateExternalDependencySemanticKeys(externalDependencyCase: JsonValue): void {
@@ -540,7 +570,7 @@ function validatePurlVersCompatibilityExceptions(ctx: ValidationContext): Set<st
   );
 }
 
-function validateExternalDependencyDomain(ctx: ValidationContext): void {
+function validateExternalDependencyDomain(ctx: ValidationContext): Set<string> {
   const externalDependencyCases = ctx.readJson(
     "conformance/fixtures/external-dependency-validation-cases.json",
   );
@@ -552,6 +582,7 @@ function validateExternalDependencyDomain(ctx: ValidationContext): void {
   assertSpecVersion(ctx, externalDependencyCases, "external dependency validation cases");
   const purlVersExceptionPairs = validatePurlVersCompatibilityExceptions(ctx);
   validateExternalDependencyCases(externalDependencyCases, purlVersExceptionPairs);
+  return purlVersExceptionPairs;
 }
 
 function validateSemanticHookCase(semanticCase: JsonValue, component: JsonValue): void {
@@ -751,6 +782,14 @@ function validateSemanticValidationCases(ctx: ValidationContext): void {
   assertSemanticValidationCaseCoverage(semanticValidationCases);
 }
 
+function declarationKeyForExposureDeclaration(declaration: JsonValue): string {
+  return declarationKeyForSemanticKey({
+    purl: declaration.purl,
+    purpose: declaration.purpose,
+    scope: externalDependencyScope(declaration),
+  });
+}
+
 function assertPotentialExposureCaseInputs(
   exposureCase: JsonValue,
   advisoryMatches: JsonValue,
@@ -758,6 +797,11 @@ function assertPotentialExposureCaseInputs(
   assert(
     externalDependencyDeclarationKeyPattern.test(exposureCase.declaration.declarationKey),
     `potential exposure case ${exposureCase.name} needs a declaration key`,
+  );
+  assert(
+    exposureCase.declaration.declarationKey ===
+      declarationKeyForExposureDeclaration(exposureCase.declaration),
+    `potential exposure case ${exposureCase.name} declaration key must match JCS input`,
   );
   assert(
     advisoryMatches.every((advisoryMatch: JsonValue) => typeof advisoryMatch !== "undefined"),
@@ -769,6 +813,212 @@ function assertPotentialExposureCaseInputs(
     ),
     `potential exposure case ${exposureCase.name} needs an intersection state`,
   );
+}
+
+function compareVersVersions(left: string, right: string): number {
+  return versVersionCollator.compare(left, right);
+}
+
+function stricterLowerBound(left: VersBound, right: VersBound): VersBound {
+  const comparison = compareVersVersions(left.version, right.version);
+  if (comparison > EMPTY_COUNT) {
+    return left;
+  }
+  if (comparison < EMPTY_COUNT) {
+    return right;
+  }
+  return { inclusive: left.inclusive && right.inclusive, version: left.version };
+}
+
+function stricterUpperBound(left: VersBound, right: VersBound): VersBound {
+  const comparison = compareVersVersions(left.version, right.version);
+  if (comparison < EMPTY_COUNT) {
+    return left;
+  }
+  if (comparison > EMPTY_COUNT) {
+    return right;
+  }
+  return { inclusive: left.inclusive && right.inclusive, version: left.version };
+}
+
+function parseVersComparator(term: string): ParsedVersComparator | false {
+  const match = versComparatorPattern.exec(term);
+  if (!match) {
+    return false;
+  }
+  const [, operator, major, minor, patch, prerelease] = match;
+  assert(operator && major && minor && patch, `VERS comparator must be complete: ${term}`);
+  return {
+    operator,
+    version: `${major}.${minor}.${patch}${prerelease ? `-${prerelease}` : ""}`,
+  };
+}
+
+function addParsedVersBound(
+  lowerBounds: VersBound[],
+  upperBounds: VersBound[],
+  comparator: ParsedVersComparator,
+): void {
+  if (comparator.operator === ">=" || comparator.operator === ">") {
+    lowerBounds.push({ inclusive: comparator.operator === ">=", version: comparator.version });
+  }
+  if (comparator.operator === "<=" || comparator.operator === "<") {
+    upperBounds.push({ inclusive: comparator.operator === "<=", version: comparator.version });
+  }
+  if (comparator.operator === "=") {
+    lowerBounds.push({ inclusive: true, version: comparator.version });
+    upperBounds.push({ inclusive: true, version: comparator.version });
+  }
+}
+
+function parseVersBounds(terms: string[]): { lower: VersBound; upper: VersBound } | false {
+  const lowerBounds: VersBound[] = [];
+  const upperBounds: VersBound[] = [];
+  for (const term of terms) {
+    const comparator = parseVersComparator(term);
+    if (!comparator) {
+      return false;
+    }
+    addParsedVersBound(lowerBounds, upperBounds, comparator);
+  }
+  const [lower] = lowerBounds;
+  const [upper] = upperBounds;
+  return lowerBounds.length === 1 && upperBounds.length === 1 && lower && upper
+    ? { lower, upper }
+    : false;
+}
+
+function parseVersRange(constraint: JsonValue): VersRange | false {
+  const scheme = typeof constraint === "string" ? parseVersScheme(constraint) : false;
+  if (typeof scheme !== "string") {
+    return false;
+  }
+  const bounds = parseVersBounds(constraint.slice(`vers:${scheme}/`.length).split("|"));
+  return bounds ? { ...bounds, scheme } : false;
+}
+
+function versRangesIntersect(left: VersRange, right: VersRange): boolean {
+  const lower = stricterLowerBound(left.lower, right.lower);
+  const upper = stricterUpperBound(left.upper, right.upper);
+  const comparison = compareVersVersions(lower.version, upper.version);
+  return (
+    comparison < EMPTY_COUNT || (comparison === EMPTY_COUNT && lower.inclusive && upper.inclusive)
+  );
+}
+
+function hasBroadPrereleaseBound(range: VersRange): boolean {
+  return [range.lower.version, range.upper.version].some((version: string) => {
+    const [, prerelease] = version.split("-");
+    return Boolean(prerelease && !prerelease.includes("."));
+  });
+}
+
+function rangesAreComparable(
+  comparableRanges: ComparableVersRanges,
+  purlVersExceptionPairs: Set<string>,
+): boolean {
+  const { affectedRange, declarationRange, parsedPurl } = comparableRanges;
+  return (
+    declarationRange.scheme === affectedRange.scheme &&
+    (parsedPurl.type === declarationRange.scheme ||
+      purlVersExceptionPairs.has(`${parsedPurl.type}:${declarationRange.scheme}`))
+  );
+}
+
+function parsedPotentialExposureRanges(
+  exposureCase: JsonValue,
+  advisoryMatch: JsonValue,
+): ComparableVersRanges | false {
+  const declarationRange = parseVersRange(exposureCase.declaration.constraint);
+  const affectedRange = parseVersRange(advisoryMatch.affectedRange);
+  if (!declarationRange || !affectedRange) {
+    return false;
+  }
+  return {
+    affectedRange,
+    declarationRange,
+    parsedPurl: parseExternalDependencyPurl(exposureCase.declaration.purl),
+  };
+}
+
+function rangesHaveBroadPrereleaseBounds(comparableRanges: ComparableVersRanges): boolean {
+  return (
+    hasBroadPrereleaseBound(comparableRanges.declarationRange) ||
+    hasBroadPrereleaseBound(comparableRanges.affectedRange)
+  );
+}
+
+function actualPotentialExposureIntersection(intersections: VersIntersection[]): VersIntersection {
+  const intersectionSet = new Set(intersections);
+  if (intersectionSet.has("intersects")) {
+    return "intersects";
+  }
+  if (intersectionSet.has("indeterminate")) {
+    return "indeterminate";
+  }
+  return "does-not-intersect";
+}
+
+function potentialExposureIntersection(
+  exposureCase: JsonValue,
+  advisoryMatch: JsonValue,
+  purlVersExceptionPairs: Set<string>,
+): VersIntersection {
+  if (exposureCase.declaration.purl !== advisoryMatch.affectedPurl) {
+    return "does-not-intersect";
+  }
+  const comparableRanges = parsedPotentialExposureRanges(exposureCase, advisoryMatch);
+  if (!comparableRanges) {
+    return "indeterminate";
+  }
+  if (!rangesAreComparable(comparableRanges, purlVersExceptionPairs)) {
+    return "indeterminate";
+  }
+  if (rangesHaveBroadPrereleaseBounds(comparableRanges)) {
+    return "indeterminate";
+  }
+  return versRangesIntersect(comparableRanges.declarationRange, comparableRanges.affectedRange)
+    ? "intersects"
+    : "does-not-intersect";
+}
+
+function assertPotentialExposureIntersectionResult(
+  exposureCase: JsonValue,
+  advisoryMatches: JsonValue,
+  purlVersExceptionPairs: Set<string>,
+): void {
+  const intersections = advisoryMatches.map((advisoryMatch: JsonValue) =>
+    potentialExposureIntersection(exposureCase, advisoryMatch, purlVersExceptionPairs),
+  );
+  assert(
+    actualPotentialExposureIntersection(intersections) === exposureCase.expected.intersection,
+    `potential exposure case ${exposureCase.name} intersection must match deterministic evaluator`,
+  );
+}
+
+function emittedPotentialExposureWarningIdentities(exposureCase: JsonValue): string[] {
+  return (exposureCase.expected.warnings ?? []).map((warning: JsonValue) =>
+    [
+      warning.context.dependency.declarationKey,
+      warning.context.advisoryMatch.canonicalId,
+      warning.context.advisoryMatch.affectedPurl,
+      warning.context.advisoryMatch.affectedRange,
+    ].join("\u0000"),
+  );
+}
+
+function assertPotentialExposureWarningDeduplication(exposureCase: JsonValue): void {
+  const warningIdentities = emittedPotentialExposureWarningIdentities(exposureCase);
+  assert(
+    new Set(warningIdentities).size === warningIdentities.length,
+    `potential exposure case ${exposureCase.name} warnings must be deduplicated by declaration/advisory/range tuple`,
+  );
+  if (typeof exposureCase.duplicateInputs === "number") {
+    assert(
+      exposureCase.duplicateInputs > warningIdentities.length,
+      `potential exposure case ${exposureCase.name} duplicate input count must exceed emitted warning identities`,
+    );
+  }
 }
 
 function validatePotentialExposureWarnings(
@@ -910,16 +1160,22 @@ function validateInvalidPotentialExposureWarningContexts(ctx: ValidationContext)
 function validateExternalDependencyPotentialExposureCase(
   ctx: ValidationContext,
   exposureCase: JsonValue,
+  purlVersExceptionPairs: Set<string>,
 ): void {
   const advisoryMatches = exposureCase.advisoryMatches ?? [exposureCase.advisoryMatch];
   assertPotentialExposureCaseInputs(exposureCase, advisoryMatches);
+  assertPotentialExposureIntersectionResult(exposureCase, advisoryMatches, purlVersExceptionPairs);
   validatePotentialExposureWarnings(ctx, exposureCase, advisoryMatches);
   assertPotentialExposureIntersectionExpectation(exposureCase);
+  assertPotentialExposureWarningDeduplication(exposureCase);
   validatePotentialExposureDedupIdentity(exposureCase);
   validatePotentialExposureDedupIdentities(exposureCase);
 }
 
-function validateExternalDependencyPotentialExposureCases(ctx: ValidationContext): void {
+function validateExternalDependencyPotentialExposureCases(
+  ctx: ValidationContext,
+  purlVersExceptionPairs: Set<string>,
+): void {
   const externalDependencyPotentialExposureCases = ctx.readJson(
     "conformance/fixtures/external-dependency-potential-exposure-cases.json",
   );
@@ -930,14 +1186,14 @@ function validateExternalDependencyPotentialExposureCases(ctx: ValidationContext
   );
   validateInvalidPotentialExposureWarningContexts(ctx);
   for (const exposureCase of externalDependencyPotentialExposureCases.cases) {
-    validateExternalDependencyPotentialExposureCase(ctx, exposureCase);
+    validateExternalDependencyPotentialExposureCase(ctx, exposureCase, purlVersExceptionPairs);
   }
   assertPotentialExposureCoverage(externalDependencyPotentialExposureCases);
 }
 
 export function run(ctx: ValidationContext): void {
   validateComponentDependencyCases(ctx);
-  validateExternalDependencyDomain(ctx);
+  const purlVersExceptionPairs = validateExternalDependencyDomain(ctx);
   validateSemanticValidationCases(ctx);
-  validateExternalDependencyPotentialExposureCases(ctx);
+  validateExternalDependencyPotentialExposureCases(ctx, purlVersExceptionPairs);
 }
