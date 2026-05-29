@@ -22,6 +22,32 @@ Era (HE) notation using the `YYYYY-MM-DD HE` shape.
   [`openapi/PROSE-DRIFT-AUDIT.md`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/openapi/PROSE-DRIFT-AUDIT.md)
 - Release process:
   [`docs/release-process.md`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/release-process.md)
+- Coverage sufficiency review:
+  [`conformance/REQUIREMENTS.md#coverage-sufficiency-review`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/REQUIREMENTS.md#coverage-sufficiency-review)
+
+## Evidence classification
+
+Use the validation classes from
+[`docs/development/validation-and-conformance.md`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/docs/development/validation-and-conformance.md)
+when recording evidence:
+
+- `portable-conformance-fixture` — schema checks, deterministic expected outcomes,
+  warning/problem categories, lifecycle states, digest vectors, subject binding,
+  or algorithmic fixture evaluators that independent offline runners can
+  reproduce.
+- `repository-artifact-hygiene` — release-maintenance checks proving this
+  repository's companion artifacts agree with each other.
+- `human-review-release-evidence` — manual review evidence that stays aligned with
+  machine-readable artifacts but is not validator input.
+- `deferred-or-local-policy-boundary` — intentionally out-of-scope behavior for
+  the portable v0.1 fixture claim unless a future profile standardizes it.
+
+Publication drift, schema `$id`/`specVersion`/release-path lockstep, OpenAPI
+operation matrix parity, endpoint-family evidence connectivity, conformance
+coverage connectivity, and problem-registry synchronization are
+`repository-artifact-hygiene`. Do not record them as product conformance evidence
+unless the same portable behavior is also backed by a fixture, schema, or
+algorithmic vector.
 
 ## Global validation evidence
 
@@ -39,6 +65,10 @@ Era (HE) notation using the `YYYYY-MM-DD HE` shape.
   - Evidence:
 - [ ] `bun run validate:artifacts`
   - Evidence:
+  - Evidence class: `portable-conformance-fixture` for deterministic fixture
+    outcomes; `repository-artifact-hygiene` for publication drift, schema `$id`,
+    OpenAPI matrix parity, problem-registry synchronization, and coverage
+    connectivity checks.
 - [ ] `bun run changelog:check`
   - Evidence:
 
@@ -79,6 +109,10 @@ issue=#123; evidence=release-upload-finalize; fixtures=conformance/fixtures/rele
 
 For each endpoint family, record the detailed evidence block here. The audit
 table should link back to the relevant endpoint family entry in this issue.
+For each block, apply the
+[`Coverage sufficiency review`](https://github.com/agent-volumes/agent-volumes-spec/blob/main/conformance/REQUIREMENTS.md#coverage-sufficiency-review):
+confirm the evidence class, fixture/case stability, positive and negative paths,
+repository-hygiene boundaries, and any prose-boundary or deferred explanation.
 
 ### Catalog search
 
@@ -86,6 +120,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Catalog search
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -95,6 +131,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Release upload intent
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -104,6 +142,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Release upload finalize
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -113,6 +153,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Exact release metadata
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -122,6 +164,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Unpublish / lifecycle mutation
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -131,6 +175,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Version index
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -140,6 +186,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Trust summary
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -149,6 +197,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Trust detail
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -158,6 +208,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Trust upload intent
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -167,6 +219,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Trust upload finalize
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -176,6 +230,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Advisory search
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -185,6 +241,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Advisory detail
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -194,6 +252,8 @@ table should link back to the relevant endpoint family entry in this issue.
 - Commands/CI:
 - Rows reviewed: Capability metadata
 - Related changes:
+- Evidence class:
+- Coverage sufficiency review:
 - Fixture evidence:
 - Remaining drift:
 
@@ -207,6 +267,12 @@ table should link back to the relevant endpoint family entry in this issue.
 - [ ] No release-blocking exception remains unresolved at freeze time.
 - [ ] Every deterministic endpoint behavior has a fixture link or a documented
       prose-boundary explanation.
+- [ ] Each endpoint-family evidence block records the evidence class and confirms
+      the `conformance/REQUIREMENTS.md` coverage sufficiency review points.
+- [ ] Repository artifact hygiene checks, including publication drift, schema `$id`
+      alignment, OpenAPI matrix parity, and coverage connectivity, are not counted
+      as product conformance evidence unless a portable fixture, schema, or vector
+      covers the same behavior.
 - [ ] Expected problem slugs, statuses, and media types align across prose,
       OpenAPI, schemas, and fixtures.
 - [ ] Request contracts, response contracts, auth boundaries, and version
