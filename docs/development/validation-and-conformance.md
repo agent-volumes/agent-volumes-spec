@@ -58,6 +58,23 @@ Only the first class is portable conformance behavior. The second class is
 release evidence for this repository and must not be described as a product
 conformance rule for independent implementations.
 
+When recording review or release evidence, keep these examples in the repository
+artifact hygiene class unless the same portable behavior is also backed by a
+fixture, schema, or algorithmic vector:
+
+- publication drift between canonical sources and generated/public site artifacts;
+- schema `$id`, `specVersion`, OpenAPI `info.version`, and release-path lockstep;
+- OpenAPI operation matrix parity, endpoint-family links, and problem response
+  evidence connectivity;
+- conformance coverage connectivity, including fixture existence, stable case
+  names, and role-scoped `AV-*` requirement ID parity; and
+- problem-registry synchronization across schemas, OpenAPI variants, examples,
+  and fixtures.
+
+Do not use those hygiene checks by themselves as proof of `client-role`,
+`bibliotheca-read-role`, or `bibliotheca-write-capable-role` conformance. They
+prove that this repository's release artifacts are internally aligned.
+
 For current release alignment, the validator derives the expected specification
 version from the `**Version:**` header in
 [`../../agent-volumes-spec.md`](../../agent-volumes-spec.md). It checks
@@ -73,6 +90,39 @@ coverage, add or update a JSON fixture under `../../conformance/fixtures/` and
 validate that fixture from `scripts/validate-artifacts/`. Keep the human audit
 document aligned with the same semantics, but do not parse Markdown audit tables
 from the validator.
+
+## Validator change boundaries
+
+Future validator changes must preserve the v0.1 artifact-first boundary. Do not
+add automated validator checks for behavior that the portable offline harness
+intentionally excludes:
+
+- live registry behavior or deployed HTTP interoperability;
+- local authorization policy, token issuance, token revocation, or publisher
+  ownership checks;
+- universal trust-root policy, live transparency-log policy, or online freshness
+  checks;
+- search ranking, relevance ordering, CDN behavior, replication, or other
+  operations policy; or
+- runtime adapter execution, sandboxing, allowlists, launch behavior, or UX.
+
+New deterministic behavior needs a reviewable connection to the conformance
+surface. Use one or more of these paths:
+
+1. add or update a JSON Schema or schema validation case;
+2. add or update a conformance fixture case;
+3. add or update an algorithmic vector with explicit expected output;
+4. map the affected role-scoped `AV-*` requirement in
+   `../../conformance/fixtures/conformance-coverage.json`; or
+5. document why the behavior is prose-boundary, local policy, or deferred in
+   [`../../conformance/REQUIREMENTS.md`](../../conformance/REQUIREMENTS.md).
+
+Hard-coded representative-case requirements in validator code must point back to
+a durable source: the normative specification, a relevant ADR,
+[`../../conformance/README.md`](../../conformance/README.md), or
+[`../../conformance/REQUIREMENTS.md`](../../conformance/REQUIREMENTS.md). If a
+representative case is useful only for repository hygiene, label it that way and
+do not present it as product conformance evidence.
 
 ## Coverage expectations
 

@@ -17,9 +17,62 @@ The runner intentionally combines two related but distinct check classes:
   fixture coverage connectivity, and other freeze-readiness checks that prove this
   repository's companion artifacts agree with each other.
 
+Treat this distinction as part of the validator contract. A passing portable
+fixture check can support an `artifact-fixture-pass` claim by an independent
+runner. A passing repository hygiene check supports release readiness for this
+repository only; it is not evidence that an implementation, client, bibliotheca,
+or product conforms to Agent Volumes.
+
+In particular, the following checks remain **repository artifact hygiene** even
+when they are enforced by `bun run validate:artifacts`:
+
+- publication drift checks for generated or public site artifacts;
+- schema `$id`, `specVersion`, and release-path alignment checks;
+- OpenAPI operation matrix parity and endpoint-family evidence connectivity;
+- conformance coverage connectivity, including fixture existence, case-name
+  connectivity, and role-scoped `AV-*` ID parity; and
+- problem-registry synchronization across schemas, OpenAPI variants, examples,
+  and fixtures.
+
 Keep new assertions in the first class when they describe portable baseline
 behavior. Keep publication, generated-site, ordering, coverage, and release-freeze
 guards in the second class, and do not present them as product conformance rules.
+
+## FUTURE VALIDATOR CHANGES
+
+Before adding or changing an assertion, identify whether the behavior is a
+portable deterministic baseline, repository artifact hygiene, human-review release
+evidence, or a deferred/local-policy boundary.
+
+Do **not** add validator checks for behavior that v0.1 intentionally leaves out of
+the portable offline harness, including:
+
+- live registry behavior or deployed HTTP interoperability;
+- local authorization policy, token issuance, token revocation, or publisher
+  ownership checks;
+- universal trust-root policy, live transparency-log policy, or online freshness
+  checks;
+- search ranking, relevance ordering, CDN behavior, replication, or other
+  operations policy; and
+- runtime adapter execution, sandboxing, allowlists, launch behavior, or UX.
+
+When a new deterministic behavior is added, connect it through at least one of the
+reviewable artifact surfaces:
+
+- a JSON Schema or schema validation case;
+- a conformance fixture case;
+- an algorithmic vector with explicit expected output;
+- a `conformance/fixtures/conformance-coverage.json` mapping to the affected
+  role-scoped `AV-*` requirement; or
+- an explicit prose-boundary, local-policy, or deferred explanation in
+  `conformance/REQUIREMENTS.md` when no deterministic offline vector is
+  appropriate.
+
+Hard-coded representative coverage requirements in validator code, such as “this
+fixture family must include case X” or “this vocabulary must include value Y,”
+need a durable basis in the normative spec, a relevant ADR, `conformance/README.md`,
+or `conformance/REQUIREMENTS.md`. If that basis is missing, document the boundary
+or add the machine-readable fixture evidence before adding the assertion.
 
 ## STRUCTURE
 
