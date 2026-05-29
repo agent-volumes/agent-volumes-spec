@@ -31,7 +31,7 @@ if (statusCode === HTTP_NOT_FOUND) { ... }
 
 **Configuration:** `["warn", { "ignoreArrayIndexes": true }]`
 
-**Project style:** Prefer named constants for reusable or domain-significant values, including HTTP status codes, protocol versions, prefix lengths, CLI argument indexes, JSON indentation widths, and exit codes. Inline literals are acceptable when extracting a name would reduce clarity, such as direct cardinality checks (`length > 0`, `length === 0`) or parser/index arithmetic.
+**Project style:** Prefer named constants for reusable or domain-significant values, including HTTP status codes, protocol versions, prefix lengths, CLI argument indexes, JSON indentation widths, and exit codes. Inline literals are acceptable when extracting a name would reduce clarity, such as direct cardinality checks (`length > 0`, `length === 0`), parser/index arithmetic, or comparator result semantics (`return 0`, `return -1`, `comparison < 0`). Use a narrowly scoped lint disable for comparator helpers rather than renaming `0` to an unrelated domain constant.
 
 **Avoid broad ignores:** Do not add `ignore: [0, 1, -1]` as a blanket exception. In this repository, those values often carry domain meaning and should be reviewed case by case.
 
