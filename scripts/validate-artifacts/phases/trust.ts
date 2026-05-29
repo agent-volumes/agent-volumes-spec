@@ -61,10 +61,47 @@ function assertTrustDetailFormats(ctx: ValidationContext): void {
   );
 }
 
+function assertAttachmentSubjectBinding(trustDetail: JsonValue, label: string): void {
+  for (const attachment of trustDetail.attachments) {
+    if (attachment.verification?.subjectDigest && attachment.status.state !== "invalid") {
+      assert(
+        attachment.verification.subjectDigest === trustDetail.subject.integrity,
+        `${label} attachment ${attachment.id} verification subjectDigest must bind the release subject`,
+      );
+    }
+  }
+}
+
+function assertInvalidSubjectBindingCoverage(trustDetail: JsonValue, label: string): void {
+  assert(
+    trustDetail.attachments.some(
+      (attachment: JsonValue) =>
+        attachment.status.state === "invalid" &&
+        attachment.verification?.subjectDigest &&
+        attachment.verification.subjectDigest !== trustDetail.subject.integrity,
+    ),
+    `${label} must include invalid attachment subject-binding mismatch coverage`,
+  );
+}
+
+function assertTrustDetailSubjectBindings(ctx: ValidationContext): void {
+  const trustDetailFixture = ctx.readJson("conformance/fixtures/trust-detail.json");
+  const trustDetailStatusVariants = ctx.readJson(
+    "conformance/fixtures/trust-detail-status-variants.json",
+  );
+  assertAttachmentSubjectBinding(trustDetailFixture, "trust detail fixture");
+  assertAttachmentSubjectBinding(trustDetailStatusVariants, "trust detail status variants fixture");
+  assertInvalidSubjectBindingCoverage(
+    trustDetailStatusVariants,
+    "trust detail status variants fixture",
+  );
+}
+
 function run(ctx: ValidationContext): void {
   validateTrustFixtures(ctx);
   assertTrustStatusVariants(ctx);
   assertTrustDetailFormats(ctx);
+  assertTrustDetailSubjectBindings(ctx);
 }
 
 export { run };
