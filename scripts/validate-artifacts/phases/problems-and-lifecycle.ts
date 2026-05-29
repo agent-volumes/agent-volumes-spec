@@ -3,9 +3,11 @@ import {
   assertLifecycleMutationFixtures,
   assertProblemDetails,
 } from "../assertions/problem-details.ts";
-import { assert, assertSpecVersion } from "../core/assert.ts";
+import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
+
+const PROBLEM_TYPE_PREFIX = "https://agentvolumes.org/problems/";
 
 function assertProblemDetailsCases(ctx: ValidationContext): void {
   const problemDetailsCases = ctx.readJson("conformance/fixtures/problem-details-cases.json");
@@ -27,6 +29,74 @@ function assertProblemDetailsCases(ctx: ValidationContext): void {
   }
 }
 
+function problemTypesFromRegistry(problemRegistry: JsonValue): string[] {
+  return problemRegistry.problems.map((problem: JsonValue) => problem.type);
+}
+
+function problemSlugsFromRegistry(problemRegistry: JsonValue): string[] {
+  return problemRegistry.problems.map((problem: JsonValue) => problem.slug);
+}
+
+function problemStatusByTypeFromRegistry(problemRegistry: JsonValue): Map<string, number> {
+  return new Map(
+    problemRegistry.problems.map((problem: JsonValue) => [problem.type, problem.status]),
+  );
+}
+
+function problemDetailsStatusConstraints(ctx: ValidationContext): Map<string, number> {
+  return new Map(
+    ctx.schemas.problemDetails.allOf.map((constraint: JsonValue) => [
+      constraint.if.properties.type.const,
+      constraint.then.properties.status.const,
+    ]),
+  );
+}
+
+function assertProblemDetailsStatusConstraints(
+  ctx: ValidationContext,
+  problemRegistry: JsonValue,
+): void {
+  const expectedStatusByType = problemStatusByTypeFromRegistry(problemRegistry);
+  const actualStatusByType = problemDetailsStatusConstraints(ctx);
+  assert(
+    actualStatusByType.size === expectedStatusByType.size,
+    "problem-details schema must constrain every registered problem type",
+  );
+  for (const [type, status] of expectedStatusByType) {
+    assert(
+      actualStatusByType.get(type) === status,
+      `${type} status constraint must match problem registry`,
+    );
+  }
+}
+
+function assertProblemTaxonomyParity(ctx: ValidationContext, problemRegistry: JsonValue): void {
+  const registryTypes = problemTypesFromRegistry(problemRegistry);
+  const registrySlugs = problemSlugsFromRegistry(problemRegistry);
+  assertDeepEqual(
+    registrySlugs,
+    ctx.schemas.problemRegistry.$defs.problemSlug.enum,
+    "problem registry slug enum",
+  );
+  assertDeepEqual(
+    registryTypes,
+    ctx.schemas.problemRegistry.$defs.problemType.enum,
+    "problem registry type enum",
+  );
+  assertDeepEqual(
+    registryTypes,
+    ctx.schemas.problemDetails.properties.type.enum,
+    "problem-details type enum",
+  );
+  for (const [index, type] of registryTypes.entries()) {
+    assert(
+      type === `${PROBLEM_TYPE_PREFIX}${registrySlugs[index]}`,
+      `problem taxonomy ${registrySlugs[index]} type must use reserved prefix`,
+    );
+  }
+  assertProblemDetailsStatusConstraints(ctx, problemRegistry);
+}
+
 function assertProblemRegistry(ctx: ValidationContext): void {
   const problemRegistry = ctx.readJson("conformance/fixtures/problem-registry.json");
   ctx.validate("problemRegistry", problemRegistry, "problem registry fixture");
@@ -45,6 +115,7 @@ function assertProblemRegistry(ctx: ValidationContext): void {
       `problem registry ${problem.slug} status must match`,
     );
   }
+  assertProblemTaxonomyParity(ctx, problemRegistry);
 }
 
 function assertSearchProblemFixtures(ctx: ValidationContext): void {
