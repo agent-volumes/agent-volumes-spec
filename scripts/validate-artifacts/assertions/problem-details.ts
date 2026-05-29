@@ -11,6 +11,12 @@ interface ProblemFixtureAssertion {
   expectedFailuresByEndpoint: JsonValue;
 }
 
+interface EndpointProblemFixtureEvidence {
+  endpoint: string;
+  fixturePath: string;
+  problemSlug: string;
+}
+
 interface ProblemFixtureFailureAssertion {
   ctx: ValidationContext;
   label: JsonValue;
@@ -159,6 +165,24 @@ function assertExpectedFailures(
   }
 }
 
+function assertExpectedProblemEvidence(
+  label: JsonValue,
+  expectedFailuresByEndpoint: JsonValue,
+  evidence: EndpointProblemFixtureEvidence[],
+): void {
+  for (const [endpoint, expectedFailures] of expectedFailuresByEndpoint) {
+    for (const expectedFailure of expectedFailures) {
+      assert(
+        evidence.some(
+          (entry: EndpointProblemFixtureEvidence) =>
+            entry.endpoint === endpoint && entry.problemSlug === expectedFailure,
+        ),
+        `${label} missing fixture evidence for ${endpoint} ${expectedFailure}`,
+      );
+    }
+  }
+}
+
 function assertEndpointProblemFixture({
   ctx,
   label,
@@ -172,6 +196,34 @@ function assertEndpointProblemFixture({
   );
   assertProblemFixtureFailure({ ctx, expectedFailuresByEndpoint, fixture, label });
   recordEndpointValue(actualFailuresByEndpoint, fixture.endpoint, fixture.expected.failureCategory);
+}
+
+function endpointProblemFixtureEvidence(
+  relativePath: string,
+  fixture: JsonValue,
+): EndpointProblemFixtureEvidence | false {
+  if (fixture.schema !== "problem-details") {
+    return false;
+  }
+  return {
+    endpoint: fixture.endpoint,
+    fixturePath: relativePath,
+    problemSlug: fixture.expected.failureCategory,
+  };
+}
+
+function endpointProblemFixtureEvidenceFromFixtures(
+  relativePath: string,
+  fixtures: JsonValue[],
+): EndpointProblemFixtureEvidence[] {
+  const evidence = [];
+  for (const fixture of fixtures) {
+    const fixtureEvidence = endpointProblemFixtureEvidence(relativePath, fixture);
+    if (fixtureEvidence) {
+      evidence.push(fixtureEvidence);
+    }
+  }
+  return evidence;
 }
 
 function assertLifecycleMutationFixture({
@@ -211,6 +263,7 @@ function assertEndpointProblemFixtures({
   assertSpecVersion(ctx, fixtureSet, label);
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
   const actualFailuresByEndpoint = new Map<JsonValue, Set<JsonValue>>();
+  const evidence = endpointProblemFixtureEvidenceFromFixtures(relativePath, fixtureSet.fixtures);
   for (const fixture of fixtureSet.fixtures) {
     assertEndpointProblemFixture({
       actualFailuresByEndpoint,
@@ -221,6 +274,7 @@ function assertEndpointProblemFixtures({
     });
   }
   assertExpectedFailures(label, expectedFailuresByEndpoint, actualFailuresByEndpoint);
+  assertExpectedProblemEvidence(label, expectedFailuresByEndpoint, evidence);
 }
 
 function assertLifecycleMutationFixtures({
@@ -234,6 +288,7 @@ function assertLifecycleMutationFixtures({
   assert(Array.isArray(fixtureSet.fixtures), `${label} must contain fixtures`);
   const actualFailuresByEndpoint = new Map<JsonValue, Set<JsonValue>>();
   const actualSuccessesByEndpoint = new Map<JsonValue, Set<JsonValue>>();
+  const evidence = endpointProblemFixtureEvidenceFromFixtures(relativePath, fixtureSet.fixtures);
 
   for (const fixture of fixtureSet.fixtures) {
     assertLifecycleMutationFixture({
@@ -252,6 +307,13 @@ function assertLifecycleMutationFixtures({
     expectedFailuresByEndpoint,
     label,
   });
+  assertExpectedProblemEvidence(label, expectedFailuresByEndpoint, evidence);
 }
 
-export { assertEndpointProblemFixtures, assertLifecycleMutationFixtures, assertProblemDetails };
+export {
+  assertEndpointProblemFixtures,
+  assertLifecycleMutationFixtures,
+  assertProblemDetails,
+  endpointProblemFixtureEvidenceFromFixtures,
+};
+export type { EndpointProblemFixtureEvidence };
