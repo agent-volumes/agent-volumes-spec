@@ -152,6 +152,41 @@ function assertWarningCoverage(ctx: ValidationContext): void {
   ]);
 }
 
+function validateFixtureSchemaMap(ctx: ValidationContext): void {
+  const fixtureSchemaMap = ctx.readJson("conformance/fixture-schema-map.json");
+  assertSpecVersion(ctx, fixtureSchemaMap, "fixture schema map");
+  assert(Array.isArray(fixtureSchemaMap.artifacts), "fixture schema map must list artifacts");
+  const mappedArtifactPaths = fixtureSchemaMap.artifacts.map((artifact: JsonValue) => {
+    assert(typeof artifact.path === "string", "fixture schema map artifact needs path");
+    assert(ctx.pathExists(artifact.path), `${artifact.path} must exist`);
+    assert(
+      ctx.readJsonPaths.has(artifact.path),
+      `${artifact.path} must be connected to scripts/validate-artifacts.ts`,
+    );
+    assert(
+      [
+        "whole-file-schema",
+        "case-payload-schema",
+        "wrapper-payload-schema",
+        "algorithmic-vector",
+      ].includes(artifact.validationUnit),
+      `${artifact.path} must declare a known validation unit`,
+    );
+    assert(typeof artifact.validator === "string", `${artifact.path} must declare validator`);
+    if (artifact.schema) {
+      assert(ctx.pathExists(artifact.schema), `${artifact.path} schema must exist`);
+    }
+    return artifact.path;
+  });
+  assertDeepEqual(
+    mappedArtifactPaths.toSorted(compareStrings),
+    [...ctx.readJsonPaths]
+      .filter((pathName: string) => pathName.startsWith("conformance/"))
+      .toSorted(compareStrings),
+    "fixture schema map artifact inventory",
+  );
+}
+
 function countReportOutcomes(conformanceReport: JsonValue, outcome: string): number {
   return conformanceReport.results.filter((result: JsonValue) => result.outcome === outcome).length;
 }
@@ -1078,4 +1113,5 @@ export function run(ctx: ValidationContext): void {
   assertWarningCoverage(ctx);
   validateMappingMatrix(ctx);
   validateMappingSample(ctx);
+  validateFixtureSchemaMap(ctx);
 }
