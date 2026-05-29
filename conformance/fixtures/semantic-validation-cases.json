@@ -1,5 +1,39 @@
 {
   "specVersion": "0.1.0-rc.1",
+  "vocabularies": {
+    "componentEntrypointExtensions": {
+      "agent": [".md", ".yaml"],
+      "skill": [".md"],
+      "command": [".md"],
+      "tool": [".json", ".yaml", ".js", ".mjs", ".sh", ".py"],
+      "hook": [".md", ".yaml", ".js", ".mjs", ".sh", ".py"],
+      "mcp-server": [".json"],
+      "lsp-server": [".json"]
+    },
+    "canonicalHookEvents": [
+      "SessionStart",
+      "SessionEnd",
+      "Setup",
+      "UserPromptSubmit",
+      "Stop",
+      "StopFailure",
+      "PreToolUse",
+      "PostToolUse",
+      "PostToolUseFailure",
+      "PostToolBatch",
+      "SubagentStart",
+      "SubagentStop",
+      "TaskCreated",
+      "TaskCompleted",
+      "InstructionsLoaded",
+      "ConfigChange",
+      "CwdChanged",
+      "FileChanged",
+      "PreCompact",
+      "PostCompact"
+    ],
+    "baselineHookTypes": ["command", "script", "module"]
+  },
   "cases": [
     {
       "name": "release-file-selection-rejects-non-regular-entry",
