@@ -118,3 +118,24 @@ Before claiming implementation readiness for a draft release:
    accidental omissions.
 5. For release freeze, perform the endpoint-level prose/OpenAPI drift audit in
    [`../openapi/PROSE-DRIFT-AUDIT.md`](../openapi/PROSE-DRIFT-AUDIT.md).
+
+## Coverage sufficiency review
+
+`fixtures/conformance-coverage.json` is mechanically checked for ID parity,
+anchor validity, fixture existence, and case-name connectivity. Reviewers still
+evaluate whether each mapping is sufficient for the requirement it cites.
+
+For each new or changed coverage entry, reviewers confirm:
+
+- the entry identifies the right evidence class: schema-only structure,
+  deterministic fixture behavior, algorithmic vector, OpenAPI/API matrix
+  evidence, human-review release evidence, or prose/local-policy boundary;
+- case-level references point to stable case names whose expected outcome tests
+  the cited requirement rather than merely exercising the file format;
+- both positive and negative paths are represented when the requirement includes
+  accept/reject behavior, warning categories, problem categories, or lifecycle
+  failure states;
+- repository artifact hygiene evidence is not counted as product conformance
+  unless the portable behavior also has fixture, schema, or vector coverage; and
+- any intentionally uncovered behavior is explicitly categorized above as
+  prose-boundary behavior or deferred behavior.

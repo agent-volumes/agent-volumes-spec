@@ -86,6 +86,24 @@ coverage. Reviewers check for one of these outcomes:
 4. `conformance/REQUIREMENTS.md` explains why the behavior is prose-boundary,
    local policy, or intentionally deferred.
 
+Reviewers also check coverage sufficiency before accepting a new or changed
+`conformance-coverage.json` mapping:
+
+1. Confirm the coverage class is clear: schema-only structure, deterministic
+   fixture behavior, algorithmic vector, OpenAPI/API matrix evidence,
+   human-review release evidence, or prose/local-policy boundary.
+2. Confirm each referenced fixture path exists and, when a `case` is named, that
+   the case name is stable and tests the requirement's portable outcome rather
+   than only fixture plumbing.
+3. Confirm negative behavior is represented when the requirement defines a
+   rejection, failure category, warning category, or lifecycle failure.
+4. Confirm repository-hygiene checks are not counted as product conformance
+   behavior unless the same portable outcome is also represented by a fixture,
+   schema, or algorithmic vector.
+5. Confirm intentionally uncovered behavior is listed in
+   `conformance/REQUIREMENTS.md` as prose-boundary, local policy, or deferred
+   rather than being silently omitted.
+
 ## Regression expectations
 
 When a bug is fixed in the specification, schema, OpenAPI, fixture corpus, or
