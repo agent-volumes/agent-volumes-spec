@@ -75,6 +75,15 @@ function assertEndpointFailures(
 function assertIdempotencyConflictFixture(fixture: JsonValue, label: string): void {
   if (fixture.expected.failureCategory === "idempotency-conflict") {
     assert(
+      typeof fixture.request?.headerIdempotencyKey === "string" &&
+        typeof fixture.request?.bodyIdempotencyKey === "string",
+      `${label} ${fixture.name} idempotency conflicts must model both header and body keys`,
+    );
+    assert(
+      fixture.request.headerIdempotencyKey !== fixture.request.bodyIdempotencyKey,
+      `${label} ${fixture.name} idempotency conflict keys must differ`,
+    );
+    assert(
       fixture.payload.status === HTTP_STATUS_CONFLICT,
       `${label} ${fixture.name} idempotency conflicts must use HTTP 409`,
     );
@@ -83,6 +92,20 @@ function assertIdempotencyConflictFixture(fixture: JsonValue, label: string): vo
       `${label} ${fixture.name} idempotency conflict must describe header/body mismatch semantics`,
     );
   }
+}
+
+function assertMatchingIdempotencyKeys(fixture: JsonValue, label: string): void {
+  if (!fixture.request?.headerIdempotencyKey || !fixture.request?.bodyIdempotencyKey) {
+    return;
+  }
+  assert(
+    fixture.request.headerIdempotencyKey === fixture.request.bodyIdempotencyKey,
+    `${label} ${fixture.name} matching idempotency fixture must use equal header and body keys`,
+  );
+  assert(
+    fixture.payload.idempotencyKey === fixture.request.bodyIdempotencyKey,
+    `${label} ${fixture.name} response idempotencyKey must echo the body key`,
+  );
 }
 
 function assertIdempotencyConflictCoverage(fixtures: JsonValue, label: string): void {
@@ -97,6 +120,14 @@ function assertIdempotencyConflictCoverage(fixtures: JsonValue, label: string): 
       `${label} must include ${endpointFragment} idempotency header/body mismatch coverage`,
     );
   }
+  assert(
+    fixtures.some(
+      (fixture: JsonValue) =>
+        fixture.request?.headerIdempotencyKey === fixture.request?.bodyIdempotencyKey &&
+        fixture.payload?.idempotencyKey === fixture.request?.bodyIdempotencyKey,
+    ),
+    `${label} must include matching header/body idempotency key coverage`,
+  );
 }
 
 function assertReleaseUploadCoverage(
@@ -179,6 +210,7 @@ function assertReleaseUploadIntent(ctx: ValidationContext, fixture: JsonValue): 
   );
   assertHttpPutUpload(fixture, "release upload lifecycle");
   assertExpectedUploadState(fixture, "release upload lifecycle");
+  assertMatchingIdempotencyKeys(fixture, "release upload lifecycle");
 }
 
 function assertReleaseUploadFinalize(ctx: ValidationContext, fixture: JsonValue): void {

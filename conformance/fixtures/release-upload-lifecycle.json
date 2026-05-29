@@ -6,6 +6,10 @@
       "name": "release-upload-intent-success",
       "schema": "release-upload-intent",
       "expected": { "valid": true },
+      "request": {
+        "headerIdempotencyKey": "release-intent-key-1",
+        "bodyIdempotencyKey": "release-intent-key-1"
+      },
       "payload": {
         "uploadId": "upload-123",
         "target": {
@@ -309,6 +313,10 @@
       "name": "release-upload-idempotency-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "idempotency-conflict" },
+      "request": {
+        "headerIdempotencyKey": "release-intent-key-1",
+        "bodyIdempotencyKey": "release-intent-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency conflict",
@@ -405,6 +413,10 @@
       "name": "scoped-release-upload-idempotency-conflict",
       "schema": "problem-details",
       "expected": { "failureCategory": "idempotency-conflict" },
+      "request": {
+        "headerIdempotencyKey": "scoped-release-intent-key-1",
+        "bodyIdempotencyKey": "scoped-release-intent-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency conflict",

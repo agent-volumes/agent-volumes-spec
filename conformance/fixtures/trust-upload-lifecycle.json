@@ -398,6 +398,10 @@
       "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "finalize-idempotency-conflict-failure",
       "schema": "problem-details",
+      "request": {
+        "headerIdempotencyKey": "trust-finalize-key-1",
+        "bodyIdempotencyKey": "trust-finalize-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency key conflicts with an earlier finalization request",
@@ -411,6 +415,10 @@
       "endpoint": "POST /api/v1/volumes/{name}/{version}/trust/uploads",
       "name": "idempotency-conflict-failure",
       "schema": "problem-details",
+      "request": {
+        "headerIdempotencyKey": "trust-intent-key-1",
+        "bodyIdempotencyKey": "trust-intent-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency key conflicts with an earlier upload request",
@@ -508,6 +516,10 @@
       "endpoint": "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
       "name": "scoped-idempotency-conflict-failure",
       "schema": "problem-details",
+      "request": {
+        "headerIdempotencyKey": "scoped-trust-intent-key-1",
+        "bodyIdempotencyKey": "scoped-trust-intent-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency key conflicts with an earlier scoped upload request",
@@ -638,6 +650,10 @@
       "endpoint": "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
       "name": "scoped-finalize-idempotency-conflict-failure",
       "schema": "problem-details",
+      "request": {
+        "headerIdempotencyKey": "scoped-trust-finalize-key-1",
+        "bodyIdempotencyKey": "scoped-trust-finalize-key-2"
+      },
       "payload": {
         "type": "https://agentvolumes.org/problems/idempotency-conflict",
         "title": "Idempotency key conflicts with an earlier scoped finalization request",
