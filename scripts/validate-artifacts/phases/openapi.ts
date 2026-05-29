@@ -174,6 +174,23 @@ function fixtureSetContainsEndpoint(fixtureSet: JsonValue, endpoint: string): bo
   );
 }
 
+function coverageRequirementIds(ctx: ValidationContext): Set<JsonValue> {
+  const conformanceCoverage = ctx.readJson("conformance/fixtures/conformance-coverage.json");
+  return new Set(conformanceCoverage.requirements.map((requirement: JsonValue) => requirement.id));
+}
+
+function assertMatrixRequirements(ctx: ValidationContext, openapiOperationMatrix: JsonValue): void {
+  const knownRequirementIds = coverageRequirementIds(ctx);
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    for (const requirementId of endpointFamily.requirements) {
+      assert(
+        knownRequirementIds.has(requirementId),
+        `OpenAPI operation matrix ${endpointFamily.name} references unknown conformance requirement ${requirementId}`,
+      );
+    }
+  }
+}
+
 function assertMatrixFixtureReferences(
   ctx: ValidationContext,
   openapiOperationMatrix: JsonValue,
@@ -228,6 +245,40 @@ function assertScopedUploadOperationFixtures(
   }
 }
 
+function operationKey(method: string, pathName: string): string {
+  return `${method.toUpperCase()} ${pathName}`;
+}
+
+function assertOperationFixtureEvidence(
+  ctx: ValidationContext,
+  endpointFamily: JsonValue,
+  operation: JsonValue,
+): void {
+  const endpoint = operationKey(operation.method, operation.pathName);
+  const fixtures = endpointFamily.fixtures ?? [];
+  assert(
+    fixtures.length > EMPTY_COUNT,
+    `OpenAPI operation matrix ${endpointFamily.name} must reference endpoint fixtures`,
+  );
+  assert(
+    fixtures.some((fixturePath: JsonValue) =>
+      fixtureSetContainsEndpoint(ctx.readJson(fixturePath), endpoint),
+    ),
+    `OpenAPI operation matrix ${endpointFamily.name} fixtures must include ${endpoint}`,
+  );
+}
+
+function assertEndpointProblemFixtureEvidence(
+  ctx: ValidationContext,
+  openapiOperationMatrix: JsonValue,
+): void {
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    for (const operation of endpointFamily.operations) {
+      assertOperationFixtureEvidence(ctx, endpointFamily, operation);
+    }
+  }
+}
+
 function operationDeclaresBearerAuth(operation: OpenapiOperation): boolean {
   if (!Array.isArray(operation.security)) {
     return false;
@@ -255,10 +306,6 @@ function assertOperationAuthBoundary(operation: OpenapiOperation, expectedAuth: 
       (Array.isArray(operation.security) && operation.security.length === EMPTY_COUNT),
     `OpenAPI ${operation.operationId} must remain public per operation matrix`,
   );
-}
-
-function operationKey(method: string, pathName: string): string {
-  return `${method.toUpperCase()} ${pathName}`;
 }
 
 function assertMatrixExpectedProblems(
@@ -340,6 +387,20 @@ function assertMatrixOperationMatches(
   assertMatrixSuccessResponse(operation, matrixOperation);
 }
 
+function assertMatrixOperationMatchesAll(
+  operations: OpenapiOperation[],
+  matrixOperationsById: Map<string, MatrixOperation>,
+): void {
+  for (const operation of operations) {
+    const matrixOperation = matrixOperationsById.get(operation.operationId);
+    assert(
+      typeof matrixOperation !== "undefined",
+      `OpenAPI operation matrix missing ${operation.operationId}`,
+    );
+    assertMatrixOperationMatches(operation, matrixOperation);
+  }
+}
+
 function assertOperationCoverageMatrix(
   ctx: ValidationContext,
   openapi: JsonObject,
@@ -351,15 +412,10 @@ function assertOperationCoverageMatrix(
     operations.length === matrixOperationsById.size,
     "OpenAPI operation matrix must contain exactly one operation entry per OpenAPI operationId",
   );
-  for (const operation of operations) {
-    const matrixOperation = matrixOperationsById.get(operation.operationId);
-    assert(
-      typeof matrixOperation !== "undefined",
-      `OpenAPI operation matrix missing ${operation.operationId}`,
-    );
-    assertMatrixOperationMatches(operation, matrixOperation);
-  }
+  assertMatrixOperationMatchesAll(operations, matrixOperationsById);
   assertMatrixFixtureReferences(ctx, openapiOperationMatrix);
+  assertMatrixRequirements(ctx, openapiOperationMatrix);
+  assertEndpointProblemFixtureEvidence(ctx, openapiOperationMatrix);
   assertScopedUploadOperationFixtures(ctx, openapiOperationMatrix);
 }
 
