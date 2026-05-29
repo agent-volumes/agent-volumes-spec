@@ -156,12 +156,6 @@
           "409": {
             "$ref": "#/components/responses/Conflict"
           },
-          "413": {
-            "$ref": "#/components/responses/PayloadTooLarge"
-          },
-          "415": {
-            "$ref": "#/components/responses/UnsupportedMediaType"
-          },
           "429": {
             "$ref": "#/components/responses/TooManyRequests"
           }
@@ -313,12 +307,6 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
-          },
-          "413": {
-            "$ref": "#/components/responses/PayloadTooLarge"
-          },
-          "415": {
-            "$ref": "#/components/responses/UnsupportedMediaType"
           },
           "429": {
             "$ref": "#/components/responses/TooManyRequests"
@@ -3467,9 +3455,7 @@
             "required": ["specVersion"],
             "properties": {
               "specVersion": {
-                "type": "string",
-                "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
-                "description": "Future Agent Volumes specification release where the compatibility bridge is expected to be removed or reconsidered."
+                "type": "string"
               },
               "phase": {
                 "type": "string"

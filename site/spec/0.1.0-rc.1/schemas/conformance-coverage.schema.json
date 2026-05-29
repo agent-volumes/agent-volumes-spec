@@ -13,22 +13,18 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "role", "requirement", "specAnchor", "coverage"],
+        "required": ["id", "role", "requirement", "coverage"],
         "properties": {
           "id": { "type": "string", "pattern": "^AV-(?:BIB|CLI)-[0-9]{3}$" },
           "role": { "type": "string", "enum": ["bibliotheca", "client"] },
           "requirement": { "type": "string", "minLength": 1 },
-          "specAnchor": {
-            "type": "string",
-            "pattern": "^#[a-z0-9]+(?:-[a-z0-9]+)*$"
-          },
           "coverage": {
             "type": "array",
             "minItems": 1,
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["fixture", "area", "coverageType"],
+              "required": ["fixture", "area"],
               "properties": {
                 "fixture": { "type": "string", "minLength": 1 },
                 "case": { "type": "string", "minLength": 1 },
@@ -64,10 +60,6 @@
                     "openapi",
                     "prose-boundary"
                   ]
-                },
-                "boundary": {
-                  "type": "string",
-                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
                 }
               }
             }

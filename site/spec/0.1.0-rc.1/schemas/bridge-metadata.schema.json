@@ -17,11 +17,7 @@
       "additionalProperties": false,
       "required": ["specVersion"],
       "properties": {
-        "specVersion": {
-          "type": "string",
-          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$",
-          "description": "Future Agent Volumes specification release where the compatibility bridge is expected to be removed or reconsidered."
-        },
+        "specVersion": { "type": "string" },
         "phase": { "type": "string" },
         "profile": { "type": "string" }
       }

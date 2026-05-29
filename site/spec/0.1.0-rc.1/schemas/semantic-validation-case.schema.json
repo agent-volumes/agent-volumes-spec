@@ -4,42 +4,9 @@
   "title": "Agent Volumes Semantic Validation Case",
   "type": "object",
   "additionalProperties": false,
-  "required": ["specVersion", "vocabularies", "cases"],
+  "required": ["specVersion", "cases"],
   "properties": {
     "specVersion": { "type": "string", "const": "0.1.0-rc.1" },
-    "vocabularies": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["componentEntrypointExtensions", "canonicalHookEvents", "baselineHookTypes"],
-      "properties": {
-        "componentEntrypointExtensions": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"],
-          "properties": {
-            "agent": { "$ref": "#/$defs/extensionSet" },
-            "skill": { "$ref": "#/$defs/extensionSet" },
-            "command": { "$ref": "#/$defs/extensionSet" },
-            "tool": { "$ref": "#/$defs/extensionSet" },
-            "hook": { "$ref": "#/$defs/extensionSet" },
-            "mcp-server": { "$ref": "#/$defs/extensionSet" },
-            "lsp-server": { "$ref": "#/$defs/extensionSet" }
-          }
-        },
-        "canonicalHookEvents": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "type": "string", "minLength": 1 },
-          "uniqueItems": true
-        },
-        "baselineHookTypes": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "type": "string", "enum": ["command", "script", "module"] },
-          "uniqueItems": true
-        }
-      }
-    },
     "cases": {
       "type": "array",
       "minItems": 1,
@@ -71,14 +38,6 @@
           }
         }
       }
-    }
-  },
-  "$defs": {
-    "extensionSet": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "type": "string", "pattern": "^\\.[A-Za-z0-9]+$" },
-      "uniqueItems": true
     }
   }
 }
