@@ -198,6 +198,15 @@ schema validates only the selected payload.
 Warning payloads use the companion schema
 [`../schemas/warning.schema.json`](../schemas/warning.schema.json).
 
+The portable external dependency potential-exposure evaluator follows ADR-0148's
+three-result model: `intersects`, `does-not-intersect`, or `indeterminate`. The
+v0.1 fixture subset treats broad prerelease VERS bounds such as
+`vers:npm/>=2.0.0-alpha|<2.0.0` as unsupported or ambiguous for the portable
+offline evaluator, so those cases resolve to `indeterminate` rather than a
+portable exposure warning. More specific prerelease bounds, such as
+`2.0.0-alpha.1`, remain deterministic fixture inputs when the expected outcome
+can be evaluated by the bundled algorithmic vector.
+
 `mapping-sample.json` is a concrete offline export vector. It binds one source
 manifest and release subject to CycloneDX, SPDX, the optional Agent Volumes
 external dependency declarations predicate, and SLSA output objects so validators
