@@ -29,6 +29,7 @@ import type { JsonValue, ValidationContext } from "../core/types.ts";
 const currentSpecVersion = getCurrentSpecVersion();
 const releaseArchiveRoot = getReleaseArchiveRoot();
 const schemaIdPrefix = getSchemaIdPrefix();
+const releasePublicationDriftCheckEnabled = process.env.RELEASE_PUBLICATION_DRIFT_CHECK === "1";
 
 function assertReservedNamespaceArtifactShape(ctx: ValidationContext): void {
   assert(
@@ -96,13 +97,17 @@ function assertReservedNamespaceFixtureCoverage(ctx: ValidationContext): void {
   }
 }
 
-function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
+function readSchemaPublicationFiles(ctx: ValidationContext): string[] {
   const schemaDirectory = path.join(ctx.root, "schemas");
-  const siteSchemaDirectory = path.join(ctx.root, releaseArchiveRoot, "schemas");
-  const schemaFiles = fs
+  return fs
     .readdirSync(schemaDirectory)
     .filter((entry: JsonValue) => entry.endsWith(".json"))
     .toSorted();
+}
+
+function assertSiteSchemaPublicationFiles(ctx: ValidationContext, schemaFiles: string[]): void {
+  const schemaDirectory = path.join(ctx.root, "schemas");
+  const siteSchemaDirectory = path.join(ctx.root, releaseArchiveRoot, "schemas");
 
   for (const schemaFile of schemaFiles) {
     const canonicalPath = path.join(schemaDirectory, schemaFile);
@@ -114,6 +119,17 @@ function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
       `site schema publication ${schemaFile} must match schemas/${schemaFile}`,
     );
   }
+}
+
+function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
+  if (!releasePublicationDriftCheckEnabled) {
+    return;
+  }
+
+  const schemaFiles = readSchemaPublicationFiles(ctx);
+  const siteSchemaDirectory = path.join(ctx.root, releaseArchiveRoot, "schemas");
+
+  assertSiteSchemaPublicationFiles(ctx, schemaFiles);
 
   const siteSchemaFiles = fs
     .readdirSync(siteSchemaDirectory)
@@ -129,11 +145,13 @@ function assertSiteSchemaPublicationDrift(ctx: ValidationContext): void {
 function readSpdxExternalDependencyContext(ctx: ValidationContext): JsonValue {
   const canonicalContextPath = "site/contexts/spdx-external-dependency-declarations-v0.1.jsonld";
   const archivedContextPath = `${releaseArchiveRoot}/contexts/spdx-external-dependency-declarations-v0.1.jsonld`;
-  assert(
-    fs.readFileSync(path.join(ctx.root, canonicalContextPath), "utf8") ===
-      fs.readFileSync(path.join(ctx.root, archivedContextPath), "utf8"),
-    "SPDX external dependency canonical JSON-LD context must match release archive copy",
-  );
+  if (releasePublicationDriftCheckEnabled) {
+    assert(
+      fs.readFileSync(path.join(ctx.root, canonicalContextPath), "utf8") ===
+        fs.readFileSync(path.join(ctx.root, archivedContextPath), "utf8"),
+      "SPDX external dependency canonical JSON-LD context must match release archive copy",
+    );
+  }
   return ctx.readJsonFile(canonicalContextPath);
 }
 

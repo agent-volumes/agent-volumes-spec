@@ -193,17 +193,19 @@ CHECK_SUMMARY="not run (--skip-checks)"
 if [[ "${RUN_CHECKS}" == "true" ]]; then
   info "Running release-freeze validation commands."
   OPENAPI_PUBLICATION_ARTIFACT="site/spec/${SPEC_VERSION}/api-reference/bibliotheca.openapi.json"
+  SCHEMA_PUBLICATION_ARTIFACTS="site/spec/${SPEC_VERSION}/schemas"
   bun run build:site:openapi -- "${SPEC_VERSION}"
-  if [[ -n "$(git_cmd status --porcelain -- "${OPENAPI_PUBLICATION_ARTIFACT}")" ]]; then
-    error "${OPENAPI_PUBLICATION_ARTIFACT} is stale. Run 'bun run build:site:openapi -- ${SPEC_VERSION}' and commit the result before tagging."
+  bun run build:site:schemas -- "${SPEC_VERSION}"
+  if [[ -n "$(git_cmd status --porcelain -- "${OPENAPI_PUBLICATION_ARTIFACT}" "${SCHEMA_PUBLICATION_ARTIFACTS}")" ]]; then
+    error "Mintlify publication artifacts are stale. Run 'bun run build:site:openapi -- ${SPEC_VERSION}' and 'bun run build:site:schemas -- ${SPEC_VERSION}', then commit the result before tagging."
   fi
   bun run changelog:check
   bun run format:check
   bun run lint:md
   bun run lint:openapi
   bun run lint:site
-  bun run validate:artifacts
-  CHECK_SUMMARY="build:site:openapi, changelog:check, format:check, lint:md, lint:openapi, lint:site, validate:artifacts passed"
+  RELEASE_PUBLICATION_DRIFT_CHECK=1 bun run validate:artifacts
+  CHECK_SUMMARY="build:site:openapi, build:site:schemas, changelog:check, format:check, lint:md, lint:openapi, lint:site, validate:artifacts passed"
 fi
 
 CHANGELOG_SECTION="$(python3 - "${SPEC_VERSION}" <<'PY'
