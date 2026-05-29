@@ -68,6 +68,8 @@ const supportedEntrypointExtensionsByType = {
   tool: new Set([".json", ".yaml", ".js", ".mjs", ".sh", ".py"]),
 };
 
+const REQUIRED_VERS_BOUND_COUNT = 1;
+
 type ComponentType = keyof typeof supportedEntrypointExtensionsByType;
 
 const supportedEntrypointExtensionMap: Record<
@@ -819,12 +821,13 @@ function compareVersVersions(left: string, right: string): number {
   return versVersionCollator.compare(left, right);
 }
 
+/* eslint-disable no-magic-numbers -- Comparator result checks conventionally compare against 0. */
 function stricterLowerBound(left: VersBound, right: VersBound): VersBound {
   const comparison = compareVersVersions(left.version, right.version);
-  if (comparison > EMPTY_COUNT) {
+  if (comparison > 0) {
     return left;
   }
-  if (comparison < EMPTY_COUNT) {
+  if (comparison < 0) {
     return right;
   }
   return { inclusive: left.inclusive && right.inclusive, version: left.version };
@@ -832,14 +835,15 @@ function stricterLowerBound(left: VersBound, right: VersBound): VersBound {
 
 function stricterUpperBound(left: VersBound, right: VersBound): VersBound {
   const comparison = compareVersVersions(left.version, right.version);
-  if (comparison < EMPTY_COUNT) {
+  if (comparison < 0) {
     return left;
   }
-  if (comparison > EMPTY_COUNT) {
+  if (comparison > 0) {
     return right;
   }
   return { inclusive: left.inclusive && right.inclusive, version: left.version };
 }
+/* eslint-enable no-magic-numbers */
 
 function parseVersComparator(term: string): ParsedVersComparator | false {
   const match = versComparatorPattern.exec(term);
@@ -883,7 +887,10 @@ function parseVersBounds(terms: string[]): { lower: VersBound; upper: VersBound 
   }
   const [lower] = lowerBounds;
   const [upper] = upperBounds;
-  return lowerBounds.length === 1 && upperBounds.length === 1 && lower && upper
+  return lowerBounds.length === REQUIRED_VERS_BOUND_COUNT &&
+    upperBounds.length === REQUIRED_VERS_BOUND_COUNT &&
+    lower &&
+    upper
     ? { lower, upper }
     : false;
 }
@@ -901,9 +908,8 @@ function versRangesIntersect(left: VersRange, right: VersRange): boolean {
   const lower = stricterLowerBound(left.lower, right.lower);
   const upper = stricterUpperBound(left.upper, right.upper);
   const comparison = compareVersVersions(lower.version, upper.version);
-  return (
-    comparison < EMPTY_COUNT || (comparison === EMPTY_COUNT && lower.inclusive && upper.inclusive)
-  );
+  // eslint-disable-next-line no-magic-numbers -- Comparator result checks conventionally compare against 0.
+  return comparison < 0 || (comparison === 0 && lower.inclusive && upper.inclusive);
 }
 
 function hasBroadPrereleaseBound(range: VersRange): boolean {

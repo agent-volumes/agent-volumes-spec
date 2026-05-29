@@ -85,18 +85,17 @@ function compileSemverRangeValidator(ctx: ValidationContext): (range: JsonValue)
 function parseSemver(version: string): ParsedSemver {
   const match = exactSemverRangePattern.exec(version);
   assert(match, `SemVer value must be parseable: ${version}`);
-  const major = match[1];
-  const minor = match[2];
-  const patch = match[3];
+  const [, major, minor, patch, prerelease = ""] = match;
   assert(major && minor && patch, `SemVer value must include major, minor, and patch: ${version}`);
   return {
     major: Number.parseInt(major, 10),
     minor: Number.parseInt(minor, 10),
     patch: Number.parseInt(patch, 10),
-    prerelease: match[4] ?? "",
+    prerelease,
   };
 }
 
+/* eslint-disable no-magic-numbers -- Comparator APIs conventionally use 0, 1, and -1. */
 function comparePrerelease(left: string, right: string): number {
   if (left === right) {
     return 0;
@@ -148,6 +147,7 @@ function compareSemverWithOperator(version: string, operator: string, target: st
   }
   return comparison === 0;
 }
+/* eslint-enable no-magic-numbers */
 
 function caretUpperBound(version: string): string {
   return nextBreakingBoundary(version);
@@ -177,7 +177,7 @@ function satisfiesTildeRange(version: string, range: string): boolean {
 function satisfiesComparatorRange(version: string, range: string): boolean {
   const comparatorMatch = comparatorRangePattern.exec(range);
   assert(comparatorMatch, `Unsupported resolver range term: ${range}`);
-  const operator = comparatorMatch[1];
+  const [, operator] = comparatorMatch;
   assert(operator, `Unsupported resolver range operator: ${range}`);
   return compareSemverWithOperator(version, operator, range.slice(operator.length));
 }
