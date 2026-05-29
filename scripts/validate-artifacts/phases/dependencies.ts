@@ -616,6 +616,95 @@ function validateUnsupportedToolEntrypointCase(
   }
 }
 
+interface EntrypointArchivePath {
+  escapedArchiveRoot: boolean;
+  path: string;
+}
+
+function entrypointArchivePath(
+  semanticCase: JsonValue,
+  component: JsonValue,
+): EntrypointArchivePath {
+  assert(
+    typeof component.entrypoint === "string",
+    `semantic validation case ${semanticCase.name} component entrypoint must be a string`,
+  );
+  const entrypointPath = component.entrypoint.startsWith("./")
+    ? component.entrypoint.slice("./".length)
+    : component.entrypoint;
+  const archivePath = path.posix.normalize(entrypointPath);
+  return {
+    escapedArchiveRoot:
+      archivePath === "." || archivePath.startsWith("../") || path.posix.isAbsolute(archivePath),
+    path: archivePath,
+  };
+}
+
+function releaseEntryTypeForPath(payload: JsonValue, archivePath: string): JsonValue {
+  const releaseEntry = payload.releaseEntries?.find(
+    (entry: JsonValue) => entry.path === archivePath,
+  );
+  if (releaseEntry) {
+    return releaseEntry.entryType;
+  }
+  if (payload.releaseFiles?.includes(archivePath)) {
+    return "file";
+  }
+  return false;
+}
+
+function assertMissingEntrypointArchiveCase(
+  semanticCase: JsonValue,
+  archivePath: EntrypointArchivePath,
+): void {
+  if (semanticCase.expected.failureCategory === "missing-entrypoint") {
+    assert(
+      archivePath.escapedArchiveRoot ||
+        !releaseEntryTypeForPath(semanticCase.payload, archivePath.path),
+      `semantic validation case ${semanticCase.name} missing entrypoint must not resolve to a regular release entry`,
+    );
+    return;
+  }
+}
+
+function assertResolvedEntrypointArchiveCase(
+  semanticCase: JsonValue,
+  archivePath: EntrypointArchivePath,
+): void {
+  assert(
+    !archivePath.escapedArchiveRoot,
+    `semantic validation case ${semanticCase.name} component entrypoint must remain within the release archive`,
+  );
+  const entryType = releaseEntryTypeForPath(semanticCase.payload, archivePath.path);
+  if (semanticCase.expected.failureCategory === "non-regular-archive-entry") {
+    assert(
+      entryType && entryType !== "file",
+      `semantic validation case ${semanticCase.name} non-regular entrypoint must resolve to a non-file archive entry`,
+    );
+  }
+  if (semanticCase.expected.valid === true) {
+    assert(
+      entryType === "file",
+      `semantic validation case ${semanticCase.name} valid entrypoint must resolve to a regular release file`,
+    );
+  }
+}
+
+function validateSemanticEntrypointArchiveCase(
+  semanticCase: JsonValue,
+  component: JsonValue,
+): void {
+  if (!semanticCase.payload.releaseFiles && !semanticCase.payload.releaseEntries) {
+    return;
+  }
+  const archivePath = entrypointArchivePath(semanticCase, component);
+  assertMissingEntrypointArchiveCase(semanticCase, archivePath);
+  if (semanticCase.expected.failureCategory === "missing-entrypoint") {
+    return;
+  }
+  assertResolvedEntrypointArchiveCase(semanticCase, archivePath);
+}
+
 function validateSemanticCaseComponent(semanticCase: JsonValue, component: JsonValue): void {
   const extension = path.posix.extname(component.entrypoint);
   const componentType = component.type;
@@ -630,6 +719,7 @@ function validateSemanticCaseComponent(semanticCase: JsonValue, component: JsonV
   }
   validateSemanticHookCase(semanticCase, component);
   validateUnsupportedToolEntrypointCase(semanticCase, component, extension);
+  validateSemanticEntrypointArchiveCase(semanticCase, component);
 }
 
 function validateSemanticValidationCase(ctx: ValidationContext, semanticCase: JsonValue): void {

@@ -41,6 +41,35 @@
       "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
     },
     {
+      "name": "component-entrypoint-rejects-directory-entry",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./skills/summarize-paper/SKILL.md"
+        },
+        "releaseEntries": [
+          { "path": "volume.toml", "entryType": "file" },
+          { "path": "skills/summarize-paper/SKILL.md", "entryType": "directory" }
+        ]
+      },
+      "expected": { "valid": false, "failureCategory": "non-regular-archive-entry" }
+    },
+    {
+      "name": "component-entrypoint-rejects-archive-escape",
+      "area": "manifest",
+      "payload": {
+        "component": {
+          "type": "skill",
+          "name": "summarize-paper",
+          "entrypoint": "./../outside/SKILL.md"
+        },
+        "releaseEntries": [{ "path": "../outside/SKILL.md", "entryType": "file" }]
+      },
+      "expected": { "valid": false, "failureCategory": "missing-entrypoint" }
+    },
+    {
       "name": "command-entrypoint-missing-trigger",
       "area": "manifest",
       "payload": {
