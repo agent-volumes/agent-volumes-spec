@@ -182,7 +182,7 @@ function assertWarningCoverage(ctx: ValidationContext): void {
   ]);
 }
 
-function validateFixtureSchemaMap(ctx: ValidationContext): void {
+function validateFixtureSchemaMapInventory(ctx: ValidationContext): void {
   const fixtureSchemaMap = ctx.readJson("conformance/fixture-schema-map.json");
   assertSpecVersion(ctx, fixtureSchemaMap, "fixture schema map");
   assert(Array.isArray(fixtureSchemaMap.artifacts), "fixture schema map must list artifacts");
@@ -1137,11 +1137,25 @@ function validateMappingSample(ctx: ValidationContext): void {
   assertSlsa(sample);
 }
 
-export function run(ctx: ValidationContext): void {
+function run(ctx: ValidationContext): void {
   validateConformanceReport(ctx);
   validateConformanceCoverage(ctx);
   assertWarningCoverage(ctx);
   validateMappingMatrix(ctx);
   validateMappingSample(ctx);
-  validateFixtureSchemaMap(ctx);
+  validateFixtureSchemaMapInventory(ctx);
 }
+
+function assertFixtureSchemaMapExecuted(ctx: ValidationContext): void {
+  const fixtureSchemaMap = ctx.readJson("conformance/fixture-schema-map.json");
+  for (const artifact of fixtureSchemaMap.artifacts) {
+    if (artifact.schema) {
+      assert(
+        ctx.validatedFixtureSchemas.get(artifact.path)?.has(artifact.schema),
+        `${artifact.path} must be validated with ${artifact.schema}`,
+      );
+    }
+  }
+}
+
+export { assertFixtureSchemaMapExecuted, run };

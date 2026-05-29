@@ -16,11 +16,15 @@ import {
   reservedExtensionNamespaces,
   schemas,
   validate,
+  validatedFixtureSchemas,
   validateExpectedFailure,
 } from "./validate-artifacts/core/schema-context.ts";
 import { run as runAdvisoryPhase } from "./validate-artifacts/phases/advisory.ts";
 import { run as runCapabilityAndBridgePhase } from "./validate-artifacts/phases/capability-and-bridge.ts";
-import { run as runConformanceAndMappingPhase } from "./validate-artifacts/phases/conformance-and-mapping.ts";
+import {
+  assertFixtureSchemaMapExecuted,
+  run as runConformanceAndMappingPhase,
+} from "./validate-artifacts/phases/conformance-and-mapping.ts";
 import { run as runDependenciesPhase } from "./validate-artifacts/phases/dependencies.ts";
 import { run as runIntegrityAndArchivesPhase } from "./validate-artifacts/phases/integrity-and-archives.ts";
 import { run as runManifestPermissionsResolutionPhase } from "./validate-artifacts/phases/manifest-permissions-resolution.ts";
@@ -42,6 +46,7 @@ const ctx = {
   schemas,
   validate,
   validateExpectedFailure,
+  validatedFixtureSchemas,
 };
 
 const phases = [
@@ -61,6 +66,7 @@ for (const phase of phases) {
   phase(ctx);
 }
 
+assertFixtureSchemaMapExecuted(ctx);
 assertNoUnvalidatedConformanceFixtures(ctx);
 assertNoUnvalidatedRootConformanceArtifacts(ctx);
 

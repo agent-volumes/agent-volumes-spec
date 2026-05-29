@@ -7,7 +7,7 @@ import Ajv2020 from "ajv/dist/2020";
 
 import { getCurrentSpecVersion, getSchemaIdPrefix } from "../../release-version.ts";
 import { assert } from "./assert.ts";
-import { readJson, readJsonFile, root } from "./files.ts";
+import { jsonValuePaths, readJson, readJsonFile, root } from "./files.ts";
 import type { JsonValue } from "./types.ts";
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateSchema: true });
@@ -142,11 +142,29 @@ const validators: Record<string, ValidateFunction> = Object.fromEntries(
   ]),
 );
 
+const schemaPathByName = new Map<string, string>(schemaEntries);
+const validatedFixtureSchemas = new Map<string, Set<string>>();
+
+function recordFixtureSchemaValidation(name: string, value: JsonValue): void {
+  const schemaPath = schemaPathByName.get(name);
+  if (!schemaPath || !value || typeof value !== "object") {
+    return;
+  }
+  const fixturePath = jsonValuePaths.get(value);
+  if (!fixturePath?.startsWith("conformance/")) {
+    return;
+  }
+  const schemaPaths = validatedFixtureSchemas.get(fixturePath) ?? new Set<string>();
+  schemaPaths.add(schemaPath);
+  validatedFixtureSchemas.set(fixturePath, schemaPaths);
+}
+
 function validate(name: string, value: JsonValue, label: string): void {
   const validator = validators[name];
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(ok, `${label} failed ${name} schema validation: ${ajv.errorsText(validator.errors)}`);
+  recordFixtureSchemaValidation(name, value);
 }
 
 function validateExpectedFailure(name: string, value: JsonValue, label: string): void {
@@ -154,8 +172,17 @@ function validateExpectedFailure(name: string, value: JsonValue, label: string):
   assert(validator, `Missing ${name} schema validator`);
   const ok = validator(value);
   assert(!ok, `${label} unexpectedly passed ${name} schema validation`);
+  recordFixtureSchemaValidation(name, value);
 }
 
 const reservedExtensionNamespaces = readJsonFile("schemas/reserved-extension-namespaces.json");
 
-export { ajv, reservedExtensionNamespaces, schemas, validate, validateExpectedFailure, validators };
+export {
+  ajv,
+  reservedExtensionNamespaces,
+  schemas,
+  validate,
+  validatedFixtureSchemas,
+  validateExpectedFailure,
+  validators,
+};

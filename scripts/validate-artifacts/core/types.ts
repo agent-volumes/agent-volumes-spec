@@ -12,6 +12,7 @@ interface ValidationContext {
   isDirectory: (relativePath: string) => boolean;
   readJsonPaths: Set<string>;
   schemas: Record<string, JsonValue>;
+  validatedFixtureSchemas: Map<string, Set<string>>;
   reservedExtensionNamespaces: JsonValue;
   validate: (name: string, value: JsonValue, label: string) => void;
   validateExpectedFailure: (name: string, value: JsonValue, label: string) => void;
