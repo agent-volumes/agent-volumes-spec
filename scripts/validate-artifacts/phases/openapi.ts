@@ -1,7 +1,10 @@
 import YAML from "yaml";
 
 import { getCurrentSpecVersion } from "../../release-version.ts";
-import { assertProblemDetails } from "../assertions/problem-details.ts";
+import {
+  assertProblemDetails,
+  endpointProblemFixtureEvidenceFromFixtures,
+} from "../assertions/problem-details.ts";
 import { assert } from "../core/assert.ts";
 import {
   EMPTY_COUNT,
@@ -45,6 +48,19 @@ interface MatrixOperation {
   requiredResponses?: JsonValue[];
   requiresIdempotencyKey?: boolean;
   successResponse?: JsonValue;
+}
+
+interface EndpointProblemFixtureEvidence {
+  endpoint: string;
+  fixturePath: string;
+  problemSlug: string;
+}
+
+interface OperationProblemEvidenceAssertion {
+  endpointFamily: JsonValue;
+  evidence: EndpointProblemFixtureEvidence[];
+  expectedProblem: JsonValue;
+  operation: JsonValue;
 }
 
 function readOpenapi(ctx: ValidationContext): JsonObject {
@@ -254,6 +270,52 @@ function assertMatrixExpectedProblems(
           openapiOperation?.responses?.[String(expectedStatus)],
           `OpenAPI ${operation.method.toUpperCase()} ${operation.pathName} must expose ${expectedStatus} for ${expectedProblem}`,
         );
+      }
+    }
+  }
+}
+
+function endpointProblemEvidenceByFixture(
+  ctx: ValidationContext,
+  fixturePaths: JsonValue[],
+): EndpointProblemFixtureEvidence[] {
+  const evidence = [];
+  for (const fixturePath of fixturePaths) {
+    const fixtureSet = ctx.readJson(fixturePath);
+    if (Array.isArray(fixtureSet.fixtures)) {
+      evidence.push(
+        ...endpointProblemFixtureEvidenceFromFixtures(fixturePath, fixtureSet.fixtures),
+      );
+    }
+  }
+  return evidence;
+}
+
+function assertOperationProblemEvidence({
+  endpointFamily,
+  evidence,
+  expectedProblem,
+  operation,
+}: OperationProblemEvidenceAssertion): void {
+  const endpoint = operationKey(operation.method, operation.pathName);
+  assert(
+    evidence.some(
+      (entry: EndpointProblemFixtureEvidence) =>
+        entry.endpoint === endpoint && entry.problemSlug === expectedProblem,
+    ),
+    `OpenAPI operation matrix ${endpointFamily.name} missing ${expectedProblem} fixture evidence for ${endpoint}`,
+  );
+}
+
+function assertMatrixProblemEvidence(
+  ctx: ValidationContext,
+  openapiOperationMatrix: JsonValue,
+): void {
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    const evidence = endpointProblemEvidenceByFixture(ctx, endpointFamily.fixtures ?? []);
+    for (const operation of endpointFamily.operations) {
+      for (const expectedProblem of endpointFamily.expectedProblems) {
+        assertOperationProblemEvidence({ endpointFamily, evidence, expectedProblem, operation });
       }
     }
   }
@@ -534,6 +596,7 @@ function assertOpenapiMatrixContract(
 ): void {
   assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
   assertMatrixExpectedProblems(openapi, openapiOperationMatrix);
+  assertMatrixProblemEvidence(ctx, openapiOperationMatrix);
 }
 
 function assertOpenapiDocument(
