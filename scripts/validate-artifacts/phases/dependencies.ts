@@ -744,6 +744,7 @@ function validateSemanticValidationCases(ctx: ValidationContext): void {
     semanticValidationCases,
     "semantic validation cases fixture",
   );
+  assertSpecVersion(ctx, semanticValidationCases, "semantic validation cases");
   for (const semanticCase of semanticValidationCases.cases) {
     validateSemanticValidationCase(ctx, semanticCase);
   }
