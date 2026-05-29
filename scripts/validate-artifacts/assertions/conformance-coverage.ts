@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { assert, assertUniqueStrings } from "../core/assert.ts";
+import { assert, assertDeepEqual, assertUniqueStrings } from "../core/assert.ts";
 import { EMPTY_COUNT } from "../core/numeric-constants.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
@@ -15,6 +15,8 @@ const PROSE_BOUNDARY_HEADINGS = [
   "search-ranking-and-catalog-ordering",
   "external-dependency-discovery-surfaces",
 ];
+
+const conformanceRequirementIdPattern = /\*\*(AV-(?:BIB|CLI)-[0-9]{3})\*\*/g;
 
 function caseNamesFromFixture(fixture: JsonValue): JsonValue[] {
   const names = [];
@@ -190,6 +192,49 @@ function extractSpecAnchors(specText: string): Set<string> {
   return anchors;
 }
 
+function extractSpecRequirementIds(specText: string): string[] {
+  const requirementIds = [];
+  for (const match of specText.matchAll(conformanceRequirementIdPattern)) {
+    const [, requirementId] = match;
+    assert(requirementId, "spec conformance requirement match must include an ID");
+    requirementIds.push(requirementId);
+  }
+  return requirementIds;
+}
+
+function conformanceRequirementIds(conformanceCoverage: JsonValue): JsonValue {
+  const requirementIds = conformanceCoverage.requirements.map(
+    (requirement: JsonValue) => requirement.id,
+  );
+  assertUniqueStrings(requirementIds, "conformance coverage requirement IDs");
+  return requirementIds;
+}
+
+function assertSpecRequirementCoverageParity(requirementIds: JsonValue, specText: string): void {
+  const specRequirementIds = extractSpecRequirementIds(specText);
+  assertUniqueStrings(specRequirementIds, "spec conformance requirement IDs");
+  assertDeepEqual(
+    requirementIds.toSorted(),
+    specRequirementIds.toSorted(),
+    "conformance coverage requirement IDs",
+  );
+}
+
+function assertCoverageRequirements(
+  ctx: ValidationContext,
+  conformanceCoverage: JsonValue,
+): { proseBoundaryHeadings: Set<string>; requirementIds: JsonValue; specAnchors: Set<string> } {
+  const requirementIds = conformanceRequirementIds(conformanceCoverage);
+  const proseBoundaryHeadings = extractProseBoundaryHeadings(
+    ctx.readText("conformance/REQUIREMENTS.md"),
+  );
+  const specText = ctx.readText("agent-volumes-spec.md");
+  assertSpecRequirementCoverageParity(requirementIds, specText);
+  const specAnchors = extractSpecAnchors(specText);
+  assertKnownProseBoundaryHeadings(proseBoundaryHeadings);
+  return { proseBoundaryHeadings, requirementIds, specAnchors };
+}
+
 function assertRequirementSpecAnchor(requirement: JsonValue, specAnchors: Set<string>): void {
   assert(
     typeof requirement.specAnchor === "string",
@@ -230,16 +275,11 @@ function assertConformanceCoverageReferences(
   ctx: ValidationContext,
   conformanceCoverage: JsonValue,
 ): void {
-  const requirementIds = conformanceCoverage.requirements.map(
-    (requirement: JsonValue) => requirement.id,
-  );
-  assertUniqueStrings(requirementIds, "conformance coverage requirement IDs");
   const seenCoverageTuples = new Set<string>();
-  const proseBoundaryHeadings = extractProseBoundaryHeadings(
-    ctx.readText("conformance/REQUIREMENTS.md"),
+  const { proseBoundaryHeadings, specAnchors } = assertCoverageRequirements(
+    ctx,
+    conformanceCoverage,
   );
-  const specAnchors = extractSpecAnchors(ctx.readText("agent-volumes-spec.md"));
-  assertKnownProseBoundaryHeadings(proseBoundaryHeadings);
 
   for (const requirement of conformanceCoverage.requirements) {
     assertRequirementSpecAnchor(requirement, specAnchors);
