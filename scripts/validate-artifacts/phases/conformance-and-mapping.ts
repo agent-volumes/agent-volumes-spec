@@ -6,6 +6,10 @@ import {
   parseStablePropertyJson,
 } from "../assertions/mapping-artifacts.ts";
 import { assertCycloneDxArtifact } from "../assertions/trust-artifacts.ts";
+import {
+  assertWarningFixtureCoverage,
+  assertWarningSchemaDescribesCoreCategories,
+} from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion, stableJsonStringify } from "../core/assert.ts";
 import { EMPTY_COUNT, SHA256_INTEGRITY_PREFIX_LENGTH } from "../core/numeric-constants.ts";
 import {
@@ -133,6 +137,19 @@ function assertConformanceSearchCoverage(conformanceCoverage: JsonValue): void {
     ),
     "conformance coverage fixture must map search API coverage",
   );
+}
+
+function assertWarningCoverage(ctx: ValidationContext): void {
+  assertWarningSchemaDescribesCoreCategories(ctx);
+  assertWarningFixtureCoverage(ctx, [
+    "conformance/fixtures/capability-metadata-unknown-tolerance.json",
+    "conformance/fixtures/exact-release-metadata-cases.json",
+    "conformance/fixtures/external-dependency-potential-exposure-cases.json",
+    "conformance/fixtures/manifest-parse-cases.json",
+    "conformance/fixtures/manifest-unknown-field-warning.json",
+    "conformance/fixtures/resolver-cases.json",
+    "conformance/fixtures/semantic-validation-cases.json",
+  ]);
 }
 
 function countReportOutcomes(conformanceReport: JsonValue, outcome: string): number {
@@ -1058,6 +1075,7 @@ function validateMappingSample(ctx: ValidationContext): void {
 export function run(ctx: ValidationContext): void {
   validateConformanceReport(ctx);
   validateConformanceCoverage(ctx);
+  assertWarningCoverage(ctx);
   validateMappingMatrix(ctx);
   validateMappingSample(ctx);
 }
