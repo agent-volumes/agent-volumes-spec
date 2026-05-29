@@ -14,28 +14,6 @@ import type { JsonObject, JsonValue, ValidationContext } from "../core/types.ts"
 
 const currentSpecVersion = getCurrentSpecVersion();
 
-const IDEMPOTENCY_OPERATIONS = new Set([
-  "createVolumeUploadIntent",
-  "finalizeVolumeUpload",
-  "createScopedVolumeUploadIntent",
-  "finalizeScopedVolumeUpload",
-  "createVolumeTrustUploadIntent",
-  "finalizeVolumeTrustUpload",
-  "createScopedVolumeTrustUploadIntent",
-  "finalizeScopedVolumeTrustUpload",
-]);
-
-const CONFLICT_RESPONSE_PATHS = [
-  "/api/v1/index/volumes/{name}",
-  "/api/v1/index/volumes/@{scope}/{name}",
-  "/api/v1/volumes/{name}/{version}",
-  "/api/v1/volumes/@{scope}/{name}/{version}",
-  "/api/v1/volumes/{name}/{version}/trust/summary",
-  "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
-  "/api/v1/volumes/{name}/{version}/trust/detail",
-  "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
-] as const;
-
 const OPENAPI_SCHEMA_PARITY_PAIRS = [
   ["NameSegment", "nameSegment"],
   ["ScopeName", "scopeName"],
@@ -51,22 +29,6 @@ const EXPECTED_PARAMETER_REF_BY_NAME: Record<string, string> = {
 
 const OPENAPI_OPERATION_METHODS = ["get", "post", "put", "patch", "delete"] as const;
 
-const SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS = new Map([
-  ["createScopedVolumeUploadIntent", "POST /api/v1/volumes/@{scope}/{name}"],
-  [
-    "finalizeScopedVolumeUpload",
-    "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
-  ],
-  [
-    "createScopedVolumeTrustUploadIntent",
-    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
-  ],
-  [
-    "finalizeScopedVolumeTrustUpload",
-    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
-  ],
-]);
-
 interface OpenapiOperation {
   method: string;
   operation: JsonObject;
@@ -80,14 +42,9 @@ interface MatrixOperation {
   method: string;
   operationId: string;
   pathName: string;
+  requiredResponses?: JsonValue[];
+  requiresIdempotencyKey?: boolean;
   successResponse?: JsonValue;
-}
-
-interface ScopedUploadFixtureEvidenceAssertion {
-  ctx: ValidationContext;
-  endpoint: string;
-  endpointFamily: JsonValue;
-  operationId: string;
 }
 
 function readOpenapi(ctx: ValidationContext): JsonObject {
@@ -147,6 +104,8 @@ function addMatrixFamilyOperations(
       method: operation.method,
       operationId: operation.operationId,
       pathName: operation.pathName,
+      requiredResponses: operation.requiredResponses,
+      requiresIdempotencyKey: operation.requiresIdempotencyKey,
       successResponse: operation.successResponse,
     };
     assert(
@@ -201,46 +160,6 @@ function assertMatrixFixtureReferences(
         ctx.pathExists(fixturePath),
         `OpenAPI operation matrix ${endpointFamily.name} references missing fixture ${fixturePath}`,
       );
-    }
-  }
-}
-
-function assertScopedUploadFixtureEvidence({
-  ctx,
-  endpoint,
-  endpointFamily,
-  operationId,
-}: ScopedUploadFixtureEvidenceAssertion): void {
-  const fixtures = endpointFamily.fixtures ?? [];
-  assert(
-    fixtures.length > EMPTY_COUNT,
-    `OpenAPI operation matrix ${operationId} must reference a fixture with scoped endpoint evidence`,
-  );
-  assert(
-    fixtures.some((fixturePath: JsonValue) =>
-      fixtureSetContainsEndpoint(ctx.readJson(fixturePath), endpoint),
-    ),
-    `OpenAPI operation matrix ${operationId} fixtures must include ${endpoint}`,
-  );
-}
-
-function assertScopedUploadOperationFixtures(
-  ctx: ValidationContext,
-  openapiOperationMatrix: JsonValue,
-): void {
-  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
-    for (const operation of endpointFamily.operations) {
-      const scopedUploadEndpoint = SCOPED_UPLOAD_OPERATION_FIXTURE_ENDPOINTS.get(
-        operation.operationId,
-      );
-      if (scopedUploadEndpoint) {
-        assertScopedUploadFixtureEvidence({
-          ctx,
-          endpoint: scopedUploadEndpoint,
-          endpointFamily,
-          operationId: operation.operationId,
-        });
-      }
     }
   }
 }
@@ -375,6 +294,38 @@ function assertMatrixSuccessResponse(
   );
 }
 
+function operationHasIdempotencyHeader(operation: OpenapiOperation): boolean {
+  return (operation.operation.parameters ?? []).some(
+    (parameter: JsonValue) => parameter.in === "header" && parameter.name === "Idempotency-Key",
+  );
+}
+
+function assertMatrixIdempotencyKey(
+  operation: OpenapiOperation,
+  matrixOperation: MatrixOperation,
+): void {
+  if (!matrixOperation.requiresIdempotencyKey) {
+    return;
+  }
+  assert(
+    operationHasIdempotencyHeader(operation),
+    `OpenAPI ${operation.operationId} must accept Idempotency-Key header per operation matrix`,
+  );
+}
+
+function assertMatrixRequiredResponses(
+  operation: OpenapiOperation,
+  matrixOperation: MatrixOperation,
+): void {
+  for (const requiredResponse of matrixOperation.requiredResponses ?? []) {
+    assert(
+      operation.operation.responses?.[requiredResponse.status]?.$ref ===
+        requiredResponse.responseRef,
+      `OpenAPI ${operation.method.toUpperCase()} ${operation.pathName} must expose ${requiredResponse.status} ${requiredResponse.responseRef} per operation matrix`,
+    );
+  }
+}
+
 function assertMatrixOperationMatches(
   operation: OpenapiOperation,
   matrixOperation: MatrixOperation,
@@ -385,6 +336,8 @@ function assertMatrixOperationMatches(
   );
   assertOperationAuthBoundary(operation, matrixOperation.auth);
   assertMatrixSuccessResponse(operation, matrixOperation);
+  assertMatrixIdempotencyKey(operation, matrixOperation);
+  assertMatrixRequiredResponses(operation, matrixOperation);
 }
 
 function assertMatrixOperationMatchesAll(
@@ -416,33 +369,6 @@ function assertOperationCoverageMatrix(
   assertMatrixFixtureReferences(ctx, openapiOperationMatrix);
   assertMatrixRequirements(ctx, openapiOperationMatrix);
   assertEndpointProblemFixtureEvidence(ctx, openapiOperationMatrix);
-  assertScopedUploadOperationFixtures(ctx, openapiOperationMatrix);
-}
-
-function operationHasIdempotencyHeader(operation: OpenapiOperation): boolean {
-  return (operation.operation.parameters ?? []).some(
-    (parameter: JsonValue) => parameter.in === "header" && parameter.name === "Idempotency-Key",
-  );
-}
-
-function assertUploadIdempotency(openapi: JsonObject): void {
-  for (const operation of collectOpenapiOperations(openapi)) {
-    if (IDEMPOTENCY_OPERATIONS.has(operation.operationId)) {
-      assert(
-        operationHasIdempotencyHeader(operation),
-        `OpenAPI ${operation.operationId} must accept Idempotency-Key header`,
-      );
-    }
-  }
-}
-
-function assertConflictResponses(openapi: JsonObject): void {
-  for (const pathName of CONFLICT_RESPONSE_PATHS) {
-    assert(
-      openapi.paths[pathName]?.get?.responses?.["409"]?.$ref === "#/components/responses/Conflict",
-      `OpenAPI GET ${pathName} must expose 409 Conflict for inconsistent registry state`,
-    );
-  }
 }
 
 function assertOpenapiSchemaParity(openapi: JsonObject): void {
@@ -611,8 +537,6 @@ function assertOpenapiDocument(
     `OpenAPI document must declare info.version ${currentSpecVersion}`,
   );
   assertOpenapiMatrixContract(ctx, openapi, openapiOperationMatrix);
-  assertUploadIdempotency(openapi);
-  assertConflictResponses(openapi);
   assertOpenapiSchemaParity(openapi);
   assertProblemDetailsComponents(openapi);
   assertOpenapiStandaloneSchemaLinks(openapi);

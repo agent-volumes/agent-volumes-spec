@@ -35,6 +35,7 @@
           "operationId": "createVolumeUploadIntent",
           "method": "post",
           "pathName": "/api/v1/volumes/{name}",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/release-upload-intent.schema.json"
@@ -44,6 +45,7 @@
           "operationId": "createScopedVolumeUploadIntent",
           "method": "post",
           "pathName": "/api/v1/volumes/@{scope}/{name}",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/release-upload-intent.schema.json"
@@ -72,6 +74,7 @@
           "operationId": "finalizeVolumeUpload",
           "method": "post",
           "pathName": "/api/v1/volumes/{name}/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/release-upload-finalize.schema.json"
@@ -81,6 +84,7 @@
           "operationId": "finalizeScopedVolumeUpload",
           "method": "post",
           "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/release-upload-finalize.schema.json"
@@ -112,6 +116,12 @@
           "operationId": "getVolumeRelease",
           "method": "get",
           "pathName": "/api/v1/volumes/{name}/{version}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/release-metadata.schema.json"
@@ -121,6 +131,12 @@
           "operationId": "getScopedVolumeRelease",
           "method": "get",
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/release-metadata.schema.json"
@@ -176,6 +192,12 @@
           "operationId": "getVolumeVersionIndex",
           "method": "get",
           "pathName": "/api/v1/index/volumes/{name}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "#/components/schemas/VersionIndex"
@@ -185,6 +207,12 @@
           "operationId": "getScopedVolumeVersionIndex",
           "method": "get",
           "pathName": "/api/v1/index/volumes/@{scope}/{name}",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "#/components/schemas/VersionIndex"
@@ -209,6 +237,12 @@
           "operationId": "getVolumeTrustSummary",
           "method": "get",
           "pathName": "/api/v1/volumes/{name}/{version}/trust/summary",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/trust-summary.schema.json"
@@ -218,6 +252,12 @@
           "operationId": "getScopedVolumeTrustSummary",
           "method": "get",
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/trust-summary.schema.json"
@@ -242,6 +282,12 @@
           "operationId": "getVolumeTrustDetail",
           "method": "get",
           "pathName": "/api/v1/volumes/{name}/{version}/trust/detail",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/trust-detail.schema.json"
@@ -251,6 +297,12 @@
           "operationId": "getScopedVolumeTrustDetail",
           "method": "get",
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
+          "requiredResponses": [
+            {
+              "status": "409",
+              "responseRef": "#/components/responses/Conflict"
+            }
+          ],
           "successResponse": {
             "status": "200",
             "schemaRef": "../schemas/trust-detail.schema.json"
@@ -276,6 +328,7 @@
           "operationId": "createVolumeTrustUploadIntent",
           "method": "post",
           "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/trust-upload-intent.schema.json"
@@ -285,6 +338,7 @@
           "operationId": "createScopedVolumeTrustUploadIntent",
           "method": "post",
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/trust-upload-intent.schema.json"
@@ -312,6 +366,7 @@
           "operationId": "finalizeVolumeTrustUpload",
           "method": "post",
           "pathName": "/api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/trust-upload-finalize.schema.json"
@@ -321,6 +376,7 @@
           "operationId": "finalizeScopedVolumeTrustUpload",
           "method": "post",
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
+          "requiresIdempotencyKey": true,
           "successResponse": {
             "status": "201",
             "schemaRef": "../schemas/trust-upload-finalize.schema.json"
