@@ -1021,11 +1021,30 @@ function assertPotentialExposureWarningDeduplication(exposureCase: JsonValue): v
   }
 }
 
+function assertSortedUniqueStrings(values: JsonValue, label: string): void {
+  if (typeof values === "undefined") {
+    return;
+  }
+  assertDeepEqual(values, [...values].toSorted(compareStrings), `${label} must be sorted`);
+  assert(new Set(values).size === values.length, `${label} must be duplicate-free`);
+}
+
+function assertAdvisoryMatchSourceIdentity(advisoryMatch: JsonValue, label: string): void {
+  assertSortedUniqueStrings(advisoryMatch.sourceIds, `${label} sourceIds`);
+  assertSortedUniqueStrings(advisoryMatch.aliases, `${label} aliases`);
+}
+
 function validatePotentialExposureWarnings(
   ctx: ValidationContext,
   exposureCase: JsonValue,
   advisoryMatches: JsonValue,
 ): void {
+  for (const advisoryMatch of advisoryMatches) {
+    assertAdvisoryMatchSourceIdentity(
+      advisoryMatch,
+      `potential exposure case ${exposureCase.name}`,
+    );
+  }
   for (const warning of exposureCase.expected.warnings ?? []) {
     assertWarning(ctx, warning, `potential exposure case ${exposureCase.name} warning`);
     assert(
@@ -1040,6 +1059,10 @@ function validatePotentialExposureWarnings(
           warning.context.advisoryMatch.affectedRange === advisoryMatch.affectedRange,
       ),
       `potential exposure case ${exposureCase.name} warning advisory match identity must match input`,
+    );
+    assertAdvisoryMatchSourceIdentity(
+      warning.context.advisoryMatch,
+      `potential exposure case ${exposureCase.name} warning`,
     );
   }
 }
