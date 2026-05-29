@@ -960,6 +960,27 @@ function assertRequiredExactReleaseMetadataFailures(exactReleaseMetadataCases: J
   }
 }
 
+function assertPositiveExternalDependencyMetadataExposure(
+  exactReleaseMetadataCases: JsonValue,
+): void {
+  const externalDependencyMetadataCase = exactReleaseMetadataCases.cases.find(
+    (exactCase: JsonValue) =>
+      exactCase.expected.outcome === "success" &&
+      Array.isArray(exactCase.metadata?.externalDependencies) &&
+      exactCase.metadata.externalDependencies.length > EMPTY_COUNT,
+  );
+  assert(
+    externalDependencyMetadataCase,
+    "exact release metadata cases must include declaration-only external dependency metadata exposure",
+  );
+  assert(
+    externalDependencyMetadataCase.metadata.externalDependencies.some(
+      (externalDependency: JsonValue) => Array.isArray(externalDependency.components),
+    ),
+    `exact release metadata case ${externalDependencyMetadataCase.name} must expose component-scoped external dependency metadata`,
+  );
+}
+
 function validateExactReleaseMetadataCases(ctx: ValidationContext): void {
   const exactReleaseMetadataCases = ctx.readJson(
     "conformance/fixtures/exact-release-metadata-cases.json",
@@ -975,6 +996,7 @@ function validateExactReleaseMetadataCases(ctx: ValidationContext): void {
   }
   assertRequiredExactReleaseMetadataDistSources(exactReleaseMetadataCases);
   assertRequiredExactReleaseMetadataFailures(exactReleaseMetadataCases);
+  assertPositiveExternalDependencyMetadataExposure(exactReleaseMetadataCases);
 }
 
 export function run(ctx: ValidationContext): void {
