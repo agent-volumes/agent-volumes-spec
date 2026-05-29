@@ -4,6 +4,8 @@ import { assertWarning } from "../assertions/warnings.ts";
 import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
 import {
   EMPTY_COUNT,
+  FIRST_CONTENT_INDEX,
+  INCREMENT_STEP,
   MINIMAL_CARDINALITY,
   REQUIRED_COMPONENT_COUNT,
   REQUIRED_VERSION_INDEX_ROWS,
@@ -37,7 +39,25 @@ const permissionOrder = {
   },
 };
 
+const exactSemverRangePattern =
+  /^=?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+const comparatorRangePattern =
+  /^(<|<=|>|>=|=)(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+
 type PermissionSurface = keyof typeof permissionOrder;
+
+interface ParsedSemver {
+  major: number;
+  minor: number;
+  patch: number;
+  prerelease: string;
+}
+
+interface ResolverRequirementGroup {
+  requirements: JsonValue[];
+  rows: JsonValue[];
+  volume: string;
+}
 
 function isPermissionEscalation(
   surface: PermissionSurface,
@@ -60,6 +80,127 @@ function compileSemverRangeValidator(ctx: ValidationContext): (range: JsonValue)
   };
   const validateSemverRange = ctx.ajv.compile(semverRangeSchema);
   return (range: JsonValue): boolean => validateSemverRange(range);
+}
+
+function parseSemver(version: string): ParsedSemver {
+  const match = exactSemverRangePattern.exec(version);
+  assert(match, `SemVer value must be parseable: ${version}`);
+  const major = match[1];
+  const minor = match[2];
+  const patch = match[3];
+  assert(major && minor && patch, `SemVer value must include major, minor, and patch: ${version}`);
+  return {
+    major: Number.parseInt(major, 10),
+    minor: Number.parseInt(minor, 10),
+    patch: Number.parseInt(patch, 10),
+    prerelease: match[4] ?? "",
+  };
+}
+
+function comparePrerelease(left: string, right: string): number {
+  if (left === right) {
+    return 0;
+  }
+  if (!left) {
+    return 1;
+  }
+  if (!right) {
+    return -1;
+  }
+  return left.localeCompare(right);
+}
+
+function nextBreakingBoundary(version: string): string {
+  const parsed = parseSemver(version);
+  if (parsed.major > EMPTY_COUNT) {
+    return `${parsed.major + INCREMENT_STEP}.0.0`;
+  }
+  if (parsed.minor > EMPTY_COUNT) {
+    return `0.${parsed.minor + INCREMENT_STEP}.0`;
+  }
+  return `0.0.${parsed.patch + INCREMENT_STEP}`;
+}
+
+function compareSemver(left: string, right: string): number {
+  const leftVersion = parseSemver(left);
+  const rightVersion = parseSemver(right);
+  for (const key of ["major", "minor", "patch"] as const) {
+    if (leftVersion[key] !== rightVersion[key]) {
+      return leftVersion[key] - rightVersion[key];
+    }
+  }
+  return comparePrerelease(leftVersion.prerelease, rightVersion.prerelease);
+}
+
+function compareSemverWithOperator(version: string, operator: string, target: string): boolean {
+  const comparison = compareSemver(version, target);
+  if (operator === "<") {
+    return comparison < 0;
+  }
+  if (operator === "<=") {
+    return comparison <= 0;
+  }
+  if (operator === ">") {
+    return comparison > 0;
+  }
+  if (operator === ">=") {
+    return comparison >= 0;
+  }
+  return comparison === 0;
+}
+
+function caretUpperBound(version: string): string {
+  return nextBreakingBoundary(version);
+}
+
+function tildeUpperBound(version: string): string {
+  const parsed = parseSemver(version);
+  return `${parsed.major}.${parsed.minor + INCREMENT_STEP}.0`;
+}
+
+function satisfiesCaretRange(version: string, range: string): boolean {
+  const lowerBound = range.slice(FIRST_CONTENT_INDEX);
+  return (
+    compareSemverWithOperator(version, ">=", lowerBound) &&
+    compareSemverWithOperator(version, "<", caretUpperBound(lowerBound))
+  );
+}
+
+function satisfiesTildeRange(version: string, range: string): boolean {
+  const lowerBound = range.slice(FIRST_CONTENT_INDEX);
+  return (
+    compareSemverWithOperator(version, ">=", lowerBound) &&
+    compareSemverWithOperator(version, "<", tildeUpperBound(lowerBound))
+  );
+}
+
+function satisfiesComparatorRange(version: string, range: string): boolean {
+  const comparatorMatch = comparatorRangePattern.exec(range);
+  assert(comparatorMatch, `Unsupported resolver range term: ${range}`);
+  const operator = comparatorMatch[1];
+  assert(operator, `Unsupported resolver range operator: ${range}`);
+  return compareSemverWithOperator(version, operator, range.slice(operator.length));
+}
+
+function satisfiesRangeTerm(version: string, range: string): boolean {
+  if (range.startsWith("^")) {
+    return satisfiesCaretRange(version, range);
+  }
+  if (range.startsWith("~")) {
+    return satisfiesTildeRange(version, range);
+  }
+  const exactMatch = exactSemverRangePattern.exec(range);
+  if (exactMatch) {
+    return compareSemverWithOperator(version, "=", range.replace(/^=/, ""));
+  }
+  return satisfiesComparatorRange(version, range);
+}
+
+function satisfiesSemverRange(version: string, range: string): boolean {
+  return range
+    .split(/,|\s+/)
+    .filter((term: string) => term.length > EMPTY_COUNT)
+    .every((term: string) => satisfiesRangeTerm(version, term));
 }
 
 function validateMinimalManifestFixture(ctx: ValidationContext): void {
@@ -516,6 +657,142 @@ function validateResolverExactReleaseMetadata(
   }
 }
 
+function resolverRequirementGroups(resolverCase: JsonValue): ResolverRequirementGroup[] {
+  const requirementsByVolume = new Map<string, JsonValue[]>();
+  for (const requirement of resolverCase.requirements ?? []) {
+    if (!requirementsByVolume.has(requirement.volume)) {
+      requirementsByVolume.set(requirement.volume, []);
+    }
+    requirementsByVolume.get(requirement.volume)?.push(requirement);
+  }
+  return [...requirementsByVolume].map(([volume, requirements]) => ({
+    requirements,
+    rows: resolverCase.versionIndexRows?.[volume] ?? [],
+    volume,
+  }));
+}
+
+function rowMatchesRequirements(row: JsonValue, requirements: JsonValue[]): boolean {
+  return requirements.every((requirement: JsonValue) =>
+    satisfiesSemverRange(row.version, requirement.constraint),
+  );
+}
+
+function eligibleResolverRows(
+  group: ResolverRequirementGroup,
+  resolverCase: JsonValue,
+): JsonValue[] {
+  return group.rows.filter((row: JsonValue) => {
+    if (!rowMatchesRequirements(row, group.requirements)) {
+      return false;
+    }
+    if (resolverCase.resolutionMode === "exact-pinned") {
+      return true;
+    }
+    return row.status?.state === "available";
+  });
+}
+
+function resolverLifecycleFailure(row: JsonValue): string {
+  if (row.status?.state === "blocked") {
+    return "blocked";
+  }
+  if (row.status?.state === "tombstoned") {
+    return "tombstoned";
+  }
+  return "availability-or-registry-state";
+}
+
+function assertResolverFailureOutcome(resolverCase: JsonValue, failureCategory?: string): void {
+  assert(
+    resolverCase.expected.outcome === "failure",
+    `resolver case ${resolverCase.name} must expect failure`,
+  );
+  if (failureCategory) {
+    assert(
+      resolverCase.expected.failureCategory === failureCategory,
+      `resolver case ${resolverCase.name} must fail as ${failureCategory}`,
+    );
+  }
+}
+
+function resolverFailureCategoryForUnselectedRow(resolverCase: JsonValue, row: JsonValue): string {
+  if (resolverCase.resolutionMode === "exact-pinned" && row) {
+    return resolverLifecycleFailure(row);
+  }
+  return "";
+}
+
+function selectedResolverRows(resolverCase: JsonValue): Map<string, JsonValue> {
+  const selectedRows = new Map<string, JsonValue>();
+  for (const group of resolverRequirementGroups(resolverCase)) {
+    const eligibleRows = eligibleResolverRows(group, resolverCase).toSorted(
+      (left: JsonValue, right: JsonValue) => compareSemver(right.version, left.version),
+    );
+    if (eligibleRows.length === EMPTY_COUNT) {
+      const matchingRow = group.rows.find((row: JsonValue) =>
+        rowMatchesRequirements(row, group.requirements),
+      );
+      assertResolverFailureOutcome(
+        resolverCase,
+        resolverFailureCategoryForUnselectedRow(resolverCase, matchingRow),
+      );
+      return selectedRows;
+    }
+    selectedRows.set(group.volume, eligibleRows[0]);
+  }
+  return selectedRows;
+}
+
+function assertResolverSelectedRows(resolverCase: JsonValue): void {
+  if (resolverCase.kind === "informational" || !resolverCase.requirements) {
+    return;
+  }
+  const selectedRows = selectedResolverRows(resolverCase);
+  if (resolverCase.expected.outcome === "failure") {
+    return;
+  }
+  for (const [volume, selectedVersion] of Object.entries(resolverCase.expected.selected ?? {})) {
+    assert(
+      typeof selectedVersion === "string",
+      `resolver case ${resolverCase.name} selected version must be a string`,
+    );
+    assert(
+      selectedRows.get(volume)?.version === selectedVersion,
+      `resolver case ${resolverCase.name} must select ${volume}@${selectedVersion}`,
+    );
+  }
+}
+
+function exactMetadataForSelectedRow(
+  resolverCase: JsonValue,
+  volume: string,
+  row: JsonValue,
+): JsonValue {
+  return resolverCase.exactReleaseMetadata?.[`${volume}@${row.version}`];
+}
+
+function assertResolverReleaseMetadataConsistency(resolverCase: JsonValue): void {
+  if (!resolverCase.exactReleaseMetadata || !resolverCase.versionIndexRows) {
+    return;
+  }
+  for (const [volume, rows] of Object.entries(resolverCase.versionIndexRows)) {
+    assert(
+      Array.isArray(rows),
+      `resolver case ${resolverCase.name} versionIndexRows.${volume} must be an array`,
+    );
+    for (const row of rows) {
+      const exactMetadata = exactMetadataForSelectedRow(resolverCase, volume, row);
+      if (exactMetadata) {
+        const consistent = row.integrity === exactMetadata.integrity;
+        if (!consistent) {
+          assertResolverFailureOutcome(resolverCase, "inconsistent-registry-state");
+        }
+      }
+    }
+  }
+}
+
 function validateResolverCase(
   ctx: ValidationContext,
   resolverCase: JsonValue,
@@ -528,6 +805,8 @@ function validateResolverCase(
   validateResolverRequirements(resolverCase, validateSemverRange);
   validateResolverVersionIndexRows(ctx, resolverCase);
   validateResolverExactReleaseMetadata(ctx, resolverCase);
+  assertResolverSelectedRows(resolverCase);
+  assertResolverReleaseMetadataConsistency(resolverCase);
 }
 
 function validateResolverCases(ctx: ValidationContext): void {
