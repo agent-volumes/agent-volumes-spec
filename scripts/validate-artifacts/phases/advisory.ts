@@ -20,19 +20,30 @@ function validateBaselineAdvisoryFixtures(ctx: ValidationContext): void {
   );
 }
 
+function assertAdvisoryTargetsVolume(advisory: JsonValue, label: string): void {
+  assert(advisory.affected?.volume, `${label} must declare affected.volume`);
+  assert(!advisory.affected?.component, `${label} must not use component-level targeting`);
+  for (const impact of advisory.affected?.componentImpact ?? []) {
+    assert(
+      typeof impact.note === "string",
+      `${label} componentImpact must remain informational metadata`,
+    );
+  }
+}
+
 function assertBaselineAdvisorySemantics(ctx: ValidationContext): void {
+  const advisory = ctx.readJson("conformance/fixtures/advisory.json");
   assert(
     ctx.readJson("conformance/fixtures/advisory-withdrawn.json").withdrawn?.at,
     "withdrawn advisory fixture must include withdrawn.at",
   );
   assert(
-    ctx
-      .readJson("conformance/fixtures/advisory.json")
-      .affected.ranges.some((range: JsonValue) =>
-        range.events.some((event: JsonValue) => "limit" in event),
-      ),
+    advisory.affected.ranges.some((range: JsonValue) =>
+      range.events.some((event: JsonValue) => "limit" in event),
+    ),
     "advisory fixture must exercise limit event semantics",
   );
+  assertAdvisoryTargetsVolume(advisory, "advisory fixture");
 }
 
 function readAdvisoryValidationCases(ctx: ValidationContext): JsonValue {
@@ -56,6 +67,10 @@ function validateAdvisoryValidationCases(
     if (advisoryCase.expected.valid) {
       ctx.validate(
         "advisory",
+        advisoryCase.payload,
+        `advisory validation case ${advisoryCase.name}`,
+      );
+      assertAdvisoryTargetsVolume(
         advisoryCase.payload,
         `advisory validation case ${advisoryCase.name}`,
       );

@@ -5,6 +5,8 @@ import { digestPattern } from "../core/patterns.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
+const HTTP_STATUS_CONFLICT = 409;
+
 interface LifecycleProblemDetailsAssertion {
   ctx: ValidationContext;
   failuresByEndpoint: Map<JsonValue, Set<JsonValue>>;
@@ -67,6 +69,33 @@ function assertEndpointFailures(
         `${label} missing ${expectedFailure} for ${endpoint}`,
       );
     }
+  }
+}
+
+function assertIdempotencyConflictFixture(fixture: JsonValue, label: string): void {
+  if (fixture.expected.failureCategory === "idempotency-conflict") {
+    assert(
+      fixture.payload.status === HTTP_STATUS_CONFLICT,
+      `${label} ${fixture.name} idempotency conflicts must use HTTP 409`,
+    );
+    assert(
+      fixture.payload.detail.includes("previously used with different"),
+      `${label} ${fixture.name} idempotency conflict must describe header/body mismatch semantics`,
+    );
+  }
+}
+
+function assertIdempotencyConflictCoverage(fixtures: JsonValue, label: string): void {
+  for (const endpointFragment of ["/{name}", "/@{scope}/{name}"]) {
+    assert(
+      fixtures.some(
+        (fixture: JsonValue) =>
+          fixture.expected.failureCategory === "idempotency-conflict" &&
+          fixture.endpoint.includes(endpointFragment) &&
+          fixture.payload.detail.includes("previously used with different"),
+      ),
+      `${label} must include ${endpointFragment} idempotency header/body mismatch coverage`,
+    );
   }
 }
 
@@ -176,6 +205,7 @@ function assertLifecycleProblemDetails({
     fixture.payload.type.endsWith(`/${fixture.expected.failureCategory}`),
     `${label} ${fixture.name} failureCategory must match problem type slug`,
   );
+  assertIdempotencyConflictFixture(fixture, label);
   recordEndpointFailure(failuresByEndpoint, fixture.endpoint, fixture.expected.failureCategory);
 }
 
@@ -212,6 +242,7 @@ function assertReleaseUploadLifecycle(ctx: ValidationContext): void {
     failuresByEndpoint,
     expectedProblemsByEndpoint(ctx, ["Release upload intent", "Release upload finalize"]),
   );
+  assertIdempotencyConflictCoverage(releaseUploadLifecycle.fixtures, "release upload lifecycle");
 }
 
 function assertTrustUploadIntent(
@@ -264,6 +295,7 @@ function collectTrustUploadCoverage(
     categories: new Set(),
     failures: new Set(),
     failuresByEndpoint: new Map(),
+    fixtures: trustUploadLifecycle.fixtures,
     states: new Set(),
   };
   for (const fixture of trustUploadLifecycle.fixtures) {
@@ -309,6 +341,7 @@ function assertTrustUploadCoverage(
     expectedFailuresByEndpoint,
     "trust upload lifecycle",
   );
+  assertIdempotencyConflictCoverage(coverage.fixtures, "trust upload lifecycle");
 }
 
 function assertTrustUploadLifecycle(ctx: ValidationContext): void {

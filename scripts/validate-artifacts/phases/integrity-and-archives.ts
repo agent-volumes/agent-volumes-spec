@@ -53,6 +53,10 @@ function assertTrustArtifactProvenance(trustCase: JsonValue): void {
     trustCase.format.family === "slsa-provenance",
     `trust artifact case ${trustCase.name} provenance must use slsa-provenance family`,
   );
+  assert(
+    trustCase.format.predicateType === "https://slsa.dev/provenance/v1",
+    `trust artifact case ${trustCase.name} provenance format must declare SLSA v1 predicate`,
+  );
   if (trustCase.expected.valid) {
     assert(
       trustCase.artifactSubject?.predicateType === "https://slsa.dev/provenance/v1",
@@ -70,6 +74,10 @@ function assertTrustArtifactSignature(trustCase: JsonValue): void {
   assert(
     trustCase.format.family === "sigstore-bundle",
     `trust artifact case ${trustCase.name} signature must use sigstore-bundle family`,
+  );
+  assert(
+    trustCase.format.signatureFormat === "sigstore-bundle",
+    `trust artifact case ${trustCase.name} signature format must declare sigstore-bundle`,
   );
   if (trustCase.expected.valid) {
     assert(
@@ -90,6 +98,10 @@ function assertTrustArtifactCategory(trustCase: JsonValue): void {
       trustCase.format.family === "cyclonedx" ||
         trustCase.expected.failureCategory === "unsupported-artifact-format",
       `trust artifact case ${trustCase.name} BOM must use cyclonedx family`,
+    );
+    assert(
+      !trustCase.format.predicateType && !trustCase.format.signatureFormat,
+      `trust artifact case ${trustCase.name} BOM format must not declare provenance or signature markers`,
     );
   }
   if (trustCase.category === "provenance") {

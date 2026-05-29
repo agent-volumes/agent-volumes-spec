@@ -493,10 +493,17 @@ function validatePermissionEscalationFixtures(ctx: ValidationContext): void {
   validateSiblingPermissionEscalationFixture(ctx);
 }
 
-function validateVersionIndexCases(ctx: ValidationContext): void {
+function assertVersionIndexRowOmitsExactMetadata(row: JsonValue, label: string): void {
+  for (const forbiddenField of ["dist", "manifest", "trust", "advisories", "publisher"]) {
+    assert(!Object.hasOwn(row, forbiddenField), `${label} must not expose ${forbiddenField}`);
+  }
+}
+
+function validateVersionIndexRowCases(ctx: ValidationContext): void {
   const versionIndexRowCases = ctx.readJson("conformance/fixtures/version-index-row-cases.json");
   assertSpecVersion(ctx, versionIndexRowCases, "version index row cases");
   for (const fixture of versionIndexRowCases.fixtures) {
+    assertVersionIndexRowOmitsExactMetadata(fixture.payload, `version index row ${fixture.name}`);
     if (fixture.expected.valid) {
       ctx.validate("versionIndexRow", fixture.payload, `version index row ${fixture.name}`);
     } else {
@@ -507,12 +514,23 @@ function validateVersionIndexCases(ctx: ValidationContext): void {
       );
     }
   }
+}
+
+function validateVersionIndexCollection(ctx: ValidationContext): void {
   const versionIndexFixture = ctx.readJson("conformance/fixtures/version-index.json");
   ctx.validate("versionIndex", versionIndexFixture, "version index collection fixture");
+  for (const row of versionIndexFixture.items) {
+    assertVersionIndexRowOmitsExactMetadata(row, `version index collection row ${row.version}`);
+  }
   assert(
     versionIndexFixture.items.length >= REQUIRED_VERSION_INDEX_ROWS,
     "version index collection fixture must include multiple rows",
   );
+}
+
+function validateVersionIndexCases(ctx: ValidationContext): void {
+  validateVersionIndexRowCases(ctx);
+  validateVersionIndexCollection(ctx);
 }
 
 function validateSemverRangeCases(ctx: ValidationContext): void {
