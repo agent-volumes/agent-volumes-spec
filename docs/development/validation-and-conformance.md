@@ -43,6 +43,21 @@ artifacts. Human review documents, including
 [`../../openapi/PROSE-DRIFT-AUDIT.md`](../../openapi/PROSE-DRIFT-AUDIT.md), are
 not validator input contracts.
 
+Validator assertions are labeled by validation class when reviewers discuss scope:
+
+- **Portable conformance fixture checks** are schema checks, deterministic
+  `expected` outcomes, warning/problem categories, lifecycle states, digest
+  vectors, subject binding, and algorithmic fixture evaluators that independent
+  runners can reproduce offline.
+- **Repository artifact hygiene checks** are generated-publication drift, schema
+  `$id` release alignment, OpenAPI matrix parity, problem-registry
+  synchronization, fixture coverage connectivity, and other release-maintenance
+  guards that prove this repository's companion artifacts agree with each other.
+
+Only the first class is portable conformance behavior. The second class is
+release evidence for this repository and must not be described as a product
+conformance rule for independent implementations.
+
 For current release alignment, the validator derives the expected specification
 version from the `**Version:**` header in
 [`../../agent-volumes-spec.md`](../../agent-volumes-spec.md). It checks

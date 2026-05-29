@@ -47,6 +47,20 @@ fixture coverage connectivity. Independent implementations can use the same
 fixture families to produce their own conformance reports, but repository hygiene
 checks are release-maintenance evidence rather than product conformance rules.
 
+When documenting or reviewing validator behavior, use these validation-class
+labels:
+
+| Validation class                    | Scope                                                                                                      | Examples                                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `portable-conformance-fixture`      | Offline behavior that independent runners can reproduce from the fixture corpus and companion schemas.     | Schema validation, deterministic `expected` outcomes, digest vectors, warning/problem categories.        |
+| `repository-artifact-hygiene`       | Release-maintenance evidence that this repository's source, generated, and publication artifacts align.    | Schema `$id` release alignment, generated publication drift, OpenAPI matrix parity, coverage connection. |
+| `human-review-release-evidence`     | Manual review evidence that must stay aligned with machine-readable artifacts but is not validator input.  | Endpoint-level prose/OpenAPI drift audit checklist updates.                                              |
+| `deferred-or-local-policy-boundary` | Explicitly out-of-scope behavior for the portable v0.1 fixture claim unless a future profile standardizes. | Trust-root policy, search ranking, live authorization policy, runtime adapter execution behavior.        |
+
+Portable conformance claims may rely on `portable-conformance-fixture` results.
+The other classes support release readiness and review traceability, but they do
+not expand what `artifact-fixture-pass` means.
+
 The public documentation site publishes the companion [Namespace and URI publications](../site/spec/0.1.0-rc.1/uri-publications.mdx)
 for identifiers exercised by this fixture corpus, including schema `$id` URLs,
 Problem Details type URIs, SPDX and in-toto external dependency declaration
