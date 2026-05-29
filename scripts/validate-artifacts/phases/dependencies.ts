@@ -7,6 +7,7 @@ import {
   externalDependencyDeclarationKeyPattern,
   isRecognizedSpdxExpressionShape,
 } from "../core/patterns.ts";
+import { assertRepresentativeAssertionSources } from "../core/provenance.ts";
 import {
   compareStrings,
   declarationKeyForSemanticKey,
@@ -18,6 +19,21 @@ import {
   parseVersScheme,
 } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
+
+const dependencyRepresentativeSources = [
+  {
+    anchor: "§3.6 / §3.7 / §3.8 / Appendix A",
+    artifact: "agent-volumes-spec.md",
+    reason:
+      "component dependency, external dependency, compatibility, and warning behavior are deterministic fixture surfaces",
+  },
+  {
+    anchor: "ADR-0148 / Fixture-covered behavior",
+    artifact: "conformance/REQUIREMENTS.md",
+    reason:
+      "external dependency potential-exposure vectors use the three-result model and warning fixtures",
+  },
+];
 
 const componentPurlPattern =
   /^pkg:volume\/(?:%40((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/)?((?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?)(?:@(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?)?#(agent|skill|command|tool|hook|mcp-server|lsp-server)\/(?![a-z0-9-]*--)[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$/;
@@ -1326,6 +1342,10 @@ function validateExternalDependencyPotentialExposureCases(
 }
 
 export function run(ctx: ValidationContext): void {
+  assertRepresentativeAssertionSources(
+    "dependency representative coverage",
+    dependencyRepresentativeSources,
+  );
   validateComponentDependencyCases(ctx);
   const purlVersExceptionPairs = validateExternalDependencyDomain(ctx);
   validateSemanticValidationCases(ctx);

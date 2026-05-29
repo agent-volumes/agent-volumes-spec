@@ -3,9 +3,23 @@ import { assertReleaseMetadata } from "../assertions/release-metadata.ts";
 import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
 import { digestPattern } from "../core/patterns.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
+import { assertRepresentativeAssertionSources } from "../core/provenance.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 const HTTP_STATUS_CONFLICT = 409;
+
+const uploadLifecycleRepresentativeSources = [
+  {
+    anchor: "§9.2.1 / §9.4.3",
+    artifact: "agent-volumes-spec.md",
+    reason: "release and trust uploads use the portable two-phase http-put lifecycle",
+  },
+  {
+    anchor: "Fixture-covered behavior",
+    artifact: "conformance/REQUIREMENTS.md",
+    reason: "release metadata, upload, and trust upload lifecycle cases are fixture-covered",
+  },
+];
 
 interface LifecycleProblemDetailsAssertion {
   ctx: ValidationContext;
@@ -450,6 +464,10 @@ function assertTrustUploadLifecycle(ctx: ValidationContext): void {
 }
 
 function run(ctx: ValidationContext): void {
+  assertRepresentativeAssertionSources(
+    "upload lifecycle representative coverage",
+    uploadLifecycleRepresentativeSources,
+  );
   assertReleaseUploadLifecycle(ctx);
   assertTrustUploadLifecycle(ctx);
 }

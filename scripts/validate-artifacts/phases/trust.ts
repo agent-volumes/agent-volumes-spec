@@ -1,5 +1,19 @@
 import { assert } from "../core/assert.ts";
+import { assertRepresentativeAssertionSources } from "../core/provenance.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
+
+const trustRepresentativeSources = [
+  {
+    anchor: "§8.5 / §9.4.2",
+    artifact: "agent-volumes-spec.md",
+    reason: "trust detail fixtures represent status/revision metadata and attachment formats",
+  },
+  {
+    anchor: "Fixture-covered behavior",
+    artifact: "conformance/REQUIREMENTS.md",
+    reason: "trust discovery and trust artifact verification are fixture-covered behavior",
+  },
+];
 
 function validateTrustFixtures(ctx: ValidationContext): void {
   ctx.validate(
@@ -98,6 +112,7 @@ function assertTrustDetailSubjectBindings(ctx: ValidationContext): void {
 }
 
 function run(ctx: ValidationContext): void {
+  assertRepresentativeAssertionSources("trust representative coverage", trustRepresentativeSources);
   validateTrustFixtures(ctx);
   assertTrustStatusVariants(ctx);
   assertTrustDetailFormats(ctx);

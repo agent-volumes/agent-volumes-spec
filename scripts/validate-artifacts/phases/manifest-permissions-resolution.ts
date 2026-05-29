@@ -10,9 +10,25 @@ import {
   REQUIRED_COMPONENT_COUNT,
   REQUIRED_VERSION_INDEX_ROWS,
 } from "../core/numeric-constants.ts";
+import { assertRepresentativeAssertionSources } from "../core/provenance.ts";
 import { assertRouteMetadataIdentity, routeIdentityFromPath } from "../core/purl.ts";
 import { parseFixtureTomlSubset } from "../core/toml.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
+
+const manifestResolutionRepresentativeSources = [
+  {
+    anchor: "§3 / §3.10 / §9.2.4",
+    artifact: "agent-volumes-spec.md",
+    reason:
+      "manifest roles, permission narrowing, resolver behavior, and lifecycle states are portable baseline behavior",
+  },
+  {
+    anchor: "Fixture-covered behavior",
+    artifact: "conformance/REQUIREMENTS.md",
+    reason:
+      "manifest, permission, resolver, version-index, and release metadata fixtures define representative coverage",
+  },
+];
 
 const permissionOrder = {
   browser: {
@@ -1000,6 +1016,10 @@ function validateExactReleaseMetadataCases(ctx: ValidationContext): void {
 }
 
 export function run(ctx: ValidationContext): void {
+  assertRepresentativeAssertionSources(
+    "manifest and resolver representative coverage",
+    manifestResolutionRepresentativeSources,
+  );
   validateBaseManifestRoleFixtures(ctx);
   validateManifestParseCases(ctx);
   validateInvalidManifestFixtures(ctx);

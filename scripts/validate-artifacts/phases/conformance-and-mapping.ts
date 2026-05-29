@@ -18,6 +18,7 @@ import {
   REQUIRED_ROLE_CONFORMANCE_REQUIREMENT_COUNT,
   SHA256_INTEGRITY_PREFIX_LENGTH,
 } from "../core/numeric-constants.ts";
+import { assertRepresentativeAssertionSources } from "../core/provenance.ts";
 import {
   canonicalComponentPurl,
   canonicalReleasePurl,
@@ -25,6 +26,21 @@ import {
   declarationKeyForSemanticKey,
 } from "../core/purl.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
+
+const conformanceMappingRepresentativeSources = [
+  {
+    anchor: "§11 / Appendix B",
+    artifact: "agent-volumes-spec.md",
+    reason:
+      "role-scoped conformance IDs and mapping companion artifacts are release-readiness anchors",
+  },
+  {
+    anchor: "Coverage sufficiency review",
+    artifact: "conformance/REQUIREMENTS.md",
+    reason:
+      "coverage mappings and mapping samples distinguish fixture evidence from repository hygiene",
+  },
+];
 
 interface MappingSampleContext {
   sampleManifest: JsonValue;
@@ -1138,6 +1154,10 @@ function validateMappingSample(ctx: ValidationContext): void {
 }
 
 function run(ctx: ValidationContext): void {
+  assertRepresentativeAssertionSources(
+    "conformance and mapping representative coverage",
+    conformanceMappingRepresentativeSources,
+  );
   validateConformanceReport(ctx);
   validateConformanceCoverage(ctx);
   assertWarningCoverage(ctx);
