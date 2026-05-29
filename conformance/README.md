@@ -114,6 +114,11 @@ Fixture files use one of three validation units:
    the expected result is evaluated by deterministic algorithmic logic, such as
    digest construction or resolver selection.
 
+[`fixture-schema-map.json`](fixture-schema-map.json) is the authoritative
+machine-readable inventory of fixture-to-schema mappings consumed by artifact
+validation. The table below is explanatory prose for implementers and reviewers;
+do not parse it as a validation input.
+
 | Fixture file pattern                                                                      | Validation unit     | Companion schema or evaluator                                                                                                                                                                                                                                                                 |
 | ----------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `manifest-valid-*.json`, `manifest-invalid-*.json`, `manifest-unknown-field-warning.json` | Wrapper + payload   | `canonicalParsedData` is validated against [`../schemas/volume.schema.json`](../schemas/volume.schema.json); wrapper metadata supplies `expected` semantic and warning checks                                                                                                                 |
