@@ -2,6 +2,7 @@ import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assertReleaseMetadata } from "../assertions/release-metadata.ts";
 import { assert, assertSpecVersion } from "../core/assert.ts";
 import { digestPattern } from "../core/patterns.ts";
+import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 interface LifecycleProblemDetailsAssertion {
@@ -11,113 +12,35 @@ interface LifecycleProblemDetailsAssertion {
   label: string;
 }
 
-const releaseUploadFailuresByEndpoint = new Map([
-  [
-    "POST /api/v1/volumes/{name}",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "validation-failed",
-      "version-conflict",
-      "payload-too-large",
-      "unsupported-media-type",
-      "idempotency-conflict",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/@{scope}/{name}",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "validation-failed",
-      "version-conflict",
-      "payload-too-large",
-      "unsupported-media-type",
-      "idempotency-conflict",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/{name}/uploads/{uploadId}/finalize",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "not-found",
-      "invalid-archive",
-      "invalid-manifest",
-      "identity-mismatch",
-      "digest-mismatch",
-      "missing-uploaded-bytes",
-      "invalid-upload-state",
-      "upload-expired",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "not-found",
-      "invalid-archive",
-      "invalid-manifest",
-      "identity-mismatch",
-      "digest-mismatch",
-      "missing-uploaded-bytes",
-      "invalid-upload-state",
-      "upload-expired",
-    ],
-  ],
-]);
+function endpointKey(operation: JsonValue): string {
+  return `${operation.method.toUpperCase()} ${operation.pathName}`;
+}
 
-const trustUploadFailuresByEndpoint = new Map([
-  [
-    "POST /api/v1/volumes/{name}/{version}/trust/uploads",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "subject-binding-mismatch",
-      "payload-too-large",
-      "unsupported-media-type",
-      "idempotency-conflict",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "subject-binding-mismatch",
-      "payload-too-large",
-      "unsupported-media-type",
-      "idempotency-conflict",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "digest-mismatch",
-      "upload-expired",
-      "subject-binding-mismatch",
-      "missing-uploaded-bytes",
-      "idempotency-conflict",
-      "invalid-upload-state",
-    ],
-  ],
-  [
-    "POST /api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize",
-    [
-      "authentication-required",
-      "authorization-failed",
-      "digest-mismatch",
-      "upload-expired",
-      "subject-binding-mismatch",
-      "missing-uploaded-bytes",
-      "idempotency-conflict",
-      "invalid-upload-state",
-    ],
-  ],
-]);
+function assertExpectedProblemsAreRegistered(endpointFamily: JsonValue): void {
+  for (const expectedProblem of endpointFamily.expectedProblems) {
+    assert(
+      problemStatusBySlug.has(expectedProblem),
+      `OpenAPI operation matrix ${endpointFamily.name} references unknown problem ${expectedProblem}`,
+    );
+  }
+}
+
+function expectedProblemsByEndpoint(
+  ctx: ValidationContext,
+  familyNames: string[],
+): Map<string, string[]> {
+  const openapiOperationMatrix = ctx.readJson("conformance/fixtures/openapi-operation-matrix.json");
+  const expectedFailuresByEndpoint = new Map<string, string[]>();
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    if (familyNames.includes(endpointFamily.name)) {
+      assertExpectedProblemsAreRegistered(endpointFamily);
+      for (const operation of endpointFamily.operations) {
+        expectedFailuresByEndpoint.set(endpointKey(operation), endpointFamily.expectedProblems);
+      }
+    }
+  }
+  return expectedFailuresByEndpoint;
+}
 
 function recordEndpointFailure(
   failuresByEndpoint: Map<JsonValue, Set<JsonValue>>,
@@ -150,6 +73,7 @@ function assertEndpointFailures(
 function assertReleaseUploadCoverage(
   releaseUploadLifecycle: JsonValue,
   failuresByEndpoint: Map<JsonValue, Set<JsonValue>>,
+  expectedFailuresByEndpoint: Map<string, string[]>,
 ): void {
   const releaseUploadFailures = new Set(
     releaseUploadLifecycle.fixtures
@@ -188,7 +112,7 @@ function assertReleaseUploadCoverage(
   }
   assertEndpointFailures(
     failuresByEndpoint,
-    releaseUploadFailuresByEndpoint,
+    expectedFailuresByEndpoint,
     "release upload lifecycle",
   );
 }
@@ -283,7 +207,11 @@ function assertReleaseUploadLifecycle(ctx: ValidationContext): void {
   for (const fixture of releaseUploadLifecycle.fixtures) {
     assertReleaseUploadFixture(ctx, fixture, failuresByEndpoint);
   }
-  assertReleaseUploadCoverage(releaseUploadLifecycle, failuresByEndpoint);
+  assertReleaseUploadCoverage(
+    releaseUploadLifecycle,
+    failuresByEndpoint,
+    expectedProblemsByEndpoint(ctx, ["Release upload intent", "Release upload finalize"]),
+  );
 }
 
 function assertTrustUploadIntent(
@@ -344,7 +272,10 @@ function collectTrustUploadCoverage(
   return coverage;
 }
 
-function assertTrustUploadCoverage(coverage: JsonValue): void {
+function assertTrustUploadCoverage(
+  coverage: JsonValue,
+  expectedFailuresByEndpoint: Map<string, string[]>,
+): void {
   for (const requiredState of ["pending-upload", "uploading", "uploaded", "expired", "failed"]) {
     assert(
       coverage.states.has(requiredState),
@@ -375,7 +306,7 @@ function assertTrustUploadCoverage(coverage: JsonValue): void {
   }
   assertEndpointFailures(
     coverage.failuresByEndpoint,
-    trustUploadFailuresByEndpoint,
+    expectedFailuresByEndpoint,
     "trust upload lifecycle",
   );
 }
@@ -384,7 +315,10 @@ function assertTrustUploadLifecycle(ctx: ValidationContext): void {
   const trustUploadLifecycle = ctx.readJson("conformance/fixtures/trust-upload-lifecycle.json");
   assertSpecVersion(ctx, trustUploadLifecycle, "trust upload lifecycle fixture");
   const coverage = collectTrustUploadCoverage(ctx, trustUploadLifecycle);
-  assertTrustUploadCoverage(coverage);
+  assertTrustUploadCoverage(
+    coverage,
+    expectedProblemsByEndpoint(ctx, ["Trust upload intent", "Trust upload finalize"]),
+  );
 }
 
 function run(ctx: ValidationContext): void {

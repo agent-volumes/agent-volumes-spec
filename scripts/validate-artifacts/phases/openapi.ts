@@ -378,6 +378,28 @@ function operationKey(method: string, pathName: string): string {
   return `${method.toUpperCase()} ${pathName}`;
 }
 
+function assertMatrixExpectedProblems(
+  openapi: JsonObject,
+  openapiOperationMatrix: JsonValue,
+): void {
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    for (const expectedProblem of endpointFamily.expectedProblems) {
+      const expectedStatus = problemStatusBySlug.get(expectedProblem);
+      assert(
+        typeof expectedStatus !== "undefined",
+        `OpenAPI operation matrix ${endpointFamily.name} references unknown problem ${expectedProblem}`,
+      );
+      for (const operation of endpointFamily.operations) {
+        const openapiOperation = openapi.paths[operation.pathName]?.[operation.method];
+        assert(
+          openapiOperation?.responses?.[String(expectedStatus)],
+          `OpenAPI ${operation.method.toUpperCase()} ${operation.pathName} must expose ${expectedStatus} for ${expectedProblem}`,
+        );
+      }
+    }
+  }
+}
+
 function assertOperationCoverageMatrix(
   ctx: ValidationContext,
   openapi: JsonObject,
@@ -590,6 +612,15 @@ function assertPathParameterSchemas(openapi: JsonObject): void {
   }
 }
 
+function assertOpenapiMatrixContract(
+  ctx: ValidationContext,
+  openapi: JsonObject,
+  openapiOperationMatrix: JsonValue,
+): void {
+  assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
+  assertMatrixExpectedProblems(openapi, openapiOperationMatrix);
+}
+
 function assertOpenapiDocument(
   ctx: ValidationContext,
   openapi: JsonObject,
@@ -600,7 +631,7 @@ function assertOpenapiDocument(
     openapi.info?.version === currentSpecVersion,
     `OpenAPI document must declare info.version ${currentSpecVersion}`,
   );
-  assertOperationCoverageMatrix(ctx, openapi, openapiOperationMatrix);
+  assertOpenapiMatrixContract(ctx, openapi, openapiOperationMatrix);
   assertUploadIdempotency(openapi);
   assertConflictResponses(openapi);
   assertOpenapiSchemaParity(openapi);

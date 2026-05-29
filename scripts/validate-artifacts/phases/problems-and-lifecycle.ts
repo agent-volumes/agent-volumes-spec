@@ -9,6 +9,36 @@ import type { JsonValue, ValidationContext } from "../core/types.ts";
 
 const PROBLEM_TYPE_PREFIX = "https://agentvolumes.org/problems/";
 
+function endpointKey(operation: JsonValue): string {
+  return `${operation.method.toUpperCase()} ${operation.pathName}`;
+}
+
+function assertExpectedProblemsAreRegistered(endpointFamily: JsonValue): void {
+  for (const expectedProblem of endpointFamily.expectedProblems) {
+    assert(
+      problemStatusBySlug.has(expectedProblem),
+      `OpenAPI operation matrix ${endpointFamily.name} references unknown problem ${expectedProblem}`,
+    );
+  }
+}
+
+function expectedProblemsByEndpoint(
+  ctx: ValidationContext,
+  familyNames: string[],
+): Map<string, string[]> {
+  const openapiOperationMatrix = ctx.readJson("conformance/fixtures/openapi-operation-matrix.json");
+  const expectedFailuresByEndpoint = new Map<string, string[]>();
+  for (const endpointFamily of openapiOperationMatrix.endpointFamilies) {
+    if (familyNames.includes(endpointFamily.name)) {
+      assertExpectedProblemsAreRegistered(endpointFamily);
+      for (const operation of endpointFamily.operations) {
+        expectedFailuresByEndpoint.set(endpointKey(operation), endpointFamily.expectedProblems);
+      }
+    }
+  }
+  return expectedFailuresByEndpoint;
+}
+
 function assertProblemDetailsCases(ctx: ValidationContext): void {
   const problemDetailsCases = ctx.readJson("conformance/fixtures/problem-details-cases.json");
   assertSpecVersion(ctx, problemDetailsCases, "problem details cases");
@@ -121,25 +151,19 @@ function assertProblemRegistry(ctx: ValidationContext): void {
 function assertSearchProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      ["GET /api/v1/search", ["validation-failed", "rate-limited"]],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Catalog search"]),
     label: "catalog search failure cases",
     relativePath: "conformance/fixtures/catalog-search-failure-cases.json",
   });
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      ["GET /api/v1/advisories", ["validation-failed", "rate-limited"]],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Advisory search"]),
     label: "advisory search failure cases",
     relativePath: "conformance/fixtures/advisory-search-failure-cases.json",
   });
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      ["GET /api/v1/advisories/{advisoryId}", ["not-found", "rate-limited"]],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Advisory detail"]),
     label: "advisory detail failure cases",
     relativePath: "conformance/fixtures/advisory-detail-failure-cases.json",
   });
@@ -148,28 +172,7 @@ function assertSearchProblemFixtures(ctx: ValidationContext): void {
 function assertLifecycleProblemFixtures(ctx: ValidationContext): void {
   assertLifecycleMutationFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      [
-        "DELETE /api/v1/volumes/{name}/{version}",
-        [
-          "authentication-required",
-          "authorization-failed",
-          "not-found",
-          "inconsistent-registry-state",
-          "rate-limited",
-        ],
-      ],
-      [
-        "DELETE /api/v1/volumes/@{scope}/{name}/{version}",
-        [
-          "authentication-required",
-          "authorization-failed",
-          "not-found",
-          "inconsistent-registry-state",
-          "rate-limited",
-        ],
-      ],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Unpublish / lifecycle mutation"]),
     label: "lifecycle mutation cases",
     relativePath: "conformance/fixtures/lifecycle-mutation-cases.json",
   });
@@ -178,16 +181,7 @@ function assertLifecycleProblemFixtures(ctx: ValidationContext): void {
 function assertReleaseMetadataProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      [
-        "GET /api/v1/volumes/{name}/{version}",
-        ["authorization-failed", "not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-      [
-        "GET /api/v1/volumes/@{scope}/{name}/{version}",
-        ["authorization-failed", "not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Exact release metadata"]),
     label: "exact release metadata failure cases",
     relativePath: "conformance/fixtures/exact-release-metadata-failure-cases.json",
   });
@@ -196,16 +190,7 @@ function assertReleaseMetadataProblemFixtures(ctx: ValidationContext): void {
 function assertVersionIndexProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      [
-        "GET /api/v1/index/volumes/{name}",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-      [
-        "GET /api/v1/index/volumes/@{scope}/{name}",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Version index"]),
     label: "version index failure cases",
     relativePath: "conformance/fixtures/version-index-failure-cases.json",
   });
@@ -214,7 +199,7 @@ function assertVersionIndexProblemFixtures(ctx: ValidationContext): void {
 function assertCapabilityProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([["GET /api/v1/capabilities", ["rate-limited"]]]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Capability metadata"]),
     label: "capability metadata failure cases",
     relativePath: "conformance/fixtures/capability-metadata-failure-cases.json",
   });
@@ -223,31 +208,13 @@ function assertCapabilityProblemFixtures(ctx: ValidationContext): void {
 function assertTrustProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      [
-        "GET /api/v1/volumes/{name}/{version}/trust/summary",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-      [
-        "GET /api/v1/volumes/@{scope}/{name}/{version}/trust/summary",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Trust summary"]),
     label: "trust summary failure cases",
     relativePath: "conformance/fixtures/trust-summary-failure-cases.json",
   });
   assertEndpointProblemFixtures({
     ctx,
-    expectedFailuresByEndpoint: new Map([
-      [
-        "GET /api/v1/volumes/{name}/{version}/trust/detail",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-      [
-        "GET /api/v1/volumes/@{scope}/{name}/{version}/trust/detail",
-        ["not-found", "inconsistent-registry-state", "rate-limited"],
-      ],
-    ]),
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, ["Trust detail"]),
     label: "trust detail failure cases",
     relativePath: "conformance/fixtures/trust-detail-failure-cases.json",
   });
