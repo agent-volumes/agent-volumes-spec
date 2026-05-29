@@ -134,6 +134,11 @@
           "coverageType": "schema"
         },
         {
+          "fixture": "version-index-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
+        },
+        {
           "fixture": "lifecycle-mutation-cases.json",
           "area": "resolver",
           "coverageType": "positive"
@@ -155,6 +160,11 @@
           "fixture": "exact-release-metadata-cases.json",
           "area": "release-metadata",
           "coverageType": "positive"
+        },
+        {
+          "fixture": "exact-release-metadata-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative"
         }
       ],
       "specAnchor": "#11-2-conforming-bibliotheca"
@@ -169,6 +179,18 @@
           "area": "resolver",
           "coverageType": "negative",
           "case": "version-index-release-metadata-conflict"
+        },
+        {
+          "fixture": "version-index-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative",
+          "case": "version-index-inconsistent-registry-state"
+        },
+        {
+          "fixture": "exact-release-metadata-failure-cases.json",
+          "area": "problem-details",
+          "coverageType": "negative",
+          "case": "exact-release-inconsistent-registry-state"
         }
       ],
       "specAnchor": "#11-2-conforming-bibliotheca"
@@ -290,6 +312,11 @@
         {
           "fixture": "capability-invalid-compatibility-cases.json",
           "area": "capability",
+          "coverageType": "negative"
+        },
+        {
+          "fixture": "capability-metadata-failure-cases.json",
+          "area": "problem-details",
           "coverageType": "negative"
         }
       ],

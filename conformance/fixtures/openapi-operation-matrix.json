@@ -73,7 +73,10 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
         }
       ],
-      "fixtures": ["conformance/fixtures/exact-release-metadata-cases.json"]
+      "fixtures": [
+        "conformance/fixtures/exact-release-metadata-cases.json",
+        "conformance/fixtures/exact-release-metadata-failure-cases.json"
+      ]
     },
     {
       "name": "Unpublish / lifecycle mutation",
@@ -115,7 +118,8 @@
       ],
       "fixtures": [
         "conformance/fixtures/version-index.json",
-        "conformance/fixtures/version-index-row-cases.json"
+        "conformance/fixtures/version-index-row-cases.json",
+        "conformance/fixtures/version-index-failure-cases.json"
       ]
     },
     {
@@ -254,6 +258,8 @@
         }
       ],
       "fixtures": [
+        "conformance/fixtures/capability-metadata.json",
+        "conformance/fixtures/capability-metadata-failure-cases.json",
         "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
         "conformance/fixtures/capability-metadata-unknown-tolerance.json",
         "conformance/fixtures/capability-invalid-compatibility-cases.json"

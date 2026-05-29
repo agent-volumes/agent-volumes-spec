@@ -1,0 +1,78 @@
+{
+  "specVersion": "0.1.0-rc.1",
+  "description": "Version index Problem Details failure cases for portable Agent Volumes bibliothecas.",
+  "fixtures": [
+    {
+      "name": "version-index-volume-not-found",
+      "endpoint": "GET /api/v1/index/volumes/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Volume not found",
+        "status": 404,
+        "detail": "The version index is unavailable because the volume does not exist or is not visible."
+      }
+    },
+    {
+      "name": "version-index-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/index/volumes/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "The version index cannot be reconciled with exact release metadata."
+      }
+    },
+    {
+      "name": "version-index-rate-limited",
+      "endpoint": "GET /api/v1/index/volumes/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The version index request was rate limited."
+      }
+    },
+    {
+      "name": "scoped-version-index-volume-not-found",
+      "endpoint": "GET /api/v1/index/volumes/@{scope}/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "not-found" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/not-found",
+        "title": "Volume not found",
+        "status": 404,
+        "detail": "The scoped version index is unavailable because the volume does not exist or is not visible."
+      }
+    },
+    {
+      "name": "scoped-version-index-inconsistent-registry-state",
+      "endpoint": "GET /api/v1/index/volumes/@{scope}/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "inconsistent-registry-state" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/inconsistent-registry-state",
+        "title": "Inconsistent registry state",
+        "status": 409,
+        "detail": "The scoped version index cannot be reconciled with exact release metadata."
+      }
+    },
+    {
+      "name": "scoped-version-index-rate-limited",
+      "endpoint": "GET /api/v1/index/volumes/@{scope}/{name}",
+      "schema": "problem-details",
+      "expected": { "failureCategory": "rate-limited" },
+      "payload": {
+        "type": "https://agentvolumes.org/problems/rate-limited",
+        "title": "Rate limited",
+        "status": 429,
+        "detail": "The scoped version index request was rate limited."
+      }
+    }
+  ]
+}

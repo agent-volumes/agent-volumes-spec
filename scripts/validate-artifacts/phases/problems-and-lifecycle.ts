@@ -104,6 +104,51 @@ function assertLifecycleProblemFixtures(ctx: ValidationContext): void {
   });
 }
 
+function assertReleaseMetadataProblemFixtures(ctx: ValidationContext): void {
+  assertEndpointProblemFixtures({
+    ctx,
+    expectedFailuresByEndpoint: new Map([
+      [
+        "GET /api/v1/volumes/{name}/{version}",
+        ["authorization-failed", "not-found", "inconsistent-registry-state", "rate-limited"],
+      ],
+      [
+        "GET /api/v1/volumes/@{scope}/{name}/{version}",
+        ["authorization-failed", "not-found", "inconsistent-registry-state", "rate-limited"],
+      ],
+    ]),
+    label: "exact release metadata failure cases",
+    relativePath: "conformance/fixtures/exact-release-metadata-failure-cases.json",
+  });
+}
+
+function assertVersionIndexProblemFixtures(ctx: ValidationContext): void {
+  assertEndpointProblemFixtures({
+    ctx,
+    expectedFailuresByEndpoint: new Map([
+      [
+        "GET /api/v1/index/volumes/{name}",
+        ["not-found", "inconsistent-registry-state", "rate-limited"],
+      ],
+      [
+        "GET /api/v1/index/volumes/@{scope}/{name}",
+        ["not-found", "inconsistent-registry-state", "rate-limited"],
+      ],
+    ]),
+    label: "version index failure cases",
+    relativePath: "conformance/fixtures/version-index-failure-cases.json",
+  });
+}
+
+function assertCapabilityProblemFixtures(ctx: ValidationContext): void {
+  assertEndpointProblemFixtures({
+    ctx,
+    expectedFailuresByEndpoint: new Map([["GET /api/v1/capabilities", ["rate-limited"]]]),
+    label: "capability metadata failure cases",
+    relativePath: "conformance/fixtures/capability-metadata-failure-cases.json",
+  });
+}
+
 function assertTrustProblemFixtures(ctx: ValidationContext): void {
   assertEndpointProblemFixtures({
     ctx,
@@ -142,6 +187,9 @@ function run(ctx: ValidationContext): void {
   assertProblemRegistry(ctx);
   assertSearchProblemFixtures(ctx);
   assertLifecycleProblemFixtures(ctx);
+  assertReleaseMetadataProblemFixtures(ctx);
+  assertVersionIndexProblemFixtures(ctx);
+  assertCapabilityProblemFixtures(ctx);
   assertTrustProblemFixtures(ctx);
 }
 
