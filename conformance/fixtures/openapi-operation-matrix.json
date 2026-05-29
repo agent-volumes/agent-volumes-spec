@@ -8,12 +8,17 @@
       "requirements": ["AV-BIB-007"],
       "auth": "Public",
       "operations": [
-        { "operationId": "searchVolumes", "method": "get", "pathName": "/api/v1/search" }
+        {
+          "operationId": "searchVolumes",
+          "method": "get",
+          "pathName": "/api/v1/search"
+        }
       ],
       "fixtures": [
         "conformance/fixtures/search-results.json",
         "conformance/fixtures/catalog-search-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["validation-failed", "rate-limited"]
     },
     {
       "name": "Release upload intent",
@@ -33,7 +38,16 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}"
         }
       ],
-      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"]
+      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "validation-failed",
+        "version-conflict",
+        "payload-too-large",
+        "unsupported-media-type",
+        "idempotency-conflict"
+      ]
     },
     {
       "name": "Release upload finalize",
@@ -53,7 +67,19 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}/uploads/{uploadId}/finalize"
         }
       ],
-      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"]
+      "fixtures": ["conformance/fixtures/release-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "not-found",
+        "invalid-archive",
+        "invalid-manifest",
+        "identity-mismatch",
+        "digest-mismatch",
+        "missing-uploaded-bytes",
+        "invalid-upload-state",
+        "upload-expired"
+      ]
     },
     {
       "name": "Exact release metadata",
@@ -76,6 +102,12 @@
       "fixtures": [
         "conformance/fixtures/exact-release-metadata-cases.json",
         "conformance/fixtures/exact-release-metadata-failure-cases.json"
+      ],
+      "expectedProblems": [
+        "authorization-failed",
+        "not-found",
+        "inconsistent-registry-state",
+        "rate-limited"
       ]
     },
     {
@@ -96,7 +128,14 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}"
         }
       ],
-      "fixtures": ["conformance/fixtures/lifecycle-mutation-cases.json"]
+      "fixtures": ["conformance/fixtures/lifecycle-mutation-cases.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "not-found",
+        "inconsistent-registry-state",
+        "rate-limited"
+      ]
     },
     {
       "name": "Version index",
@@ -120,7 +159,8 @@
         "conformance/fixtures/version-index.json",
         "conformance/fixtures/version-index-row-cases.json",
         "conformance/fixtures/version-index-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
     },
     {
       "name": "Trust summary",
@@ -144,7 +184,8 @@
         "conformance/fixtures/trust-summary.json",
         "conformance/fixtures/trust-summary-empty.json",
         "conformance/fixtures/trust-summary-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
     },
     {
       "name": "Trust detail",
@@ -169,7 +210,8 @@
         "conformance/fixtures/trust-detail-empty.json",
         "conformance/fixtures/trust-detail-status-variants.json",
         "conformance/fixtures/trust-detail-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["not-found", "inconsistent-registry-state", "rate-limited"]
     },
     {
       "name": "Trust upload intent",
@@ -189,7 +231,15 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads"
         }
       ],
-      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"]
+      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "subject-binding-mismatch",
+        "payload-too-large",
+        "unsupported-media-type",
+        "idempotency-conflict"
+      ]
     },
     {
       "name": "Trust upload finalize",
@@ -209,7 +259,17 @@
           "pathName": "/api/v1/volumes/@{scope}/{name}/{version}/trust/uploads/{uploadId}/finalize"
         }
       ],
-      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"]
+      "fixtures": ["conformance/fixtures/trust-upload-lifecycle.json"],
+      "expectedProblems": [
+        "authentication-required",
+        "authorization-failed",
+        "digest-mismatch",
+        "upload-expired",
+        "subject-binding-mismatch",
+        "missing-uploaded-bytes",
+        "idempotency-conflict",
+        "invalid-upload-state"
+      ]
     },
     {
       "name": "Advisory search",
@@ -218,12 +278,17 @@
       "requirements": ["AV-BIB-013"],
       "auth": "Public",
       "operations": [
-        { "operationId": "searchAdvisories", "method": "get", "pathName": "/api/v1/advisories" }
+        {
+          "operationId": "searchAdvisories",
+          "method": "get",
+          "pathName": "/api/v1/advisories"
+        }
       ],
       "fixtures": [
         "conformance/fixtures/advisory-list.json",
         "conformance/fixtures/advisory-search-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["validation-failed", "rate-limited"]
     },
     {
       "name": "Advisory detail",
@@ -242,7 +307,8 @@
         "conformance/fixtures/advisory.json",
         "conformance/fixtures/advisory-withdrawn.json",
         "conformance/fixtures/advisory-detail-failure-cases.json"
-      ]
+      ],
+      "expectedProblems": ["not-found", "rate-limited"]
     },
     {
       "name": "Capability metadata",
@@ -263,7 +329,8 @@
         "conformance/fixtures/capability-metadata-reserved-extension-rejection.json",
         "conformance/fixtures/capability-metadata-unknown-tolerance.json",
         "conformance/fixtures/capability-invalid-compatibility-cases.json"
-      ]
+      ],
+      "expectedProblems": ["rate-limited"]
     }
   ]
 }
