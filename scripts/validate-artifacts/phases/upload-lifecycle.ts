@@ -1,6 +1,6 @@
 import { assertProblemDetails } from "../assertions/problem-details.ts";
 import { assertReleaseMetadata } from "../assertions/release-metadata.ts";
-import { assert, assertSpecVersion } from "../core/assert.ts";
+import { assert, assertDeepEqual, assertSpecVersion } from "../core/assert.ts";
 import { digestPattern } from "../core/patterns.ts";
 import { problemStatusBySlug } from "../core/problem-registry.ts";
 import type { JsonValue, ValidationContext } from "../core/types.ts";
@@ -12,6 +12,49 @@ interface LifecycleProblemDetailsAssertion {
   failuresByEndpoint: Map<JsonValue, Set<JsonValue>>;
   fixture: JsonValue;
   label: string;
+}
+
+interface ReleaseUploadCoverageAssertion {
+  expectedFailuresByEndpoint: Map<string, string[]>;
+  failuresByEndpoint: Map<JsonValue, Set<JsonValue>>;
+  releaseUploadLifecycle: JsonValue;
+  vocabulary: UploadSchemaVocabulary;
+}
+
+interface ReleaseUploadFixtureAssertion {
+  ctx: ValidationContext;
+  failuresByEndpoint: Map<JsonValue, Set<JsonValue>>;
+  fixture: JsonValue;
+  vocabulary: UploadSchemaVocabulary;
+}
+
+interface TrustUploadCoverageAssertion {
+  coverage: JsonValue;
+  expectedFailuresByEndpoint: Map<string, string[]>;
+  vocabulary: UploadSchemaVocabulary;
+}
+
+interface UploadSchemaVocabulary {
+  releaseMediaType: JsonValue;
+  releaseStates: JsonValue[];
+  trustCategories: JsonValue[];
+  trustStates: JsonValue[];
+}
+
+function uploadSchemaVocabulary(ctx: ValidationContext): UploadSchemaVocabulary {
+  const releaseStates = ctx.schemas.releaseUploadIntent.properties.state.enum;
+  const trustStates = ctx.schemas.trustUploadIntent.properties.state.enum;
+  const trustCategories =
+    ctx.schemas.trustUploadIntent.$defs.attachmentMetadata.properties.category.enum;
+  const releaseMediaType = ctx.schemas.releaseUploadIntent.properties.mediaType.const;
+  assert(Array.isArray(releaseStates), "release upload state schema vocabulary must be an enum");
+  assert(Array.isArray(trustStates), "trust upload state schema vocabulary must be an enum");
+  assert(Array.isArray(trustCategories), "trust upload category schema vocabulary must be an enum");
+  assert(
+    typeof releaseMediaType === "string",
+    "release upload media type schema vocabulary must be a const string",
+  );
+  return { releaseMediaType, releaseStates, trustCategories, trustStates };
 }
 
 function endpointKey(operation: JsonValue): string {
@@ -130,11 +173,12 @@ function assertIdempotencyConflictCoverage(fixtures: JsonValue, label: string): 
   );
 }
 
-function assertReleaseUploadCoverage(
-  releaseUploadLifecycle: JsonValue,
-  failuresByEndpoint: Map<JsonValue, Set<JsonValue>>,
-  expectedFailuresByEndpoint: Map<string, string[]>,
-): void {
+function assertReleaseUploadCoverage({
+  expectedFailuresByEndpoint,
+  failuresByEndpoint,
+  releaseUploadLifecycle,
+  vocabulary,
+}: ReleaseUploadCoverageAssertion): void {
   const releaseUploadFailures = new Set(
     releaseUploadLifecycle.fixtures
       .filter((fixture: JsonValue) => fixture.schema === "problem-details")
@@ -145,7 +189,7 @@ function assertReleaseUploadCoverage(
       .filter((fixture: JsonValue) => fixture.schema === "release-upload-intent")
       .map((fixture: JsonValue) => fixture.payload.state),
   );
-  for (const requiredState of ["pending-upload", "uploading", "uploaded", "expired", "failed"]) {
+  for (const requiredState of vocabulary.releaseStates) {
     assert(
       releaseUploadStates.has(requiredState),
       `release upload lifecycle missing ${requiredState} state`,
@@ -202,11 +246,15 @@ function assertExpectedUploadState(fixture: JsonValue, label: string): void {
   }
 }
 
-function assertReleaseUploadIntent(ctx: ValidationContext, fixture: JsonValue): void {
+function assertReleaseUploadIntent(
+  ctx: ValidationContext,
+  fixture: JsonValue,
+  vocabulary: UploadSchemaVocabulary,
+): void {
   ctx.validate("releaseUploadIntent", fixture.payload, `release upload lifecycle ${fixture.name}`);
   assert(
-    fixture.payload.mediaType === "application/gzip",
-    `release upload lifecycle ${fixture.name} must use application/gzip`,
+    fixture.payload.mediaType === vocabulary.releaseMediaType,
+    `release upload lifecycle ${fixture.name} must use ${vocabulary.releaseMediaType}`,
   );
   assertHttpPutUpload(fixture, "release upload lifecycle");
   assertExpectedUploadState(fixture, "release upload lifecycle");
@@ -241,13 +289,14 @@ function assertLifecycleProblemDetails({
   recordEndpointFailure(failuresByEndpoint, fixture.endpoint, fixture.expected.failureCategory);
 }
 
-function assertReleaseUploadFixture(
-  ctx: ValidationContext,
-  fixture: JsonValue,
-  failuresByEndpoint: Map<JsonValue, Set<JsonValue>>,
-): void {
+function assertReleaseUploadFixture({
+  ctx,
+  failuresByEndpoint,
+  fixture,
+  vocabulary,
+}: ReleaseUploadFixtureAssertion): void {
   if (fixture.schema === "release-upload-intent") {
-    assertReleaseUploadIntent(ctx, fixture);
+    assertReleaseUploadIntent(ctx, fixture, vocabulary);
   }
   if (fixture.schema === "release-upload-finalize") {
     assertReleaseUploadFinalize(ctx, fixture);
@@ -265,15 +314,20 @@ function assertReleaseUploadFixture(
 function assertReleaseUploadLifecycle(ctx: ValidationContext): void {
   const releaseUploadLifecycle = ctx.readJson("conformance/fixtures/release-upload-lifecycle.json");
   assertSpecVersion(ctx, releaseUploadLifecycle, "release upload lifecycle fixture");
+  const vocabulary = uploadSchemaVocabulary(ctx);
   const failuresByEndpoint = new Map<JsonValue, Set<JsonValue>>();
   for (const fixture of releaseUploadLifecycle.fixtures) {
-    assertReleaseUploadFixture(ctx, fixture, failuresByEndpoint);
+    assertReleaseUploadFixture({ ctx, failuresByEndpoint, fixture, vocabulary });
   }
-  assertReleaseUploadCoverage(
-    releaseUploadLifecycle,
+  assertReleaseUploadCoverage({
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, [
+      "Release upload intent",
+      "Release upload finalize",
+    ]),
     failuresByEndpoint,
-    expectedProblemsByEndpoint(ctx, ["Release upload intent", "Release upload finalize"]),
-  );
+    releaseUploadLifecycle,
+    vocabulary,
+  });
   assertIdempotencyConflictCoverage(releaseUploadLifecycle.fixtures, "release upload lifecycle");
 }
 
@@ -336,17 +390,21 @@ function collectTrustUploadCoverage(
   return coverage;
 }
 
-function assertTrustUploadCoverage(
-  coverage: JsonValue,
-  expectedFailuresByEndpoint: Map<string, string[]>,
-): void {
-  for (const requiredState of ["pending-upload", "uploading", "uploaded", "expired", "failed"]) {
+function assertTrustUploadCoverage({
+  coverage,
+  expectedFailuresByEndpoint,
+  vocabulary,
+}: TrustUploadCoverageAssertion): void {
+  assertDeepEqual(vocabulary.trustStates, vocabulary.releaseStates, "upload lifecycle states");
+  for (const requiredState of vocabulary.trustStates) {
     assert(
       coverage.states.has(requiredState),
       `trust upload lifecycle missing ${requiredState} state`,
     );
   }
-  for (const requiredTrustUploadCategory of ["bom", "provenance", "signature"]) {
+  for (const requiredTrustUploadCategory of vocabulary.trustCategories.filter(
+    (category: JsonValue) => category !== "other",
+  )) {
     assert(
       coverage.categories.has(requiredTrustUploadCategory),
       `trust upload lifecycle must include ${requiredTrustUploadCategory} intent`,
@@ -379,11 +437,16 @@ function assertTrustUploadCoverage(
 function assertTrustUploadLifecycle(ctx: ValidationContext): void {
   const trustUploadLifecycle = ctx.readJson("conformance/fixtures/trust-upload-lifecycle.json");
   assertSpecVersion(ctx, trustUploadLifecycle, "trust upload lifecycle fixture");
+  const vocabulary = uploadSchemaVocabulary(ctx);
   const coverage = collectTrustUploadCoverage(ctx, trustUploadLifecycle);
-  assertTrustUploadCoverage(
+  assertTrustUploadCoverage({
     coverage,
-    expectedProblemsByEndpoint(ctx, ["Trust upload intent", "Trust upload finalize"]),
-  );
+    expectedFailuresByEndpoint: expectedProblemsByEndpoint(ctx, [
+      "Trust upload intent",
+      "Trust upload finalize",
+    ]),
+    vocabulary,
+  });
 }
 
 function run(ctx: ValidationContext): void {

@@ -35,47 +35,9 @@ const requiredExternalDependencyFailures = [
   "conflicting-external-dependency",
 ];
 
-const canonicalHookEvents = new Set([
-  "SessionStart",
-  "SessionEnd",
-  "Setup",
-  "UserPromptSubmit",
-  "Stop",
-  "StopFailure",
-  "PreToolUse",
-  "PostToolUse",
-  "PostToolUseFailure",
-  "PostToolBatch",
-  "SubagentStart",
-  "SubagentStop",
-  "TaskCreated",
-  "TaskCompleted",
-  "InstructionsLoaded",
-  "ConfigChange",
-  "CwdChanged",
-  "FileChanged",
-  "PreCompact",
-  "PostCompact",
-]);
-
-const supportedEntrypointExtensionsByType = {
-  agent: new Set([".md", ".yaml"]),
-  command: new Set([".md"]),
-  hook: new Set([".md", ".yaml", ".js", ".mjs", ".sh", ".py"]),
-  "lsp-server": new Set([".json"]),
-  "mcp-server": new Set([".json"]),
-  skill: new Set([".md"]),
-  tool: new Set([".json", ".yaml", ".js", ".mjs", ".sh", ".py"]),
-};
-
 const REQUIRED_VERS_BOUND_COUNT = 1;
 
-type ComponentType = keyof typeof supportedEntrypointExtensionsByType;
-
-const supportedEntrypointExtensionMap: Record<
-  ComponentType,
-  Set<string>
-> = supportedEntrypointExtensionsByType;
+type ComponentType = "agent" | "skill" | "command" | "tool" | "hook" | "mcp-server" | "lsp-server";
 
 const requiredComponentFailures = [
   "missing-entrypoint",
@@ -88,7 +50,15 @@ const requiredComponentFailures = [
   "invalid-spdx-expression",
 ];
 
-const componentTypes = ["agent", "skill", "command", "tool", "hook", "mcp-server", "lsp-server"];
+const componentTypes: ComponentType[] = [
+  "agent",
+  "skill",
+  "command",
+  "tool",
+  "hook",
+  "mcp-server",
+  "lsp-server",
+];
 
 const positiveCompatibilityCaseNames = [
   "compatibility-preserves-semver-looking-runtime-expression",
@@ -149,6 +119,12 @@ interface ComparableVersRanges {
   parsedPurl: JsonValue;
 }
 
+interface SemanticVocabularies {
+  baselineHookTypes: Set<JsonValue>;
+  canonicalHookEvents: Set<JsonValue>;
+  supportedEntrypointExtensionsByType: Record<ComponentType, Set<JsonValue>>;
+}
+
 function parseComponentDependencyPurl(componentPurl: JsonValue): ComponentDependencyPurlParts {
   const match = componentPurl.match(componentPurlPattern);
   const [, scope, name] = match || [];
@@ -159,7 +135,9 @@ function parseComponentDependencyPurl(componentPurl: JsonValue): ComponentDepend
 }
 
 function isComponentType(value: JsonValue): value is ComponentType {
-  return typeof value === "string" && Object.hasOwn(supportedEntrypointExtensionsByType, value);
+  return (
+    typeof value === "string" && componentTypes.some((componentType) => componentType === value)
+  );
 }
 
 function getComponentDependencyFindings(dependencyCase: JsonValue): ComponentDependencyFindings {
@@ -587,14 +565,41 @@ function validateExternalDependencyDomain(ctx: ValidationContext): Set<string> {
   return purlVersExceptionPairs;
 }
 
-function validateSemanticHookCase(semanticCase: JsonValue, component: JsonValue): void {
+function semanticVocabularies(semanticValidationCases: JsonValue): SemanticVocabularies {
+  const { componentEntrypointExtensions } = semanticValidationCases.vocabularies;
+  const supportedEntrypointExtensionsByType = {
+    agent: new Set<JsonValue>(),
+    command: new Set<JsonValue>(),
+    hook: new Set<JsonValue>(),
+    "lsp-server": new Set<JsonValue>(),
+    "mcp-server": new Set<JsonValue>(),
+    skill: new Set<JsonValue>(),
+    tool: new Set<JsonValue>(),
+  };
+  for (const componentType of componentTypes) {
+    supportedEntrypointExtensionsByType[componentType] = new Set(
+      componentEntrypointExtensions[componentType],
+    );
+  }
+  return {
+    baselineHookTypes: new Set(semanticValidationCases.vocabularies.baselineHookTypes),
+    canonicalHookEvents: new Set(semanticValidationCases.vocabularies.canonicalHookEvents),
+    supportedEntrypointExtensionsByType,
+  };
+}
+
+function validateSemanticHookCase(
+  semanticCase: JsonValue,
+  component: JsonValue,
+  vocabularies: SemanticVocabularies,
+): void {
   if (component.type === "hook" && semanticCase.expected.valid === true) {
     assert(
-      canonicalHookEvents.has(semanticCase.payload.hook?.event),
+      vocabularies.canonicalHookEvents.has(semanticCase.payload.hook?.event),
       `semantic validation case ${semanticCase.name} valid hook must use canonical event vocabulary`,
     );
     assert(
-      ["command", "script", "module"].includes(semanticCase.payload.hook?.type),
+      vocabularies.baselineHookTypes.has(semanticCase.payload.hook?.type),
       `semantic validation case ${semanticCase.name} valid hook must use baseline hook type`,
     );
   }
@@ -603,14 +608,15 @@ function validateSemanticHookCase(semanticCase: JsonValue, component: JsonValue)
 function validateUnsupportedToolEntrypointCase(
   semanticCase: JsonValue,
   component: JsonValue,
-  extension: string,
+  vocabularies: SemanticVocabularies,
 ): void {
   if (
     component.type === "tool" &&
     semanticCase.expected.failureCategory === "unsupported-entrypoint-format"
   ) {
+    const extension = path.posix.extname(component.entrypoint);
     assert(
-      !supportedEntrypointExtensionsByType.tool.has(extension),
+      !vocabularies.supportedEntrypointExtensionsByType.tool.has(extension),
       `semantic validation case ${semanticCase.name} unsupported tool format must not reject JSON/YAML/script baseline formats`,
     );
   }
@@ -705,11 +711,15 @@ function validateSemanticEntrypointArchiveCase(
   assertResolvedEntrypointArchiveCase(semanticCase, archivePath);
 }
 
-function validateSemanticCaseComponent(semanticCase: JsonValue, component: JsonValue): void {
+function validateSemanticCaseComponent(
+  semanticCase: JsonValue,
+  component: JsonValue,
+  vocabularies: SemanticVocabularies,
+): void {
   const extension = path.posix.extname(component.entrypoint);
   const componentType = component.type;
   const supportedExtensions = isComponentType(componentType)
-    ? supportedEntrypointExtensionMap[componentType]
+    ? vocabularies.supportedEntrypointExtensionsByType[componentType]
     : new Set();
   if (semanticCase.expected.valid === true && supportedExtensions) {
     assert(
@@ -717,18 +727,22 @@ function validateSemanticCaseComponent(semanticCase: JsonValue, component: JsonV
       `semantic validation case ${semanticCase.name} valid ${component.type} must use supported entrypoint extension`,
     );
   }
-  validateSemanticHookCase(semanticCase, component);
-  validateUnsupportedToolEntrypointCase(semanticCase, component, extension);
+  validateSemanticHookCase(semanticCase, component, vocabularies);
+  validateUnsupportedToolEntrypointCase(semanticCase, component, vocabularies);
   validateSemanticEntrypointArchiveCase(semanticCase, component);
 }
 
-function validateSemanticValidationCase(ctx: ValidationContext, semanticCase: JsonValue): void {
+function validateSemanticValidationCase(
+  ctx: ValidationContext,
+  semanticCase: JsonValue,
+  vocabularies: SemanticVocabularies,
+): void {
   for (const warning of semanticCase.expected.warnings ?? []) {
     assertWarning(ctx, warning, `semantic validation case ${semanticCase.name} warning`);
   }
   const { component } = semanticCase.payload;
   if (component) {
-    validateSemanticCaseComponent(semanticCase, component);
+    validateSemanticCaseComponent(semanticCase, component, vocabularies);
   }
   if (semanticCase.expected.failureCategory === "invalid-spdx-expression") {
     assert(
@@ -868,8 +882,9 @@ function validateSemanticValidationCases(ctx: ValidationContext): void {
     "semantic validation cases fixture",
   );
   assertSpecVersion(ctx, semanticValidationCases, "semantic validation cases");
+  const vocabularies = semanticVocabularies(semanticValidationCases);
   for (const semanticCase of semanticValidationCases.cases) {
-    validateSemanticValidationCase(ctx, semanticCase);
+    validateSemanticValidationCase(ctx, semanticCase, vocabularies);
   }
   assertSemanticValidationCaseCoverage(semanticValidationCases);
 }
