@@ -40,9 +40,12 @@ npm run validate:artifacts
 The same script is also runnable through package-manager equivalents such as
 `bun run validate:artifacts`.
 
-That command validates the specification artifacts themselves. Independent
-implementations can use the same fixture families to produce their own
-conformance reports.
+That command validates the specification artifacts themselves. It includes both
+portable fixture checks and repository-only artifact hygiene checks such as
+publication drift, schema identifier alignment, OpenAPI matrix parity, and
+fixture coverage connectivity. Independent implementations can use the same
+fixture families to produce their own conformance reports, but repository hygiene
+checks are release-maintenance evidence rather than product conformance rules.
 
 The public documentation site publishes the companion [Namespace and URI publications](../site/spec/0.1.0-rc.1/uri-publications.mdx)
 for identifiers exercised by this fixture corpus, including schema `$id` URLs,

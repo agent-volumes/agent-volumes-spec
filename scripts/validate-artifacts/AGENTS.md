@@ -1,6 +1,25 @@
 # ARTIFACT VALIDATOR MODULES
 
-Modular Bun/TypeScript smoke runner for schemas, conformance fixtures, OpenAPI, and publication drift. Deterministic repository maintenance code only; not a runtime validator API.
+Modular Bun/TypeScript smoke runner for schemas, conformance fixtures, OpenAPI,
+and publication drift. Deterministic repository maintenance code only; not a
+runtime validator API.
+
+## VALIDATION SCOPE
+
+The runner intentionally combines two related but distinct check classes:
+
+- **Portable conformance fixture checks**: schema validation, deterministic
+  `expected` outcomes, warning/problem categories, lifecycle states, digest
+  vectors, subject binding, and algorithmic fixture evaluators that independent
+  runners can reproduce offline.
+- **Repository artifact hygiene checks**: generated publication drift, schema `$id`
+  release alignment, OpenAPI matrix parity, problem-registry synchronization,
+  fixture coverage connectivity, and other freeze-readiness checks that prove this
+  repository's companion artifacts agree with each other.
+
+Keep new assertions in the first class when they describe portable baseline
+behavior. Keep publication, generated-site, ordering, coverage, and release-freeze
+guards in the second class, and do not present them as product conformance rules.
 
 ## STRUCTURE
 
