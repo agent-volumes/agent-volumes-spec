@@ -12,13 +12,23 @@
     "import/exports-last": "error",
     "import/first": "error",
     "import/group-exports": "error",
-    "import/no-cycle": ["error", { "maxDepth": 3 }],
+    "import/no-cycle": [
+      "error",
+      {
+        "maxDepth": 3
+      }
+    ],
     "import/no-named-export": "off",
     "import/no-namespace": "error",
     "import/no-nodejs-modules": "off",
     "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
-    "unicorn/no-null": ["warn", { "checkStrictEquality": false }],
+    "unicorn/no-null": [
+      "warn",
+      {
+        "checkStrictEquality": false
+      }
+    ],
     "unicorn/prefer-ternary": ["warn", "only-single-line"],
     "oxc/no-async-await": "off",
     "oxc/no-optional-chaining": "off",
@@ -29,15 +39,31 @@
     "typescript/no-unnecessary-type-assertion": "error",
     "typescript/no-unsafe-type-assertion": "error",
     "complexity": "error",
-    "func-style": ["error", "declaration", { "allowArrowFunctions": true }],
+    "func-style": [
+      "error",
+      "declaration",
+      {
+        "allowArrowFunctions": true
+      }
+    ],
     "max-params": "error",
     "max-statements": "error",
     "no-console": "off",
     "no-continue": "error",
     "no-implicit-coercion": "error",
-    "no-magic-numbers": ["warn", { "ignoreArrayIndexes": true }],
+    "no-magic-numbers": [
+      "warn",
+      {
+        "ignoreArrayIndexes": true
+      }
+    ],
     "no-ternary": "off",
-    "no-underscore-dangle": ["warn", { "allow": ["_type"] }],
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": ["_type"]
+      }
+    ],
     "no-use-before-define": "error",
     "sort-imports": "off"
   },
@@ -48,5 +74,6 @@
   },
   "env": {
     "builtin": true
-  }
+  },
+  "ignorePatterns": ["site/plausible.js"]
 }
