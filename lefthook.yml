@@ -48,6 +48,8 @@ pre-commit:
           esac
 
           case "$f" in
+            site/plausible.js)
+              ;;
             *.js|*.jsx|*.mjs|*.cjs|*.ts|*.tsx|*.mts|*.cts)
               printf '%s\0' "$f" >> "$oxfmt_files"
               ;;
