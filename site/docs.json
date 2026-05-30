@@ -28,7 +28,8 @@
   },
   "integrations": {
     "plausible": {
-      "domain": "agentvolumes.org"
+      "domain": "agentvolumes.org",
+      "server": "agentvolumes.org"
     }
   },
   "navigation": {
