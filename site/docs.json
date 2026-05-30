@@ -28,7 +28,7 @@
   },
   "integrations": {
     "plausible": {
-      "domain": "docs.agentvolumes.org"
+      "domain": "agentvolumes.org"
     }
   },
   "navigation": {
