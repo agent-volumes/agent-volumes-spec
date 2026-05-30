@@ -26,6 +26,11 @@
       "href": "https://github.com/agent-volumes/agent-volumes-spec"
     }
   },
+  "integrations": {
+    "plausible": {
+      "domain": "agentvolumes.org"
+    }
+  },
   "navigation": {
     "versions": [
       {
