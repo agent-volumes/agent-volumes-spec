@@ -4,7 +4,7 @@
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
 [![SemVer Versioning](https://img.shields.io/badge/version_scheme-SemVer-0097a7)](https://semver.org/)
-[![GitHub Release](https://img.shields.io/github/v/release/agent-volumes/agent-volumes-spec?include_prereleases&sort=semver)](https://github.com/agent-volumes/agent-volumes-spec/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/agent-volumes/agent-volumes-spec?include_prereleases)](https://github.com/agent-volumes/agent-volumes-spec/releases)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
