@@ -4,6 +4,7 @@
 
 [![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-97ca00)](LICENSE)
 [![SemVer Versioning](https://img.shields.io/badge/version_scheme-SemVer-0097a7)](https://semver.org/)
+[![GitHub Release](https://img.shields.io/github/v/release/agent-volumes/agent-volumes-spec?include_prereleases&sort=semver)](https://github.com/agent-volumes/agent-volumes-spec/releases)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://github.com/agent-volumes/.github/blob/main/CODE_OF_CONDUCT.md)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-GitHub-blue.svg)](https://github.com/agent-volumes/agent-volumes-spec/issues)
 
@@ -13,6 +14,10 @@
 [![Dependency Review](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/agent-volumes/agent-volumes-spec/actions/workflows/dependency-review.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/agent-volumes/agent-volumes-spec/badge)](https://scorecard.dev/viewer/?uri=github.com/agent-volumes/agent-volumes-spec)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12816/badge)](https://www.bestpractices.dev/projects/12816)
+
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fdocs.agentvolumes.org%2F&logo=mintlify&label=docs.agentvolumes.org&style=flat-square)](https://docs.agentvolumes.org/)
+[![Bluesky Badge](https://img.shields.io/badge/-%40agentvolumes.org-1185FE?style=flat-square&logo=bluesky&logoColor=white&link=https://bsky.app/profile/agentvolumes.org/)](https://bsky.app/profile/agentvolumes.org/)
+[![X Follow](https://img.shields.io/twitter/follow/agentvolumes?label=%40AgentVolumes&logo=x&style=flat-square&labelColor=000000)](https://x.com/agentvolumes)
 
 An open specification for packaging, distributing, and verifying components for AI agent runtimes.
 
