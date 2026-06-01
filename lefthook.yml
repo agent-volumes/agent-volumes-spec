@@ -17,13 +17,25 @@ commit-msg:
 pre-commit:
   parallel: false
   jobs:
-    - name: Lint and format specification files
+    - name: Lint Markdown documents
       glob:
         - "**/*.md"
         - "**/*.mdx"
-        - "**/*.json"
-        - "**/*.yaml"
-        - "**/*.yml"
+        - "**/*.mdc"
+        - ".markdownlint-cli2.jsonc"
+      run: |
+        set -e
+        echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
+        for f in {staged_files}; do
+          case "$f" in
+            *.md|*.mdx|*.mdc) bun run lint:md:fix:files -- "$f" ;;
+          esac
+        done
+        echo "📦 Re-staging fixed Markdown files..."
+        git add {staged_files}
+        echo "✅ Markdown lint passed!"
+    - name: Lint JavaScript and TypeScript with Oxlint
+      glob:
         - "**/*.js"
         - "**/*.jsx"
         - "**/*.mjs"
@@ -32,29 +44,50 @@ pre-commit:
         - "**/*.tsx"
         - "**/*.mts"
         - "**/*.cts"
-        - "**/*.mdc"
-        - ".prettierrc"
+        - ".oxlintrc.json"
+        - "package.json"
+        - "bun.lock"
+        - "tsconfig.json"
+      run: |
+        set -e
+        echo "🔍 Running Oxlint..."
+        bun run lint:oxlint
+        echo "✅ JS/TS Oxlint passed!"
+    - name: Lint OpenAPI specification
+      glob:
+        - "openapi/**"
+        - "schemas/**"
+        - "redocly.yaml"
+        - "package.json"
+        - "bun.lock"
+      run: |
+        set -e
+        echo "🔍 Running Redocly lint..."
+        bun run lint:openapi
+        echo "✅ OpenAPI lint passed!"
+    - name: Format JavaScript and TypeScript files
+      glob:
+        - "**/*.js"
+        - "**/*.jsx"
+        - "**/*.mjs"
+        - "**/*.cjs"
+        - "**/*.ts"
+        - "**/*.tsx"
+        - "**/*.mts"
+        - "**/*.cts"
+        - ".editorconfig"
         - ".oxfmtrc.json"
       run: |
         set -e
         oxfmt_files="$(mktemp)"
-        prettier_files="$(mktemp)"
-        trap 'rm -f "$oxfmt_files" "$prettier_files"' EXIT
+        trap 'rm -f "$oxfmt_files"' EXIT
 
-        echo "🔍 Running markdownlint-cli2 --fix on staged Markdown files..."
         for f in {staged_files}; do
-          case "$f" in
-            *.md|*.mdx) bun run lint:md:fix:files -- "$f" ;;
-          esac
-
           case "$f" in
             site/plausible.js)
               ;;
             *.js|*.jsx|*.mjs|*.cjs|*.ts|*.tsx|*.mts|*.cts)
               printf '%s\0' "$f" >> "$oxfmt_files"
-              ;;
-            *.md|*.mdx|*.mdc|*.json|*.yaml|*.yml|.prettierrc|.oxfmtrc.json)
-              printf '%s\0' "$f" >> "$prettier_files"
               ;;
           esac
         done
@@ -62,16 +95,40 @@ pre-commit:
         if [ -s "$oxfmt_files" ]; then
           echo "✨ Running oxfmt --write on staged JavaScript and TypeScript files..."
           xargs -0 bun run format:oxfmt:files -- < "$oxfmt_files"
+          echo "📦 Re-staging formatted JavaScript and TypeScript files..."
+          git add {staged_files}
         fi
+        echo "✅ JavaScript and TypeScript formatting completed!"
+    - name: Format non-JS/TS files
+      glob:
+        - "**/*.md"
+        - "**/*.mdx"
+        - "**/*.json"
+        - "**/*.yaml"
+        - "**/*.yml"
+        - "**/*.mdc"
+        - ".editorconfig"
+        - ".prettierrc"
+      run: |
+        set -e
+        prettier_files="$(mktemp)"
+        trap 'rm -f "$prettier_files"' EXIT
+
+        for f in {staged_files}; do
+          case "$f" in
+            *.md|*.mdx|*.mdc|*.json|*.yaml|*.yml|.prettierrc|.oxfmtrc.json)
+              printf '%s\0' "$f" >> "$prettier_files"
+              ;;
+          esac
+        done
 
         if [ -s "$prettier_files" ]; then
           echo "✨ Running prettier --write on staged non-JS/TS files..."
           xargs -0 bun run format:prettier:files -- < "$prettier_files"
+          echo "📦 Re-staging formatted non-JS/TS files..."
+          git add {staged_files}
         fi
-
-        echo "📦 Re-staging fixed files..."
-        git add {staged_files}
-        echo "✅ Pre-commit checks completed!"
+        echo "✅ Non-JS/TS formatting completed!"
     - name: Block normal release archive edits
       glob:
         - "agent-volumes-spec.md"
@@ -116,70 +173,6 @@ pre-commit:
           esac
         done
         exit 1
-    - name: Check repository formatting
-      glob:
-        - "**/*.md"
-        - "**/*.mdx"
-        - "**/*.json"
-        - "**/*.yaml"
-        - "**/*.yml"
-        - "**/*.js"
-        - "**/*.jsx"
-        - "**/*.mjs"
-        - "**/*.cjs"
-        - "**/*.ts"
-        - "**/*.tsx"
-        - "**/*.mts"
-        - "**/*.cts"
-        - "**/*.mdc"
-        - ".prettierrc"
-      run: |
-        set -e
-        echo "✨ Checking repository formatting..."
-        bun run format:check
-        echo "✅ Repository formatting check passed!"
-    - name: Lint JavaScript and TypeScript with Oxlint
-      glob:
-        - "**/*.js"
-        - "**/*.jsx"
-        - "**/*.mjs"
-        - "**/*.cjs"
-        - "**/*.ts"
-        - "**/*.tsx"
-        - "**/*.mts"
-        - "**/*.cts"
-        - ".oxlintrc.json"
-        - "package.json"
-        - "bun.lock"
-        - "tsconfig.json"
-      run: |
-        set -e
-        echo "🔍 Running Oxlint..."
-        bun run lint:oxlint
-        echo "✅ Oxlint passed!"
-    - name: Lint Markdown
-      glob:
-        - "**/*.md"
-        - "**/*.mdx"
-        - "**/*.mdc"
-        - ".markdownlint-cli2.jsonc"
-      run: |
-        set -e
-        echo "🔍 Running markdownlint..."
-        bun run lint:md
-        echo "✅ Markdown lint passed!"
-    - name: Lint OpenAPI specification
-      glob:
-        - "openapi/**"
-        - "schemas/**"
-        - "redocly.yaml"
-        - "package.json"
-        - "bun.lock"
-      run: |
-        set -e
-        echo "🔍 Running Redocly lint..."
-        bun run lint:openapi
-        echo "✅ OpenAPI lint passed!"
     - name: Validate Mintlify documentation site
       glob:
         - "site/**"
