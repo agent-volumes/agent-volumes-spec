@@ -72,7 +72,7 @@ pre-commit:
         echo "📦 Re-staging fixed files..."
         git add {staged_files}
         echo "✅ Pre-commit checks completed!"
-    - name: Regenerate site publication artifacts
+    - name: Block normal release archive edits
       glob:
         - "agent-volumes-spec.md"
         - "openapi/**"
@@ -81,15 +81,41 @@ pre-commit:
         - "scripts/build-site-schemas.ts"
         - "package.json"
         - "bun.lock"
+        - "site/spec/**"
       run: |
         set -e
-        echo "📚 Rebuilding Mintlify OpenAPI publication artifact..."
-        bun run build:site:openapi
-        echo "📚 Rebuilding Mintlify schema publication artifacts..."
-        bun run build:site:schemas
-        echo "📦 Re-staging generated publication artifacts..."
-        git add site/spec
-        echo "✅ Publication artifacts regenerated!"
+        if [ "${RELEASE_ARCHIVE_UPDATE:-}" = "1" ]; then
+          echo "📚 Rebuilding Mintlify OpenAPI publication artifact..."
+          bun run build:site:openapi
+          echo "📚 Rebuilding Mintlify schema publication artifacts..."
+          bun run build:site:schemas
+          echo "📦 Re-staging generated publication artifacts..."
+          git add site/spec
+          echo "✅ Release archive update completed with RELEASE_ARCHIVE_UPDATE=1."
+          exit 0
+        fi
+
+        archive_changed=false
+        for f in {staged_files}; do
+          case "$f" in
+            site/spec/*) archive_changed=true ;;
+          esac
+        done
+
+        if [ "$archive_changed" != "true" ]; then
+          exit 0
+        fi
+
+        echo "❌ Release publication archives are immutable during normal development."
+        echo "   Use .github/workflows/release-publication-artifacts.yml or scripts/create-release-tag.sh during release freeze."
+        echo "   If this is an intentional release-prep commit, rerun with RELEASE_ARCHIVE_UPDATE=1."
+        echo "   Staged archive paths:"
+        for f in {staged_files}; do
+          case "$f" in
+            site/spec/*) echo "   - $f" ;;
+          esac
+        done
+        exit 1
     - name: Check repository formatting
       glob:
         - "**/*.md"
