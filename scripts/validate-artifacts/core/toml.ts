@@ -9,6 +9,8 @@ import {
 } from "./numeric-constants.ts";
 import type { JsonObject, JsonValue } from "./types.ts";
 
+const PROTOTYPE_POLLUTING_TOML_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 function stripTomlComment(line: JsonValue): JsonValue {
   let inString = false;
   let escaped = false;
@@ -90,9 +92,19 @@ function splitTomlArray(content: JsonValue): JsonValue[] {
 function parseTomlKey(key: string): string {
   const trimmed = key.trim();
   if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
-    return JSON.parse(trimmed);
+    const parsed: unknown = JSON.parse(trimmed);
+    assert(typeof parsed === "string", `unsupported TOML key in fixture: ${trimmed}`);
+    assert(
+      !PROTOTYPE_POLLUTING_TOML_KEYS.has(parsed),
+      `unsupported prototype-polluting TOML key in fixture: ${parsed}`,
+    );
+    return parsed;
   }
   assert(/^[A-Za-z0-9_-]+$/.test(trimmed), `unsupported TOML key in fixture: ${trimmed}`);
+  assert(
+    !PROTOTYPE_POLLUTING_TOML_KEYS.has(trimmed),
+    `unsupported prototype-polluting TOML key in fixture: ${trimmed}`,
+  );
   return trimmed;
 }
 
