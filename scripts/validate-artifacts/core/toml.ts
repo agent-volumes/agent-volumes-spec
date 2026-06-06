@@ -169,11 +169,9 @@ function resolveTomlParentPath(
   let parent = rootObject;
   for (const part of pathParts.slice(EMPTY_COUNT, LAST_ITEM_OFFSET)) {
     parent[part] ??= {};
-    assert(
-      !Array.isArray(parent[part]),
-      `unsupported nested TOML path below array table: ${header}`,
-    );
-    parent = parent[part];
+    const nextParent = parent[part];
+    assert(!Array.isArray(nextParent), `unsupported nested TOML path below array table: ${header}`);
+    parent = nextParent;
   }
   return parent;
 }
