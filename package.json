@@ -29,7 +29,7 @@
     "validate:artifacts": "bun scripts/validate-artifacts.ts"
   },
   "devDependencies": {
-    "@colbymchenry/codegraph": "^0.9.9",
+    "@colbymchenry/codegraph": "^1.0.1",
     "@redocly/cli": "^2.34.0",
     "@tsconfig/bun": "^1.0.10",
     "@types/bun": "^1.3.14",
