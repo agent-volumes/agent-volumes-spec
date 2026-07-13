@@ -7,7 +7,7 @@
     "lint": "mint validate && mint broken-links"
   },
   "devDependencies": {
-    "mint": "^4.2.647"
+    "mint": "^4.2.687"
   },
   "overrides": {
     "form-data": "^4.0.6",
